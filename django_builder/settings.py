@@ -10,12 +10,13 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from os.path import dirname, abspath, normpath, join
 from configurations import Configuration
 
 
 class Base(Configuration):
 
-    PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
+    PROJECT_DIR = abspath(dirname(__file__))
 
     DEBUG = True
 
@@ -37,7 +38,7 @@ class Base(Configuration):
     # Absolute filesystem path to the directory that will
     # hold user-uploaded files.
     # Example: "/var/www/example.com/media/"
-    MEDIA_ROOT = ''
+    MEDIA_ROOT = join(PROJECT_DIR, '..', 'media')
 
     # URL that handles the media served from MEDIA_ROOT. Make sure to use a
     # trailing slash.
@@ -48,7 +49,7 @@ class Base(Configuration):
     # Don't put anything in this directory yourself; store your static files
     # in apps' "static/" subdirectories and in STATICFILES_DIRS.
     # Example: "/var/www/example.com/static/"
-    STATIC_ROOT = ''
+    STATIC_ROOT = join(PROJECT_DIR, '..', 'static')
 
     # URL prefix for static files.
     # Example: "http://example.com/static/", "http://static.example.com/"
@@ -175,6 +176,7 @@ class Base(Configuration):
     # the site admins on every HTTP 500 error when DEBUG=False.
     # See http://docs.djangoproject.com/en/dev/topics/logging for
     # more details on how to customize your logging configuration.
+    '''
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -198,6 +200,7 @@ class Base(Configuration):
             },
         }
     }
+    '''
 
 
 class Dev(Base):
