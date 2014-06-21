@@ -240,4 +240,4 @@ class Dev(Base):
 
 class Prod(Base):
     DEBUG = False
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['builder.mmcardle.webfactional.com']
