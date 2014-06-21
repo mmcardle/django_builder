@@ -42,7 +42,7 @@ class Base(Configuration):
     # URL that handles the media served from MEDIA_ROOT. Make sure to use a
     # trailing slash.
     # Examples: "http://example.com/media/", "http://media.example.com/"
-    MEDIA_URL = '/media/'
+    MEDIA_URL = '/site_media/media/'
 
     # Absolute path to the directory static files should be collected to.
     # Don't put anything in this directory yourself; store your static files
@@ -52,7 +52,7 @@ class Base(Configuration):
 
     # URL prefix for static files.
     # Example: "http://example.com/static/", "http://static.example.com/"
-    STATIC_URL = '/static/'
+    STATIC_URL = '/site_media/static/'
 
     # Additional locations of static files
     STATICFILES_DIRS = (
