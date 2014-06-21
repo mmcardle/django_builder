@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Profile</h2>
+            <table class="table">
+                <tbody>
+                <tr>
+                    <th>Username</th>
+                    <td>{{ request.user.username }}</td>
+                </tr>
+                <tr>
+                    <th>Joined</th>
+                    <td>{{ request.user.date_joined }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--/span-->
+    </div><!--/row-->
+{% endblock %}

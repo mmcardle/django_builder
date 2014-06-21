@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Created</th>
+        <th>Modified</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    {% for object in object_list %}
+    <tr>
+        <td><a href="{{object.get_absolute_url}}">{{ object }}</a></td>
+        <td>{{ object.created}}</td><td>{{ object.last_updated}}</td>
+        <td><a href="{{object.get_update_url}}">Edit</a></td>
+    </tr>
+    {% endfor %}
+</table>
+<a class="btn btn-default"
+   href="{% url 'builder_amodel_create' %}">Create AModel</a>
+{% endblock content %}

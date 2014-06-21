@@ -1,0 +1,24 @@
+* body {
+    font-family: "Arial", "Helvetica", sans-serif;
+    font-size: 12px;
+}
+.builder_code {
+    background-color: #efefef;
+    font-size: 8px;
+}
+.builder_code_pre {
+    background-color: transparent;
+    border: none;
+    font-size: 10px;
+    margin: 0;
+    padding-top: 0;
+}
+.builder_code_pre:first-child {
+    padding-top: 10px;
+}
+.builder_code_pre:last-child {
+    padding-bottom: 10px;
+}
+.builder_a {
+    cursor: pointer;
+}

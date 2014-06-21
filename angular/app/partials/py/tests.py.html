@@ -1,0 +1,40 @@
+<pre class="builder_code_pre">
+import unittest
+from django.core.urlresolvers import reverse
+from django.test import Client
+{{import_models()}}</pre><pre ng-repeat="model in models" class="builder_code_pre">
+class {{ model.name }}ViewTest(unittest.TestCase):
+    """
+    Tests for model {{ model.name }}
+    """
+    def setUp(self):
+        self.client = Client()
+
+    def test_list_{{model.name|lowercase}}(self):
+        url = reverse('{{ app_name() }}_{{ model.name |lowercase }}_list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_{{model|lowercase}}(self):
+        data = {'name': 'name'}
+        url = reverse('{{ app_name() }}_{{ model.name |lowercase }}_create')
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+    def test_detail_{{model.name|lowercase}}(self):
+        {{model.name|lowercase}} = {{model}}()
+        {{model.name|lowercase}}.save()
+        url = reverse('{{ app_name() }}_{{ model.name |lowercase }}_detail',
+                      args=[{{model|lowercase}}.slug,])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_{{model|lowercase}}(self):
+        {{model.name|lowercase}} = {{model}}()
+        {{model.name|lowercase}}.save()
+        data = {'name': 'new_name'}
+        url = reverse('{{ app_name() }}_{{ model.name |lowercase }}_update',
+                      args=[{{model|lowercase}}.slug,])
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+</pre>
