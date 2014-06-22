@@ -10,8 +10,8 @@ angular.module('myApp', [
     'LocalStorageModule'
 ]).config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     $locationProvider.html5Mode(true);
-    $routeProvider.when('/models', {templateUrl: '/static/partials/models.html', controller: 'ModelController'});
-    $routeProvider.when('/', {templateUrl: '/static/partials/models.html', controller: 'ModelController'});
+    $routeProvider.when('/models', {templateUrl: '/site_media/static/partials/models.html', controller: 'ModelController'});
+    $routeProvider.when('/', {templateUrl: '/site_media/static/partials/models.html', controller: 'ModelController'});
     $routeProvider.otherwise({redirectTo: '/models'});
 
 }]);
