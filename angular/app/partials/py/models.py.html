@@ -4,10 +4,8 @@ from django.core.urlresolvers import reverse
 from django_extensions.db.fields import AutoSlugField</pre><pre ng-repeat="model in models" class="builder_code_pre">
 
 class {{model.name}}(models.Model):
-    name = models.CharField(max_length=255)
-    slug = AutoSlugField(
-        populate_from='name', blank=True, editable=True
-    )
+<span ng-repeat="field in model.fields" class="builder_code_pre">
+    {{ field.name }} = models.{{ field.type }}({{ field.opts }})</span>
 
     created = models.DateTimeField(auto_now_add=True, editable=False)
     last_updated = models.DateTimeField(auto_now=True, editable=False)

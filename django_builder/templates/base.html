@@ -15,16 +15,14 @@
     <title>Django Builder</title>
 
     {% compress css %}
-    <link href="{% static 'bower_components/html5-boilerplate/css/normalize.css' %}" rel="stylesheet" >
-    <link href="{% static 'bower_components/html5-boilerplate/css/main.css' %}" rel="stylesheet" >
-    <link href="{% static 'css/app.css' %}" rel="stylesheet" >
-    <link href="{% static 'bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js' %}" rel="stylesheet" >
-    {% block pre_style %}{% endblock %}
-    <!-- Bootstrap core CSS -->
-    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'font-awesome-4.1/css/font-awesome.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/builder.css' %}"  rel="stylesheet" >
-    {% block post_style %}{% endblock %}
+        <link href="{% static 'bower_components/html5-boilerplate/css/normalize.css' %}" rel="stylesheet" >
+        <link href="{% static 'bower_components/html5-boilerplate/css/main.css' %}" rel="stylesheet" >
+        {% block pre_style %}{% endblock %}
+        <!-- Bootstrap core CSS -->
+        <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'font-awesome-4.1/css/font-awesome.min.css' %}" rel="stylesheet">
+        <link href="{% static 'css/app.css' %}" rel="stylesheet" >
+        {% block post_style %}{% endblock %}
     {% endcompress %}
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -81,6 +79,7 @@
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js"></script>
   -->
 {% compress js %}
+    <script src="{% static 'bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js' %}"></script>
     <script src="{% static 'bower_components/angular/angular.min.js' %}"></script>
     <script src="{% static 'bower_components/angular-route/angular-route.min.js' %}"></script>
     <script src="{% static 'bower_components/angular-local-storage/angular-local-storage.min.js' %}"></script>

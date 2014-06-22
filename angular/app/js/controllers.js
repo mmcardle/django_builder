@@ -3,8 +3,8 @@
 /* Controllers */
 
 angular.module('myApp.controllers', ['LocalStorageModule'])
-    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'localStorageService', 'MessageService',
-        function ($scope, $http, $model_factory, localStorageService, messageService) {
+    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'FieldFactory', 'localStorageService', 'MessageService',
+        function ($scope, $http, model_factory, field_factory, localStorageService, messageService) {
 
             $scope.messageService = new messageService();
 
@@ -31,10 +31,14 @@ angular.module('myApp.controllers', ['LocalStorageModule'])
                 return $scope._app_name;
             };
 
-            $scope.saveModel = function(model_name){
-                var loaded_models = $scope.loadModels();
-                loaded_models.push(model_name);
-                localStorageService.set($scope.models_storage_key, JSON.stringify(loaded_models));
+            $scope.updateModel = function(model){
+                var ind = $scope.models.indexOf(model);
+                $scope.models[ind] = model;
+                localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
+            };
+
+            $scope.saveModels = function(){
+                localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
             };
 
             $scope.clearModels = function () {
@@ -55,9 +59,21 @@ angular.module('myApp.controllers', ['LocalStorageModule'])
                     $scope.messageService.simple_info('Input Required', "No model name entered").modal('show');
                 } else {
                     var model_opts = {"name": model_name};
-                    var model = $model_factory(model_opts);
+                    model_opts.fields = [
+                        field_factory({
+                            'name': 'name',
+                            'type': 'CharField',
+                            'opts': 'max_length=255'
+                        }),
+                        field_factory({
+                            'name': 'slug',
+                            'type': 'AutoSlugField',
+                            'opts': 'populate_from=\'name\', blank=True, editable=True'
+                        })
+                    ];
+                    var model = model_factory(model_opts);
                     $scope.models.push(model);
-                    $scope.saveModel(model_opts);
+                    $scope.saveModels();
                     input.val('');
                 }
             };
@@ -72,7 +88,7 @@ angular.module('myApp.controllers', ['LocalStorageModule'])
             };
 
             $scope.loadModel = function(model_opts){
-                var model = $model_factory(model_opts);
+                var model = model_factory(model_opts);
                 $scope.models.push(model);
             };
 
@@ -84,13 +100,69 @@ angular.module('myApp.controllers', ['LocalStorageModule'])
 
             $scope.__init__();
 
+            $scope.debug = function(){
+                console.log(JSON.stringify($scope.models))
+            };
+
+            $scope.add_field = function (index) {
+                var on_input= function(output_form){
+                    var name = output_form.find('input[name=name]').val();
+                    var type = output_form.find('select[name=type]').val();
+                    var opts = output_form.find('input[name=opts]').val();
+                    var field = field_factory({
+                        'name': name,
+                        'type': type,
+                        'opts': opts
+                    });
+                    var model = $scope.models[index];
+                    model.fields.push(field);
+                    $scope.updateModel(model);
+                    $scope.$apply();
+
+                };
+                // TODO make form factory
+                var form = $('<form>');
+                form.append($('<input>').attr('name', 'name').attr('placeholder', 'name').addClass('form-control'));
+
+                var select = $('<select>').attr('name', 'type').addClass('form-control');
+                select.append($('<option>').attr('val', 'CharField').text('CharField'));
+                select.append($('<option>').attr('val', 'IntegerField').text('IntegerField'));
+                form.append(select);
+                form.append($('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
+                $scope.messageService.simple_form('Field', 'Add Field', form, on_input ).modal('show');
+            };
+            $scope.rename_field = function (model_index, field_index) {
+                console.log(model_index, field_index);
+                var on_confirm = function(input_val){
+                    $scope.models[model_index].fields[field_index].name = input_val;
+                    localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
+                    $scope.$apply();
+                };
+                $scope.messageService.simple_input('Rename',
+                        "Rename the field '" + $scope.models[model_index].fields[field_index].name+"'",
+                    on_confirm).modal('show');
+            };
+            $scope.remove_field = function (model_index, field_index) {
+                console.log(model_index, field_index);
+                var on_confirm = function(){
+                    $scope.models[model_index].fields.splice(field_index, 1);
+                    localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
+                    $scope.$apply();
+                };
+                $scope.messageService.simple_confirm('Confirm',
+                        "Remove the field '" + $scope.models[model_index].fields[field_index].name+"'",
+                    on_confirm).modal('show');
+            };
+
             $scope.remove_model = function (index) {
                 var on_confirm = function(){
                     $scope.models.splice(index, 1);
                     localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
                     $scope.$apply();
                 };
-                $scope.messageService.simple_confirm('Confirm', "Remove " + $scope.models[index].name, on_confirm).modal('show');
+                $scope.messageService.simple_confirm('Confirm',
+                        "Remove the model '" + $scope.models[index].name +"'",
+                    on_confirm).modal('show');
             };
 
             var format_array = function (arr, s) {

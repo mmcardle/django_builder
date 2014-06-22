@@ -72,12 +72,58 @@ function MessageServiceFactory() {
             simple_confirm.modal();
             return simple_confirm;
         };
+        _this.simple_form = function (title, message, form, callback) {
+            var simple_confirm = _this.base_modal();
+            simple_confirm.find(".modal-header-inner").html(title);
+            simple_confirm.find(".modal-body").empty().append(message).append(form);
+            var confirm_button = $('<button>').addClass('btn btn-primary').text('Ok');
+            var cancel_button = $('<button>').addClass('btn btn-default').text('Cancel');
+            simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
+            confirm_button.click(function () {
+                if (callback != undefined) {
+                    callback(form);
+                }
+            });
+            cancel_button.attr("data-dismiss", "modal");
+            confirm_button.attr("data-dismiss", "modal");
+            simple_confirm.modal();
+            return simple_confirm;
+        };
+        _this.simple_input = function (title, message, callback) {
+            var simple_confirm = _this.base_modal();
+            simple_confirm.find(".modal-header-inner").html(title);
+            var input = $('<input>').attr('type', 'text').addClass('form-control');
+            simple_confirm.find(".modal-body").empty().append(message).append(input);
+            var confirm_button = $('<button>').addClass('btn btn-primary').text('Ok');
+            var cancel_button = $('<button>').addClass('btn btn-default').text('Cancel');
+            simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
+            confirm_button.click(function () {
+                if (callback != undefined) {
+                    callback(input.val());
+                }
+            });
+            cancel_button.attr("data-dismiss", "modal");
+            confirm_button.attr("data-dismiss", "modal");
+            simple_confirm.modal();
+            return simple_confirm;
+        };
+    };
+}
+function FieldServiceFactory() {
+    return function (options) {
+        function Field(options) {
+            this.name = options['name'];
+            this.type = options['type'];
+            this.opts = options['opts'];
+        }
+        return new Field(options);
     };
 }
 function ModelServiceFactory() {
     return function (options) {
         function Model(options) {
             this.name = options['name'];
+            this.fields = options['fields'] || [];
             this.getInfo = function () {
                 return this.name;
             };
@@ -90,7 +136,6 @@ function ModelServiceFactory() {
                     '{% endblock content %}\n';
             }
         }
-
         return new Model(options);
     };
 }
@@ -98,4 +143,5 @@ function ModelServiceFactory() {
 angular.module('myApp.services', [])
     .factory('ModelFactory', [ModelServiceFactory])
     .factory('MessageService', [MessageServiceFactory])
+    .factory('FieldFactory', [FieldServiceFactory])
     .value('version', '0.1');

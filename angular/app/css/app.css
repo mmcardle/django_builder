@@ -1,6 +1,25 @@
-* body {
-    font-family: "Arial", "Helvetica", sans-serif;
-    font-size: 12px;
+.modal-header, .modal-body, .modal-footer {
+    padding: 15px 15px;
+}
+.modal-body {
+    padding: 15px 35px;
+    font-family: "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace;
+}
+.modal-header{
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    padding: 3px 10px;
+    background-color:#428bca;
+    color:white;
+}
+.modal-footer{
+    padding: 10px;
+}
+a:link {
+    text-decoration: none;
+}
+.builder_icon {
+    color: #0040D0;
 }
 .builder_code {
     background-color: #efefef;
@@ -21,4 +40,22 @@
 }
 .builder_a {
     cursor: pointer;
+}
+.builder_a:link {
+    text-decoration: none;
+}
+.builder_model_remove i {
+}
+.builder_model_table {
+    margin-bottom: 4px;
+}
+.builder_model {
+    border-radius: 4px;
+    padding: 4px 8px 10px;
+    border: 1px solid silver;
+    -webkit-box-shadow: 3px 3px 12px 0px rgba(50, 50, 50, 0.45);
+    -moz-box-shadow:    3px 3px 12px 0px rgba(50, 50, 50, 0.45);
+    box-shadow:         3px 3px 12px 0px rgba(50, 50, 50, 0.45);
+}
+.builder_model_add_field {
 }

@@ -15,26 +15,26 @@ class {{ model.name }}ViewTest(unittest.TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def test_create_{{model|lowercase}}(self):
+    def test_create_{{model.name|lowercase}}(self):
         data = {'name': 'name'}
         url = reverse('{{ app_name() }}_{{ model.name |lowercase }}_create')
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 302)
 
     def test_detail_{{model.name|lowercase}}(self):
-        {{model.name|lowercase}} = {{model}}()
+        {{model.name|lowercase}} = {{model.name}}()
         {{model.name|lowercase}}.save()
         url = reverse('{{ app_name() }}_{{ model.name |lowercase }}_detail',
-                      args=[{{model|lowercase}}.slug,])
+                      args=[{{model.name|lowercase}}.slug,])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def test_update_{{model|lowercase}}(self):
-        {{model.name|lowercase}} = {{model}}()
+    def test_update_{{model.name|lowercase}}(self):
+        {{model.name|lowercase}} = {{model.name}}()
         {{model.name|lowercase}}.save()
         data = {'name': 'new_name'}
         url = reverse('{{ app_name() }}_{{ model.name |lowercase }}_update',
-                      args=[{{model|lowercase}}.slug,])
+                      args=[{{model.name|lowercase}}.slug,])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 </pre>
