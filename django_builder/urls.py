@@ -19,8 +19,8 @@ urlpatterns = patterns(
     url(r'^builder_app/*', RedirectView.as_view(url='/builder_app/'), name='bapp'),
 
     # Auth
-    url(r"^accounts/", include("django.contrib.auth.urls")),
-    url(r'^accounts/profile/$', TemplateView.as_view(template_name="accounts/profile.html"), name='profile'),
+    #url(r"^accounts/", include("django.contrib.auth.urls")),
+    #url(r'^accounts/profile/$', TemplateView.as_view(template_name="accounts/profile.html"), name='profile'),
 )
 
 if settings.DEBUG:
