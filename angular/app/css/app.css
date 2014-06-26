@@ -56,6 +56,11 @@ a:link {
     -webkit-box-shadow: 3px 3px 12px 0px rgba(50, 50, 50, 0.45);
     -moz-box-shadow:    3px 3px 12px 0px rgba(50, 50, 50, 0.45);
     box-shadow:         3px 3px 12px 0px rgba(50, 50, 50, 0.45);
+    margin-bottom: 15px;
 }
 .builder_model_add_field {
+}
+
+.col0 {
+    clear: both;
 }

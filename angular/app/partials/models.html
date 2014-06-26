@@ -21,24 +21,22 @@
 </div>
 <hr>
 <div class="row">
-
-</div>
-<div class="row">
-    <div class="col-md-3 col-xs-6" ng-repeat="model in models">
+    <div class="col-md-3 col-xs-6 col{{ $index%4 }}" ng-repeat="model in models">
         <div class="builder_model">
-            <table class="table table-condensed builder_model_table">
+            <table class="table table-condensed table-hover builder_model_table">
                 <thead>
                 <tr>
                     <th class="hidden-xs" colspan="2">{{model.name}}</th>
                     <th class="visible-xs">{{model.name}}</th>
                     <th><a class="builder_a builder_model_remove" ng-click="remove_model($index)"><i class="fa fa-times pull-right" ></i></a></th>
                 </tr>
+                <tbody>
                 <tr ng-repeat="field in model.fields">
                     <td><a href='#' ng-click="rename_field($parent.$index, $index)">{{ field.name }}</a></td>
                     <td class="hidden-xs">{{ field.type }}</td>
                     <td><a href='#'><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right" ></i></a></td>
                 </tr>
-                </thead>
+                </tbody>
             </table>
             <a href="#" class="builder_a builder_model_add_field btn btn-sm btn-primary pull-right" ng-click="add_field($index)">Add Field <i class="fa fa-plus"></i></a>
             <div class="clearfix"></div>
