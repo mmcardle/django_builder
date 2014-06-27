@@ -3,10 +3,12 @@ from django import forms
 {{import_models()}}
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
-</pre><pre ng-repeat="model in models" class="builder_code_pre">class {{ model.name }}Form(forms.ModelForm):
+
+</pre><pre ng-repeat="model in models" class="builder_code_pre">
+class {{ model.name }}Form(forms.ModelForm):
     class Meta:
         model = {{ model.name }}
-        fields = ['name',]
+        fields = {{ model.form_fields() }}
 
     @property
     def helper(self):
@@ -15,4 +17,6 @@ from crispy_forms.layout import Submit
         helper.form_class = '{{model.name}}-form'
         helper.add_input(Submit('save', 'Save'))
         return helper
-)</pre>
+)
+
+</pre>

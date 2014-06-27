@@ -3,6 +3,7 @@ from django.contrib import admin
 from django import forms
 {{import_models()}}
 {{import_forms()}}</pre><pre ng-repeat="model in models" class="builder_code_pre">
+
 class {{ model.name }}AdminForm(forms.ModelForm):
 
     class Meta:
@@ -11,8 +12,8 @@ class {{ model.name }}AdminForm(forms.ModelForm):
 
 class {{ model.name }}Admin(admin.ModelAdmin):
     form = {{ model.name }}AdminForm
-    list_display = ['slug', 'created', 'last_updated']
-    readonly_fields = ['slug', 'created', 'last_updated']
+    list_display = {{ model.admin_fields() }}
+    readonly_fields = {{ model.admin_read_only_fields() }}
 
 admin.site.register({{ model.name }}, {{ model.name }}Admin)
 </pre>

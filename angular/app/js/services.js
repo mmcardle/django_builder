@@ -44,6 +44,17 @@ function MessageServiceFactory() {
         _this.icon = function (icon_name) {
             return $('<icon>').addClass('fa').addClass(icon_name);
         };
+        _this.simple_error = function (title, message) {
+            var simple_info = _this.base_modal();
+            var i = _this.icon('fa-info').addClass('pull-right');
+            simple_info.find(".modal-header-inner").append(i).append($('<span>').text(title));
+            simple_info.find(".modal-body").empty().append(message);
+            var ok_button = $('<button>').addClass('btn btn-default').text('Ok');
+            simple_info.find(".modal-footer").append(ok_button);
+            ok_button.attr("data-dismiss", "modal");
+            simple_info.modal();
+            return simple_info;
+        };
         _this.simple_info = function (title, message) {
             var simple_info = _this.base_modal();
             var i = _this.icon('fa-info').addClass('pull-right');
@@ -85,7 +96,6 @@ function MessageServiceFactory() {
                 }
             });
             cancel_button.attr("data-dismiss", "modal");
-            confirm_button.attr("data-dismiss", "modal");
             simple_confirm.modal();
             return simple_confirm;
         };
@@ -111,12 +121,35 @@ function MessageServiceFactory() {
 }
 function FieldServiceFactory() {
     return function (options) {
+        var _this = this;
+        _this.field_types = function () {
+            return [
+                'TextField',
+                'CharField',
+                'AutoSlugField',
+                'BooleanField',
+                'DateField',
+                'DateTimeField',
+                'DecimalField',
+                'FilePathField',
+                'FloatField',
+                'IntegerField',
+                'IPAddressField',
+                'GenericIPAddressField',
+                'NullBooleanField',
+                'TimeField',
+                'BinaryField',
+                'AutoField'
+            ];
+        };
         function Field(options) {
             this.name = options['name'];
             this.type = options['type'];
             this.opts = options['opts'];
         }
-        return new Field(options);
+        _this.make_field = function (options) {
+            return new Field(options);
+        }
     };
 }
 function ModelServiceFactory() {
@@ -124,16 +157,58 @@ function ModelServiceFactory() {
         function Model(options) {
             this.name = options['name'];
             this.fields = options['fields'] || [];
-            this.getInfo = function () {
-                return this.name;
+            this.field_names = function(){
+                var that = this;
+                return Object.keys(that.fields).map(function (k) {
+                    return that.fields[k].name
+                });
+            };
+            this.has_field = function (field_name) {
+                return this.field_names().indexOf(field_name) != -1;
+            };
+            this.name_field = function () {
+                // TODO - find another auto_add_now_field
+                if(this.field_names().indexOf('name')!=-1){
+                    return 'name';
+                }else{
+                    return 'id';
+                }
+            };
+            this.ordering_field = function () {
+                // TODO - find another auto_add_now_field
+                if(this.field_names().indexOf('created')!=-1){
+                    return 'created';
+                }else{
+                    return 'id';
+                }
+            };
+            this.identifier = function (field_name) {
+                // TODO - find another name AutoSlugField
+                if(this.field_names().indexOf('slug')!=-1){
+                    return 'slug';
+                }else{
+                    return 'id';
+                }
+            };
+            this.form_fields = function(){
+                return '[\''+this.field_names().join('\', \'')+'\']'
+            };
+            this.admin_fields = function(){
+                return '[\''+this.field_names().join('\', \'')+'\']'
+            };
+            this.admin_read_only_fields = function(){
+                return '[\''+this.field_names().join('\', \'')+'\']'
             };
             this.detail = function () {
-                return '{% extends "base.html" %}\n\n' +
+                var output = '{% extends "base.html" %}\n\n' +
                     '{% block content %}\n' +
-                    '<p>{{ object.name }} - {{ object.created}} - {{ object.last_updated}}</p>\n' +
-                    '<a href="{{object.get_update_url}}">Edit ' + this.name + '</a>\n' +
-                    '<hr/>\n' +
-                    '{% endblock content %}\n';
+                    '<table>';
+                $.each(this.fields, function(i, field){
+                    output += '<tr><td>'+field.name+'<\/td><td>{{ object.'+field.name+' }}<\/td><\/tr>\n';
+                });
+                output += '<\/table';
+                output += '\n<a href="{{object.get_update_url}}">Edit ' + this.name + '</a>\n\{% endblock content %}\n';
+                return output;
             }
         }
         return new Model(options);

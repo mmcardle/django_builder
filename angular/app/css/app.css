@@ -1,3 +1,6 @@
+h4 {
+    color: #ff4136;
+}
 .modal-header, .modal-body, .modal-footer {
     padding: 15px 15px;
 }
@@ -9,8 +12,12 @@
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     padding: 3px 10px;
-    background-color:#428bca;
+    background-color:#158cba;
     color:white;
+}
+.modal-header-inner{
+    font-weight: bold;
+    text-align: center;
 }
 .modal-footer{
     padding: 10px;
@@ -23,7 +30,7 @@ a:link {
 }
 .builder_code {
     background-color: #efefef;
-    font-size: 8px;
+    font-size: 10px;
 }
 .builder_code_pre {
     background-color: transparent;

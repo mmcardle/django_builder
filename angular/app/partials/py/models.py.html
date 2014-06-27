@@ -7,18 +7,15 @@ class {{model.name}}(models.Model):
 <span ng-repeat="field in model.fields" class="builder_code_pre">
     {{ field.name }} = models.{{ field.type }}({{ field.opts }})</span>
 
-    created = models.DateTimeField(auto_now_add=True, editable=False)
-    last_updated = models.DateTimeField(auto_now=True, editable=False)
-
     class Meta:
-        ordering = ('-created', )
+        ordering = ('-{{ model.ordering_field()}}', )
 
     def __unicode__(self):
-        return self.slug
+        return u'%s' % self.{{ model.name_field()}}
 
     def get_absolute_url(self):
-        return reverse('{{ app_name }}_{{ model.name }}_detail', args=(self.slug, ))
+        return reverse('{{ app_name()| lowercase }}_{{ model.name| lowercase }}_detail', args=(self.{{ model.identifier()}}, ))
 
     def get_update_url(self):
-        return reverse('{{ app_name }}_{{ model.name }}_update', args=(self.slug, ))
+        return reverse('{{ app_name()| lowercase }}_{{ model.name| lowercase }}_update', args=(self.{{ model.identifier()}}, ))
 </pre>
