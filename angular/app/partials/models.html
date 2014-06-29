@@ -8,39 +8,64 @@
             <div class="form-group">
                 <label class="sr-only" for="builder_model_name">Email
                     address</label>
-                <input tabindex="1" type="email" class="form-control" id="builder_model_name" placeholder="Enter model name">
+                <input tabindex="1" type="email" class="form-control"
+                       id="builder_model_name" placeholder="Enter model name">
             </div>
         </div>
         <div class="col-sm-6">
-            <button tabindex="3" ng-click="clearModels()" class="btn btn-danger pull-right hidden-xs">Clear all <i class="fa fa-times"></i></button>
-            <button tabindex="3" ng-click="tarBall()" class="btn btn-info pull-right hidden-xs" style="margin-right: 4px" >Download As Tarball <i class="fa fa-download"></i></button>
-            <button tabindex="3" ng-click="clearModels()" class="btn btn-danger pull-right visible-xs"> <i class="fa fa-times"></i></button>
-            <button tabindex="3" ng-click="tarBall()" class="btn btn-info pull-right visible-xs" style="margin-right: 4px" > <i class="fa fa-download"></i></button>
-            <button tabindex="2" ng-click="addModel()" class="btn btn-primary hidden-xs">Add Model <i class="fa fa-plus"></i></button>
-            <button tabindex="2" ng-click="addModel()" class="btn btn-primary visible-xs"><i class="fa fa-plus"></i></button>
+            <button tabindex="3" ng-click="clearModels()"
+                    class="btn btn-danger pull-right hidden-xs">Clear all <i
+                    class="fa fa-times"></i></button>
+            <button tabindex="3" ng-click="tarBall()"
+                    class="btn btn-info pull-right hidden-xs"
+                    style="margin-right: 4px">Download As Tarball <i
+                    class="fa fa-download"></i></button>
+            <button tabindex="3" ng-click="clearModels()"
+                    class="btn btn-danger pull-right visible-xs"><i
+                    class="fa fa-times"></i></button>
+            <button tabindex="3" ng-click="tarBall()"
+                    class="btn btn-info pull-right visible-xs"
+                    style="margin-right: 4px"><i class="fa fa-download"></i>
+            </button>
+            <button tabindex="2" ng-click="addModel()"
+                    class="btn btn-primary hidden-xs">Add Model <i
+                    class="fa fa-plus"></i></button>
+            <button tabindex="2" ng-click="addModel()"
+                    class="btn btn-primary visible-xs"><i
+                    class="fa fa-plus"></i></button>
         </div>
     </div>
 </div>
 <hr>
 <div class="row">
-    <div class="col-md-3 col-xs-6 col{{ $index%4 }}" ng-repeat="model in models">
+    <div class="col-md-3 col-xs-6 col{{ $index%4 }}"
+         ng-repeat="model in models">
         <div class="builder_model">
             <table class="table table-condensed table-hover builder_model_table">
                 <thead>
                 <tr>
-                    <th class="hidden-xs" colspan="2">{{model.name}}</th>
-                    <th class="visible-xs">{{model.name}}</th>
-                    <th><a class="builder_a builder_model_remove" ng-click="remove_model($index)"><i class="fa fa-times pull-right" ></i></a></th>
+                    <th class="hidden-xs" colspan="2">{{ model.name }}</th>
+                    <th class="visible-xs">{{ model.name }}</th>
+                    <th><a class="builder_a builder_model_remove"
+                           ng-click="remove_model($index)"><i
+                            class="fa fa-times pull-right"></i></a></th>
                 </tr>
                 <tbody>
                 <tr ng-repeat="field in model.fields">
-                    <td><a href='#' ng-click="rename_field($parent.$index, $index)">{{ field.name }}</a></td>
+                    <td><a href='#'
+                           ng-click="rename_field($parent.$index, $index)">{{ field.name }}</a>
+                    </td>
                     <td class="hidden-xs">{{ field.type }}</td>
-                    <td><a href='#'><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right" ></i></a></td>
+                    <td><a href='#'><i
+                            ng-click="remove_field($parent.$index, $index)"
+                            class="fa fa-times pull-right"></i></a></td>
                 </tr>
                 </tbody>
             </table>
-            <a href="#" class="builder_a builder_model_add_field btn btn-sm btn-primary pull-right" ng-click="add_field($index)">Add Field <i class="fa fa-plus"></i></a>
+            <a href="#"
+               class="builder_a builder_model_add_field btn btn-sm btn-primary pull-right"
+               ng-click="add_field($index)">Add Field <i class="fa fa-plus"></i></a>
+
             <div class="clearfix"></div>
         </div>
     </div>
@@ -50,58 +75,99 @@
     <div class="col-md-6">
         <h4>models.py</h4>
 
-        <div class="builder_code">
-            <div ng-include src="'/site_media/static/partials/py/models.py.html'"></div>
+        <div id="builder_models" ui-ace="{
+          useWrapMode : true,
+          showGutter: false,
+          theme:'dawn',
+          mode: 'python',
+          onLoad: aceLoaded,
+          onChange: aceChanged
+        }">
+
         </div>
+
     </div>
     <div class="col-md-6">
         <h4>views.py</h4>
 
-        <div class="builder_code">
-            <div ng-include src="'/site_media/static/partials/py/views.py.html'"></div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-8">
-        <h4>admin.py</h4>
+        <div id="builder_views" ui-ace="{
+              useWrapMode : true,
+              showGutter: false,
+              theme:'dawn',
+              mode: 'python',
+              onLoad: aceLoaded,
+              onChange: aceChanged
+            }">
 
-        <div class="builder_code">
-            <div ng-include src="'/site_media/static/partials/py/admin.py.html'"></div>
         </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-md-8">
-        <h4>urls.py</h4>
 
-        <div class="builder_code">
-            <div ng-include src="'/site_media/static/partials/py/urls.py.html'"></div>
-        </div>
-    </div>
 </div>
 <div class="row">
     <div class="col-md-6">
-        <h4>tests.py</h4>
+        <h4>admin.py</h4>
 
-        <div class="builder_code">
-            <div ng-include src="'/site_media/static/partials/py/tests.py.html'"></div>
+        <div id="builder_admin" ui-ace="{
+              useWrapMode : true,
+              showGutter: false,
+              theme:'dawn',
+              mode: 'python',
+              onLoad: aceLoaded,
+              onChange: aceChanged
+            }">
+
         </div>
     </div>
     <div class="col-md-6">
         <h4>forms.py</h4>
 
-        <div class="builder_code">
-            <div ng-include src="'/site_media/static/partials/py/forms.py.html'"></div>
+        <div id="builder_forms" ui-ace="{
+              useWrapMode : true,
+              showGutter: false,
+              theme:'dawn',
+              mode: 'python',
+              onLoad: aceLoaded,
+              onChange: aceChanged
+            }">
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h4>urls.py</h4>
+
+        <div id="builder_urls" ui-ace="{
+              useWrapMode : true,
+              showGutter: false,
+              theme:'dawn',
+              mode: 'python',
+              onLoad: aceLoaded,
+              onChange: aceChanged
+            }">
+
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <h4>New tests.py</h4>
+
+        <div id="builder_tests" ui-ace="{
+              useWrapMode : true,
+              showGutter: false,
+              theme:'dawn',
+              mode: 'python',
+              onLoad: aceLoaded,
+              onChange: aceChanged
+            }">
+
         </div>
     </div>
 </div>
 <h3>Templates</h3>
 <div class="row">
-    <div ng-include src="'/site_media/static/partials/templates/detail.html'"></div>
+    <div ng-include
+         src="'/site_media/static/partials/templates/detail.html'"></div>
 </div>
-
-
-
-
-

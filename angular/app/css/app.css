@@ -71,3 +71,7 @@ a:link {
 .col0 {
     clear: both;
 }
+
+.ace_editor {
+    height: 740px;
+}

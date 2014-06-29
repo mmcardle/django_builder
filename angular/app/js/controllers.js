@@ -2,19 +2,67 @@
 
 /* Controllers */
 
-angular.module('myApp.controllers', ['LocalStorageModule'])
-    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'FieldFactory', 'localStorageService', 'MessageService',
-        function ($scope, $http, model_factory, field_factory, localStorageService, messageService) {
+angular.module('builder.controllers', ['LocalStorageModule'])
+    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'FieldFactory', 'localStorageService', 'MessageService', 'RenderFactory',
+        function ($scope, $http, model_factory, field_factory, localStorageService, messageService, renderFactory) {
 
+            $scope.models = [];
             $scope.messageService = new messageService();
             $scope.field_factory = new field_factory();
+            $scope.render_factory = new renderFactory();
+            $scope.editors = [];
+            $scope.models_storage_key = 'local_models';
+            $scope._app_name = 'bestapp';
+            $scope.storageType = 'Local storage';
+
+            $scope.aceLoad = function(_editor) {
+                var _id = $(_editor.container).attr("id");
+                if(_id=="builder_models") {
+                    _editor.setValue($scope.render_factory.render_models_py($scope.app_name(), $scope.models));
+                }else if(_id=="builder_views"){
+                    _editor.setValue($scope.render_factory.render_views_py($scope.app_name(), $scope.models));
+                }else if(_id=="builder_admin"){
+                    _editor.setValue($scope.render_factory.render_admin_py($scope.app_name(), $scope.models));
+                }else if(_id=="builder_urls"){
+                    _editor.setValue($scope.render_factory.render_urls_py($scope.app_name(), $scope.models));
+                }else if(_id=="builder_tests"){
+                    _editor.setValue($scope.render_factory.render_tests_py($scope.app_name(), $scope.models));
+                }else if(_id=="builder_forms"){
+                    _editor.setValue($scope.render_factory.render_forms_py($scope.app_name(), $scope.models));
+                }
+                _editor.session.selection.clearSelection();
+            };
+
+            $scope.aceLoaded = function(_editor) {
+                // Options
+                _editor.setOptions({
+                    readOnly: true,
+                    highlightActiveLine: false,
+                    highlightGutterLine: false,
+                    maxLines: Infinity
+                });
+                _editor.renderer.$cursorLayer.element.style.opacity=0;
+                if(_editor!=undefined) {
+                    $scope.aceLoad(_editor);
+                }
+                $scope.editors.push(_editor);
+            };
+
+            $scope.$watch("models", function() {
+                $.each($scope.editors, function(i, editor){
+                    $scope.aceLoad(editor);
+                });
+            }, true);
+
+            $scope.aceChanged = function(e) {
+                // console.log('aceChanged');
+            };
 
             $scope.$watch('localStorageDemo', function (value) {
                 localStorageService.set('localStorageDemo', value);
                 $scope.localStorageDemoValue = localStorageService.get('localStorageDemo');
             });
 
-            $scope.storageType = 'Local storage';
 
             if (localStorageService.getStorageType().indexOf('session') >= 0) {
                 $scope.storageType = 'Session storage';
@@ -23,10 +71,6 @@ angular.module('myApp.controllers', ['LocalStorageModule'])
             if (!localStorageService.isSupported) {
                 $scope.storageType = 'Cookie';
             }
-
-            $scope.models = [];
-            $scope.models_storage_key = 'local_models';
-            $scope._app_name = 'MyApp';
 
             $scope.app_name = function () {
                 return $scope._app_name;
@@ -50,7 +94,6 @@ angular.module('myApp.controllers', ['LocalStorageModule'])
                     $scope.$apply();
                 };
                 $scope.messageService.simple_confirm('Confirm', "Remove all models?", on_confirm).modal('show');
-
             };
 
             $scope.addModel = function () {
@@ -89,11 +132,22 @@ angular.module('myApp.controllers', ['LocalStorageModule'])
                 }
             };
 
+            $scope.cleanModel = function(model){
+                delete model['$$hashKey'];
+                $.each(model.fields, function(i, field){
+                    delete field['$$hashKey'];
+                });
+            }
+
             $scope.loadModels = function(){
                 var loaded_models = localStorageService.get($scope.models_storage_key);
+                console.log(loaded_models);
                 if(loaded_models==undefined){
                     return [];
                 }else{
+                    $.each(loaded_models, function(i, model){
+                        $scope.cleanModel(model)
+                    });
                     return loaded_models;
                 }
             };

@@ -134,6 +134,7 @@ class Base(Configuration):
         'django.core.context_processors.static',
         # required by django-admin-tools
         'django.core.context_processors.request',
+        'django_builder.context.build_context'
     )
 
     ROOT_URLCONF = 'django_builder.urls'
