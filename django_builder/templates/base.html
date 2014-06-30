@@ -72,10 +72,12 @@
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-  <!-- In production use:
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js"></script>
-  -->
+<!-- In production use:
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js"></script>
+-->
+
 {% if DEBUG %}
+    <script src="{% static 'tar-js/tar.js' %}"></script>
     <script src="{% static 'ace/ace-1.1.3.js' %}"></script>
     <script src="{% static 'ace/mode-python2.js' %}"></script>
     <script src="{% static 'ace/theme-dawn.js' %}"></script>
@@ -87,6 +89,7 @@
     <script src="{% static 'bower_components/angular-local-storage/angular-local-storage.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
 {% else %}
+    <script src="{% static 'tar-js/tar.js' %}"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/mode-python.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/theme-dawn.js"></script>

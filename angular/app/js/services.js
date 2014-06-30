@@ -297,7 +297,7 @@ function ModelServiceFactory() {
                     return 'id';
                 }
             };
-            this.identifier = function (field_name) {
+            this.identifier = function () {
                 // TODO - find another name AutoSlugField
                 if(this.field_names().indexOf('slug')!=-1){
                     return 'slug';

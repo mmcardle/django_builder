@@ -2,12 +2,22 @@
 
     <div class="row">
         <div class="col-sm-2">
+            <h2 style="margin: 0">App Name</h2>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label class="sr-only" for="builder_model_name">App Name</label>
+                <input class="form-control" ng-model="_app_name" id="appname" ng-change="set_app_name()">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
             <h2 style="margin: 0">Models</h2>
         </div>
         <div class="col-sm-4">
             <div class="form-group">
-                <label class="sr-only" for="builder_model_name">Email
-                    address</label>
+                <label class="sr-only" for="builder_model_name">Model name</label>
                 <input tabindex="1" type="email" class="form-control"
                        id="builder_model_name" placeholder="Enter model name">
             </div>
@@ -16,14 +26,14 @@
             <button tabindex="3" ng-click="clearModels()"
                     class="btn btn-danger pull-right hidden-xs">Clear all <i
                     class="fa fa-times"></i></button>
-            <button tabindex="3" ng-click="tarBall()"
+            <button tabindex="3" ng-click="create_tar_ball()"
                     class="btn btn-info pull-right hidden-xs"
                     style="margin-right: 4px">Download As Tarball <i
                     class="fa fa-download"></i></button>
             <button tabindex="3" ng-click="clearModels()"
                     class="btn btn-danger pull-right visible-xs"><i
                     class="fa fa-times"></i></button>
-            <button tabindex="3" ng-click="tarBall()"
+            <button tabindex="3" ng-click="create_tar_ball()"
                     class="btn btn-info pull-right visible-xs"
                     style="margin-right: 4px"><i class="fa fa-download"></i>
             </button>

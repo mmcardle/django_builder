@@ -3,6 +3,7 @@ h4 {
 }
 .modal-header, .modal-body, .modal-footer {
     padding: 15px 15px;
+
 }
 .modal-body {
     padding: 15px 35px;
@@ -18,6 +19,7 @@ h4 {
 .modal-header-inner{
     font-weight: bold;
     text-align: center;
+    color: #333333;
 }
 .modal-footer{
     padding: 10px;
@@ -26,7 +28,7 @@ a:link {
     text-decoration: none;
 }
 .builder_icon {
-    color: #0040D0;
+    color: #158cba;
 }
 .builder_code {
     background-color: #efefef;

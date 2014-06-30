@@ -12,8 +12,54 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.render_factory = new renderFactory();
             $scope.editors = [];
             $scope.models_storage_key = 'local_models';
-            $scope._app_name = 'bestapp';
+            $scope._app_name = 'MyApp';
             $scope.storageType = 'Local storage';
+
+            $scope.create_tar_ball = function(){
+                
+                var README = 'Built with django_builder';
+                var models = $scope.render_factory.render_models_py($scope.app_name(), $scope.models);
+                var views = $scope.render_factory.render_views_py($scope.app_name(), $scope.models);
+                var admin = $scope.render_factory.render_admin_py($scope.app_name(), $scope.models);
+                var urls = $scope.render_factory.render_urls_py($scope.app_name(), $scope.models);
+                var tests = $scope.render_factory.render_tests_py($scope.app_name(), $scope.models);
+                var forms = $scope.render_factory.render_forms_py($scope.app_name(), $scope.models);
+
+                var Tar = require('tar-js');
+                var tarfile = new Tar();
+
+                console.log($scope.app_name()+'/models.py', models.length);
+                console.log($scope.app_name()+'/views.py', views.length);
+                console.log($scope.app_name()+'/admin.py', admin.length);
+                console.log($scope.app_name()+'/urls.py', urls.length);
+                console.log($scope.app_name()+'/tests.py', tests.length);
+                console.log($scope.app_name()+'/forms.py', forms.length);
+                
+                tarfile.append('README.txt', README);
+                tarfile.append($scope.app_name()+'/models.py', models);
+                tarfile.append($scope.app_name()+'/views.py', views);
+                tarfile.append($scope.app_name()+'/admin.py', admin);
+                tarfile.append($scope.app_name()+'/urls.py', urls);
+                tarfile.append($scope.app_name()+'/tests.py', tests);
+                var out = tarfile.append($scope.app_name()+'/forms.py', forms);
+
+                console.log($scope.render_factory.render_tests_py($scope.app_name(), $scope.models).length);
+
+                function uint8ToString(buf) {
+                    var i, length, out = '';
+                    for (i = 0, length = buf.length; i < length; i += 1) {
+                        out += String.fromCharCode(buf[i]);
+                    }
+
+                    return out;
+                }
+
+	            var base64 = btoa(uint8ToString(out));
+
+                var url = "data:application/tar;base64," + base64;
+                var download_iframe = document.getElementById("download_iframe");
+                download_iframe.src = url;
+            };
 
             $scope.aceLoad = function(_editor) {
                 var _id = $(_editor.container).attr("id");
@@ -33,6 +79,12 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 _editor.session.selection.clearSelection();
             };
 
+            $scope.reLoadAce = function(_editor) {
+                $.each($scope.editors, function(i, editor){
+                    $scope.aceLoad(editor);
+                });
+            };
+
             $scope.aceLoaded = function(_editor) {
                 // Options
                 _editor.setOptions({
@@ -49,9 +101,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
 
             $scope.$watch("models", function() {
-                $.each($scope.editors, function(i, editor){
-                    $scope.aceLoad(editor);
-                });
+                $scope.reLoadAce();
             }, true);
 
             $scope.aceChanged = function(e) {
@@ -71,6 +121,15 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             if (!localStorageService.isSupported) {
                 $scope.storageType = 'Cookie';
             }
+
+            $scope.set_app_name = function () {
+                $scope._app_name = $('input#appname').val();
+                $scope.reLoadAce();
+            };
+
+            $scope.l_app_name = function () {
+                return $scope._app_name.toLowerCase();
+            };
 
             $scope.app_name = function () {
                 return $scope._app_name;
@@ -141,7 +200,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
             $scope.loadModels = function(){
                 var loaded_models = localStorageService.get($scope.models_storage_key);
-                console.log(loaded_models);
                 if(loaded_models==undefined){
                     return [];
                 }else{
