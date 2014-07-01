@@ -38,19 +38,21 @@
             <table class="table table-condensed table-hover builder_model_table">
                 <thead>
                 <tr>
-                    <th class="hidden-xs" colspan="2"><i class="fa fa-database"></i>&nbsp;&nbsp;{{ app_name()|lowercase }}.{{ model.name }}</th>
+                    <th class="hidden-xs builder_model_header" colspan="2"><i class="fa fa-database"></i>&nbsp;&nbsp;{{ app_name()|lowercase }}.{{ model.name }}</th>
                     <th class="visible-xs">{{ model.name }}</th>
                     <th><a class="builder_a builder_model_remove" ng-click="remove_model($index)"><i class="fa fa-times pull-right"></i></a></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr class="active" ng-repeat="relationship in model.relationships" ng-mouseover="model_highlight($parent.$index, $index)" ng-mouseout="model_unhighlight()">
+                <tr ng-repeat="relationship in model.relationships" ng-mouseover="model_highlight($parent.$index, $index)" ng-mouseout="model_unhighlight()">
                     <td><a href='#' ng-click="rename_relationship($parent.$index, $index)">{{ relationship.name }}&nbsp;&nbsp;<i class="fa fa-cog"></i></a></td>
-                    <td class="hidden-xs">{{ relationship.type }}({{ relationship.to }})</td>
+                    <td class="hidden-xs builder_break">{{ relationship.type }}({{ relationship.to }})</td>
                     <td><a href='#'><i ng-click="remove_relationship($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
                 </tr>
+                </tbody>
+                <tbody>
                 <tr ng-repeat="field in model.fields">
-                    <td><a href='#' ng-click="rename_field($parent.$index, $index)">{{ field.name }}</a></td>
+                    <td style="width:30%;"><a href='#' ng-click="rename_field($parent.$index, $index)">{{ field.name }}</a></td>
                     <td class="hidden-xs">{{ field.type }}</td>
                     <td><a href='#'><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
                 </tr>

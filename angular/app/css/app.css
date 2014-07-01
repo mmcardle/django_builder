@@ -67,6 +67,9 @@ a:link {
     box-shadow:         3px 3px 12px 0px rgba(50, 50, 50, 0.45);
     margin-bottom: 15px;
 }
+.builder_model_header {
+    word-break: break-all;
+}
 .builder_model_table i{
     vertical-align:baseline;
 }
@@ -87,7 +90,14 @@ a:link {
 .ace_editor {
     height: 740px;
 }
-
 .dropdown-menu>li>a.builder_model_remove {
     color: #ff4136;
+}
+.builder_model_table.table-condensed>thead>tr>th, .builder_model_table.table-condensed>tbody>tr>th,
+.builder_model_table.table-condensed>tfoot>tr>th, .builder_model_table.table-condensed>thead>tr>td,
+.builder_model_table.table-condensed>tbody>tr>td, .builder_model_table.table-condensed>tfoot>tr>td {
+    padding: 4px;
+}
+.builder_break {
+    word-break: break-all;
 }
