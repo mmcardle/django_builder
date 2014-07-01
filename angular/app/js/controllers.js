@@ -3,12 +3,13 @@
 /* Controllers */
 
 angular.module('builder.controllers', ['LocalStorageModule'])
-    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'FieldFactory', 'localStorageService', 'MessageService', 'RenderFactory',
-        function ($scope, $http, model_factory, field_factory, localStorageService, messageService, renderFactory) {
+    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'FieldFactory', 'RelationshipFactory', 'localStorageService', 'MessageService', 'RenderFactory',
+        function ($scope, $http, model_factory, field_factory, relationship_factory, localStorageService, message_service, renderFactory) {
 
             $scope.models = [];
-            $scope.messageService = new messageService();
+            $scope.messageService = new message_service();
             $scope.field_factory = new field_factory();
+            $scope.relationship_factory = new relationship_factory();
             $scope.render_factory = new renderFactory();
             $scope.editors = [];
             $scope.models_storage_key = 'local_models';
@@ -17,7 +18,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
             $scope.create_tar_ball = function(){
                 
-                var README = 'Built with django_builder';
+                var README = 'Built with django_builder\n';
                 var models = $scope.render_factory.render_models_py($scope.app_name(), $scope.models);
                 var views = $scope.render_factory.render_views_py($scope.app_name(), $scope.models);
                 var admin = $scope.render_factory.render_admin_py($scope.app_name(), $scope.models);
@@ -28,13 +29,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var Tar = require('tar-js');
                 var tarfile = new Tar();
 
-                console.log($scope.app_name()+'/models.py', models.length);
-                console.log($scope.app_name()+'/views.py', views.length);
-                console.log($scope.app_name()+'/admin.py', admin.length);
-                console.log($scope.app_name()+'/urls.py', urls.length);
-                console.log($scope.app_name()+'/tests.py', tests.length);
-                console.log($scope.app_name()+'/forms.py', forms.length);
-                
                 tarfile.append('README.txt', README);
                 tarfile.append($scope.app_name()+'/models.py', models);
                 tarfile.append($scope.app_name()+'/views.py', views);
@@ -132,7 +126,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
 
             $scope.app_name = function () {
-                return $scope._app_name;
+                return $scope._app_name.replace(' ', '_');
             };
 
             $scope.updateModel = function(model){
@@ -196,6 +190,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 $.each(model.fields, function(i, field){
                     delete field['$$hashKey'];
                 });
+                $.each(model.relationships, function(i, relationship){
+                    delete relationship['$$hashKey'];
+                });
             }
 
             $scope.loadModels = function(){
@@ -226,7 +223,72 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.debug = function(){
                 console.log(JSON.stringify($scope.models))
             };
+            $scope.add_relationship = function (index) {
+                var modal;
+                var on_input= function(output_form){
+                    var name = output_form.find('input[name=name]').val();
+                    if(name===undefined||name==='') {
+                        output_form.find('div.form-group-name')
+                            .addClass('has-error')
+                            .append($('<span>').addClass("glyphicon glyphicon-remove form-control-feedback"))
+                            .find('.help-block').removeClass('hide').text('Field Required');
+                    }else {
+                        var model = $scope.models[index];
+                        if(model.has_relationship(name)){
+                            output_form.find('div.form-group-name')
+                                .addClass('has-error')
+                                .append($('<span>').addClass("glyphicon glyphicon-remove form-control-feedback"))
+                                .find('.help-block').removeClass('hide').text('Field \"'+name+'\" exists');
+                        }else {
+                            var type = output_form.find('select[name=type]').val();
+                            var opts = output_form.find('input[name=opts]').val();
+                            var to = output_form.find('select[name=to]').val();
+                            var relationship = $scope.relationship_factory.make_relationship({
+                                'name': name,
+                                'type': type,
+                                'opts': opts,
+                                'to': to
+                            });
+                            model.relationships.push(relationship);
+                            $scope.updateModel(model);
+                            $scope.$apply();
+                            modal.modal('hide');
+                        }
 
+                    }
+
+                };
+                // TODO make form factory
+                var form = $('<form>');
+                var form_div1 = $('<div>').addClass('form-group form-group-name has-feedback').appendTo(form);
+                var form_div2 = $('<div>').addClass('form-group form-group-type').appendTo(form);
+                var form_div3 = $('<div>').addClass('form-group form-group-args').appendTo(form);
+                form_div1.append($('<label>').text('Name'));
+                form_div1.append($('<input>').attr('name', 'name').addClass('form-control'));
+                form_div1.append($('<span>').text('error message').addClass('help-block hide'));
+
+                var to_select = $('<select>').attr('name', 'to').addClass('form-control');
+
+                $.each($scope.models, function(i, model){
+                    to_select.append($('<option>').attr('val', model.name).text(model.name));
+                });
+
+                form_div2.append($('<label>').text('Relationship to Model'));
+                form_div2.append(to_select);
+
+                var type_select = $('<select>').attr('name', 'type').addClass('form-control');
+
+                $.each($scope.relationship_factory.relationship_types(), function(i, relationship_type){
+                    type_select.append($('<option>').attr('val', relationship_type).text(relationship_type));
+                });
+
+                form_div2.append($('<label>').text('Relationship Type'));
+                form_div2.append(type_select);
+                form_div3.append($('<label>').text('Arguments'));
+                form_div3.append($('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
+
+                modal = $scope.messageService.simple_form('Add Relationship', '', form, on_input ).modal('show');
+            };
             $scope.add_field = function (index) {
                 var modal;
                 var on_input= function(output_form){
@@ -292,8 +354,17 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                         "Rename the field '" + $scope.models[model_index].fields[field_index].name+"'",
                     on_confirm).modal('show');
             };
+            $scope.remove_relationship = function (model_index, relationship_index) {
+                var on_confirm = function(){
+                    $scope.models[model_index].relationships.splice(relationship_index, 1);
+                    localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
+                    $scope.$apply();
+                };
+                $scope.messageService.simple_confirm('Confirm',
+                        "Remove the relationship '" + $scope.models[model_index].relationships[relationship_index].name+"'",
+                    on_confirm).modal('show');
+            };
             $scope.remove_field = function (model_index, field_index) {
-                console.log(model_index, field_index);
                 var on_confirm = function(){
                     $scope.models[model_index].fields.splice(field_index, 1);
                     localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
@@ -332,6 +403,13 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
             $scope.import_forms = function () {
                 return 'from .forms import ' + format_array($scope.models, 'Form').join(', ');
+            };
+            $scope.model_highlight = function (model_index, relationship_index) {
+                var r = $scope.models[model_index].relationships[relationship_index];
+                $('.builder_model_'+ r.to).addClass('builder_model_highlight');
+            };
+            $scope.model_unhighlight = function () {
+                $('.builder_model').removeClass('builder_model_highlight');
             };
 
             // Load from api

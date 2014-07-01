@@ -67,13 +67,27 @@ a:link {
     box-shadow:         3px 3px 12px 0px rgba(50, 50, 50, 0.45);
     margin-bottom: 15px;
 }
+.builder_model_table i{
+    vertical-align:baseline;
+}
 .builder_model_add_field {
 }
-
+.builder_model_highlight {
+    -webkit-box-shadow: 3px 3px 12px 0px rgba(240, 50, 50, 0.65);
+    -moz-box-shadow:    3px 3px 12px 0px rgba(240, 50, 50, 0.65);
+    box-shadow:         3px 3px 12px 0px rgba(240, 50, 50, 0.65);
+}
+.builder_model_highlight th{
+    color: #ff4136;
+}
 .col0 {
     clear: both;
 }
 
 .ace_editor {
     height: 740px;
+}
+
+.dropdown-menu>li>a.builder_model_remove {
+    color: #ff4136;
 }

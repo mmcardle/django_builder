@@ -219,7 +219,27 @@ function MessageServiceFactory() {
         };
     };
 }
-function FieldServiceFactory() {
+function RelationshipFactory() {
+    return function (options) {
+        var _this = this;
+        _this.relationship_types = function () {
+            return [
+                'ForeignKey',
+                'OneToOneField'
+            ];
+        };
+        function Relationship(options) {
+            this.name = options['name'];
+            this.type = options['type'];
+            this.opts = options['opts'];
+            this.to = options['to'];
+        }
+        _this.make_relationship = function (options) {
+            return new Relationship(options);
+        }
+    };
+}
+function FieldFactory() {
     return function (options) {
         var _this = this;
         _this.field_types = function () {
@@ -246,18 +266,6 @@ function FieldServiceFactory() {
             this.name = options['name'];
             this.type = options['type'];
             this.opts = options['opts'];
-            this.guid = (function() {
-              function s4() {
-                return Math.floor((1 + Math.random()) * 0x10000)
-                           .toString(16)
-                           .substring(1);
-              }
-              return function() {
-                return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-                       s4() + '-' + s4() + s4() + s4();
-              };
-            })();
-            console.log(this.guid);
         }
         _this.make_field = function (options) {
             return new Field(options);
@@ -269,6 +277,13 @@ function ModelServiceFactory() {
         function Model(options) {
             this.name = options['name'];
             this.fields = options['fields'] || [];
+            this.relationships = options['relationships'] || [];
+            this.relationship_names = function(){
+                var that = this;
+                return Object.keys(that.relationships).map(function (k) {
+                    return that.relationships[k].name
+                });
+            };
             this.field_names = function(){
                 var that = this;
                 return Object.keys(that.fields).map(function (k) {
@@ -277,6 +292,9 @@ function ModelServiceFactory() {
             };
             this.l_name = function () {
                 return this.name.toLowerCase()
+            };
+            this.has_relationship = function (relationship_name) {
+                return this.relationship_names().indexOf(relationship_name) != -1;
             };
             this.has_field = function (field_name) {
                 return this.field_names().indexOf(field_name) != -1;
@@ -420,9 +438,15 @@ function ModelServiceFactory() {
                 var cls =  'class '+this.name+'(models.Model):';
                 cls += renderer.new_lines(1);
                 $.each(this.fields, function(i, field){
-                    cls += renderer.spaces(4)+field.name+' = '+field.type+'('+field.opts+')';
+                    cls += renderer.spaces(4)+field.name+' = models.'+field.type+'('+field.opts+')';
                     cls += renderer.new_lines(1);
                 });
+                cls += renderer.new_lines(1);
+                $.each(this.relationships, function(i, relationship){
+                    cls += renderer.spaces(4)+relationship.name+' = models.'+relationship.type+'(\''+app_name.toLowerCase()+'.'+relationship.to+'\','+relationship.opts+')';
+                    cls += renderer.new_lines(1);
+                });
+
                 cls += renderer.new_lines(1);
                 cls += renderer.spaces(4)+'class Meta:';
                 cls += renderer.new_lines(1);
@@ -475,6 +499,7 @@ function ModelServiceFactory() {
 angular.module('builder.services', [])
     .factory('ModelFactory', [ModelServiceFactory])
     .factory('MessageService', [MessageServiceFactory])
-    .factory('FieldFactory', [FieldServiceFactory])
+    .factory('FieldFactory', [FieldFactory])
+    .factory('RelationshipFactory', [RelationshipFactory])
     .factory('RenderFactory', [ModelRenderFactory])
     .value('version', '0.1');
