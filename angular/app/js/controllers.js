@@ -187,12 +187,16 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
             $scope.cleanModel = function(model){
                 delete model['$$hashKey'];
-                $.each(model.fields, function(i, field){
-                    delete field['$$hashKey'];
-                });
-                $.each(model.relationships, function(i, relationship){
-                    delete relationship['$$hashKey'];
-                });
+                if(model.fields!=undefined) {
+                    $.each(model.fields, function (i, field) {
+                        delete field['$$hashKey'];
+                    });
+                }
+                if(model.relationships!=undefined) {
+                    $.each(model.relationships, function (i, relationship) {
+                        delete relationship['$$hashKey'];
+                    });
+                }
             }
 
             $scope.loadModels = function(){
