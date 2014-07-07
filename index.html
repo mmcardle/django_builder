@@ -53,12 +53,9 @@
       Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
 <script type="application/javascript">
-    var pathname = window.location.pathname;
-    console.log(pathname);
     var base = document.createElement('base');
-    base.setAttribute('href', pathname);
-    var head = document.getElementsByTagName('head')[0];
-    head.appendChild(base);
+    base.setAttribute('href', window.location.pathname);
+    document.getElementsByTagName('head')[0].appendChild(base);
 </script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.2/modernizr.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
