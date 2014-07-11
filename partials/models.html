@@ -53,7 +53,7 @@
                 <tbody>
                 <tr ng-repeat="field in model.fields">
                     <td style="width:30%;"><a ng-click="rename_field($parent.$index, $index)">{{ field.name }}</a></td>
-                    <td class="hidden-xs">{{ field.type }}</td>
+                    <td class="hidden-xs">{{ field.class_name() }}</td>
                     <td><a><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
                 </tr>
                 </tbody>
