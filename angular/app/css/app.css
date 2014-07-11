@@ -101,3 +101,6 @@ a:link {
 .builder_break {
     word-break: break-all;
 }
+.container .jumbotron{
+    border-radius: 135px 0;
+}

@@ -28,7 +28,7 @@ function ModelRenderFactory() {
             tests_py += 'from .models import '+_this.model_names(models, '').join(', ')+'\n';
             tests_py += _this.new_lines(2);
 
-            $.each(models, function(i, model){
+            jQuery.each(models, function(i, model){
                 tests_py += model.render_forms(app_name, _this);
             });
 
@@ -40,7 +40,7 @@ function ModelRenderFactory() {
             tests_py += 'from .models import '+_this.model_names(models, '').join(', ')+'\n';
             tests_py += _this.new_lines(2);
 
-            $.each(models, function(i, model){
+            jQuery.each(models, function(i, model){
                 tests_py += model.render_tests(app_name, _this);
             });
 
@@ -53,10 +53,10 @@ function ModelRenderFactory() {
             urls_py += 'from .views import '+_this.model_names(models, 'CreateView').join(', ')+'\n';
             urls_py += 'from .views import '+_this.model_names(models, 'UpdateView').join(', ')+'\n';
             urls_py += _this.new_lines(1);
-            urls_py += 'urlpatterns = patterns()\n';
+            urls_py += 'urlpatterns = patterns(\'\')\n';
             urls_py += _this.new_lines(1);
 
-            $.each(models, function(i, model){
+            jQuery.each(models, function(i, model){
                 urls_py += model.render_urls(app_name, _this);
             });
 
@@ -67,7 +67,7 @@ function ModelRenderFactory() {
             views_py += 'from .models import '+_this.model_names(models).join(', ');
             views_py += _this.new_lines(2);
 
-            $.each(models, function(i, model){
+            jQuery.each(models, function(i, model){
                 views_py += model.render_admin_classes(app_name, _this);
             });
 
@@ -80,7 +80,7 @@ function ModelRenderFactory() {
             views_py += 'from .forms import '+_this.model_names(models, 'Form').join(', ');
             views_py += _this.new_lines(2);
 
-            $.each(models, function(i, model){
+            jQuery.each(models, function(i, model){
                 views_py += model.render_view_classes(app_name, _this);
             });
 
@@ -88,12 +88,21 @@ function ModelRenderFactory() {
         };
         _this.render_models_py = function (app_name, models) {
             var models_py =  'from django.db import models\n'+
-                   'from django.core.urlresolvers import reverse\n'+
-                   'from django_extensions.db.fields import AutoSlugField\n';
+                   'from django.core.urlresolvers import reverse\n';
 
+            var all_fields = {};
+            jQuery.each(models, function(i, model){
+                jQuery.each(model.fields, function(i, field){
+                    all_fields[field.type] = field;
+                });
+            });
+            console.log(all_fields)
+            jQuery.each(all_fields, function(i, field){
+                models_py += 'from '+field.module()+' import '+field.class_name()+'\n';
+            });
             models_py += _this.new_lines(2);
 
-            $.each(models, function(i, model){
+            jQuery.each(models, function(i, model){
                 models_py += model.render_model_class(app_name, _this);
             });
 
@@ -125,31 +134,31 @@ function MessageServiceFactory() {
              </div><!-- /.modal-dialog -->
              </div><!-- /.modal -->
              */
-            var base = $('<div>').addClass("modal fade");
+            var base = jQuery('<div>').addClass("modal fade");
             base.attr("tabindex", "-1");
             base.attr("role", "dialog");
             base.css("display", "none");
 
-            var modal_dialog = $('<div>').addClass("modal-dialog");
-            var modal_content = $('<div>').addClass("modal-content").appendTo(modal_dialog);
-            var modal_header_inner = $('<h4>').addClass("modal-header-inner");
-            $('<div>').addClass("modal-header").appendTo(modal_content).append(modal_header_inner);
-            $('<div>').addClass("modal-body").appendTo(modal_content);
-            $('<div>').addClass("modal-footer").appendTo(modal_content);
+            var modal_dialog = jQuery('<div>').addClass("modal-dialog");
+            var modal_content = jQuery('<div>').addClass("modal-content").appendTo(modal_dialog);
+            var modal_header_inner = jQuery('<h4>').addClass("modal-header-inner");
+            jQuery('<div>').addClass("modal-header").appendTo(modal_content).append(modal_header_inner);
+            jQuery('<div>').addClass("modal-body").appendTo(modal_content);
+            jQuery('<div>').addClass("modal-footer").appendTo(modal_content);
 
             base.append(modal_dialog);
 
             return base;
         };
         _this.icon = function (icon_name) {
-            return $('<icon>').addClass('fa').addClass(icon_name);
+            return jQuery('<icon>').addClass('fa').addClass(icon_name);
         };
         _this.simple_error = function (title, message) {
             var simple_info = _this.base_modal();
             var i = _this.icon('fa-info').addClass('pull-right');
-            simple_info.find(".modal-header-inner").append(i).append($('<span>').text(title));
+            simple_info.find(".modal-header-inner").append(i).append(jQuery('<span>').text(title));
             simple_info.find(".modal-body").empty().append(message);
-            var ok_button = $('<button>').addClass('btn btn-default').text('Ok');
+            var ok_button = jQuery('<button>').addClass('btn btn-default').text('Ok');
             simple_info.find(".modal-footer").append(ok_button);
             ok_button.attr("data-dismiss", "modal");
             simple_info.modal();
@@ -158,9 +167,9 @@ function MessageServiceFactory() {
         _this.simple_info = function (title, message) {
             var simple_info = _this.base_modal();
             var i = _this.icon('fa-info').addClass('pull-right');
-            simple_info.find(".modal-header-inner").append(i).append($('<span>').text(title));
+            simple_info.find(".modal-header-inner").append(i).append(jQuery('<span>').text(title));
             simple_info.find(".modal-body").empty().append(message);
-            var ok_button = $('<button>').addClass('btn btn-default').text('Ok');
+            var ok_button = jQuery('<button>').addClass('btn btn-default').text('Ok');
             simple_info.find(".modal-footer").append(ok_button);
             ok_button.attr("data-dismiss", "modal");
             simple_info.modal();
@@ -170,8 +179,8 @@ function MessageServiceFactory() {
             var simple_confirm = _this.base_modal();
             simple_confirm.find(".modal-header-inner").html(title);
             simple_confirm.find(".modal-body").empty().append(message);
-            var confirm_button = $('<button>').addClass('btn btn-primary').text('Ok');
-            var cancel_button = $('<button>').addClass('btn btn-default').text('Cancel');
+            var confirm_button = jQuery('<button>').addClass('btn btn-primary').text('Ok');
+            var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
             simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
             confirm_button.click(function () {
                 if (callback != undefined) {
@@ -187,8 +196,8 @@ function MessageServiceFactory() {
             var simple_confirm = _this.base_modal();
             simple_confirm.find(".modal-header-inner").html(title);
             simple_confirm.find(".modal-body").empty().append(message).append(form);
-            var confirm_button = $('<button>').addClass('btn btn-primary').text('Ok');
-            var cancel_button = $('<button>').addClass('btn btn-default').text('Cancel');
+            var confirm_button = jQuery('<button>').addClass('btn btn-primary').text('Ok');
+            var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
             simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
             confirm_button.click(function () {
                 if (callback != undefined) {
@@ -202,10 +211,10 @@ function MessageServiceFactory() {
         _this.simple_input = function (title, message, callback) {
             var simple_confirm = _this.base_modal();
             simple_confirm.find(".modal-header-inner").html(title);
-            var input = $('<input>').attr('type', 'text').addClass('form-control');
+            var input = jQuery('<input>').attr('type', 'text').addClass('form-control');
             simple_confirm.find(".modal-body").empty().append(message).append(input);
-            var confirm_button = $('<button>').addClass('btn btn-primary').text('Ok');
-            var cancel_button = $('<button>').addClass('btn btn-default').text('Cancel');
+            var confirm_button = jQuery('<button>').addClass('btn btn-primary').text('Ok');
+            var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
             simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
             confirm_button.click(function () {
                 if (callback != undefined) {
@@ -244,28 +253,35 @@ function FieldFactory() {
         var _this = this;
         _this.field_types = function () {
             return [
-                'TextField',
-                'CharField',
-                'AutoSlugField',
-                'BooleanField',
-                'DateField',
-                'DateTimeField',
-                'DecimalField',
-                'FilePathField',
-                'FloatField',
-                'IntegerField',
-                'IPAddressField',
-                'GenericIPAddressField',
-                'NullBooleanField',
-                'TimeField',
-                'BinaryField',
-                'AutoField'
+                'django.db.models.models.TextField',
+                'django.db.models.models.CharField',
+                'django_extensions.db.fields.AutoSlugField',
+                'django.db.models.models.BooleanField',
+                'django.db.models.models.DateField',
+                'django.db.models.models.DateTimeField',
+                'django.db.models.models.DecimalField',
+                'django.db.models.models.FilePathField',
+                'django.db.models.models.FloatField',
+                'django.db.models.models.IntegerField',
+                'django.db.models.models.IPAddressField',
+                'django.db.models.models.GenericIPAddressField',
+                'django.db.models.models.NullBooleanField',
+                'django.db.models.models.TimeField',
+                'django.db.models.models.BinaryField',
+                'django.db.models.models.AutoField'
             ];
         };
         function Field(options) {
             this.name = options['name'];
             this.type = options['type'];
             this.opts = options['opts'];
+            this.class_name = function () {
+                return this.type.split('.').reverse()[0]
+            };
+            this.module = function () {
+                var split = this.type.split('.');
+                return split.slice(0, split.length-1).join('.');
+            };
         }
         _this.make_field = function (options) {
             return new Field(options);
@@ -273,10 +289,12 @@ function FieldFactory() {
     };
 }
 function ModelServiceFactory() {
-    return function (options) {
+    return function (options, $scope) {
         function Model(options) {
             this.name = options['name'];
-            this.fields = options['fields'] || [];
+            this.fields = [];
+            var fields = options['fields'] || [];
+            this.fields = (options['fields'] || []).map($scope.field_factory.make_field);
             this.relationships = options['relationships'] || [];
             this.relationship_names = function(){
                 var that = this;
@@ -362,7 +380,7 @@ function ModelServiceFactory() {
                 tests += renderer.spaces(4)+'def test_detail_'+this.l_name()+'(self):\n';
                 tests += renderer.spaces(8)+this.l_name()+' = '+this.name+'()\n';
                 tests += renderer.spaces(8)+this.l_name()+'.save()\n';
-                tests += renderer.spaces(8)+'url = reverse(\''+app_name+'_'+this.l_name()+'_detail\', args=['+this.l_name()+'.'+this.identifier()+',]))\n';
+                tests += renderer.spaces(8)+'url = reverse(\''+app_name+'_'+this.l_name()+'_detail\', args=['+this.l_name()+'.'+this.identifier()+',])\n';
                 tests += renderer.spaces(8)+'response = self.client.get(url)\n';
                 tests += renderer.spaces(8)+'self.assertEqual(response.status_code, 200)\n';
                 tests += renderer.new_lines(1);
@@ -371,7 +389,7 @@ function ModelServiceFactory() {
                 tests += renderer.spaces(8)+this.l_name()+' = '+this.name+'()\n';
                 tests += renderer.spaces(8)+this.l_name()+'.save()\n';
                 tests += renderer.spaces(8)+'data = {}\n';
-                tests += renderer.spaces(8)+'url = reverse(\''+app_name+'_'+this.l_name()+'_update\', args=['+this.l_name()+'.'+this.identifier()+',]))\n';
+                tests += renderer.spaces(8)+'url = reverse(\''+app_name+'_'+this.l_name()+'_update\', args=['+this.l_name()+'.'+this.identifier()+',])\n';
                 tests += renderer.spaces(8)+'response = self.client.get(url, data)\n';
                 tests += renderer.spaces(8)+'self.assertEqual(response.status_code, 302)\n';
                 tests += renderer.new_lines(2);
@@ -384,10 +402,10 @@ function ModelServiceFactory() {
                 urls += 'urlpatterns += patterns(\'\',\n';
                 urls += renderer.spaces(4)+'# urls for '+this.name+'\n';
 
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/$\' '+this.name+'ListView.as_view(), name=\''+app_name+'_'+this.l_name()+'_list\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/create/$\' '+this.name+'CreateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_create\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/(?P<'+this.identifier()+'>\\S+)/$\' '+this.name+'UpdateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_update\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/(?P<'+this.identifier()+'>\\S+)/$\' '+this.name+'DetailView.as_view(), name=\''+app_name+'_'+this.l_name()+'_detail\'),\n';
+                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/$\', '+this.name+'ListView.as_view(), name=\''+app_name+'_'+this.l_name()+'_list\'),\n';
+                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/create/$\', '+this.name+'CreateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_create\'),\n';
+                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/(?P<'+this.identifier()+'>\\S+)/$\', '+this.name+'UpdateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_update\'),\n';
+                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/(?P<'+this.identifier()+'>\\S+)/$\', '+this.name+'DetailView.as_view(), name=\''+app_name+'_'+this.l_name()+'_detail\'),\n';
 
                 urls += ')\n';
                 urls += renderer.new_lines(1);
@@ -437,13 +455,13 @@ function ModelServiceFactory() {
             this.render_model_class = function(app_name, renderer){
                 var cls =  'class '+this.name+'(models.Model):';
                 cls += renderer.new_lines(1);
-                $.each(this.fields, function(i, field){
-                    cls += renderer.spaces(4)+field.name+' = models.'+field.type+'('+field.opts+')';
+                jQuery.each(this.fields, function(i, field){
+                    cls += renderer.spaces(4)+field.name+' = '+field.class_name()+'('+field.opts+')';
                     cls += renderer.new_lines(1);
                 });
                 cls += renderer.new_lines(1);
-                $.each(this.relationships, function(i, relationship){
-                    cls += renderer.spaces(4)+relationship.name+' = models.'+relationship.type+'(\''+app_name.toLowerCase()+'.'+relationship.to+'\','+relationship.opts+')';
+                jQuery.each(this.relationships, function(i, relationship){
+                    cls += renderer.spaces(4)+relationship.name+' = models.'+relationship.type+'(\''+app_name+'.'+relationship.to+'\','+relationship.opts+')';
                     cls += renderer.new_lines(1);
                 });
 
@@ -460,13 +478,13 @@ function ModelServiceFactory() {
                 cls += renderer.new_lines(2);
                 cls += renderer.spaces(4)+'def get_absolute_url(self):';
                 cls += renderer.new_lines(1);
-                cls += renderer.spaces(8)+'return reverse(\''+app_name+'_'+this.l_name()+'_detail\', args=(self.'+this.identifier()+'\', ))';
+                cls += renderer.spaces(8)+'return reverse(\''+app_name+'_'+this.l_name()+'_detail\', args=(self.'+this.identifier()+',))';
                 cls += renderer.new_lines(1);
 
                 cls += renderer.new_lines(2);
                 cls += renderer.spaces(4)+'def get_update_url(self):';
                 cls += renderer.new_lines(1);
-                cls += renderer.spaces(8)+'return reverse(\''+app_name+'_'+this.l_name()+'_update\', args=(self.'+this.identifier()+'\', ))';
+                cls += renderer.spaces(8)+'return reverse(\''+app_name+'_'+this.l_name()+'_update\', args=(self.'+this.identifier()+',))';
                 cls += renderer.new_lines(3);
 
                 return cls;
@@ -484,7 +502,7 @@ function ModelServiceFactory() {
                 var output = '{% extends "base.html" %}\n\n' +
                     '{% block content %}\n' +
                     '<table>';
-                $.each(this.fields, function(i, field){
+                jQuery.each(this.fields, function(i, field){
                     output += '<tr><td>'+field.name+'<\/td><td>{{ object.'+field.name+' }}<\/td><\/tr>\n';
                 });
                 output += '<\/table';

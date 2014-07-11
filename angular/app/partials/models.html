@@ -45,16 +45,16 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="relationship in model.relationships" ng-mouseover="model_highlight($parent.$index, $index)" ng-mouseout="model_unhighlight()">
-                    <td><a href='#' ng-click="rename_relationship($parent.$index, $index)">{{ relationship.name }}&nbsp;&nbsp;<i class="fa fa-cog"></i></a></td>
+                    <td><a ng-click="rename_relationship($parent.$index, $index)">{{ relationship.name }}&nbsp;&nbsp;<i class="fa fa-cog"></i></a></td>
                     <td class="hidden-xs builder_break">{{ relationship.type }}({{ relationship.to }})</td>
-                    <td><a href='#'><i ng-click="remove_relationship($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
+                    <td><a ><i ng-click="remove_relationship($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
                 </tr>
                 </tbody>
                 <tbody>
                 <tr ng-repeat="field in model.fields">
-                    <td style="width:30%;"><a href='#' ng-click="rename_field($parent.$index, $index)">{{ field.name }}</a></td>
-                    <td class="hidden-xs">{{ field.type }}</td>
-                    <td><a href='#'><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
+                    <td style="width:30%;"><a ng-click="rename_field($parent.$index, $index)">{{ field.name }}</a></td>
+                    <td class="hidden-xs">{{ field.class_name() }}</td>
+                    <td><a><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
                 </tr>
                 </tbody>
             </table>
@@ -64,8 +64,8 @@
     Actions&nbsp;&nbsp;<span class="caret"></span>
   </button>
   <ul class="dropdown-menu" role="menu">
-    <li><a href="#" class="builder_a builder_model_add_field text-right" ng-click="add_field($index)">Add Field &nbsp;&nbsp;<i class="fa fa-plus"></i></a></li>
-    <li><a href="#" class="builder_a builder_model_add_relationship" ng-click="add_relationship($index)">Add Relationship&nbsp;&nbsp;<i class="fa fa-plus"></i></a></li>
+    <li><a class="builder_a builder_model_add_field text-right" ng-click="add_field($index)">Add Field &nbsp;&nbsp;<i class="fa fa-plus"></i></a></li>
+    <li><a class="builder_a builder_model_add_relationship" ng-click="add_relationship($index)">Add Relationship&nbsp;&nbsp;<i class="fa fa-plus"></i></a></li>
     <li class="divider"></li>
     <li><a class="builder_a builder_model_remove  text-right" ng-click="remove_model($index)">Remove Model&nbsp;&nbsp;<i class="fa fa-times"></i></a></li>
   </ul>
@@ -174,5 +174,9 @@
 </div>
 <h3>Templates</h3>
 <div class="row">
-    <div ng-include src="'/site_media/static/partials/templates/detail.html'"></div>
+    <!-- Django -->
+    <!--div ng-include src="'/site_media/static/partials/templates/detail.html'"></div-->
+    <!-- Angular -->
+    <div ng-include src="'partials/templates/detail.html'"></div>
 </div>
+<iframe id="download_iframe" style="display:none"></iframe>
