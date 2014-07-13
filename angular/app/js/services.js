@@ -22,6 +22,9 @@ function ModelRenderFactory() {
             var _n = n ||1;
             return new Array(_n+1).join("\n");
         };
+        _this.render_base_html = function(app_name, models){
+            return '<html><head></head><body>{% block content %}Replace this.{% endblock %}</body>';
+        };
         _this.render_forms_py = function (app_name, models) {
             var tests_py = 'from django import forms\n';
 
@@ -39,6 +42,10 @@ function ModelRenderFactory() {
 
             tests_py += 'from .models import '+_this.model_names(models, '').join(', ')+'\n';
             tests_py += _this.new_lines(2);
+
+            jQuery.each(models, function(i, model){
+                tests_py += model.render_tests_helpers(app_name, _this);
+            });
 
             jQuery.each(models, function(i, model){
                 tests_py += model.render_tests(app_name, _this);
@@ -96,7 +103,6 @@ function ModelRenderFactory() {
                     all_fields[field.type] = field;
                 });
             });
-            console.log(all_fields)
             jQuery.each(all_fields, function(i, field){
                 models_py += 'from '+field.module()+' import '+field.class_name()+'\n';
             });
@@ -107,6 +113,18 @@ function ModelRenderFactory() {
             });
 
             return models_py;
+        };
+        
+        _this.render_templates_html = function (app_name, models) {
+            var templates = [];
+
+            jQuery.each(models, function(i, model){
+                templates.push([model.l_name()+'_form.html', model.render_form_html()]);
+                templates.push([model.l_name()+'_detail.html', model.render_detail_html()]);
+                templates.push([model.l_name()+'_list.html', model.render_list_html()]);
+            });
+
+            return templates;
         };
 
     };
@@ -253,22 +271,22 @@ function FieldFactory() {
         var _this = this;
         _this.field_types = function () {
             return [
-                'django.db.models.models.TextField',
-                'django.db.models.models.CharField',
+                'django.db.models.TextField',
+                'django.db.models.CharField',
                 'django_extensions.db.fields.AutoSlugField',
-                'django.db.models.models.BooleanField',
-                'django.db.models.models.DateField',
-                'django.db.models.models.DateTimeField',
-                'django.db.models.models.DecimalField',
-                'django.db.models.models.FilePathField',
-                'django.db.models.models.FloatField',
-                'django.db.models.models.IntegerField',
-                'django.db.models.models.IPAddressField',
-                'django.db.models.models.GenericIPAddressField',
-                'django.db.models.models.NullBooleanField',
-                'django.db.models.models.TimeField',
-                'django.db.models.models.BinaryField',
-                'django.db.models.models.AutoField'
+                'django.db.models.BooleanField',
+                'django.db.models.DateField',
+                'django.db.models.DateTimeField',
+                'django.db.models.DecimalField',
+                'django.db.models.FilePathField',
+                'django.db.models.FloatField',
+                'django.db.models.IntegerField',
+                'django.db.models.IPAddressField',
+                'django.db.models.GenericIPAddressField',
+                'django.db.models.NullBooleanField',
+                'django.db.models.TimeField',
+                'django.db.models.BinaryField',
+                'django.db.models.AutoField'
             ];
         };
         function Field(options) {
@@ -352,6 +370,36 @@ function ModelServiceFactory() {
 
                 return urls;
             };
+            this.get_initial_data = function(app_name, renderer){
+                var initial = '{';
+                jQuery.each(this.readable_fields(), function(i, field){
+                    initial += renderer.new_lines(1);
+                    initial += renderer.spaces(12)+'\"'+field.name+'\": \"'+field.name+'\",';
+                    initial += renderer.new_lines(1);
+                });
+                jQuery.each(this.relationships, function(i, relationship){
+                    initial += renderer.spaces(12)+'\"'+relationship.name+'\": create_'+relationship.to.toLowerCase()+'().id,';
+                    initial += renderer.new_lines(1);
+                });
+                initial += renderer.spaces(8)+'}';
+                return initial;
+            };
+            this.render_tests_helpers = function(app_name, renderer) {
+                var test_helpers = '';
+                test_helpers += 'def create_'+this.l_name()+'(**kwargs):\n';
+                test_helpers += renderer.spaces(4)+'defaults = {}\n';
+                jQuery.each(this.readable_fields(), function(i, field){
+                    test_helpers += renderer.spaces(4) + 'defaults[\"' + field.name + '\"] = \"'+field.name+'\"\n';
+                });
+                test_helpers += renderer.spaces(4)+'defaults.update(**kwargs)\n';
+                jQuery.each(this.relationships, function(i, relationship){
+                    test_helpers += renderer.spaces(4)+'if \"'+relationship.name+'\" not in defaults:\n';
+                    test_helpers += renderer.spaces(8)+'defaults[\"'+relationship.name+'\"] = create_'+relationship.to.toLowerCase()+'()\n';
+                });
+                test_helpers += renderer.spaces(4)+'return '+this.name+'.objects.create(**defaults)\n';
+                test_helpers += renderer.new_lines(2);
+                return test_helpers;
+            };
             this.render_tests = function(app_name, renderer){
                 var tests = '';
 
@@ -372,25 +420,23 @@ function ModelServiceFactory() {
 
                 tests += renderer.spaces(4)+'def test_create_'+this.l_name()+'(self):\n';
                 tests += renderer.spaces(8)+'url = reverse(\''+app_name+'_'+this.l_name()+'_create\')\n';
-                tests += renderer.spaces(8)+'data = {}\n';
+                tests += renderer.spaces(8)+'data = '+this.get_initial_data(app_name, renderer)+'\n';
                 tests += renderer.spaces(8)+'response = self.client.post(url, data=data)\n';
                 tests += renderer.spaces(8)+'self.assertEqual(response.status_code, 302)\n';
                 tests += renderer.new_lines(1);
 
                 tests += renderer.spaces(4)+'def test_detail_'+this.l_name()+'(self):\n';
-                tests += renderer.spaces(8)+this.l_name()+' = '+this.name+'()\n';
-                tests += renderer.spaces(8)+this.l_name()+'.save()\n';
+                tests += renderer.spaces(8)+this.l_name()+' = create_'+this.l_name()+'()\n';
                 tests += renderer.spaces(8)+'url = reverse(\''+app_name+'_'+this.l_name()+'_detail\', args=['+this.l_name()+'.'+this.identifier()+',])\n';
                 tests += renderer.spaces(8)+'response = self.client.get(url)\n';
                 tests += renderer.spaces(8)+'self.assertEqual(response.status_code, 200)\n';
                 tests += renderer.new_lines(1);
 
                 tests += renderer.spaces(4)+'def test_update_'+this.l_name()+'(self):\n';
-                tests += renderer.spaces(8)+this.l_name()+' = '+this.name+'()\n';
-                tests += renderer.spaces(8)+this.l_name()+'.save()\n';
-                tests += renderer.spaces(8)+'data = {}\n';
+                tests += renderer.spaces(8)+this.l_name()+' = create_'+this.l_name()+'()\n';
+                tests += renderer.spaces(8)+'data = '+this.get_initial_data(app_name, renderer)+'\n';
                 tests += renderer.spaces(8)+'url = reverse(\''+app_name+'_'+this.l_name()+'_update\', args=['+this.l_name()+'.'+this.identifier()+',])\n';
-                tests += renderer.spaces(8)+'response = self.client.get(url, data)\n';
+                tests += renderer.spaces(8)+'response = self.client.post(url, data)\n';
                 tests += renderer.spaces(8)+'self.assertEqual(response.status_code, 302)\n';
                 tests += renderer.new_lines(2);
 
@@ -404,8 +450,8 @@ function ModelServiceFactory() {
 
                 urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/$\', '+this.name+'ListView.as_view(), name=\''+app_name+'_'+this.l_name()+'_list\'),\n';
                 urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/create/$\', '+this.name+'CreateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_create\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/(?P<'+this.identifier()+'>\\S+)/$\', '+this.name+'UpdateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_update\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/(?P<'+this.identifier()+'>\\S+)/$\', '+this.name+'DetailView.as_view(), name=\''+app_name+'_'+this.l_name()+'_detail\'),\n';
+                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/detail/(?P<'+this.identifier()+'>\\S+)/$\', '+this.name+'DetailView.as_view(), name=\''+app_name+'_'+this.l_name()+'_detail\'),\n';
+                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/update/(?P<'+this.identifier()+'>\\S+)/$\', '+this.name+'UpdateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_update\'),\n';
 
                 urls += ')\n';
                 urls += renderer.new_lines(1);
@@ -489,8 +535,53 @@ function ModelServiceFactory() {
 
                 return cls;
             };
+            this._template_header = function(){
+                return  '{% extends "base.html" %}\n';
+            };
+            this._wrap_block = function(block, content){
+                return '{% block '+block+' %}\n'+content+'\n{% endblock %}'
+            };
+            this.render_form_html = function(){
+                var form_html = this._template_header();
+                form_html += this._wrap_block('content', '{{form}}');
+                return form_html;
+            };
+            this.render_list_html = function(){
+                var list_html = this._template_header();
+                var ul_html = '<ul>\n';
+                ul_html += '{% for object in object_list %}\n';
+                ul_html += '<li>{{object}}<\/li>\n';
+                ul_html += '{% endfor %}\n';
+                ul_html += '</ul>';
+                list_html += this._wrap_block('content', ul_html);
+                return list_html;
+
+            };
+            this.render_detail_html = function () {
+                var detail_html = this._template_header();
+                var table_html = '<table>';
+                jQuery.each(this.fields, function(i, field){
+                    table_html += '<tr><td>'+field.name+'<\/td><td>{{ object.'+field.name+' }}<\/td><\/tr>\n';
+                });
+                table_html += '<\/table>';
+                detail_html += this._wrap_block('content', table_html);
+                detail_html += '\n<a href="{{object.get_update_url}}">Edit ' + this.name + '</a>\n';
+                return detail_html;
+            };
             this.form_fields = function(){
-                return '[\''+this.field_names().join('\', \'')+'\']'
+                var readable_field_names = (this.readable_fields()).map(function(field){return field.name});
+                var relationships = (this.relationships).map(function(relationship){return relationship.to.toLowerCase()});
+                var all_fields = readable_field_names.concat(relationships);
+                return '[\''+all_fields.join('\', \'')+'\']'
+            };
+            this.readable_fields = function(){
+                var readable_fields = [];
+                jQuery.each(this.fields, function(i, field){
+                    if(field.opts.indexOf('readonly')==-1 && field.opts.indexOf('editable')==-1) {
+                        readable_fields.push(field);
+                    }
+                });
+                return readable_fields;
             };
             this.admin_fields = function(){
                 return '[\''+this.field_names().join('\', \'')+'\']'
@@ -498,17 +589,6 @@ function ModelServiceFactory() {
             this.admin_read_only_fields = function(){
                 return '[\''+this.field_names().join('\', \'')+'\']'
             };
-            this.detail = function () {
-                var output = '{% extends "base.html" %}\n\n' +
-                    '{% block content %}\n' +
-                    '<table>';
-                jQuery.each(this.fields, function(i, field){
-                    output += '<tr><td>'+field.name+'<\/td><td>{{ object.'+field.name+' }}<\/td><\/tr>\n';
-                });
-                output += '<\/table';
-                output += '\n<a href="{{object.get_update_url}}">Edit ' + this.name + '</a>\n\{% endblock content %}\n';
-                return output;
-            }
         }
         return new Model(options);
     };

@@ -172,11 +172,18 @@
         </div>
     </div>
 </div>
+
 <h3>Templates</h3>
 <div class="row">
-    <!-- Django -->
-    <!--div ng-include src="'/site_media/static/partials/templates/detail.html'"></div-->
-    <!-- Angular -->
-    <div ng-include src="'partials/templates/detail.html'"></div>
+    <div class="col-md-6 col-xs-12 col{{ $index%4 }}" ng-repeat="model in models">
+        <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_detail.html</h4>
+        <pre class="builder_code">{{ model.render_detail_html() }}</pre>
+
+        <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_form.html</h4>
+        <pre class="builder_code">{{ model.render_form_html() }}</pre>
+
+        <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_list.html</h4>
+        <pre class="builder_code">{{ model.render_list_html() }}</pre>
+    </div>
 </div>
 <iframe id="download_iframe" style="display:none"></iframe>

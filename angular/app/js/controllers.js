@@ -14,7 +14,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.render_factory = new renderFactory();
             $scope.editors = [];
             $scope.models_storage_key = 'local_models';
-            $scope._app_name = 'MyApp';
+            $scope._app_name = 'app_name';
             $scope.storageType = 'Local storage';
 
             $scope.create_tar_ball = function(){
@@ -28,6 +28,8 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var tests = $scope.render_factory.render_tests_py($scope.app_name(), $scope.models);
                 var forms = $scope.render_factory.render_forms_py($scope.app_name(), $scope.models);
 
+                var templates = $scope.render_factory.render_templates_html($scope.app_name(), $scope.models);
+
                 var Tar = require('tar-js');
                 var tarfile = new Tar();
 
@@ -38,6 +40,13 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 tarfile.append($scope.app_name()+'/admin.py', admin);
                 tarfile.append($scope.app_name()+'/urls.py', urls);
                 tarfile.append($scope.app_name()+'/tests.py', tests);
+
+                tarfile.append($scope.app_name()+'/templates/base.html', $scope.render_factory.render_base_html($scope.app_name(), $scope.models));
+
+                jQuery.each(templates, function(i, template){
+                    tarfile.append($scope.app_name()+'/templates/'+$scope.app_name()+'/'+template[0], template[1]);
+                });
+
                 var out = tarfile.append($scope.app_name()+'/forms.py', forms);
 
                 function uint8ToString(buf) {
@@ -95,8 +104,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 $scope.editors.push(_editor);
             };
 
-            $scope.$watch("models", function() {
+            $scope.$watch("[models,_app_name]", function() {
                 $scope.reLoadAce();
+                $scope.saveApp();
             }, true);
 
             $scope.aceChanged = function(e) {
@@ -136,8 +146,18 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
             };
 
-            $scope.saveModels = function(){
-                localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
+            $scope.serializeApp = function(){
+                var config = {
+                    'models': $scope.models,
+                    'app_config': {
+                        'app_name': $scope._app_name
+                    }
+                };
+                return JSON.stringify(config);
+            };
+
+            $scope.saveApp = function(){
+                localStorageService.set($scope.models_storage_key, $scope.serializeApp());
             };
 
             $scope.clearModels = function () {
@@ -166,7 +186,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                         $scope.field_factory.make_field({
                             'name': 'slug',
                             'type': 'django_extensions.db.fields.AutoSlugField',
-                            'opts': 'populate_from=\'name\', blank=True, editable=True'
+                            'opts': 'populate_from=\'name\', blank=True'
                         }),
                         $scope.field_factory.make_field({
                             'name': 'created',
@@ -181,7 +201,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     ];
                     var model = model_factory(model_opts, $scope);
                     $scope.models.push(model);
-                    $scope.saveModels();
+                    $scope.saveApp();
                     input.val('');
                 }
             };
@@ -201,8 +221,10 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
 
             $scope.loadModels = function(){
-                var loaded_models = localStorageService.get($scope.models_storage_key);
-
+                var loaded_app = localStorageService.get($scope.models_storage_key) || {'models': [], 'app_config': {'app_name': 'app_name'}};
+                var loaded_models = loaded_app.models || [];
+                var loaded_app_config = loaded_app['app_config'] || { 'app_name': 'app_name'};
+                $scope._app_name = loaded_app_config['app_name'];
                 if(loaded_models==undefined){
                     return [];
                 }else{
