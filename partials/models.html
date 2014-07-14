@@ -45,16 +45,14 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="relationship in model.relationships" ng-mouseover="model_highlight($parent.$index, $index)" ng-mouseout="model_unhighlight()">
-                    <td><a ng-click="rename_relationship($parent.$index, $index)">{{ relationship.name }}&nbsp;&nbsp;<i class="fa fa-cog"></i></a></td>
-                    <td class="hidden-xs builder_break">{{ relationship.type }}({{ relationship.to }})</td>
-                    <td><a ><i ng-click="remove_relationship($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
+                    <td><a href="" ng-click="edit_relationship($parent.$index, $index)">{{ relationship.name }}&nbsp;&nbsp;<i class="fa fa-database"></i></a></td>
+                    <td class="hidden-xs builder_break">{{ relationship.class_name() }}({{ relationship.to }})</td>
+                    <td><a href=""><i ng-click="remove_relationship($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
                 </tr>
-                </tbody>
-                <tbody>
                 <tr ng-repeat="field in model.fields">
-                    <td style="width:30%;"><a ng-click="rename_field($parent.$index, $index)">{{ field.name }}</a></td>
+                    <td style="width:30%;"><a href="" ng-click="edit_field($parent.$index, $index)">{{ field.name }}</a></td>
                     <td class="hidden-xs">{{ field.class_name() }}</td>
-                    <td><a><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
+                    <td><a href=""><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
                 </tr>
                 </tbody>
             </table>
