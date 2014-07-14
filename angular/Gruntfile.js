@@ -17,7 +17,6 @@ module.exports = function (grunt) {
                 src: [
                     'app/ace/mode-python2.js',
                     'app/ace/theme-dawn.js',
-                    'app/bootstrap/css/bootstrap.js',
                     'app/tar-js/tar.js',
                     'app/bower_components/angular-ui-ace/ui-ace.min.js',
                     'app/bower_components/angular-local-storage/angular-local-storage.min.js',

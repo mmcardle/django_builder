@@ -102,6 +102,9 @@ function ModelRenderFactory() {
                 jQuery.each(model.fields, function(i, field){
                     all_fields[field.type] = field;
                 });
+                jQuery.each(model.relationships, function(i, relationship){
+                    all_fields[relationship.type] = relationship;
+                });
             });
             jQuery.each(all_fields, function(i, field){
                 models_py += 'from '+field.module()+' import '+field.class_name()+'\n';
@@ -223,6 +226,7 @@ function MessageServiceFactory() {
                 }
             });
             cancel_button.attr("data-dismiss", "modal");
+            confirm_button.attr("data-dismiss", "modal");
             simple_confirm.modal();
             return simple_confirm;
         };
@@ -251,8 +255,8 @@ function RelationshipFactory() {
         var _this = this;
         _this.relationship_types = function () {
             return [
-                'ForeignKey',
-                'OneToOneField'
+                'django.db.models.ForeignKey',
+                'django.db.models.OneToOneField'
             ];
         };
         function Relationship(options) {
@@ -260,6 +264,49 @@ function RelationshipFactory() {
             this.type = options['type'];
             this.opts = options['opts'];
             this.to = options['to'];
+            this.class_name = function () {
+                return this.type.split('.').reverse()[0]
+            };
+            this.form_update = function (form) {
+                this.name = jQuery(form).find('input[name=name]').val();
+                this.type = jQuery(form).find('select[name=type]').val();
+                this.opts = jQuery(form).find('input[name=opts]').val();
+                this.to = jQuery(form).find('input[name=to]').val();
+            };
+            this.module = function () {
+                var split = this.type.split('.');
+                return split.slice(0, split.length-1).join('.');
+            };
+            this.edit_form = function ($scope) {
+                var form = jQuery('<form>');
+                var form_div1 = jQuery('<div>').addClass('form-group form-group-name  has-feedback').appendTo(form);
+                var form_div2 = jQuery('<div>').addClass('form-group form-group-type').appendTo(form);
+                var form_div3 = jQuery('<div>').addClass('form-group form-group-args').appendTo(form);
+                var form_div4 = jQuery('<div>').addClass('form-group form-group-args').appendTo(form);
+                form_div1.append(jQuery('<label>').text('Name'));
+                form_div1.append(jQuery('<input>').attr('name', 'name').addClass('form-control').val(this.name));
+                form_div1.append(jQuery('<span>').text('error message').addClass('help-block hide'));
+
+                form_div2.append(jQuery('<label>').text('To'));
+                form_div2.append(jQuery('<input>').attr('name', 'to')
+                    .attr('placeholder', 'to').addClass('form-control').val(this.to));
+
+                var select = jQuery('<select>').attr('name', 'type').addClass('form-control');
+                var that = this;
+                jQuery.each($scope.relationship_factory.relationship_types(), function(i, field_type){
+                    var input = jQuery('<option>').attr('val', field_type).text(field_type);
+                    if(field_type==that.type){
+                        input.attr('selected', 'selected');
+                    }
+                    select.append(input);
+                });
+                form_div3.append(jQuery('<label>').text('Field Type'));
+                form_div3.append(select);
+                form_div4.append(jQuery('<label>').text('Arguments'));
+                form_div4.append(jQuery('<input>').attr('name', 'opts')
+                    .attr('placeholder', 'options').addClass('form-control').val(this.args));
+                return form;
+            };
         }
         _this.make_relationship = function (options) {
             return new Relationship(options);
@@ -300,6 +347,35 @@ function FieldFactory() {
                 var split = this.type.split('.');
                 return split.slice(0, split.length-1).join('.');
             };
+            this.form_update = function (form) {
+                this.name = jQuery(form).find('input[name=name]').val();
+                this.type = jQuery(form).find('select[name=type]').val();
+                this.opts = jQuery(form).find('input[name=opts]').val();
+            };
+            this.edit_form = function ($scope) {
+                var form = jQuery('<form>');
+                var form_div1 = jQuery('<div>').addClass('form-group form-group-name  has-feedback').appendTo(form);
+                var form_div2 = jQuery('<div>').addClass('form-group form-group-type').appendTo(form);
+                var form_div3 = jQuery('<div>').addClass('form-group form-group-args').appendTo(form);
+                form_div1.append(jQuery('<label>').text('Name'));
+                form_div1.append(jQuery('<input>').attr('name', 'name').addClass('form-control').val(this.name));
+                form_div1.append(jQuery('<span>').text('error message').addClass('help-block hide'));
+                var select = jQuery('<select>').attr('name', 'type').addClass('form-control');
+                var that = this;
+                jQuery.each($scope.field_factory.field_types(), function(i, field_type){
+                    var input = jQuery('<option>').attr('val', field_type).text(field_type);
+                    if(field_type==that.type){
+                        input.attr('selected', 'selected');
+                    }
+                    select.append(input);
+                });
+                form_div2.append(jQuery('<label>').text('Field Type'));
+                form_div2.append(select);
+                form_div3.append(jQuery('<label>').text('Arguments'));
+                form_div3.append(jQuery('<input>').attr('name', 'opts')
+                    .attr('placeholder', 'options').addClass('form-control').val(this.args));
+                return form;
+            };
         }
         _this.make_field = function (options) {
             return new Field(options);
@@ -313,7 +389,7 @@ function ModelServiceFactory() {
             this.fields = [];
             var fields = options['fields'] || [];
             this.fields = (options['fields'] || []).map($scope.field_factory.make_field);
-            this.relationships = options['relationships'] || [];
+            this.relationships = (options['relationships'] || []).map($scope.relationship_factory.make_relationship);
             this.relationship_names = function(){
                 var that = this;
                 return Object.keys(that.relationships).map(function (k) {
@@ -372,8 +448,8 @@ function ModelServiceFactory() {
             };
             this.get_initial_data = function(app_name, renderer){
                 var initial = '{';
+                initial += renderer.new_lines(1);
                 jQuery.each(this.readable_fields(), function(i, field){
-                    initial += renderer.new_lines(1);
                     initial += renderer.spaces(12)+'\"'+field.name+'\": \"'+field.name+'\",';
                     initial += renderer.new_lines(1);
                 });
@@ -500,14 +576,22 @@ function ModelServiceFactory() {
             };
             this.render_model_class = function(app_name, renderer){
                 var cls =  'class '+this.name+'(models.Model):';
-                cls += renderer.new_lines(1);
+                cls += renderer.new_lines(2);
+                if(this.fields.length>0) {
+                    cls += renderer.spaces(4) + "# Fields";
+                    cls += renderer.new_lines(1);
+                }
                 jQuery.each(this.fields, function(i, field){
                     cls += renderer.spaces(4)+field.name+' = '+field.class_name()+'('+field.opts+')';
                     cls += renderer.new_lines(1);
                 });
                 cls += renderer.new_lines(1);
+                if(this.relationships.length>0) {
+                    cls += renderer.spaces(4) + "# Relationship Fields";
+                    cls += renderer.new_lines(1);
+                }
                 jQuery.each(this.relationships, function(i, relationship){
-                    cls += renderer.spaces(4)+relationship.name+' = models.'+relationship.type+'(\''+app_name+'.'+relationship.to+'\','+relationship.opts+')';
+                    cls += renderer.spaces(4)+relationship.name+' = '+relationship.class_name()+'(\''+app_name+'.'+relationship.to+'\','+relationship.opts+')';
                     cls += renderer.new_lines(1);
                 });
 

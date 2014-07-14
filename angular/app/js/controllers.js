@@ -84,7 +84,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
 
             $scope.reLoadAce = function(_editor) {
-                jQuery().each($scope.editors, function(i, editor){
+                jQuery.each($scope.editors, function(i, editor){
                     $scope.aceLoad(editor);
                 });
             };
@@ -113,12 +113,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 // console.log('aceChanged');
             };
 
-            $scope.$watch('localStorageDemo', function (value) {
-                localStorageService.set('localStorageDemo', value);
-                $scope.localStorageDemoValue = localStorageService.get('localStorageDemo');
-            });
-
-
             if (localStorageService.getStorageType().indexOf('session') >= 0) {
                 $scope.storageType = 'Session storage';
             }
@@ -141,9 +135,12 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
 
             $scope.updateModel = function(model){
+                console.log(model);
                 var ind = $scope.models.indexOf(model);
+                console.log(ind, $scope.models);
+                console.log(ind, $scope.models[ind]);
                 $scope.models[ind] = model;
-                localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
+                $scope.$apply();
             };
 
             $scope.serializeApp = function(){
@@ -209,12 +206,12 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.cleanModel = function(model){
                 delete model['$$hashKey'];
                 if(model.fields!=undefined) {
-                    jQuery().each(model.fields, function (i, field) {
+                    jQuery.each(model.fields, function (i, field) {
                         delete field['$$hashKey'];
                     });
                 }
                 if(model.relationships!=undefined) {
-                    jQuery().each(model.relationships, function (i, relationship) {
+                    jQuery.each(model.relationships, function (i, relationship) {
                         delete relationship['$$hashKey'];
                     });
                 }
@@ -249,7 +246,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.__init__();
 
             $scope.debug = function(){
-                console.log(JSON.stringify($scope.models))
+                console.log(JSON.stringify($scope.serializeApp()));
             };
             $scope.add_relationship = function (index) {
                 var modal;
@@ -346,9 +343,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                             $scope.$apply();
                             modal.modal('hide');
                         }
-
                     }
-
                 };
                 // TODO make form factory
                 var form = jQuery('<form>');
@@ -372,20 +367,31 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
                 modal = $scope.messageService.simple_form('Add Field', '', form, on_input ).modal('show');
             };
-            $scope.rename_field = function (model_index, field_index) {
-                var on_confirm = function(input_val){
-                    $scope.models[model_index].fields[field_index].name = input_val;
-                    localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
+            $scope.edit_relationship = function (model_index, relationship_index) {
+                var relationship = $scope.models[model_index].relationships[relationship_index];
+                var on_confirm = function(form){
+                    relationship.form_update(form);
                     $scope.$apply();
                 };
-                $scope.messageService.simple_input('Rename',
-                        "Rename the field '" + $scope.models[model_index].fields[field_index].name+"'",
+
+                $scope.messageService.simple_form("Edit Relationship '" + relationship.name+"'",
+                    "", relationship.edit_form($scope),
+                    on_confirm).modal('show');
+            };
+            $scope.edit_field = function (model_index, field_index) {
+                var field = $scope.models[model_index].fields[field_index];
+                var on_confirm = function(form){
+                    field.form_update(form);
+                    $scope.$apply();
+                };
+
+                $scope.messageService.simple_form("Edit field '" + field.name+"'",
+                    "", field.edit_form($scope),
                     on_confirm).modal('show');
             };
             $scope.remove_relationship = function (model_index, relationship_index) {
                 var on_confirm = function(){
                     $scope.models[model_index].relationships.splice(relationship_index, 1);
-                    localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
                     $scope.$apply();
                 };
                 $scope.messageService.simple_confirm('Confirm',
@@ -395,7 +401,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.remove_field = function (model_index, field_index) {
                 var on_confirm = function(){
                     $scope.models[model_index].fields.splice(field_index, 1);
-                    localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
                     $scope.$apply();
                 };
                 $scope.messageService.simple_confirm('Confirm',
@@ -406,7 +411,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.remove_model = function (index) {
                 var on_confirm = function(){
                     $scope.models.splice(index, 1);
-                    localStorageService.set($scope.models_storage_key, JSON.stringify($scope.models));
                     $scope.$apply();
                 };
                 $scope.messageService.simple_confirm('Confirm',
