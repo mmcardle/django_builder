@@ -17,8 +17,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope._app_name = 'app_name';
             $scope.storageType = 'Local storage';
 
-            $scope.create_tar_ball = function(){
-                
+            $scope.create_tar_ball_url = function(){
                 var README = 'Built with django_builder\n';
                 var __init__ = '#';
                 var models = $scope.render_factory.render_models_py($scope.app_name(), $scope.models);
@@ -59,10 +58,12 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 }
 
 	            var base64 = btoa(uint8ToString(out));
+                return "data:application/tar;base64," + base64;
+            };
 
-                var url = "data:application/tar;base64," + base64;
+            $scope.create_tar_ball = function(){
                 var download_iframe = document.getElementById("download_iframe");
-                download_iframe.src = url;
+                download_iframe.src = $scope.create_tar_ball_url();
             };
 
             $scope.aceLoad = function(_editor) {
@@ -165,6 +166,10 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     $scope.$apply();
                 };
                 $scope.messageService.simple_confirm('Confirm', "Remove all models?", on_confirm).modal('show');
+            };
+
+            $scope.model_count = function() {
+                return $scope.models.length;
             };
 
             $scope.addModel = function () {
