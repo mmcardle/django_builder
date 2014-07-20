@@ -1,13 +1,33 @@
 'use strict';
 
 /* Services */
-
+function TarballFactory() {
+    return function () {
+        function Tarball() {
+            var tf = this;
+            var Tar = require('tar-js');
+            var tarfile = new Tar();
+            tf.uInt8ToString = function(buf) {
+                var i, length, out = '';
+                for (i = 0, length = buf.length; i < length; i += 1) {
+                    out += String.fromCharCode(buf[i]);
+                }
+                return out;
+            };
+            tf.append = function (file_name, content) {
+                tarfile.append(file_name, content)
+            };
+            tf.get_url = function (n) {
+                var base64 = btoa(tf.uInt8ToString(tarfile.out));
+                return "data:application/tar;base64," + base64;
+            };
+        }
+        return new Tarball();
+    };
+}
 function ModelRenderFactory() {
     return function () {
         var _this = this;
-        _this.base_modal = function () {
-            return base;
-        };
         _this.spaces = function(n){
             var _n = n ||1;
             return new Array(_n+1).join(" ");
@@ -339,7 +359,7 @@ function FieldFactory() {
         function Field(options) {
             this.name = options['name'];
             this.type = options['type'];
-            this.opts = options['opts'];
+            this.opts = options['opts'] || '';
             this.class_name = function () {
                 return this.type.split('.').reverse()[0]
             };
@@ -684,4 +704,5 @@ angular.module('builder.services', [])
     .factory('FieldFactory', [FieldFactory])
     .factory('RelationshipFactory', [RelationshipFactory])
     .factory('RenderFactory', [ModelRenderFactory])
+    .factory('TarballFactory', [TarballFactory])
     .value('version', '0.1');

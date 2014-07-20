@@ -3,8 +3,8 @@
 /* Controllers */
 
 angular.module('builder.controllers', ['LocalStorageModule'])
-    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'FieldFactory', 'RelationshipFactory', 'localStorageService', 'MessageService', 'RenderFactory',
-        function ($scope, $http, model_factory, field_factory, relationship_factory, localStorageService, message_service, renderFactory) {
+    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'FieldFactory', 'RelationshipFactory', 'localStorageService', 'MessageService', 'RenderFactory', 'TarballFactory',
+        function ($scope, $http, model_factory, field_factory, relationship_factory, localStorageService, message_service, renderFactory, tarballFactory) {
 
             $ = jQuery();
             $scope.models = [];
@@ -29,8 +29,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
                 var templates = $scope.render_factory.render_templates_html($scope.app_name(), $scope.models);
 
-                var Tar = require('tar-js');
-                var tarfile = new Tar();
+                var tarfile = new tarballFactory();
 
                 tarfile.append('README.txt', README);
                 tarfile.append($scope.app_name()+'/__init__.py', __init__);
@@ -39,26 +38,14 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 tarfile.append($scope.app_name()+'/admin.py', admin);
                 tarfile.append($scope.app_name()+'/urls.py', urls);
                 tarfile.append($scope.app_name()+'/tests.py', tests);
-
+                tarfile.append($scope.app_name()+'/forms.py', forms);
                 tarfile.append($scope.app_name()+'/templates/base.html', $scope.render_factory.render_base_html($scope.app_name(), $scope.models));
 
                 jQuery.each(templates, function(i, template){
                     tarfile.append($scope.app_name()+'/templates/'+$scope.app_name()+'/'+template[0], template[1]);
                 });
 
-                var out = tarfile.append($scope.app_name()+'/forms.py', forms);
-
-                function uint8ToString(buf) {
-                    var i, length, out = '';
-                    for (i = 0, length = buf.length; i < length; i += 1) {
-                        out += String.fromCharCode(buf[i]);
-                    }
-
-                    return out;
-                }
-
-	            var base64 = btoa(uint8ToString(out));
-                return "data:application/tar;base64," + base64;
+                return tarfile.get_url();
             };
 
             $scope.create_tar_ball = function(){
@@ -84,9 +71,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 _editor.session.selection.clearSelection();
             };
 
-            $scope.reLoadAce = function(_editor) {
-                jQuery.each($scope.editors, function(i, editor){
-                    $scope.aceLoad(editor);
+            $scope.reLoadAce = function() {
+                Object.keys($scope.editors).map(function (k) {
+                    $scope.aceLoad($scope.editors[k]);
                 });
             };
 
@@ -157,13 +144,16 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.saveApp = function(){
                 localStorageService.set($scope.models_storage_key, $scope.serializeApp());
             };
+            $scope.doClearModels = function () {
+                localStorageService.set($scope.models_storage_key, '');
+                $scope.loadModels();
+                $scope.models = [];
+                $scope.$apply();
+            };
 
             $scope.clearModels = function () {
                 var on_confirm = function () {
-                    localStorageService.set($scope.models_storage_key, '');
-                    $scope.loadModels();
-                    $scope.models = [];
-                    $scope.$apply();
+                    $scope.doClearModels();
                 };
                 $scope.messageService.simple_confirm('Confirm', "Remove all models?", on_confirm).modal('show');
             };
@@ -422,25 +412,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                         "Remove the model '" + $scope.models[index].name +"'",
                     on_confirm).modal('show');
             };
-
-            var format_array = function (arr, s) {
-                return Object.keys(arr).map(function (k) {
-                    return arr[k].name + s
-                });
-            };
-            $scope.import_views = function () {
-                return 'from .views import '
-                    + format_array($scope.models, 'ListView').join(', ') + ', '
-                    + format_array($scope.models, 'DetailView').join(', ') + ', '
-                    + format_array($scope.models, 'UpdateView').join(', ') + ', '
-                    + format_array($scope.models, 'CreateView').join(', ');
-            };
-            $scope.import_models = function () {
-                return 'from .models import ' + format_array($scope.models, 'Model').join(', ');
-            };
-            $scope.import_forms = function () {
-                return 'from .forms import ' + format_array($scope.models, 'Form').join(', ');
-            };
             $scope.model_highlight = function (model_index, relationship_index) {
                 var r = $scope.models[model_index].relationships[relationship_index];
                 jQuery('.builder_model_'+ r.to).addClass('builder_model_highlight');
@@ -448,22 +419,5 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.model_unhighlight = function () {
                 jQuery('.builder_model').removeClass('builder_model_highlight');
             };
-
-            // Load from api
-            /*$http({method: 'GET', url: '/builder/amodel'}).
-                success(function (data, status, headers, config) {
-                    // this callback will be called asynchronously
-                    // when the response is available
-                    $scope.models = data;
-                    $scope.models = Object.keys(data).map(function (k) {
-                        return $model_factory(data[k]);
-                    });
-                }).
-                error(function (data, status, headers, config) {
-                    // called asynchronously if an error occurs
-                    // or server returns response with an error status.
-            });*/
-
-
         }]
 );
