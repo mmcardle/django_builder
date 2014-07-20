@@ -42,6 +42,18 @@ function ModelRenderFactory() {
             var _n = n ||1;
             return new Array(_n+1).join("\n");
         };
+        _this.render_all = function(app_name, models){
+            // Primary used for testing
+            var all_output = '';
+            all_output+=_this.render_base_html(app_name, models);
+            all_output+=_this.render_forms_py(app_name, models);
+            all_output+=_this.render_urls_py(app_name, models);
+            all_output+=_this.render_admin_py(app_name, models);
+            all_output+=_this.render_views_py(app_name, models);
+            all_output+=_this.render_models_py(app_name, models);
+            all_output+=_this.render_templates_html(app_name, models);
+            return all_output;
+        }
         _this.render_base_html = function(app_name, models){
             return '<html><head></head><body>{% block content %}Replace this.{% endblock %}</body>';
         };
@@ -137,7 +149,6 @@ function ModelRenderFactory() {
 
             return models_py;
         };
-        
         _this.render_templates_html = function (app_name, models) {
             var templates = [];
 
@@ -217,6 +228,7 @@ function MessageServiceFactory() {
             return simple_info;
         };
         _this.simple_confirm = function (title, message, callback) {
+            var _callback = callback || jQuery.noop;
             var simple_confirm = _this.base_modal();
             simple_confirm.find(".modal-header-inner").html(title);
             simple_confirm.find(".modal-body").empty().append(message);
@@ -224,9 +236,7 @@ function MessageServiceFactory() {
             var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
             simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
             confirm_button.click(function () {
-                if (callback != undefined) {
-                    callback();
-                }
+                _callback();
             });
             cancel_button.attr("data-dismiss", "modal");
             confirm_button.attr("data-dismiss", "modal");
@@ -234,6 +244,7 @@ function MessageServiceFactory() {
             return simple_confirm;
         };
         _this.simple_form = function (title, message, form, callback) {
+            var _callback = callback || jQuery.noop;
             var simple_confirm = _this.base_modal();
             simple_confirm.find(".modal-header-inner").html(title);
             simple_confirm.find(".modal-body").empty().append(message).append(form);
@@ -241,9 +252,7 @@ function MessageServiceFactory() {
             var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
             simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
             confirm_button.click(function () {
-                if (callback != undefined) {
-                    callback(form);
-                }
+                _callback(form);
             });
             cancel_button.attr("data-dismiss", "modal");
             confirm_button.attr("data-dismiss", "modal");
@@ -251,6 +260,7 @@ function MessageServiceFactory() {
             return simple_confirm;
         };
         _this.simple_input = function (title, message, callback) {
+            var _callback = callback || jQuery.noop;
             var simple_confirm = _this.base_modal();
             simple_confirm.find(".modal-header-inner").html(title);
             var input = jQuery('<input>').attr('type', 'text').addClass('form-control');
@@ -259,9 +269,7 @@ function MessageServiceFactory() {
             var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
             simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
             confirm_button.click(function () {
-                if (callback != undefined) {
-                    callback(input.val());
-                }
+                _callback(input.val());
             });
             cancel_button.attr("data-dismiss", "modal");
             confirm_button.attr("data-dismiss", "modal");

@@ -15,7 +15,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.editors = [];
             $scope.models_storage_key = 'local_models';
             $scope._app_name = 'app_name';
-            $scope.storageType = 'Local storage';
 
             $scope.create_tar_ball_url = function(){
                 var README = 'Built with django_builder\n';
@@ -86,9 +85,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     maxLines: Infinity
                 });
                 _editor.renderer.$cursorLayer.element.style.opacity=0;
-                if(_editor!=undefined) {
-                    $scope.aceLoad(_editor);
-                }
+                $scope.aceLoad(_editor);
                 $scope.editors.push(_editor);
             };
 
@@ -101,16 +98,11 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 // console.log('aceChanged');
             };
 
-            if (localStorageService.getStorageType().indexOf('session') >= 0) {
-                $scope.storageType = 'Session storage';
-            }
-
-            if (!localStorageService.isSupported) {
-                $scope.storageType = 'Cookie';
-            }
-
+            $scope.do_set_app_name = function (app_name) {
+                $scope._app_name = app_name
+            };
             $scope.set_app_name = function () {
-                $scope._app_name = jQuery('input#appname').val();
+                $scope.do_set_app_name(jQuery('input#appname').val());
                 $scope.reLoadAce();
             };
 
@@ -123,10 +115,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
 
             $scope.updateModel = function(model){
-                console.log(model);
                 var ind = $scope.models.indexOf(model);
-                console.log(ind, $scope.models);
-                console.log(ind, $scope.models[ind]);
                 $scope.models[ind] = model;
                 $scope.$apply();
             };
@@ -155,7 +144,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var on_confirm = function () {
                     $scope.doClearModels();
                 };
-                $scope.messageService.simple_confirm('Confirm', "Remove all models?", on_confirm).modal('show');
+                return $scope.messageService.simple_confirm('Confirm', "Remove all models?", on_confirm).modal('show');
             };
 
             $scope.model_count = function() {
@@ -217,14 +206,10 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var loaded_models = loaded_app.models || [];
                 var loaded_app_config = loaded_app['app_config'] || { 'app_name': 'app_name'};
                 $scope._app_name = loaded_app_config['app_name'];
-                if(loaded_models==undefined){
-                    return [];
-                }else{
-                    jQuery.each(loaded_models, function(i, model){
-                        $scope.cleanModel(model);
-                    });
-                    return loaded_models;
-                }
+                jQuery.each(loaded_models, function(i, model){
+                    $scope.cleanModel(model);
+                });
+                return loaded_models;
             };
 
             $scope.loadModel = function(model_opts){
@@ -308,6 +293,8 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 form_div3.append(jQuery('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
 
                 modal = $scope.messageService.simple_form('Add Relationship', '', form, on_input ).modal('show');
+                return modal;
+
             };
             $scope.add_field = function (index) {
                 var modal;
@@ -361,6 +348,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 form_div3.append(jQuery('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
 
                 modal = $scope.messageService.simple_form('Add Field', '', form, on_input ).modal('show');
+                return modal;
             };
             $scope.edit_relationship = function (model_index, relationship_index) {
                 var relationship = $scope.models[model_index].relationships[relationship_index];
@@ -369,7 +357,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     $scope.$apply();
                 };
 
-                $scope.messageService.simple_form("Edit Relationship '" + relationship.name+"'",
+                return $scope.messageService.simple_form("Edit Relationship '" + relationship.name+"'",
                     "", relationship.edit_form($scope),
                     on_confirm).modal('show');
             };
@@ -380,7 +368,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     $scope.$apply();
                 };
 
-                $scope.messageService.simple_form("Edit field '" + field.name+"'",
+                return $scope.messageService.simple_form("Edit field '" + field.name+"'",
                     "", field.edit_form($scope),
                     on_confirm).modal('show');
             };
@@ -389,7 +377,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     $scope.models[model_index].relationships.splice(relationship_index, 1);
                     $scope.$apply();
                 };
-                $scope.messageService.simple_confirm('Confirm',
+                return $scope.messageService.simple_confirm('Confirm',
                         "Remove the relationship '" + $scope.models[model_index].relationships[relationship_index].name+"'",
                     on_confirm).modal('show');
             };
@@ -398,9 +386,10 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     $scope.models[model_index].fields.splice(field_index, 1);
                     $scope.$apply();
                 };
-                $scope.messageService.simple_confirm('Confirm',
+                return $scope.messageService.simple_confirm('Confirm',
                         "Remove the field '" + $scope.models[model_index].fields[field_index].name+"'",
                     on_confirm).modal('show');
+
             };
 
             $scope.remove_model = function (index) {
@@ -408,7 +397,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     $scope.models.splice(index, 1);
                     $scope.$apply();
                 };
-                $scope.messageService.simple_confirm('Confirm',
+                return $scope.messageService.simple_confirm('Confirm',
                         "Remove the model '" + $scope.models[index].name +"'",
                     on_confirm).modal('show');
             };
