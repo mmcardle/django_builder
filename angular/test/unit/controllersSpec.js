@@ -192,11 +192,12 @@ describe('Testing ModelController', function () {
         expect($scope.model_count()).toBe(0);
         $scope.addModel();
         expect($scope.model_count()).toBe(0);
-        jQuery('<input>').attr('id', 'builder_model_name').val('New Model').appendTo('body');
+        jQuery('<input>').attr('id', 'builder_model_name').val('NewModel').appendTo('body');
         $scope.addModel();
         expect($scope.model_count()).toBe(1);
 
-        var remove_model = $scope.remove_model(0);
+        var remove_model_id = $scope.remove_model(0);
+        var remove_model = jQuery('#'+remove_model_id);
         remove_model.find('.btn-primary').click();
         expect($scope.model_count()).toBe(0);
     });
@@ -237,13 +238,15 @@ describe('Testing ModelController', function () {
         $scope.models.push(model);
 
         expect($scope.models[0].fields.length).toBe(1);
-        var add_field_model = $scope.add_field(0);
+        var add_field_model_id = $scope.add_field(0);
+        var add_field_model = jQuery('#'+add_field_model_id);
         add_field_model.find('input[name=name]').val(field_name);
         add_field_model.find('.btn-primary').click();
         expect($scope.models[0].fields.length).toBe(1);
 
         expect($scope.models[0].relationships.length).toBe(1);
-        var add_rel_model = $scope.add_relationship(0);
+        var add_rel_model_id = $scope.add_relationship(0);
+        var add_rel_model = jQuery('#'+add_rel_model_id);
         add_rel_model.find('.btn-primary').click();
         add_rel_model.find('input[name=name]').val(rel_name);
         add_rel_model.find('.btn-primary').click();
@@ -267,47 +270,62 @@ describe('Testing ModelController', function () {
         var rel_opts = {"name": rel_name, "type": 'RelType', "to": 'RelTo'};
         var rel = rf.make_relationship(rel_opts);
 
-        var model_opts = {"name": 'Model'};
+        var model_opts = {"name": 'ModelAddRelAndField'};
         var model = model_factory(model_opts, $scope);
         model.fields.push(field);
         model.relationships.push(rel);
         $scope.models.push(model);
 
         expect($scope.models[0].fields[0].name).toBe(field_name);
-        var edit_field_model = $scope.edit_field(0, 0);
+        var edit_field_model_id = $scope.edit_field(0, 0);
+        var edit_field_model = jQuery('#'+edit_field_model_id);
         edit_field_model.find('input[name=name]').val(new_field_name);
         edit_field_model.find('.btn-primary').click();
         expect($scope.models[0].fields[0].name).toBe(new_field_name);
 
-        var remove_field_model = $scope.remove_field(0, 0);
+        var remove_field_model_id = $scope.remove_field(0, 0);
+        var remove_field_model = jQuery('#'+remove_field_model_id);
         remove_field_model.find('.btn-primary').click();
         expect($scope.models[0].fields.length).toBe(0);
-
         expect($scope.models[0].relationships[0].name).toBe(rel_name);
-        var edit_rel_model = $scope.edit_relationship(0, 0);
+
+        var edit_rel_model_id = $scope.edit_relationship(0, 0);
+        var edit_rel_model = jQuery('#'+edit_rel_model_id);
         edit_rel_model.find('.btn-primary').click();
         edit_rel_model.find('input[name=name]').val(new_rel_name);
         edit_rel_model.find('.btn-primary').click();
         expect($scope.models[0].relationships[0].name).toBe(new_rel_name);
 
-        var remove_rel_model = $scope.remove_relationship(0, 0);
+        var remove_rel_model_id = $scope.remove_relationship(0, 0);
+        var remove_rel_model = jQuery('#'+remove_rel_model_id);
         remove_rel_model.find('.btn-primary').click();
         expect($scope.models[0].relationships.length).toBe(0);
     });
-    it('should have ability to add fields and relationships', function () {
-
-        var model_opts = {"name": 'Model'};
+    it('should have ability to add fields', function () {
+        var model_opts = {"name": 'ModelAddField'};
         var model = model_factory(model_opts, $scope);
         $scope.models.push(model);
+        expect($scope.models[0].fields.length).toBe(0);
 
-        var add_field_model = $scope.add_field(0);
+        var add_field_model_id = $scope.add_field(0);
+        var add_field_model = jQuery('#'+add_field_model_id);
         add_field_model.find('.btn-primary').click();
+        expect($scope.models[0].fields.length).toBe(0);
         add_field_model.find('input[name=name]').val('field');
         add_field_model.find('.btn-primary').click();
-
-        var add_rel_model = $scope.add_relationship(0);
+        expect($scope.models[0].fields.length).toBe(1);
+    });
+    it('should have ability to add relationships', function () {
+        var model_opts = {"name": 'ModelAddRel'};
+        var model = model_factory(model_opts, $scope);
+        $scope.models.push(model);
+        expect($scope.models[0].relationships.length).toBe(0);
+        var add_rel_model_id = $scope.add_relationship(0);
+        var add_rel_model = jQuery('#'+add_rel_model_id);
         add_rel_model.find('.btn-primary').click();
+        expect($scope.models[0].relationships.length).toBe(0);
         add_rel_model.find('input[name=name]').val('field');
         add_rel_model.find('.btn-primary').click();
+        expect($scope.models[0].relationships.length).toBe(1);
     });
 });

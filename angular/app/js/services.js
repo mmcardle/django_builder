@@ -401,7 +401,7 @@ function FieldFactory() {
                 form_div2.append(select);
                 form_div3.append(jQuery('<label>').text('Arguments'));
                 form_div3.append(jQuery('<input>').attr('name', 'opts')
-                    .attr('placeholder', 'options').addClass('form-control').val(this.args));
+                    .attr('placeholder', 'options').addClass('form-control').val(this.opts));
                 return form;
             };
         }

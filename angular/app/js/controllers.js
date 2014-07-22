@@ -229,7 +229,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 console.log(JSON.stringify($scope.serializeApp()));
             };
             $scope.add_relationship = function (index) {
-                var modal;
+                var model = $scope.models[index];
                 var on_input= function(output_form){
                     var name = output_form.find('input[name=name]').val();
                     if(name===undefined||name==='') {
@@ -238,7 +238,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                             .append(jQuery('<span>').addClass("glyphicon glyphicon-remove form-control-feedback"))
                             .find('.help-block').removeClass('hide').text('Field Required');
                     }else {
-                        var model = $scope.models[index];
                         if(model.has_relationship(name)){
                             output_form.find('div.form-group-name')
                                 .addClass('has-error')
@@ -257,7 +256,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                             model.relationships.push(relationship);
                             $scope.updateModel(model);
                             $scope.$apply();
-                            modal.modal('hide');
                         }
 
                     }
@@ -291,13 +289,14 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 form_div2.append(type_select);
                 form_div3.append(jQuery('<label>').text('Arguments'));
                 form_div3.append(jQuery('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
-
-                modal = $scope.messageService.simple_form('Add Relationship', '', form, on_input ).modal('show');
-                return modal;
+                var identifier = 'add_rel_'+model['name']+'_'+index;
+                $scope.messageService.simple_form('Add Relationship', '', form, on_input ).modal('show')
+                    .attr('id', identifier).appendTo('body');
+                return identifier;
 
             };
             $scope.add_field = function (index) {
-                var modal;
+                var model = $scope.models[index];
                 var on_input= function(output_form){
                     var name = output_form.find('input[name=name]').val();
                     if(name===undefined||name==='') {
@@ -306,7 +305,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                             .append(jQuery('<span>').addClass("glyphicon glyphicon-remove form-control-feedback"))
                             .find('.help-block').removeClass('hide').text('Field Required');
                     }else {
-                        var model = $scope.models[index];
+
                         if(model.has_field(name)){
                             output_form.find('div.form-group-name')
                                 .addClass('has-error')
@@ -323,7 +322,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                             model.fields.push(field);
                             $scope.updateModel(model);
                             $scope.$apply();
-                            modal.modal('hide');
                         }
                     }
                 };
@@ -347,8 +345,10 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 form_div3.append(jQuery('<label>').text('Arguments'));
                 form_div3.append(jQuery('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
 
-                modal = $scope.messageService.simple_form('Add Field', '', form, on_input ).modal('show');
-                return modal;
+                var identifier = 'add_field_'+model['name']+'_'+index;
+                $scope.messageService.simple_form('Add Field', '', form, on_input).modal('show')
+                    .attr('id', identifier).appendTo('body');
+                return identifier;
             };
             $scope.edit_relationship = function (model_index, relationship_index) {
                 var relationship = $scope.models[model_index].relationships[relationship_index];
@@ -356,10 +356,11 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     relationship.form_update(form);
                     $scope.$apply();
                 };
-
-                return $scope.messageService.simple_form("Edit Relationship '" + relationship.name+"'",
+                var identifier = relationship['$$hashKey'] || 'edit_relationship_'+relationship.name;
+                $scope.messageService.simple_form("Edit Relationship '" + relationship.name+"'",
                     "", relationship.edit_form($scope),
-                    on_confirm).modal('show');
+                    on_confirm).modal('show').attr('id', identifier).appendTo('body');
+                return identifier;
             };
             $scope.edit_field = function (model_index, field_index) {
                 var field = $scope.models[model_index].fields[field_index];
@@ -367,29 +368,35 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     field.form_update(form);
                     $scope.$apply();
                 };
-
-                return $scope.messageService.simple_form("Edit field '" + field.name+"'",
+                var identifier = field['$$hashKey'] || 'edit_field_'+field.name;
+                $scope.messageService.simple_form("Edit field '" + field.name+"'",
                     "", field.edit_form($scope),
-                    on_confirm).modal('show');
+                    on_confirm).modal('show').attr('id', identifier).appendTo('body');
+                return identifier;
             };
             $scope.remove_relationship = function (model_index, relationship_index) {
                 var on_confirm = function(){
                     $scope.models[model_index].relationships.splice(relationship_index, 1);
                     $scope.$apply();
                 };
-                return $scope.messageService.simple_confirm('Confirm',
-                        "Remove the relationship '" + $scope.models[model_index].relationships[relationship_index].name+"'",
-                    on_confirm).modal('show');
+                var relationship = $scope.models[model_index].relationships[relationship_index];
+                var identifier = relationship['$$hashKey'] || 'remove_relationship_'+relationship.name;
+                $scope.messageService.simple_confirm('Confirm',
+                        "Remove the relationship '" + relationship.name+"'",
+                    on_confirm).modal('show').attr('id', identifier).appendTo('body');
+                return identifier;
             };
             $scope.remove_field = function (model_index, field_index) {
                 var on_confirm = function(){
                     $scope.models[model_index].fields.splice(field_index, 1);
                     $scope.$apply();
                 };
-                return $scope.messageService.simple_confirm('Confirm',
-                        "Remove the field '" + $scope.models[model_index].fields[field_index].name+"'",
-                    on_confirm).modal('show');
-
+                var field = $scope.models[model_index].fields[field_index];
+                var identifier = field['$$hashKey'] || 'remove_field_'+field.name;
+                $scope.messageService.simple_confirm('Confirm',
+                        "Remove the field '" + field.name+"'",
+                    on_confirm).modal('show').attr('id', identifier).appendTo('body');
+                return identifier;
             };
 
             $scope.remove_model = function (index) {
@@ -397,9 +404,12 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     $scope.models.splice(index, 1);
                     $scope.$apply();
                 };
-                return $scope.messageService.simple_confirm('Confirm',
-                        "Remove the model '" + $scope.models[index].name +"'",
-                    on_confirm).modal('show');
+                var model = $scope.models[index];
+                var identifier = model['$$hashKey'] || 'remove_model_'+model.name;
+                $scope.messageService.simple_confirm('Confirm',
+                        "Remove the model '" + model.name +"'",
+                    on_confirm).modal('show').modal('show').attr('id', identifier).appendTo('body');
+                return identifier;
             };
             $scope.model_highlight = function (model_index, relationship_index) {
                 var r = $scope.models[model_index].relationships[relationship_index];

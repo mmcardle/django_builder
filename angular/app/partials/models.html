@@ -33,7 +33,7 @@
 </div>
 <hr>
 <div class="row">
-    <div class="col-md-3 col-xs-6 col{{ $index%4 }}" ng-repeat="model in models">
+    <div class="col-md-4 col-xs-6 col{{ $index%3 }}" ng-repeat="model in models">
         <div class="builder_model builder_model_{{ model.name }}">
             <table class="table table-condensed table-hover builder_model_table">
                 <thead>
@@ -50,7 +50,7 @@
                     <td><a href=""><i ng-click="remove_relationship($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
                 </tr>
                 <tr ng-repeat="field in model.fields">
-                    <td style="width:30%;"><a href="" ng-click="edit_field($parent.$index, $index)">{{ field.name }}</a></td>
+                    <td style="width:30%;"><a href="" ng-click="x=edit_field($parent.$index, $index);">{{ field.name }}</a></td>
                     <td class="hidden-xs">{{ field.class_name() }}</td>
                     <td><a href=""><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
                 </tr>
@@ -173,7 +173,7 @@
 
 <h3>Templates</h3>
 <div class="row">
-    <div class="col-md-6 col-xs-12 col{{ $index%4 }}" ng-repeat="model in models">
+    <div class="col-md-6 col-xs-12 col{{ $index%3 }}" ng-repeat="model in models">
         <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_detail.html</h4>
         <pre class="builder_code">{{ model.render_detail_html() }}</pre>
 
