@@ -1,3 +1,10 @@
+.label-rotate {
+    transform:rotate(-15deg);
+    transform:rotate(-15deg);
+    -ms-transform:rotate(-15deg); /* IE 9 */
+    -webkit-transform:rotate(-15deg); /* Opera, Chrome, and Safari */
+    padding:12px .6em .3em
+}
 h4 {
     color: #ff4136;
 }
