@@ -8,7 +8,9 @@ angular.module('builder', [
     'builder.directives',
     'builder.controllers',
     'LocalStorageModule',
-    'ui.ace'
+    'ui.ace',
+    'angulartics',
+    'angulartics.google.analytics'
 ]).config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     // Angular
     $routeProvider.when('/models', {templateUrl: 'partials/models.html', controller: 'ModelController'});
