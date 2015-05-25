@@ -19,7 +19,7 @@ module.exports = function (grunt) {
                     'app/ace/theme-dawn.js',
                     'app/tar-js/tar.js',
                     'app/bower_components/angular-ui-ace/ui-ace.min.js',
-                    'app/bower_components/angular-local-storage/angular-local-storage.min.js',
+                    'app/bower_components/angular-local-storage/dist/angular-local-storage.min.js',
                     'app/js/*.js'
                 ],
                 dest: 'app/build/<%= pkg.name %>.min.js'
@@ -42,9 +42,19 @@ module.exports = function (grunt) {
         watch: {
             files: ['*.js', 'app/js/*.js', 'app/css/*.css'],
             tasks: ['concat', 'cssmin', 'uglify']
+        },
+        karma: {
+            e2e: {
+                configFile: 'test/protractor-conf.js'
+            },
+            unit: {
+                configFile: 'test/karma.conf.js',
+                singleRun: true
+            }
         }
     });
 
+    grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');

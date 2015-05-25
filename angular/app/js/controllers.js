@@ -151,40 +151,44 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 return $scope.models.length;
             };
 
+            $scope.add_model = function (model_name) {
+                var model_opts = {"name": model_name};
+                model_opts.fields = [
+                    $scope.field_factory.make_field({
+                        'name': 'name',
+                        'type': 'django.db.models.CharField',
+                        'opts': 'max_length=255'
+                    }),
+                    $scope.field_factory.make_field({
+                        'name': 'slug',
+                        'type': 'django_extensions.db.fields.AutoSlugField',
+                        'opts': 'populate_from=\'name\', blank=True'
+                    }),
+                    $scope.field_factory.make_field({
+                        'name': 'created',
+                        'type': 'django.db.models.DateTimeField',
+                        'opts': 'auto_now_add=True, editable=False'
+                    }),
+                    $scope.field_factory.make_field({
+                        'name': 'last_updated',
+                        'type': 'django.db.models.DateTimeField',
+                        'opts': 'auto_now=True, editable=False'
+                    })
+                ];
+                var model = model_factory(model_opts, $scope);
+                $scope.models.push(model);
+                $scope.saveApp();
+                $scope.$apply();
+            };
             $scope.addModel = function () {
-                var input = jQuery('input#builder_model_name');
-                var model_name = input.val();
-                if (model_name == undefined || model_name === '') {
-                    $scope.messageService.simple_info('Input Required', "No model name entered").modal('show');
-                } else {
-                    var model_opts = {"name": model_name};
-                    model_opts.fields = [
-                        $scope.field_factory.make_field({
-                            'name': 'name',
-                            'type': 'django.db.models.CharField',
-                            'opts': 'max_length=255'
-                        }),
-                        $scope.field_factory.make_field({
-                            'name': 'slug',
-                            'type': 'django_extensions.db.fields.AutoSlugField',
-                            'opts': 'populate_from=\'name\', blank=True'
-                        }),
-                        $scope.field_factory.make_field({
-                            'name': 'created',
-                            'type': 'django.db.models.DateTimeField',
-                            'opts': 'auto_now_add=True, editable=False'
-                        }),
-                        $scope.field_factory.make_field({
-                            'name': 'last_updated',
-                            'type': 'django.db.models.DateTimeField',
-                            'opts': 'auto_now=True, editable=False'
-                        })
-                    ];
-                    var model = model_factory(model_opts, $scope);
-                    $scope.models.push(model);
-                    $scope.saveApp();
-                    input.val('');
-                }
+                var add_model_callback = function(model_name){
+                    if (model_name == undefined || model_name === '') {
+                        $scope.messageService.simple_info('Model Name Required', "Enter a Model name").modal('show');
+                    } else {
+                        $scope.add_model(model_name);
+                    }
+                };
+                $scope.messageService.simple_input('Model Name Required', "Enter a Model name", add_model_callback).modal('show');
             };
 
             $scope.cleanModel = function(model){
@@ -226,7 +230,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.__init__();
 
             $scope.debug = function(){
-                console.log(JSON.stringify($scope.serializeApp()));
+                //console.log(JSON.stringify($scope.serializeApp()));
             };
             $scope.add_relationship = function (index) {
                 var model = $scope.models[index];

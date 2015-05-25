@@ -14,7 +14,9 @@ module.exports = function(config){
       'app/ace/theme-dawn.js',
       'app/tar-js/tar.js',
       'app/bower_components/angular-ui-ace/ui-ace.min.js',
-      'app/bower_components/angular-local-storage/angular-local-storage.min.js',
+      'app/bower_components/angular-local-storage/dist/angular-local-storage.min.js',
+      'app/bower_components/angulartics/dist/angulartics.min.js',
+      'app/bower_components/angulartics/dist/angulartics-ga.min.js',
       'app/js/**/*.js',
       'test/unit/**/*.js'
     ],
@@ -43,7 +45,7 @@ module.exports = function(config){
       suite: 'unit'
     },
 
-    reporters : ['coverage', 'progress'],
+    reporters : ['coverage', 'progress', 'junit', 'dots'],
     preprocessors : {
         'app/js/*.js': 'coverage'
     }

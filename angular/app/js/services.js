@@ -284,7 +284,8 @@ function RelationshipFactory() {
         _this.relationship_types = function () {
             return [
                 'django.db.models.ForeignKey',
-                'django.db.models.OneToOneField'
+                'django.db.models.OneToOneField',
+                'django.db.models.ManyToManyField'
             ];
         };
         function Relationship(options) {

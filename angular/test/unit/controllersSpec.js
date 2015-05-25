@@ -106,7 +106,7 @@ describe('Testing ModelController', function () {
         var rf = new relationship_factory();
 
         expect(ff.field_types().length).toBe(16);
-        expect(rf.relationship_types().length).toBe(2);
+        expect(rf.relationship_types().length).toBe(3);
 
         // Field
         var field_opts = {"name": 'Field', "type": 'FieldType'};
@@ -169,7 +169,7 @@ describe('Testing ModelController', function () {
         $scope.models.push(model);
         localStorageService.set($scope.models_storage_key, $scope.serializeApp());
         $scope.__init__();
-        expect($scope.model_count()).toBe(2);
+        expect($scope.model_count()).toBe(1);
         expect($scope.models[0].name).toBe('Model1');
     });
     it('should have ability to load Models', function () {
@@ -190,16 +190,15 @@ describe('Testing ModelController', function () {
     });
     it('should have ability to add/remove a Model', function () {
         expect($scope.model_count()).toBe(0);
-        $scope.addModel();
-        expect($scope.model_count()).toBe(0);
-        jQuery('<input>').attr('id', 'builder_model_name').val('NewModel').appendTo('body');
-        $scope.addModel();
+        $scope.add_model('model1');
         expect($scope.model_count()).toBe(1);
+        $scope.add_model('model2');
+        expect($scope.model_count()).toBe(2);
 
         var remove_model_id = $scope.remove_model(0);
         var remove_model = jQuery('#'+remove_model_id);
         remove_model.find('.btn-primary').click();
-        expect($scope.model_count()).toBe(0);
+        expect($scope.model_count()).toBe(1);
     });
     it('should have ability to clear Models', function () {
         expect($scope.model_count()).toBe(0);
