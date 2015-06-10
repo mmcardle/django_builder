@@ -1,0 +1,10 @@
+*.pyc
+.idea
+*.sqlite3
+logs/*
+!.gitkeep
+angular/node_modules/
+angular/bower_components/
+tmp
+.DS_Store
+.idea

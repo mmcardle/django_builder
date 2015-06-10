@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div ng-view ></div>
+{% endblock %}
+
+{% block post_script %}
+    <script type="application/javascript">
+        $(document).ready(function(){
+            $('.builder_nav').addClass('active');
+        });
+    </script>
+{% endblock %}
