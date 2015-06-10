@@ -1,0 +1,5 @@
+<div class="col-md-6 col-xs-12" ng-repeat="model in models">
+    <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_detail.html</h4>
+    <pre class="builder_code">{{model.render_detail_html()}}</pre>
+</div>
+
