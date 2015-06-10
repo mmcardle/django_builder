@@ -207,7 +207,8 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
             $scope.loadModels = function(){
                 var loaded_app = localStorageService.get($scope.models_storage_key) || {'models': [], 'app_config': {'app_name': 'app_name'}};
-                var loaded_models = loaded_app.models || [];
+                if(typeof loaded_app == "string"){loaded_app = JSON.parse(loaded_app);}
+                var loaded_models = loaded_app["models"] || [];
                 var loaded_app_config = loaded_app['app_config'] || { 'app_name': 'app_name'};
                 $scope._app_name = loaded_app_config['app_name'];
                 jQuery.each(loaded_models, function(i, model){
