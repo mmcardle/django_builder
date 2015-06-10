@@ -243,8 +243,9 @@ function MessageServiceFactory() {
             simple_confirm.modal();
             return simple_confirm;
         };
-        _this.simple_form = function (title, message, form, callback) {
+        _this.simple_form = function (title, message, form, callback, no_dismiss) {
             var _callback = callback || jQuery.noop;
+            var _no_dismiss = no_dismiss || true;
             var simple_confirm = _this.base_modal();
             simple_confirm.find(".modal-header-inner").html(title);
             simple_confirm.find(".modal-body").empty().append(message).append(form);
@@ -255,24 +256,42 @@ function MessageServiceFactory() {
                 _callback(form);
             });
             cancel_button.attr("data-dismiss", "modal");
-            confirm_button.attr("data-dismiss", "modal");
+            if(!_no_dismiss) {
+                confirm_button.attr("data-dismiss", "modal");
+            }
             simple_confirm.modal();
             return simple_confirm;
         };
-        _this.simple_input = function (title, message, callback) {
+        _this.simple_form_no_dismiss = function (title, message, form, callback) {
+            return _this.simple_form(title, message, form, callback, true);
+        };
+        _this.simple_input = function (title, message, callback, required) {
             var _callback = callback || jQuery.noop;
+            var _required = required || false;
             var simple_confirm = _this.base_modal();
             simple_confirm.find(".modal-header-inner").html(title);
-            var input = jQuery('<input>').attr('type', 'text').addClass('form-control');
-            simple_confirm.find(".modal-body").empty().append(message).append(input);
+            var label = jQuery('<label>').text(message);
+            var input = jQuery('<input>').attr('type', 'text').attr('name', 'input').addClass('form-control');
+            var input_help = jQuery('<span>').text('error message').addClass('help-block hide');
+            var input_group = jQuery('<div>').addClass('form-group form-group-input has-feedback').append(label).append(input).append(input_help);
+            var input_form = jQuery('<form>').append(input_group);
+            simple_confirm.find(".modal-body").empty().append(input_form);
             var confirm_button = jQuery('<button>').addClass('btn btn-primary').text('Ok');
             var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
             simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
             confirm_button.click(function () {
-                _callback(input.val());
+                var _input = input.val();
+                if(_required && (_input=='' || input==undefined)){
+                    input_group.addClass('has-error')
+                        .append(jQuery('<i>').addClass("fa fa-times form-control-feedback"))
+                        .find('.help-block').removeClass('hide').text('Field Required');
+                }else{
+                    simple_confirm.modal('hide');
+                    _callback(_input);
+                }
             });
             cancel_button.attr("data-dismiss", "modal");
-            confirm_button.attr("data-dismiss", "modal");
+            if(!_required){confirm_button.attr("data-dismiss", "modal");}
             simple_confirm.modal();
             return simple_confirm;
         };
@@ -308,7 +327,7 @@ function RelationshipFactory() {
             };
             this.edit_form = function ($scope) {
                 var form = jQuery('<form>');
-                var form_div1 = jQuery('<div>').addClass('form-group form-group-name  has-feedback').appendTo(form);
+                var form_div1 = jQuery('<div>').addClass('form-group form-group-name has-feedback').appendTo(form);
                 var form_div2 = jQuery('<div>').addClass('form-group form-group-type').appendTo(form);
                 var form_div3 = jQuery('<div>').addClass('form-group form-group-args').appendTo(form);
                 var form_div4 = jQuery('<div>').addClass('form-group form-group-args').appendTo(form);
@@ -391,7 +410,7 @@ function FieldFactory() {
             };
             this.edit_form = function ($scope) {
                 var form = jQuery('<form>');
-                var form_div1 = jQuery('<div>').addClass('form-group form-group-name  has-feedback').appendTo(form);
+                var form_div1 = jQuery('<div>').addClass('form-group form-group-name has-feedback').appendTo(form);
                 var form_div2 = jQuery('<div>').addClass('form-group form-group-type').appendTo(form);
                 var form_div3 = jQuery('<div>').addClass('form-group form-group-args').appendTo(form);
                 form_div1.append(jQuery('<label>').text('Name'));

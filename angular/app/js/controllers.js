@@ -188,7 +188,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                         $scope.add_model(model_name);
                     }
                 };
-                $scope.messageService.simple_input('Model Name Required', "Enter a Model name", add_model_callback).modal('show');
+                $scope.messageService.simple_input('Model Name Required', "Enter a Model name", add_model_callback, true).modal('show');
             };
 
             $scope.cleanModel = function(model){
@@ -240,13 +240,13 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     if(name===undefined||name==='') {
                         output_form.find('div.form-group-name')
                             .addClass('has-error')
-                            .append(jQuery('<span>').addClass("glyphicon glyphicon-remove form-control-feedback"))
+                            .append(jQuery('<i>').addClass("fa fa-times form-control-feedback"))
                             .find('.help-block').removeClass('hide').text('Field Required');
                     }else {
                         if(model.has_relationship(name)){
                             output_form.find('div.form-group-name')
                                 .addClass('has-error')
-                                .append(jQuery('<span>').addClass("glyphicon glyphicon-remove form-control-feedback"))
+                                .append(jQuery('<i>').addClass("fa fa-times form-control-feedback"))
                                 .find('.help-block').removeClass('hide').text('Field \"'+name+'\" exists');
                         }else {
                             var type = output_form.find('select[name=type]').val();
@@ -261,10 +261,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                             model.relationships.push(relationship);
                             $scope.updateModel(model);
                             $scope.$apply();
+                            jQuery('.modal').modal('hide');
                         }
-
                     }
-
                 };
                 // TODO make form factory
                 var form = jQuery('<form>');
@@ -295,7 +294,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 form_div3.append(jQuery('<label>').text('Arguments'));
                 form_div3.append(jQuery('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
                 var identifier = 'add_rel_'+model['name']+'_'+index;
-                $scope.messageService.simple_form('Add Relationship', '', form, on_input ).modal('show')
+                $scope.messageService.simple_form_no_dismiss('Add Relationship', '', form, on_input).modal('show')
                     .attr('id', identifier).appendTo('body');
                 return identifier;
 
@@ -307,14 +306,13 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     if(name===undefined||name==='') {
                         output_form.find('div.form-group-name')
                             .addClass('has-error')
-                            .append(jQuery('<span>').addClass("glyphicon glyphicon-remove form-control-feedback"))
+                            .append(jQuery('<i>').addClass("fa fa-times form-control-feedback"))
                             .find('.help-block').removeClass('hide').text('Field Required');
                     }else {
-
                         if(model.has_field(name)){
                             output_form.find('div.form-group-name')
                                 .addClass('has-error')
-                                .append(jQuery('<span>').addClass("glyphicon glyphicon-remove form-control-feedback"))
+                                .append(jQuery('<i>').addClass("fa fa-times form-control-feedback"))
                                 .find('.help-block').removeClass('hide').text('Field \"'+name+'\" exists');
                         }else {
                             var type = output_form.find('select[name=type]').val();
@@ -327,6 +325,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                             model.fields.push(field);
                             $scope.updateModel(model);
                             $scope.$apply();
+                            jQuery('.modal').modal('hide');
                         }
                     }
                 };
@@ -358,7 +357,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 options.val($scope.field_factory.default_field_args(select.val()));
 
                 var identifier = 'add_field_'+model['name']+'_'+index;
-                $scope.messageService.simple_form('Add Field', '', form, on_input).modal('show')
+                $scope.messageService.simple_form_no_dismiss('Add Field', '', form, on_input).modal('show')
                     .attr('id', identifier).appendTo('body');
                 return identifier;
             };
