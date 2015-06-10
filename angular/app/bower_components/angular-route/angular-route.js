@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.18
+ * @license AngularJS v1.2.28
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -270,12 +270,9 @@ function $RouteProvider(){
      * This example shows how changing the URL hash causes the `$route` to match a route against the
      * URL, and the `ngView` pulls in the partial.
      *
-     * Note that this example is using {@link ng.directive:script inlined templates}
-     * to get it working on jsfiddle as well.
-     *
      * <example name="$route-service" module="ngRouteExample"
      *          deps="angular-route.js" fixBase="true">
-     *   <file name="home.html">
+     *   <file name="index.html">
      *     <div ng-controller="MainController">
      *       Choose:
      *       <a href="Book/Moby">Moby</a> |
@@ -473,9 +470,7 @@ function $RouteProvider(){
       for (var i = 1, len = m.length; i < len; ++i) {
         var key = keys[i - 1];
 
-        var val = 'string' == typeof m[i]
-              ? decodeURIComponent(m[i])
-              : m[i];
+        var val = m[i];
 
         if (key && val) {
           params[key.name] = val;
@@ -587,7 +582,7 @@ function $RouteProvider(){
         if (i === 0) {
           result.push(segment);
         } else {
-          var segmentMatch = segment.match(/(\w+)(.*)/);
+          var segmentMatch = segment.match(/(\w+)(?:[?*])?(.*)/);
           var key = segmentMatch[1];
           result.push(params[key]);
           result.push(segmentMatch[2] || '');
@@ -628,7 +623,7 @@ ngRouteModule.provider('$routeParams', $RouteParamsProvider);
  * @example
  * ```js
  *  // Given:
- *  // URL: http://server.com/home.html#/Chapter/1/Section/2?search=moby
+ *  // URL: http://server.com/index.html#/Chapter/1/Section/2?search=moby
  *  // Route: /Chapter/:chapterId/Section/:sectionId
  *  //
  *  // Then
@@ -651,7 +646,7 @@ ngRouteModule.directive('ngView', ngViewFillContentFactory);
  * @description
  * # Overview
  * `ngView` is a directive that complements the {@link ngRoute.$route $route} service by
- * including the rendered template of the current route into the main layout (`home.html`) file.
+ * including the rendered template of the current route into the main layout (`index.html`) file.
  * Every time the current route changes, the included view changes with it according to the
  * configuration of the `$route` service.
  *
@@ -678,7 +673,7 @@ ngRouteModule.directive('ngView', ngViewFillContentFactory);
     <example name="ngView-directive" module="ngViewExample"
              deps="angular-route.js;angular-animate.js"
              animations="true" fixBase="true">
-      <file name="home.html">
+      <file name="index.html">
         <div ng-controller="MainCtrl as main">
           Choose:
           <a href="Book/Moby">Moby</a> |
@@ -773,7 +768,6 @@ ngRouteModule.directive('ngView', ngViewFillContentFactory);
                   controllerAs: 'chapter'
                 });
 
-              // configure html5 to get links working on jsfiddle
               $locationProvider.html5Mode(true);
           }])
           .controller('MainCtrl', ['$route', '$routeParams', '$location',
