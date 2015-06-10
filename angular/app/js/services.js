@@ -345,25 +345,33 @@ function RelationshipFactory() {
 function FieldFactory() {
     return function (options) {
         var _this = this;
+        _this.fields = function () {
+            return {
+                'django.db.models.TextField': {default_args: 'max_length=100'},
+                'django.db.models.CharField': {default_args: 'max_length=30'},
+                'django_extensions.db.fields.AutoSlugField': {},
+                'django.db.models.BooleanField': {},
+                'django.db.models.DateField': {},
+                'django.db.models.DateTimeField': {},
+                'django.db.models.DecimalField': {default_args: 'max_digits=10, decimal_places=2'},
+                'django.db.models.FilePathField': {},
+                'django.db.models.FloatField': {},
+                'django.db.models.IntegerField': {},
+                'django.db.models.IPAddressField': {},
+                'django.db.models.GenericIPAddressField': {},
+                'django.db.models.NullBooleanField': {},
+                'django.db.models.TimeField': {},
+                'django.db.models.BinaryField': {},
+                'django.db.models.AutoField': {}
+            };
+        };
+        _this.default_field_args = function (field_type) {
+            var _field = _this.fields()[field_type];
+            if(_field && _field['default_args']){ return _field['default_args']}
+            return '';
+        };
         _this.field_types = function () {
-            return [
-                'django.db.models.TextField',
-                'django.db.models.CharField',
-                'django_extensions.db.fields.AutoSlugField',
-                'django.db.models.BooleanField',
-                'django.db.models.DateField',
-                'django.db.models.DateTimeField',
-                'django.db.models.DecimalField',
-                'django.db.models.FilePathField',
-                'django.db.models.FloatField',
-                'django.db.models.IntegerField',
-                'django.db.models.IPAddressField',
-                'django.db.models.GenericIPAddressField',
-                'django.db.models.NullBooleanField',
-                'django.db.models.TimeField',
-                'django.db.models.BinaryField',
-                'django.db.models.AutoField'
-            ];
+            return Object.keys(_this.fields());
         };
         function Field(options) {
             this.name = options['name'];

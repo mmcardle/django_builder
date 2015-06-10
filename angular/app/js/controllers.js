@@ -344,10 +344,17 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     select.append(jQuery('<option>').attr('val', field_type).text(field_type));
                 });
 
+                var options =  jQuery('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control');
+
                 form_div2.append(jQuery('<label>').text('Field Type'));
                 form_div2.append(select);
                 form_div3.append(jQuery('<label>').text('Arguments'));
-                form_div3.append(jQuery('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
+                form_div3.append(options);
+
+                select.change(function(){
+                    options.val($scope.field_factory.default_field_args(select.val()));
+                });
+                options.val($scope.field_factory.default_field_args(select.val()));
 
                 var identifier = 'add_field_'+model['name']+'_'+index;
                 $scope.messageService.simple_form('Add Field', '', form, on_input).modal('show')
