@@ -1,0 +1,22 @@
+<pre class="builder_code_pre">
+from django.views.generic import DetailView, ListView, UpdateView, CreateView
+{{import_models()}}
+{{import_forms()}}</pre><pre ng-repeat="model in models" class="builder_code_pre">
+
+class {{ model.name }}ListView(ListView):
+    model = {{ model.name }}
+
+
+class {{ model.name }}CreateView(CreateView):
+    model = {{ model.name }}
+    form_class = {{ model.name }}Form
+
+
+class {{ model.name }}DetailView(DetailView):
+    model = {{ model.name }}
+
+
+class {{ model.name }}UpdateView(UpdateView):
+    model = {{ model.name }}
+    form_class = {{ model.name }}Form
+</pre>

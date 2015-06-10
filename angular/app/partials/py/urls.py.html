@@ -1,0 +1,12 @@
+<pre class="builder_code_pre">
+from django.conf.urls import patterns, url
+{{import_views()}}
+urlpatterns = patterns()
+
+</pre><pre ng-repeat="model in models" class="builder_code_pre">urlpatterns += patterns('{{ app_name()|lowercase }}.views',
+    # urls for {{model.name}}
+    url(r'^{{ app_name()| lowercase }}/{{model.name| lowercase}}/$', {{ model.name }}ListView.as_view(), name='{{ app_name()| lowercase }}_{{ model.name| lowercase }}_list'),
+    url(r'^{{ app_name()| lowercase }}/{{model.name| lowercase}}/create/$', {{ model.name }}CreateView.as_view(), name='{{ app_name()| lowercase }}_{{ model.name| lowercase }}_create'),
+    url(r'^{{ app_name()| lowercase }}/{{model.name| lowercase}}/(?P&lt;{{ model.identifier()}}&gt;\S+)/update/$', {{ model.name }}UpdateView.as_view(), name='{{ app_name()| lowercase }}_{{ model.name| lowercase }}_update'),
+    url(r'^{{ app_name()| lowercase }}/{{model.name| lowercase}}/(?P&lt;{{ model.identifier()}}&gt;\S+)/$', {{ model.name }}DetailView.as_view(), name='{{ app_name()| lowercase }}_{{ model.name| lowercase }}_detail')
+)</pre>
