@@ -51,11 +51,23 @@ function ModelRenderFactory() {
             all_output+=_this.render_admin_py(app_name, models);
             all_output+=_this.render_views_py(app_name, models);
             all_output+=_this.render_models_py(app_name, models);
+            all_output+=_this.render_django_rest_framework_api_py(app_name, models);
+            all_output+=_this.render_django_rest_framework_serializers_py(app_name, models);
             all_output+=_this.render_templates_html(app_name, models);
             return all_output;
-        }
+        };
         _this.render_base_html = function(app_name, models){
             return '<html><head></head><body>{% block content %}Replace this.{% endblock %}</body>';
+        };
+        _this.pre_imported_modules = function(n){
+            return {
+                // module, import as
+                'django.db.models': { as: 'models'},
+                'django_extensions.db.fields': { as: 'extension_fields'}
+            };
+        };
+        _this.pre_imported_modules_names = function(n){
+            return Object.keys(_this.pre_imported_modules());
         };
         _this.render_forms_py = function (app_name, models) {
             var tests_py = 'from django import forms\n';
@@ -86,13 +98,20 @@ function ModelRenderFactory() {
             return tests_py;
         };
         _this.render_urls_py = function (app_name, models) {
-            var urls_py = 'from django.conf.urls import patterns, url\n';
-            urls_py += 'from .views import '+_this.model_names(models, 'ListView').join(', ')+'\n';
-            urls_py += 'from .views import '+_this.model_names(models, 'DetailView').join(', ')+'\n';
-            urls_py += 'from .views import '+_this.model_names(models, 'CreateView').join(', ')+'\n';
-            urls_py += 'from .views import '+_this.model_names(models, 'UpdateView').join(', ')+'\n';
-            urls_py += _this.new_lines(1);
-            urls_py += 'urlpatterns = patterns(\'\')\n';
+            var urls_py = 'from django.conf.urls import patterns, url, include\n';
+            urls_py += 'from rest_framework import routers'+_this.new_lines(1);
+            urls_py += 'import api'+_this.new_lines(1);
+            urls_py += 'import views'+_this.new_lines(2);
+
+            urls_py +='router = routers.DefaultRouter()'+_this.new_lines(1);
+            jQuery.each(models, function(i, model){
+                urls_py +='router.register(r\''+model.l_name()+'\', api.'+model.name+'ViewSet)'+_this.new_lines(1);
+            });
+            urls_py += _this.new_lines(2);
+            urls_py += 'urlpatterns = patterns(\'\','+_this.new_lines(1);
+            urls_py += _this.spaces(4)+'# urls for Django Rest Framework API'+_this.new_lines(1);
+            urls_py += _this.spaces(4)+'url(r\'^api/v1/\', include(router.urls)),'+_this.new_lines(1);
+            urls_py += ')'+_this.new_lines(1);
             urls_py += _this.new_lines(1);
 
             jQuery.each(models, function(i, model){
@@ -126,8 +145,20 @@ function ModelRenderFactory() {
             return views_py;
         };
         _this.render_models_py = function (app_name, models) {
-            var models_py =  'from django.db import models\n'+
-                   'from django.core.urlresolvers import reverse\n';
+            var models_py =  'from django.core.urlresolvers import reverse\n';
+
+            jQuery.each(_this.pre_imported_modules(), function(_import, import_conf){
+                var _import_split = _import.split('.');
+                var tail = _import_split.pop();
+                models_py += 'from '+_import_split.join('.')+' import '+tail+' as '+import_conf['as']+'\n';
+            });
+
+            var all_imports = {};
+            jQuery.each(models, function(i, model){
+                jQuery.each(model.fields, function(i, field){
+                    all_imports[field.module()] = field.module();
+                });
+            });
 
             var all_fields = {};
             jQuery.each(models, function(i, model){
@@ -139,7 +170,9 @@ function ModelRenderFactory() {
                 });
             });
             jQuery.each(all_fields, function(i, field){
-                models_py += 'from '+field.module()+' import '+field.class_name()+'\n';
+                //if(_this.pre_imported_modules_names().indexOf(field.module()) == -1) {
+                //    models_py += 'from ' + field.module() + ' import ' + field.class_name() + '\n';
+                //}
             });
             models_py += _this.new_lines(2);
 
@@ -159,6 +192,30 @@ function ModelRenderFactory() {
             });
 
             return templates;
+        };
+        _this.render_django_rest_framework_api_py = function (app_name, models) {
+            var api_py = 'import models\n';
+            api_py += 'import serializers\n';
+            api_py += 'from rest_framework import viewsets, permissions\n';
+            api_py += _this.new_lines(2);
+
+            jQuery.each(models, function(i, model){
+                api_py += model.render_model_api(app_name, _this);
+            });
+
+            return api_py;
+        };
+        _this.render_django_rest_framework_serializers_py = function (app_name, models) {
+            var serializers_py = 'import models';
+            serializers_py += _this.new_lines(2);
+            serializers_py += 'from rest_framework import serializers';
+            serializers_py += _this.new_lines(3);
+
+            jQuery.each(models, function(i, model){
+                serializers_py += model.render_model_serializer(app_name, _this);
+            });
+
+            return serializers_py;
         };
 
     };
@@ -265,21 +322,16 @@ function MessageServiceFactory() {
         _this.simple_form_no_dismiss = function (title, message, form, callback) {
             return _this.simple_form(title, message, form, callback, true);
         };
-        _this.simple_input = function (title, message, callback, required) {
+        _this.simple_input = function (title, message, default_value, callback, required) {
             var _callback = callback || jQuery.noop;
             var _required = required || false;
             var simple_confirm = _this.base_modal();
             simple_confirm.find(".modal-header-inner").html(title);
             var label = jQuery('<label>').text(message);
-            var input = jQuery('<input>').attr('type', 'text').attr('name', 'input').addClass('form-control');
+            var input = jQuery('<input>').attr('type', 'text').attr('name', 'input').addClass('form-control').attr('value', default_value);
             var input_help = jQuery('<span>').text('error message').addClass('help-block hide');
             var input_group = jQuery('<div>').addClass('form-group form-group-input has-feedback').append(label).append(input).append(input_help);
-            var input_form = jQuery('<form>').append(input_group);
-            simple_confirm.find(".modal-body").empty().append(input_form);
-            var confirm_button = jQuery('<button>').addClass('btn btn-primary').text('Ok');
-            var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
-            simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
-            confirm_button.click(function () {
+            var submit_handler = function(){
                 var _input = input.val();
                 if(_required && (_input=='' || input==undefined)){
                     input_group.addClass('has-error')
@@ -289,7 +341,17 @@ function MessageServiceFactory() {
                     simple_confirm.modal('hide');
                     _callback(_input);
                 }
+            };
+            var input_form = jQuery('<form>').append(input_group).submit(function( event ) {
+                event.preventDefault();
+                submit_handler();
             });
+            simple_confirm.find(".modal-body").empty().append(input_form);
+            var confirm_button = jQuery('<button>').addClass('btn btn-primary').text('Ok');
+            var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
+            simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
+
+            confirm_button.click(submit_handler);
             cancel_button.attr("data-dismiss", "modal");
             if(!_required){confirm_button.attr("data-dismiss", "modal");}
             simple_confirm.modal();
@@ -441,7 +503,18 @@ function FieldFactory() {
 function ModelServiceFactory() {
     return function (options, $scope) {
         function Model(options) {
-            this.name = options['name'];
+            this.slugify = function(text) {
+                return text.toString()
+                    .replace(/\s+/g, '')            // Replace spaces with _
+                    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+                    .replace(/\-\-+/g, '')          // Replace multiple - with single _
+                    .replace(/^-+/, '')             // Trim - from start of text
+                    .replace(/-+$/, '');            // Trim - from end of text
+            };
+            this.set_name = function(raw_name){
+                this.name = this.slugify(raw_name);
+            };
+            this.set_name(options['name']);
             this.fields = [];
             var fields = options['fields'] || [];
             this.fields = (options['fields'] || []).map($scope.field_factory.make_field);
@@ -461,6 +534,7 @@ function ModelServiceFactory() {
             this.l_name = function () {
                 return this.name.toLowerCase()
             };
+
             this.has_relationship = function (relationship_name) {
                 return this.relationship_names().indexOf(relationship_name) != -1;
             };
@@ -580,10 +654,10 @@ function ModelServiceFactory() {
                 urls += 'urlpatterns += patterns(\'\',\n';
                 urls += renderer.spaces(4)+'# urls for '+this.name+'\n';
 
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/$\', '+this.name+'ListView.as_view(), name=\''+app_name+'_'+this.l_name()+'_list\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/create/$\', '+this.name+'CreateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_create\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/detail/(?P<'+this.identifier()+'>\\S+)/$\', '+this.name+'DetailView.as_view(), name=\''+app_name+'_'+this.l_name()+'_detail\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/update/(?P<'+this.identifier()+'>\\S+)/$\', '+this.name+'UpdateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_update\'),\n';
+                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/$\', views.'+this.name+'ListView.as_view(), name=\''+app_name+'_'+this.l_name()+'_list\'),\n';
+                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/create/$\', views.'+this.name+'CreateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_create\'),\n';
+                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/detail/(?P<'+this.identifier()+'>\\S+)/$\', views.'+this.name+'DetailView.as_view(), name=\''+app_name+'_'+this.l_name()+'_detail\'),\n';
+                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/update/(?P<'+this.identifier()+'>\\S+)/$\', views.'+this.name+'UpdateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_update\'),\n';
 
                 urls += ')\n';
                 urls += renderer.new_lines(1);
@@ -638,7 +712,12 @@ function ModelServiceFactory() {
                     cls += renderer.new_lines(1);
                 }
                 jQuery.each(this.fields, function(i, field){
-                    cls += renderer.spaces(4)+field.name+' = '+field.class_name()+'('+field.opts+')';
+                    if(renderer.pre_imported_modules_names().indexOf(field.module()) == -1) {
+                        cls += renderer.spaces(4) + field.name + ' = ' + field.class_name() + '(' + field.opts + ')';
+                    }else{
+                        var _as = renderer.pre_imported_modules()[field.module()]['as'];
+                        cls += renderer.spaces(4) + field.name + ' = '+_as+'.' + field.class_name() + '(' + field.opts + ')';
+                    }
                     cls += renderer.new_lines(1);
                 });
                 cls += renderer.new_lines(1);
@@ -647,7 +726,12 @@ function ModelServiceFactory() {
                     cls += renderer.new_lines(1);
                 }
                 jQuery.each(this.relationships, function(i, relationship){
-                    cls += renderer.spaces(4)+relationship.name+' = '+relationship.class_name()+'(\''+app_name+'.'+relationship.to+'\','+relationship.opts+')';
+                    if(renderer.pre_imported_modules_names().indexOf(relationship.module()) == -1) {
+                        cls += renderer.spaces(4)+relationship.name+' = '+relationship.class_name()+'(\''+app_name+'.'+relationship.to+'\','+relationship.opts+')';
+                    }else{
+                        var _as = renderer.pre_imported_modules()[relationship.module()]['as'];
+                        cls += renderer.spaces(4)+relationship.name+' = '+_as+'.'+relationship.class_name()+'(\''+app_name+'.'+relationship.to+'\','+relationship.opts+')';
+                    }
                     cls += renderer.new_lines(1);
                 });
 
@@ -674,6 +758,32 @@ function ModelServiceFactory() {
                 cls += renderer.new_lines(3);
 
                 return cls;
+            };
+            this.render_model_api = function(app_name, renderer){
+                var api =  'class '+this.name+'ViewSet(viewsets.ModelViewSet):'+ renderer.new_lines(1);
+                api += renderer.spaces(4)+'"""ViewSet for the '+this.name+' class"""';
+                api += renderer.new_lines(2);
+                api += renderer.spaces(4)+'queryset = models.'+this.name+'.objects.all()'+renderer.new_lines(1);
+                api += renderer.spaces(4)+'serializer_class = serializers.'+this.name+'Serializer'+ renderer.new_lines(1);
+                api += renderer.spaces(4)+'permission_classes = [permissions.IsAuthenticated]'+ renderer.new_lines(1);
+                api += renderer.new_lines(2);
+                return api;
+            };
+            this.render_model_serializer = function(app_name, renderer){
+                var serializer =  'class '+this.name+'Serializer(serializers.ModelSerializer):';
+                serializer += renderer.new_lines(2);
+                serializer += renderer.spaces(4)+'class Meta:'+renderer.new_lines(1);
+                serializer += renderer.spaces(8)+'model = models.'+this.name+renderer.new_lines(1);
+                serializer += renderer.spaces(8)+'fields = ('+renderer.new_lines(1);
+                serializer += renderer.spaces(12)+'\''+this.identifier()+'\', '+renderer.new_lines(1);
+                var model = this;
+                jQuery.each(this.fields, function(i, field){
+                    if(field.name != model.identifier()) {
+                        serializer += renderer.spaces(12) + '\'' + field.name + '\', ' + renderer.new_lines(1);
+                    }
+                });
+                serializer += renderer.spaces(8)+')'+renderer.new_lines(3);
+                return serializer;
             };
             this._template_header = function(){
                 return  '{% extends "base.html" %}\n';
@@ -717,7 +827,7 @@ function ModelServiceFactory() {
             this.readable_fields = function(){
                 var readable_fields = [];
                 jQuery.each(this.fields, function(i, field){
-                    if(field.opts.indexOf('readonly')==-1 && field.opts.indexOf('editable')==-1) {
+                    if(field.opts.indexOf('readonly')==-1 && field.opts.indexOf('editable')==-1 && field.type != 'django_extensions.db.fields.AutoSlugField') {
                         readable_fields.push(field);
                     }
                 });

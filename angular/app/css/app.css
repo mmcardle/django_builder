@@ -111,3 +111,12 @@ a:link {
 .container .jumbotron{
     border-radius: 135px 0;
 }
+
+.builder_btn_group .btn {
+}
+
+.builder_btn_group[data-toggle="buttons"]>.btn>input[type="radio"], [data-toggle="buttons"]>.btn>input[type="checkbox"] {
+
+}
+
+

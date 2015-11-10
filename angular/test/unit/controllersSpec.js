@@ -73,7 +73,7 @@ describe('Testing ModelController', function () {
         expect($scope.app_name()).toBe('New_Name');
         expect($scope.l_app_name()).toBe('new name');
         expect($scope.model_count()).toBe(0);
-        expect($scope.create_tar_ball_url().length).toBe(13684);
+        expect($scope.create_tar_ball_url().length).toBeGreaterThan(512);
 
         // Fake iframe with an img tag so we don't try to download during tests
         var fake_iframe = jQuery('<img>').attr('id', 'download_iframe').appendTo('body');
@@ -168,7 +168,6 @@ describe('Testing ModelController', function () {
         var model = model_factory(model_opts, $scope);
         $scope.models.push(model);
         localStorageService.set($scope.models_storage_key, $scope.serializeApp());
-        $scope.__init__();
         expect($scope.model_count()).toBe(1);
         expect($scope.models[0].name).toBe('Model1');
     });

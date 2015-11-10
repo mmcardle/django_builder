@@ -17,6 +17,7 @@ module.exports = function(config){
       'app/bower_components/angular-local-storage/dist/angular-local-storage.min.js',
       'app/bower_components/angulartics/dist/angulartics.min.js',
       'app/bower_components/angulartics/dist/angulartics-ga.min.js',
+      'app/bower_components/angulartics-google-analytics/dist/angulartics-google-analytics.min.js',
       'app/js/**/*.js',
       'test/unit/**/*.js'
     ],

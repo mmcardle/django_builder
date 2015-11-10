@@ -70,9 +70,9 @@ describe('service', function () {
         var simple_input_val = 'val';
         var returned_val = '';
         var simple_input_callback = function(callback_val){returned_val=callback_val};
-        var simple_input = ms.simple_input(title, message, simple_input_callback);
+        var simple_input = ms.simple_input(title, message, '', simple_input_callback);
         expect(simple_input.find('.modal-header').text()).toBe(title);
-        expect(simple_input.find('.modal-body').text()).toBe(message);
+        expect(simple_input.find('.modal-body').text()).toBe(message+'error message');
         simple_input.find('input').val(simple_input_val);
         simple_input.find('.btn-primary').click();
         expect(returned_val).toBe(simple_input_val);
@@ -88,13 +88,13 @@ describe('service', function () {
         expect($scope.render_factory.spaces(2).length).toBe(2);
         
         var render0 = $scope.render_factory.render_all('app_name', []);
-        expect(render0.length).toBe(554);
+        expect(render0.length).toBeGreaterThan(500);
         var model_name = 'Model';
         var model_opts = {"name": model_name};
         var model = model_factory(model_opts, $scope);
         var render1 = $scope.render_factory.render_all('app_name', [model]);
-        expect(render1.length).toBe(2397);
-        expect(render1.indexOf(model_name)).toNotBe(-1);
+        expect(render1.length).toBeGreaterThan(2000);
+        expect(render1.indexOf(model_name)).toBeGreaterThan(0);
 
     });
     it('has model factory tests', function () {

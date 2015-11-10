@@ -25,6 +25,8 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var urls = $scope.render_factory.render_urls_py($scope.app_name(), $scope.models);
                 var tests = $scope.render_factory.render_tests_py($scope.app_name(), $scope.models);
                 var forms = $scope.render_factory.render_forms_py($scope.app_name(), $scope.models);
+                var api = $scope.render_factory.render_django_rest_framework_api_py($scope.app_name(), $scope.models);
+                var serializers = $scope.render_factory.render_django_rest_framework_serializers_py($scope.app_name(), $scope.models);
 
                 var templates = $scope.render_factory.render_templates_html($scope.app_name(), $scope.models);
 
@@ -38,6 +40,8 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 tarfile.append($scope.app_name()+'/urls.py', urls);
                 tarfile.append($scope.app_name()+'/tests.py', tests);
                 tarfile.append($scope.app_name()+'/forms.py', forms);
+                tarfile.append($scope.app_name()+'/api.py', api);
+                tarfile.append($scope.app_name()+'/serializers.py', serializers);
                 tarfile.append($scope.app_name()+'/templates/base.html', $scope.render_factory.render_base_html($scope.app_name(), $scope.models));
 
                 jQuery.each(templates, function(i, template){
@@ -50,6 +54,11 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.create_tar_ball = function(){
                 var download_iframe = document.getElementById("download_iframe");
                 download_iframe.src = $scope.create_tar_ball_url();
+                $scope.messageService.simple_info(
+                    'Download info',
+                    "Chrome can block downloads of the generated tarball, " +
+                    "if this happens navigate to the <strong>Downloads<\/strong> section of chrome to accept the download." +
+                    "<br>Window -> Downloads").modal('show');
             };
 
             $scope.aceLoad = function(_editor) {
@@ -66,6 +75,10 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     _editor.setValue($scope.render_factory.render_tests_py($scope.app_name(), $scope.models));
                 }else if(_id=="builder_forms"){
                     _editor.setValue($scope.render_factory.render_forms_py($scope.app_name(), $scope.models));
+                }else if(_id=="builder_django_rest_framework_api"){
+                    _editor.setValue($scope.render_factory.render_django_rest_framework_api_py($scope.app_name(), $scope.models));
+                }else if(_id=="builder_django_rest_framework_serializers"){
+                    _editor.setValue($scope.render_factory.render_django_rest_framework_serializers_py($scope.app_name(), $scope.models));
                 }
                 _editor.session.selection.clearSelection();
             };
@@ -180,17 +193,31 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 $scope.saveApp();
                 $scope.$apply();
             };
+            $scope.existingModel = function (name) {
+                var exists = false;
+                jQuery.each($scope.models, function (i, model) {
+                    if(name==model.name){
+                        exists = true;
+                    }
+                });
+                return exists;
+            };
             $scope.addModel = function () {
                 var add_model_callback = function(model_name){
                     if (model_name == undefined || model_name === '') {
                         $scope.messageService.simple_info('Model Name Required', "Enter a Model name").modal('show');
                     } else {
-                        $scope.add_model(model_name);
+                        if($scope.existingModel(model_name)) {
+                            $scope.messageService.simple_error('Error with Model Name', "There is already a model with the name "+model_name).modal('show');
+                        }else{
+                            $scope.add_model(model_name);
+                        }
                     }
                 };
-                $scope.messageService.simple_input('Model Name Required', "Enter a Model name", add_model_callback, true).modal('show');
+                $scope.messageService.simple_input(
+                    'Model Name Required', "Enter a Model name",
+                    "Model1", add_model_callback, true).modal('show');
             };
-
             $scope.cleanModel = function(model){
                 delete model['$$hashKey'];
                 if(model.fields!=undefined) {
@@ -232,6 +259,24 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
             $scope.debug = function(){
                 //console.log(JSON.stringify($scope.serializeApp()));
+            };
+            $scope.rename_model = function(index){
+                var model = $scope.models[index];
+                console.log('rename', index);
+                var rename_model_callback = function(new_model_name){
+                    if (new_model_name == undefined || new_model_name === '') {
+                        $scope.messageService.simple_info('Model Name Required', "Enter a Model name").modal('show');
+                    } else {
+                        if($scope.existingModel(new_model_name)) {
+                            $scope.messageService.simple_error('Error with Model Name', "There is already a model with the name "+new_model_name).modal('show');
+                        }else{
+                            model.set_name(new_model_name);
+                            $scope.updateModel(model);
+                            $scope.$apply();
+                        }
+                    }
+                };
+                $scope.messageService.simple_input('Rename model', "Enter a new Model name", model.name, rename_model_callback, true).modal('show');
             };
             $scope.add_relationship = function (index) {
                 var model = $scope.models[index];

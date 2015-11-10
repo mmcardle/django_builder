@@ -10,6 +10,8 @@
     "angular-route": "1.2.x",
     "angular-loader": "1.2.x",
     "angular-mocks": "~1.2.x",
-    "html5-boilerplate": "~4.3.0"
+    "html5-boilerplate": "~4.3.0",
+    "angulartics": "~0.20.1",
+    "angulartics-google-analytics": "~0.1.1"
   }
 }

@@ -46,33 +46,33 @@
                 <tr ng-repeat="field in model.fields">
                     <td style="width:30%;"><a href="" ng-click="x=edit_field($parent.$index, $index);">{{ field.name }}</a></td>
                     <td class="hidden-xs">{{ field.class_name() }}</td>
-                    <td><a href=""><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
+                    <td>
+                        <a href=""><i ng-click="remove_field($parent.$index, $index)" class="fa fa-times pull-right"></i></a>
+                    </td>
                 </tr>
                 </tbody>
             </table>
             <!-- Single button -->
-<div class="btn-group pull-right">
-  <button type="button" class="btn btn-primary btn-group-sm dropdown-toggle" data-toggle="dropdown">
-    Actions&nbsp;&nbsp;<span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu" role="menu">
-    <li><a class="builder_a builder_model_add_field text-right" ng-click="add_field($index)">Add Field &nbsp;&nbsp;<i class="fa fa-plus"></i></a></li>
-    <li><a class="builder_a builder_model_add_relationship" ng-click="add_relationship($index)">Add Relationship&nbsp;&nbsp;<i class="fa fa-plus"></i></a></li>
-    <li class="divider"></li>
-    <li><a class="builder_a builder_model_remove  text-right" ng-click="remove_model($index)">Remove Model&nbsp;&nbsp;<i class="fa fa-times"></i></a></li>
-  </ul>
-</div>
-
-
+            <div class="btn-group pull-right">
+                <button type="button" class="btn btn-primary btn-group-sm dropdown-toggle" data-toggle="dropdown">
+                    Actions&nbsp;&nbsp;<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a class="builder_a builder_model_add_field text-right" ng-click="rename_model($index)">Rename Model &nbsp;&nbsp;<i class="fa fa-edit"></i></a></li>
+                    <li><a class="builder_a builder_model_add_field text-right" ng-click="add_field($index)">Add Field &nbsp;&nbsp;<i class="fa fa-plus"></i></a></li>
+                    <li><a class="builder_a builder_model_add_relationship" ng-click="add_relationship($index)">Add Relationship&nbsp;&nbsp;<i class="fa fa-plus"></i></a></li>
+                    <li class="divider"></li>
+                    <li><a class="builder_a builder_model_remove  text-right" ng-click="remove_model($index)">Remove Model&nbsp;&nbsp;<i class="fa fa-times"></i></a></li>
+                </ul>
+            </div>
             <div class="clearfix"></div>
         </div>
     </div>
 </div>
-<h3>Scripts</h3>
+
 <div class="row">
     <div class="col-md-6">
         <h4>{{ app_name()|lowercase }}/models.py</h4>
-
         <div id="builder_models" ui-ace="{
           useWrapMode : true,
           showGutter: false,
@@ -83,11 +83,10 @@
         }">
 
         </div>
-
     </div>
-    <div class="col-md-6">
-        <h4>{{ app_name()|lowercase }}/views.py</h4>
 
+    <div class="col-md-6" id="views_py">
+        <h4>{{ app_name()|lowercase }}/views.py</h4>
         <div id="builder_views" ui-ace="{
               useWrapMode : true,
               showGutter: false,
@@ -99,10 +98,70 @@
 
         </div>
     </div>
+</div>
 
+<div class="row">
+    <div class="col-md-6" id="api_py">
+        <h4>{{ app_name()|lowercase }}/api.py <small><i class="fa fa-star"></i> Django Rest Framework</small></h4>
+
+        <div id="builder_django_rest_framework_api" ui-ace="{
+          useWrapMode : true,
+          showGutter: false,
+          theme:'dawn',
+          mode: 'python',
+          onLoad: aceLoaded,
+          onChange: aceChanged
+        }">
+
+        </div>
+    </div>
+    <div class="col-md-6" id="serializers_py">
+        <h4>{{ app_name()|lowercase }}/serializers.py <small><i class="fa fa-star"></i> Django Rest Framework</small></h4>
+
+        <div id="builder_django_rest_framework_serializers" ui-ace="{
+              useWrapMode : true,
+              showGutter: false,
+              theme:'dawn',
+              mode: 'python',
+              onLoad: aceLoaded,
+              onChange: aceChanged
+            }">
+
+        </div>
+    </div>
 </div>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-6" id="urls_py">
+        <h4>{{ app_name()|lowercase }}/urls.py</h4>
+
+        <div id="builder_urls" ui-ace="{
+              useWrapMode : true,
+              showGutter: false,
+              theme:'dawn',
+              mode: 'python',
+              onLoad: aceLoaded,
+              onChange: aceChanged
+            }">
+
+        </div>
+    </div>
+    <div class="col-md-6" id="tests_py">
+        <h4>{{ app_name()|lowercase }}/tests.py</h4>
+
+        <div id="builder_tests" ui-ace="{
+              useWrapMode : true,
+              showGutter: false,
+              theme:'dawn',
+              mode: 'python',
+              onLoad: aceLoaded,
+              onChange: aceChanged
+            }">
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6" id="admin_py">
         <h4>{{ app_name()|lowercase }}/admin.py</h4>
 
         <div id="builder_admin" ui-ace="{
@@ -116,7 +175,7 @@
 
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6" id="forms_py">
         <h4>{{ app_name()|lowercase }}/forms.py</h4>
 
         <div id="builder_forms" ui-ace="{
@@ -132,50 +191,21 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12">
-        <h4>{{ app_name()|lowercase }}/urls.py</h4>
+    <div class="col-md-12" id="templates_html">
+        <h3>Templates</h3>
+        <div class="row">
+            <div class="col-md-6 col-xs-12 col{{ $index%3 }}" ng-repeat="model in models">
+                <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_detail.html</h4>
+                <pre class="builder_code">{{ model.render_detail_html() }}</pre>
 
-        <div id="builder_urls" ui-ace="{
-              useWrapMode : true,
-              showGutter: false,
-              theme:'dawn',
-              mode: 'python',
-              onLoad: aceLoaded,
-              onChange: aceChanged
-            }">
+                <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_form.html</h4>
+                <pre class="builder_code">{{ model.render_form_html() }}</pre>
 
-        </div>
-    </div>
-
-</div>
-<div class="row">
-    <div class="col-md-6">
-        <h4>{{ app_name()|lowercase }}/tests.py</h4>
-
-        <div id="builder_tests" ui-ace="{
-              useWrapMode : true,
-              showGutter: false,
-              theme:'dawn',
-              mode: 'python',
-              onLoad: aceLoaded,
-              onChange: aceChanged
-            }">
-
+                <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_list.html</h4>
+                <pre class="builder_code">{{ model.render_list_html() }}</pre>
+            </div>
         </div>
     </div>
 </div>
 
-<h3>Templates</h3>
-<div class="row">
-    <div class="col-md-6 col-xs-12 col{{ $index%3 }}" ng-repeat="model in models">
-        <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_detail.html</h4>
-        <pre class="builder_code">{{ model.render_detail_html() }}</pre>
-
-        <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_form.html</h4>
-        <pre class="builder_code">{{ model.render_form_html() }}</pre>
-
-        <h4>{{ app_name()|lowercase }}/templates/{{ model.name|lowercase}}_list.html</h4>
-        <pre class="builder_code">{{ model.render_list_html() }}</pre>
-    </div>
-</div>
 <iframe id="download_iframe" style="display:none"></iframe>
