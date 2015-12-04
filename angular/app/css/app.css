@@ -10,7 +10,6 @@ h4 {
 }
 .modal-header, .modal-body, .modal-footer {
     padding: 15px 15px;
-
 }
 .modal-body {
     padding: 15px 35px;
@@ -26,7 +25,9 @@ h4 {
 .modal-header-inner{
     font-weight: bold;
     text-align: center;
-    color: #333333;
+    color: #fefefe;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .modal-footer{
     padding: 10px;
@@ -104,6 +105,7 @@ a:link {
 .builder_model_table.table-condensed>tfoot>tr>th, .builder_model_table.table-condensed>thead>tr>td,
 .builder_model_table.table-condensed>tbody>tr>td, .builder_model_table.table-condensed>tfoot>tr>td {
     padding: 4px;
+    border: none;
 }
 .builder_break {
     word-break: break-all;

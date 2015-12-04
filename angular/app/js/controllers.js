@@ -8,10 +8,23 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
             $ = jQuery();
             $scope.models = [];
+            $scope.built_in_models = {
+                'django.contrib.auth.models.User' : {
+                    fields: {
+                        'username': {default:'username'},
+                        'email': {default:'username@tempurl.com'}
+                    }
+                },
+                'django.contrib.auth.models.Group': {
+                    fields: {
+                        'name': {default:'group'}
+                    }
+                }
+            };
             $scope.messageService = new message_service();
             $scope.field_factory = new field_factory();
             $scope.relationship_factory = new relationship_factory();
-            $scope.render_factory = new renderFactory();
+            $scope.render_factory = new renderFactory($scope.built_in_models);
             $scope.editors = [];
             $scope.models_storage_key = 'local_models';
             $scope._app_name = 'app_name';
@@ -313,31 +326,48 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 // TODO make form factory
                 var form = jQuery('<form>');
                 var form_div1 = jQuery('<div>').addClass('form-group form-group-name has-feedback').appendTo(form);
-                var form_div2 = jQuery('<div>').addClass('form-group form-group-type').appendTo(form);
-                var form_div3 = jQuery('<div>').addClass('form-group form-group-args').appendTo(form);
+                var form_div2 = jQuery('<div>').addClass('form-group form-group-to').appendTo(form);
+                var form_div3 = jQuery('<div>').addClass('form-group form-group-type').appendTo(form);
+                var form_div4 = jQuery('<div>').addClass('form-group form-group-args').appendTo(form);
                 form_div1.append(jQuery('<label>').text('Name'));
                 form_div1.append(jQuery('<input>').attr('name', 'name').addClass('form-control'));
                 form_div1.append(jQuery('<span>').text('error message').addClass('help-block hide'));
 
                 var to_select = jQuery('<select>').attr('name', 'to').addClass('form-control');
 
-                jQuery.each($scope.models, function(i, model){
-                    to_select.append(jQuery('<option>').attr('val', model.name).text(model.name));
+                /* include built in models */
+                var _opt_builtin = jQuery('<optgroup>').attr('label', 'Django models');
+                jQuery.each($scope.built_in_models, function(model_name, built_in_model){
+                    _opt_builtin.append(jQuery('<option>').attr('val', model_name).text(model_name));
                 });
+                to_select.append(_opt_builtin);
+
+                /* include application models */
+                var _opt_models = jQuery('<optgroup>').attr('label', 'Your App models');
+                jQuery.each($scope.models, function(i, model){
+                    _opt_models.append(jQuery('<option>').attr('val', model.name).text(model.name));
+                });
+
+                to_select.append(_opt_models);
 
                 form_div2.append(jQuery('<label>').text('Relationship to Model'));
                 form_div2.append(to_select);
 
-                var type_select = jQuery('<select>').attr('name', 'type').addClass('form-control');
+                var type_select = jQuery('<select>').attr('name', 'type');//.css('width','100%').addClass('builder_select2');
 
                 jQuery.each($scope.relationship_factory.relationship_types(), function(i, relationship_type){
                     type_select.append(jQuery('<option>').attr('val', relationship_type).text(relationship_type));
                 });
 
-                form_div2.append(jQuery('<label>').text('Relationship Type'));
-                form_div2.append(type_select);
-                form_div3.append(jQuery('<label>').text('Arguments'));
-                form_div3.append(jQuery('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
+                form_div3.append(jQuery('<label>').text('Relationship Type'));
+                form_div3.append(type_select);
+                form_div4.append(jQuery('<label>').text('Arguments'));
+                form_div4.append(jQuery('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
+
+                // Setup select after adding to form
+                to_select.select2({theme: "bootstrap"});
+                type_select.select2({theme: "bootstrap"});
+
                 var identifier = 'add_rel_'+model['name']+'_'+index;
                 $scope.messageService.simple_form_no_dismiss('Add Relationship', '', form, on_input).modal('show')
                     .attr('id', identifier).appendTo('body');
@@ -410,6 +440,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var relationship = $scope.models[model_index].relationships[relationship_index];
                 var on_confirm = function(form){
                     relationship.form_update(form);
+                    console.log('ok')
                     $scope.$apply();
                 };
                 var identifier = relationship['$$hashKey'] || 'edit_relationship_'+relationship.name;

@@ -9,6 +9,7 @@ module.exports = function (grunt) {
                     'app/bower_components/html5-boilerplate/css/normalize.css',
                     'app/bower_components/html5-boilerplate/css/main.css',
                     'app/bootstrap/css/bootstrap-lumen.css',
+                    'node_modules/select2-bootstrap-theme/dist/select2-bootstrap.css',
                     'app/css/app.css'
                 ],
                 dest: 'app/build/<%= pkg.name %>.min.css'

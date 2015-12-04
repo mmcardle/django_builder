@@ -26,8 +26,9 @@ function TarballFactory() {
     };
 }
 function ModelRenderFactory() {
-    return function () {
+    return function (built_in_models) {
         var _this = this;
+        _this.built_in_models = built_in_models;
         _this.spaces = function(n){
             var _n = n ||1;
             return new Array(_n+1).join(" ");
@@ -62,6 +63,7 @@ function ModelRenderFactory() {
         _this.pre_imported_modules = function(n){
             return {
                 // module, import as
+                'django.contrib.auth.models': { as: 'auth_models'},
                 'django.db.models': { as: 'models'},
                 'django_extensions.db.fields': { as: 'extension_fields'}
             };
@@ -85,7 +87,31 @@ function ModelRenderFactory() {
             var tests_py = 'import unittest\nfrom django.core.urlresolvers import reverse\nfrom django.test import Client\n';
 
             tests_py += 'from .models import '+_this.model_names(models, '').join(', ')+'\n';
+            jQuery.each(_this.built_in_models, function(model, model_details){
+                var model_split = model.split('.');
+                var model_name = model_split.pop();
+                var module_name = model_split.join('.');
+                tests_py += 'from '+module_name+' import '+model_name;
+                tests_py += _this.new_lines(1);
+            });
             tests_py += _this.new_lines(2);
+
+            jQuery.each(_this.built_in_models, function(model, model_details){
+                var function_name = 'create_'+model.toLowerCase().replace(/\./g, '_');
+                var model_name = model.split('.').pop();
+
+                var test_helpers = '';
+                test_helpers += 'def '+function_name+'(**kwargs):\n';
+                test_helpers += _this.spaces(4)+'defaults = {}\n';
+                jQuery.each(model_details.fields, function(field_name, field_options){
+                    test_helpers += _this.spaces(4) + 'defaults[\"' + field_name + '\"] = \"'+field_options['default']+'\"\n';
+                });
+                test_helpers += _this.spaces(4)+'defaults.update(**kwargs)\n';
+                test_helpers += _this.spaces(4)+'return '+model_name+'.objects.create(**defaults)\n';
+                test_helpers += _this.new_lines(2);
+                tests_py += test_helpers;
+
+            });
 
             jQuery.each(models, function(i, model){
                 tests_py += model.render_tests_helpers(app_name, _this);
@@ -250,7 +276,7 @@ function MessageServiceFactory() {
 
             var modal_dialog = jQuery('<div>').addClass("modal-dialog");
             var modal_content = jQuery('<div>').addClass("modal-content").appendTo(modal_dialog);
-            var modal_header_inner = jQuery('<h4>').addClass("modal-header-inner");
+            var modal_header_inner = jQuery('<h2>').addClass("modal-header-inner");
             jQuery('<div>').addClass("modal-header").appendTo(modal_content).append(modal_header_inner);
             jQuery('<div>').addClass("modal-body").appendTo(modal_content);
             jQuery('<div>').addClass("modal-footer").appendTo(modal_content);
@@ -310,6 +336,7 @@ function MessageServiceFactory() {
             var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
             simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
             confirm_button.click(function () {
+                simple_confirm.modal('hide');
                 _callback(form);
             });
             cancel_button.attr("data-dismiss", "modal");
@@ -325,8 +352,8 @@ function MessageServiceFactory() {
         _this.simple_input = function (title, message, default_value, callback, required) {
             var _callback = callback || jQuery.noop;
             var _required = required || false;
-            var simple_confirm = _this.base_modal();
-            simple_confirm.find(".modal-header-inner").html(title);
+            var simple_input = _this.base_modal();
+            simple_input.find(".modal-header-inner").html(title);
             var label = jQuery('<label>').text(message);
             var input = jQuery('<input>').attr('type', 'text').attr('name', 'input').addClass('form-control').attr('value', default_value);
             var input_help = jQuery('<span>').text('error message').addClass('help-block hide');
@@ -338,7 +365,7 @@ function MessageServiceFactory() {
                         .append(jQuery('<i>').addClass("fa fa-times form-control-feedback"))
                         .find('.help-block').removeClass('hide').text('Field Required');
                 }else{
-                    simple_confirm.modal('hide');
+                    simple_input.modal('hide');
                     _callback(_input);
                 }
             };
@@ -346,16 +373,16 @@ function MessageServiceFactory() {
                 event.preventDefault();
                 submit_handler();
             });
-            simple_confirm.find(".modal-body").empty().append(input_form);
+            simple_input.find(".modal-body").empty().append(input_form);
             var confirm_button = jQuery('<button>').addClass('btn btn-primary').text('Ok');
             var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
-            simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
+            simple_input.find(".modal-footer").append(confirm_button).append(cancel_button);
 
             confirm_button.click(submit_handler);
             cancel_button.attr("data-dismiss", "modal");
             if(!_required){confirm_button.attr("data-dismiss", "modal");}
-            simple_confirm.modal();
-            return simple_confirm;
+            simple_input.modal();
+            return simple_input;
         };
     };
 }
@@ -382,6 +409,10 @@ function RelationshipFactory() {
                 this.type = jQuery(form).find('select[name=type]').val();
                 this.opts = jQuery(form).find('input[name=opts]').val();
                 this.to = jQuery(form).find('input[name=to]').val();
+            };
+            this.to_module = function () {
+                var split = this.to.split('.');
+                return split.slice(0, split.length-1).join('.');
             };
             this.module = function () {
                 var split = this.type.split('.');
@@ -600,7 +631,13 @@ function ModelServiceFactory() {
                 test_helpers += renderer.spaces(4)+'defaults.update(**kwargs)\n';
                 jQuery.each(this.relationships, function(i, relationship){
                     test_helpers += renderer.spaces(4)+'if \"'+relationship.name+'\" not in defaults:\n';
-                    test_helpers += renderer.spaces(8)+'defaults[\"'+relationship.name+'\"] = create_'+relationship.to.toLowerCase()+'()\n';
+                    var helper_create = 'create_'+relationship.to.toLowerCase();
+
+                    if(renderer.built_in_models[relationship.to]){
+                        helper_create = 'create_'+relationship.to.toLowerCase().replace(/\./g, '_');
+                    }
+
+                    test_helpers += renderer.spaces(8)+'defaults[\"'+relationship.name+'\"] = '+helper_create+'()\n';
                 });
                 test_helpers += renderer.spaces(4)+'return '+this.name+'.objects.create(**defaults)\n';
                 test_helpers += renderer.new_lines(2);
@@ -704,7 +741,7 @@ function ModelServiceFactory() {
 
                 return view_classes;
             };
-            this.render_model_class = function(app_name, renderer){
+            this.render_model_class = function(app_name, renderer, built_in_models){
                 var cls =  'class '+this.name+'(models.Model):';
                 cls += renderer.new_lines(2);
                 if(this.fields.length>0) {
@@ -726,11 +763,17 @@ function ModelServiceFactory() {
                     cls += renderer.new_lines(1);
                 }
                 jQuery.each(this.relationships, function(i, relationship){
+                    var module = app_name+'.'+relationship.to;
+
+                    // If the to field of the module is a built in class then use that as the relationship
+                    if(renderer.built_in_models[relationship.to]){
+                        module = relationship.to;
+                    }
                     if(renderer.pre_imported_modules_names().indexOf(relationship.module()) == -1) {
-                        cls += renderer.spaces(4)+relationship.name+' = '+relationship.class_name()+'(\''+app_name+'.'+relationship.to+'\','+relationship.opts+')';
+                        cls += renderer.spaces(4)+relationship.name+' = '+relationship.class_name()+'(\''+module+'\','+relationship.opts+')';
                     }else{
                         var _as = renderer.pre_imported_modules()[relationship.module()]['as'];
-                        cls += renderer.spaces(4)+relationship.name+' = '+_as+'.'+relationship.class_name()+'(\''+app_name+'.'+relationship.to+'\','+relationship.opts+')';
+                        cls += renderer.spaces(4)+relationship.name+' = '+_as+'.'+relationship.class_name()+'(\''+module+'\','+relationship.opts+')';
                     }
                     cls += renderer.new_lines(1);
                 });

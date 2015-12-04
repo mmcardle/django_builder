@@ -5,6 +5,11 @@ Django Builder is deployed at:
 
 http://mmcardle.github.io/django_builder/
 
+Updates 4th Dec 2015
+======================
+
+* Add Django User and Group models
+
 Updates 10th Nov 2015
 ======================
 
