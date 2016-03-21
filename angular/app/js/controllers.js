@@ -3,11 +3,12 @@
 /* Controllers */
 
 angular.module('builder.controllers', ['LocalStorageModule'])
-    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'FieldFactory', 'RelationshipFactory', 'localStorageService', 'MessageService', 'RenderFactory', 'TarballFactory',
-        function ($scope, $http, model_factory, field_factory, relationship_factory, localStorageService, message_service, renderFactory, tarballFactory) {
+    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'ModelParser', 'FieldFactory', 'RelationshipFactory', 'localStorageService', 'MessageService', 'RenderFactory', 'TarballFactory',
+        function ($scope, $http, model_factory, ModelParser, field_factory, relationship_factory, localStorageService, message_service, renderFactory, tarballFactory) {
 
-            $ = jQuery();
+            //$ = jQuery();
             $scope.models = [];
+            $scope.new_models = [];
             $scope.built_in_models = {
                 'django.contrib.auth.models.User' : {
                     fields: {
@@ -23,6 +24,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
             $scope.messageService = new message_service();
             $scope.field_factory = new field_factory();
+            $scope.model_factory = model_factory;
             $scope.relationship_factory = new relationship_factory();
             $scope.render_factory = new renderFactory($scope.built_in_models);
             $scope.editors = [];
@@ -73,6 +75,177 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     "if this happens navigate to the <strong>Downloads<\/strong> section of chrome to accept the download." +
                     "<br>Window -> Downloads").modal('show');
             };
+            $scope.render_model_class_fields_only = function (model) {
+                return model.render_model_class_fields_only($scope._app_name, $scope.render_factory);
+            };
+            $scope.upload_input = function(){
+                return jQuery('<input type="file" />');
+            };
+            $scope.upload_drop_target = function(input){
+                var dnd = jQuery('<div>').addClass("builder_dnd_target text-center");
+                var icon = jQuery('<i>').addClass("fa fa-upload fa-4x builder_dnd_icon");
+                dnd.append(jQuery("<div>").text("Drag and Drop files here!"));
+                dnd.append(icon)
+                return dnd;
+            };
+            $scope.upload_form = function(input, dnd){
+                var form = jQuery('<form>');
+                var input_holder = jQuery('<span>').addClass("btn btn-default btn-file center-block builder_upload_models_py");
+                input_holder.append("Browse");
+                input_holder.append(input);
+                form.append(input_holder);
+                form.append(dnd);
+                return form;
+            };
+            $scope.save_new_models = function(models){
+                $scope.new_models = [];
+                $scope.models = models;
+                $scope.saveApp();
+                $scope.$apply();
+            },
+            $scope.merge_models = function() {
+                var merged_models = $scope.models.concat($scope.new_models);
+                for(var i=0; i<merged_models.length; ++i) {
+                    for(var j=i+1; j<merged_models.length; ++j) {
+                        if(merged_models[i].name === merged_models[j].name) {
+                            merged_models.splice(j--, 1);
+                        }
+                    }
+                }
+                return $scope.save_new_models(merged_models);
+            },
+            $scope.add_unique = function(){
+                jQuery.each($scope.new_models, function (i, new_model) {
+                    if(!$scope.existingModel(new_model.name)) {
+                        $scope.models.push(new_model);
+                    }
+                });
+                $scope.save_new_models($scope.models);
+            },
+            $scope.add_new_models = function(new_models){
+                $scope.new_models = new_models;
+                $scope.$apply();
+
+                var add = function(){
+                    console.log('Adding all models');
+                    $scope.merge_models();
+                }
+
+                var overwrite_existing = function(){
+                    console.log('Overwriting existing models');
+                    $scope.merge_models();
+                }
+
+                var on_confirm = function () {
+                    var are_duplicates = false;
+                    var duplicates = [];
+
+                    var duplicate_warning = jQuery('<p>').text('The following models are duplicates:');
+                    jQuery.each($scope.new_models, function (i, new_model) {
+                        if($scope.existingModel(new_model.name)){
+                            are_duplicates = true;
+                            duplicates.push(new_model);
+                            duplicate_warning.append(jQuery('<div>').text(new_model.name));
+                        };
+                    });
+
+                    var all_duplicates = duplicates.length == $scope.new_models.length;
+                    if(are_duplicates){
+                        var choices = [{text: 'Overwrite existing models', callback: overwrite_existing}]
+                        if(!all_duplicates){
+                            choices.push({text: 'Add unique', callback: $scope.add_unique})
+                        }
+                        choices.push({text: 'Cancel', callback: function(){}})
+                        var duplicate_models_id = 'duplicate_models'
+                        $scope.messageService.simple_choice(
+                            'Add duplicate models?', duplicate_warning, choices
+                        ).modal('show').attr('id', duplicate_models_id);
+                    }else{
+                        $scope.merge_models();
+                    }
+                };
+
+                var model_rep = jQuery("<div>");
+
+                jQuery.each($scope.new_models, function (i, new_model) {
+                    model_rep.append(jQuery("<hr>"));
+                    model_rep.append(jQuery("<pre>").html(new_model.render_model_class_fields_only($scope._app_name, $scope.render_factory)));
+                    var remove_button = jQuery('<button class="btn btn-danger pull-right">').text('Remove');
+                    model_rep.append(remove_button);
+                    model_rep.append(jQuery("<div>").addClass('clearfix'));
+                });
+
+                var add_new_models_id = 'add_new_models'
+                $scope.messageService.simple_confirm(
+                    'Add the following models?', jQuery("#builder_new_models"), on_confirm
+                ).modal('show').find('.modal-dialog').css('width', '50%').attr('id', add_new_models_id);
+                return add_new_models_id;
+            };
+
+            $scope.process_models_py = function(files){
+                if(files.length==0) {
+                    $scope.messageService.simple_error('Sorry', "You didn't seem to choose any files.").modal('show');
+                } else if(files.length>1){
+                    $scope.messageService.simple_error('Sorry', "Multiple files not yet supported, please choose a single file.").modal('show');
+                }else {
+                    var parser = ModelParser($scope);
+                    parser.parse(files[0], function(models){
+                        $scope.add_new_models(models);
+                    });
+                }
+            };
+            $scope.upload_models_py = function(){
+                var input =  $scope.upload_input();
+                var drop_target = $scope.upload_drop_target();
+                var form = $scope.upload_form(input, drop_target);
+
+                var modal = $scope.messageService.simple_form(
+                    'Upload models.py', 'Choose a models.py file to analyse',
+                    form, function(){
+                        $scope.process_models_py(jQuery(input)[0].files);
+                        modal.modal('hide');
+                    }
+                ).modal('show');
+
+                input.change(function(){
+                    $scope.process_models_py(jQuery(input)[0].files);
+                    modal.modal('hide');
+                });
+
+                form.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }).on('dragover dragenter', function() {
+                    drop_target.addClass('is-drag-over');
+                }).on('dragleave dragend drop', function() {
+                    drop_target.removeClass('is-drag-over');
+                }).on('drop', function(e) {
+                    var droppedFiles = e.originalEvent.dataTransfer.files;
+                    modal.modal('hide');
+                    $scope.process_models_py(droppedFiles);
+                });
+            };
+
+             jQuery('html body').on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                 // pass
+            }).on('dragover dragenter', function() {
+                // pass
+            }).on('drop', function(e) {
+                // pass
+            });
+
+            jQuery('#builder_models_content').on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }).on('dragover dragenter', function() {
+                jQuery(".builder_dnd_target").addClass("is-drag-over")
+            }).on('drop', function(e) {
+                jQuery(".builder_dnd_target").removeClass("is-drag-over")
+                var droppedFiles = e.originalEvent.dataTransfer.files;
+                $scope.process_models_py(droppedFiles);
+            });
 
             $scope.aceLoad = function(_editor) {
                 var _id = jQuery(_editor.container).attr("id");
@@ -137,7 +310,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
 
             $scope.app_name = function () {
-                return $scope._app_name.replace(' ', '_');
+                return $scope._app_name.replace(new RegExp(' ', 'g'), '_');
             };
 
             $scope.updateModel = function(model){
@@ -170,7 +343,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var on_confirm = function () {
                     $scope.doClearModels();
                 };
-                return $scope.messageService.simple_confirm('Confirm', "Remove all models?", on_confirm).modal('show');
+                var identifier = 'clear_all';
+                $scope.messageService.simple_confirm('Confirm', "Remove all models?", on_confirm).modal('show').attr('id', identifier);
+                return identifier;
             };
 
             $scope.model_count = function() {
@@ -227,9 +402,11 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                         }
                     }
                 };
+                var identifier = 'add_model';
                 $scope.messageService.simple_input(
                     'Model Name Required', "Enter a Model name",
-                    "Model1", add_model_callback, true).modal('show');
+                    "Model1", add_model_callback, true).modal('show').attr('id', identifier);
+                return identifier;
             };
             $scope.cleanModel = function(model){
                 delete model['$$hashKey'];
@@ -273,23 +450,30 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.debug = function(){
                 //console.log(JSON.stringify($scope.serializeApp()));
             };
+            $scope.do_rename_model = function(index, new_model_name) {
+                var rename_model_existing_id = 'rename_model_existing';
+                var model = $scope.models[index];
+                if($scope.existingModel(new_model_name)) {
+                    $scope.messageService.simple_error(
+                        'Error with Model Name',
+                        "There is already a model with the name "+new_model_name
+                    ).modal('show').attr('id', rename_model_existing_id);
+                }else{
+                    model.set_name(new_model_name);
+                    $scope.updateModel(model);
+                    $scope.$apply();
+                }
+            }
             $scope.rename_model = function(index){
                 var model = $scope.models[index];
-                console.log('rename', index);
+                var rename_model_id = 'rename_model';
                 var rename_model_callback = function(new_model_name){
-                    if (new_model_name == undefined || new_model_name === '') {
-                        $scope.messageService.simple_info('Model Name Required', "Enter a Model name").modal('show');
-                    } else {
-                        if($scope.existingModel(new_model_name)) {
-                            $scope.messageService.simple_error('Error with Model Name', "There is already a model with the name "+new_model_name).modal('show');
-                        }else{
-                            model.set_name(new_model_name);
-                            $scope.updateModel(model);
-                            $scope.$apply();
-                        }
-                    }
+                    $scope.do_rename_model(index, new_model_name)
                 };
-                $scope.messageService.simple_input('Rename model', "Enter a new Model name", model.name, rename_model_callback, true).modal('show');
+                $scope.messageService.simple_input(
+                    'Rename model', "Enter a new Model name", model.name, rename_model_callback, true
+                ).modal('show').attr('id', rename_model_id);
+                return rename_model_id
             };
             $scope.add_relationship = function (index) {
                 var model = $scope.models[index];
@@ -440,7 +624,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var relationship = $scope.models[model_index].relationships[relationship_index];
                 var on_confirm = function(form){
                     relationship.form_update(form);
-                    console.log('ok')
                     $scope.$apply();
                 };
                 var identifier = relationship['$$hashKey'] || 'edit_relationship_'+relationship.name;
@@ -461,6 +644,15 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     on_confirm).modal('show').attr('id', identifier).appendTo('body');
                 return identifier;
             };
+            $scope.do_remove_new_model = function (model_index) {
+                $scope.new_models.splice(model_index, 1)
+                $scope.$apply();
+            };
+            $scope.remove_new_model = function (model_index) {
+                setTimeout(function(){
+                    $scope.do_remove_new_model(model_index);
+                })
+            };
             $scope.remove_relationship = function (model_index, relationship_index) {
                 var on_confirm = function(){
                     $scope.models[model_index].relationships.splice(relationship_index, 1);
@@ -472,6 +664,23 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                         "Remove the relationship '" + relationship.name+"'",
                     on_confirm).modal('show').attr('id', identifier).appendTo('body');
                 return identifier;
+            };
+            $scope.do_remove_new_relationship = function (model_index, relationship_index) {
+                $scope.new_models[model_index].relationships.splice(relationship_index, 1);
+            };
+            $scope.remove_new_relationship = function (model_index, relationship_index) {
+                setTimeout(function(){
+                    $scope.do_remove_new_relationship(model_index, relationship_index);
+                })
+            };
+            $scope.do_remove_new_field = function (model_index, field_index) {
+                $scope.new_models[model_index].fields.splice(field_index, 1);
+                $scope.$apply();
+            };
+            $scope.remove_new_field = function (model_index, field_index) {
+                setTimeout(function(){
+                    $scope.do_remove_new_field(model_index, field_index);
+                })
             };
             $scope.remove_field = function (model_index, field_index) {
                 var on_confirm = function(){
@@ -485,7 +694,6 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     on_confirm).modal('show').attr('id', identifier).appendTo('body');
                 return identifier;
             };
-
             $scope.remove_model = function (index) {
                 var on_confirm = function(){
                     $scope.models.splice(index, 1);
@@ -500,9 +708,16 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
             $scope.model_highlight = function (model_index, relationship_index) {
                 var r = $scope.models[model_index].relationships[relationship_index];
-                jQuery('.builder_model_'+ r.to).addClass('builder_model_highlight');
+                jQuery('.builder_model_'+ r.to_clean()).addClass('builder_model_highlight');
             };
             $scope.model_unhighlight = function () {
+                jQuery('.builder_model').removeClass('builder_model_highlight');
+            };
+            $scope.new_model_highlight = function (model_index, relationship_index) {
+                var r = $scope.new_models[model_index].relationships[relationship_index];
+                jQuery('.builder_model_'+ r.to_clean()).addClass('builder_model_highlight');
+            };
+            $scope.new_model_unhighlight = function () {
                 jQuery('.builder_model').removeClass('builder_model_highlight');
             };
         }]

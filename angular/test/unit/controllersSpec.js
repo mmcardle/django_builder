@@ -123,11 +123,23 @@ describe('Testing ModelController', function () {
         model.relationships.push(rel);
         $scope.models.push(model);
 
+        // New model
+        var new_model = model_factory(model_opts, $scope);
+        new_model.fields.push(field);
+        new_model.relationships.push(rel);
+        $scope.new_models.push(new_model);
+
         $scope.model_highlight(0, 0);
         $scope.model_unhighlight();
 
+        $scope.new_model_highlight(0, 0);
+        $scope.new_model_unhighlight();
+
         expect(model.has_relationship('Rel')).toBe(true);
         expect(model.name_field()).toBe('id');
+
+        expect(new_model.has_relationship('Rel')).toBe(true);
+        expect(new_model.name_field()).toBe('id');
 
         expect($scope.model_count()).toBe(1);
         expect($scope.create_tar_ball_url().length).toBe(27336);
@@ -160,7 +172,6 @@ describe('Testing ModelController', function () {
         expect(model_data2.fields[0]['$$hashKey']).toBe(undefined);
         expect(model_data2.relationships[0]['$$hashKey']).toBe(undefined);
     });
-
     it('should have ability to __init__', function () {
         createController();
         // Model
@@ -187,6 +198,62 @@ describe('Testing ModelController', function () {
         expect($scope.model_count()).toBe(1);
         expect($scope.models[0].name).toBe('Model1');
     });
+    it('should have ability to add new Models', function () {
+        // Models
+        var model1 = model_factory({"name": 'Model1'}, $scope);
+        var model2 = model_factory({"name": 'Model2'}, $scope);
+        var add_new_models_id = $scope.add_new_models([model1, model2]);
+        var add_new_modal = jQuery('#'+add_new_models_id);
+        add_new_modal.find('.btn-primary').click();
+        expect($scope.model_count()).toBe(2);
+    });
+    it('should have ability to add new Models adding uniques', function () {
+        // Models
+        var model1 = model_factory({"name": 'Model1'}, $scope);
+        var model2 = model_factory({"name": 'Model2'}, $scope);
+
+        $scope.add_model('Model1');
+        $scope.add_model('Model2');
+        expect($scope.model_count()).toBe(2);
+
+        // Models
+        var duplicate1 = model_factory({"name": 'Model1'}, $scope);
+        var duplicate2 = model_factory({"name": 'Model2'}, $scope);
+        var new1 = model_factory({"name": 'Model3'}, $scope);
+
+        expect($scope.model_count()).toBe(2);
+        $scope.add_new_models([duplicate1, duplicate2, new1]);
+
+        // Manual callback
+        $scope.add_unique();
+
+        expect($scope.models.length).toBe(3);
+        expect($scope.models[0].name).toBe(duplicate1.name);
+        expect($scope.models[1].name).toBe(duplicate2.name);
+    });
+
+    it('should have ability to add new Models overwriting duplicates', function () {
+        // Models
+        $scope.add_model('Model1');
+        $scope.add_model('Model2');
+        expect($scope.model_count()).toBe(2);
+
+        // Models
+        var duplicate1 = model_factory({"name": 'Model1'}, $scope);
+        var duplicate2 = model_factory({"name": 'Model2'}, $scope);
+        var new1 = model_factory({"name": 'Model3'}, $scope);
+
+        expect($scope.model_count()).toBe(2);
+        $scope.add_new_models([duplicate1, duplicate2, new1]);
+
+        // Manual callback
+        $scope.merge_models();
+        expect($scope.models.length).toBe(3);
+        expect($scope.models[0].name).toBe(duplicate1.name);
+        expect($scope.models[1].name).toBe(duplicate2.name);
+        expect($scope.models[2].name).toBe(new1.name);
+    });
+
     it('should have ability to add/remove a Model', function () {
         expect($scope.model_count()).toBe(0);
         $scope.add_model('model1');
@@ -199,6 +266,11 @@ describe('Testing ModelController', function () {
         remove_model.find('.btn-primary').click();
         expect($scope.model_count()).toBe(1);
     });
+    it('should have ability to add/remove a Model via modal', function () {
+        var add_id = $scope.addModel();
+        var add_modal = jQuery('#'+add_id);
+        add_modal.find('.btn-primary').click();
+    });
     it('should have ability to clear Models', function () {
         expect($scope.model_count()).toBe(0);
         var model_opts = {"name": 'Model'};
@@ -207,12 +279,117 @@ describe('Testing ModelController', function () {
 
         expect($scope.model_count()).toBe(1);
 
-        var clear_modal = $scope.clearModels();
+        var clear_modal_id = $scope.clearModels();
+        var clear_modal = jQuery('#'+clear_modal_id);
         clear_modal.find('.btn-primary').click();
 
         expect($scope.model_count()).toBe(0);
 
     });
+    it('should have ability to remove new models', function () {
+        var model_opts = {"name": 'Model'};
+        expect($scope.new_models.length).toBe(0);
+        var new_model = model_factory(model_opts, $scope);
+        $scope.new_models = [new_model];
+        expect($scope.new_models.length).toBe(1);
+        // Call UI method for coverage
+        $scope.remove_new_model(0);
+        $scope.do_remove_new_model(0);
+        expect($scope.new_models.length).toBe(0);
+    });
+    it('should have ability to remove model relationships', function () {
+        var rf = new relationship_factory();
+
+        // Relationship
+        var rel_name = 'Rel';
+        var rel_opts = {"name": rel_name, "type": 'RelType', "to": 'RelTo'};
+        var rel = rf.make_relationship(rel_opts);
+
+        var model_opts = {"name": 'Model'};
+        expect($scope.new_models.length).toBe(0);
+        var new_model = model_factory(model_opts, $scope);
+        new_model.relationships.push(rel);
+
+        $scope.new_models = [new_model];
+        expect($scope.new_models.length).toBe(1);
+        // Call UI method for coverage
+        $scope.remove_new_relationship(0, 0);
+
+        $scope.do_remove_new_relationship(0, 0);
+        expect($scope.new_models.length).toBe(1);
+        expect($scope.new_models[0].relationships.length).toBe(0);
+
+
+    });
+    it('should have ability to remove model fields', function () {
+        var ff = new field_factory();
+        var field_name = 'Field';
+        var field_opts = {"name": field_name, "type": 'FieldType'};
+        var field = ff.make_field(field_opts, $scope);
+
+        var model_opts = {"name": 'Model'};
+        expect($scope.new_models.length).toBe(0);
+        var new_model = model_factory(model_opts, $scope);
+        new_model.fields.push(field);
+
+        $scope.new_models = [new_model];
+        expect($scope.new_models.length).toBe(1);
+
+        // Call UI method for coverage
+        $scope.remove_new_field(0, 0);
+
+        $scope.do_remove_new_field(0, 0);
+        expect($scope.new_models.length).toBe(1);
+        expect($scope.new_models[0].relationships.length).toBe(0);
+
+    });
+    it('should have ability to rename Models', function () {
+        var name = 'model1';
+        var new_name = 'model2';
+        $scope.add_model(name);
+        var rename_id = $scope.rename_model(0);
+        var rename_modal = jQuery('#'+rename_id);
+        rename_modal.find('input').val(new_name);
+        rename_modal.find('.btn-primary').click();
+        expect($scope.models[0].name).toBe(new_name);
+    });
+    it('should not rename a model to be blank', function () {
+        var name = 'model1';
+        $scope.add_model(name);
+        var rename_id = $scope.rename_model(0);
+        var rename_modal = jQuery('#'+rename_id);
+        rename_modal.find('input').val('');
+        rename_modal.find('.btn-primary').click();
+        expect($scope.models[0].name).toBe(name);
+    });
+    it('should not rename a model to be another model name', function () {
+        var name1 = 'model1';
+        var name2 = 'existing_model2';
+        expect($scope.model_count()).toBe(0);
+        $scope.add_model(name1);
+        expect($scope.model_count()).toBe(1);
+        $scope.add_model(name2);
+        expect($scope.model_count()).toBe(2);
+        $scope.do_rename_model(0, name2);
+        expect($scope.models[0].name).toBe(name1);
+        expect($scope.models[1].name).toBe(name2);
+        var rename_existing_id = 'rename_model_existing';
+        var rename_existing_modal = jQuery('#'+rename_existing_id);
+        expect(rename_existing_modal.length).toBe(1);
+    });
+    it('should have ability to find existing Models', function () {
+        var name1 = 'model1';
+        var name2 = 'model2';
+        $scope.add_model('modelX');
+        $scope.add_model(name1);
+        $scope.add_model('modelY');
+        $scope.add_model(name2);
+        $scope.add_model('modelZ');
+        expect($scope.existingModel(name1)).toBe(true);
+        expect($scope.existingModel('another_name')).toBe(false);
+        expect($scope.existingModel(name2)).toBe(true);
+    });
+
     it('should not allow duplicated relationships and fields', function () {
 
         // Factories

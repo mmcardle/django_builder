@@ -214,7 +214,7 @@ function ModelRenderFactory() {
             jQuery.each(models, function(i, model){
                 templates.push([model.l_name()+'_form.html', model.render_form_html()]);
                 templates.push([model.l_name()+'_detail.html', model.render_detail_html()]);
-                templates.push([model.l_name()+'_list.html', model.render_list_html()]);
+                templates.push([model.l_name()+'_list.html', model.render_list_html(model)]);
             });
 
             return templates;
@@ -326,6 +326,21 @@ function MessageServiceFactory() {
             simple_confirm.modal();
             return simple_confirm;
         };
+        _this.simple_choice = function (title, message, choices) {
+            var simple_choice = _this.base_modal();
+            simple_choice.find(".modal-header-inner").html(title);
+            simple_choice.find(".modal-body").empty().append(message);
+            jQuery.each(choices, function (i, choice) {
+                var choice_button = jQuery('<button>').addClass('btn btn-primary').text(choice['text']);
+                simple_choice.find(".modal-footer").append(choice_button);
+                choice_button.click(function () {
+                    choice['callback']();
+                });
+                choice_button.attr("data-dismiss", "modal");
+            });
+            simple_choice.modal();
+            return simple_choice;
+        };
         _this.simple_form = function (title, message, form, callback, no_dismiss) {
             var _callback = callback || jQuery.noop;
             var _no_dismiss = no_dismiss || true;
@@ -396,6 +411,19 @@ function RelationshipFactory() {
                 'django.db.models.ManyToManyField'
             ];
         };
+        _this.relationship_matches = function () {
+            return _this.relationship_types + [
+                'ForeignKey',
+                'OneToOneField',
+                'ManyToManyField',
+                'models.ForeignKey',
+                'models.OneToOneField',
+                'models.ManyToManyField'
+            ]
+        };
+        _this.relationship_match = function (rel) {
+            return _this.relationship_matches().indexOf(rel) != -1;
+        };
         function Relationship(options) {
             this.name = options['name'];
             this.type = options['type'];
@@ -409,6 +437,12 @@ function RelationshipFactory() {
                 this.type = jQuery(form).find('select[name=type]').val();
                 this.opts = jQuery(form).find('input[name=opts]').val();
                 this.to = jQuery(form).find('input[name=to]').val();
+            };
+            this.to_clean = function () {
+                return this.to.replace(/['"]+/g, '')
+            };
+            this.opts_args = function () {
+                return this.opts.split(',').join(', ');
             };
             this.to_module = function () {
                 var split = this.to.split('.');
@@ -491,6 +525,12 @@ function FieldFactory() {
             this.opts = options['opts'] || '';
             this.class_name = function () {
                 return this.type.split('.').reverse()[0]
+            };
+            this.opts_args = function () {
+                return this.opts.split(',').join(', ');
+            };
+            this.to_clean = function () {
+                return this.to.replace(/['"]+/g, '')
             };
             this.module = function () {
                 var split = this.type.split('.');
@@ -741,43 +781,55 @@ function ModelServiceFactory() {
 
                 return view_classes;
             };
-            this.render_model_class = function(app_name, renderer, built_in_models){
-                var cls =  'class '+this.name+'(models.Model):';
-                cls += renderer.new_lines(2);
-                if(this.fields.length>0) {
+            this.render_model_class_header = function(app_name, renderer) {
+                var cls = 'class ' + this.name + '(models.Model):';
+                return cls + renderer.new_lines(2);
+            };
+            this.render_model_class_fields = function(app_name, renderer){
+                var cls = '';
+                if (this.fields.length > 0) {
                     cls += renderer.spaces(4) + "# Fields";
                     cls += renderer.new_lines(1);
                 }
-                jQuery.each(this.fields, function(i, field){
-                    if(renderer.pre_imported_modules_names().indexOf(field.module()) == -1) {
+                jQuery.each(this.fields, function (i, field) {
+                    if (renderer.pre_imported_modules_names().indexOf(field.module()) == -1) {
                         cls += renderer.spaces(4) + field.name + ' = ' + field.class_name() + '(' + field.opts + ')';
-                    }else{
+                    } else {
                         var _as = renderer.pre_imported_modules()[field.module()]['as'];
-                        cls += renderer.spaces(4) + field.name + ' = '+_as+'.' + field.class_name() + '(' + field.opts + ')';
+                        cls += renderer.spaces(4) + field.name + ' = ' + _as + '.' + field.class_name() + '(' + field.opts + ')';
                     }
                     cls += renderer.new_lines(1);
                 });
                 cls += renderer.new_lines(1);
-                if(this.relationships.length>0) {
+                return cls;
+            };
+            this.render_model_class_relationships = function(app_name, renderer){
+                var cls = '';
+                if (this.relationships.length > 0) {
                     cls += renderer.spaces(4) + "# Relationship Fields";
                     cls += renderer.new_lines(1);
                 }
-                jQuery.each(this.relationships, function(i, relationship){
-                    var module = app_name+'.'+relationship.to;
+                jQuery.each(this.relationships, function (i, relationship) {
+                    var module = app_name + '.' + relationship.to;
 
                     // If the to field of the module is a built in class then use that as the relationship
-                    if(renderer.built_in_models[relationship.to]){
+                    if (renderer.built_in_models[relationship.to]) {
                         module = relationship.to;
                     }
-                    if(renderer.pre_imported_modules_names().indexOf(relationship.module()) == -1) {
-                        cls += renderer.spaces(4)+relationship.name+' = '+relationship.class_name()+'(\''+module+'\','+relationship.opts+')';
-                    }else{
+                    if (renderer.pre_imported_modules_names().indexOf(relationship.module()) == -1) {
+                        cls += renderer.spaces(4) + relationship.name + ' = ' + relationship.class_name() + '(\'' + module + '\',' + relationship.opts + ')';
+                    } else {
                         var _as = renderer.pre_imported_modules()[relationship.module()]['as'];
-                        cls += renderer.spaces(4)+relationship.name+' = '+_as+'.'+relationship.class_name()+'(\''+module+'\','+relationship.opts+')';
+                        cls += renderer.spaces(4) + relationship.name + ' = ' + _as + '.' + relationship.class_name() + '(\'' + module + '\',' + relationship.opts + ')';
                     }
                     cls += renderer.new_lines(1);
                 });
-
+                return cls;
+            };
+            this.render_model_class = function(app_name, renderer){
+                var cls = this.render_model_class_header(app_name, renderer);
+                cls += this.render_model_class_fields(app_name, renderer);
+                cls += this.render_model_class_relationships(app_name, renderer);
                 cls += renderer.new_lines(1);
                 cls += renderer.spaces(4)+'class Meta:';
                 cls += renderer.new_lines(1);
@@ -800,6 +852,12 @@ function ModelServiceFactory() {
                 cls += renderer.spaces(8)+'return reverse(\''+app_name+'_'+this.l_name()+'_update\', args=(self.'+this.identifier()+',))';
                 cls += renderer.new_lines(3);
 
+                return cls;
+            };
+            this.render_model_class_fields_only = function(app_name, renderer){
+                var cls = '';
+                cls += this.render_model_class_header(app_name, renderer);
+                cls += this.render_model_class_fields(app_name, renderer);
                 return cls;
             };
             this.render_model_api = function(app_name, renderer){
@@ -836,7 +894,12 @@ function ModelServiceFactory() {
             };
             this.render_form_html = function(){
                 var form_html = this._template_header();
-                form_html += this._wrap_block('content', '{{form}}');
+                form_html += "{% load crispy_form_tags %}\n";
+                var form = '<form method="post">\n';
+                form += '{% csrf_token %}\n{{form|crispy}}\n';
+                form += '<button class="btn btn-primary" type="submit">Submit</button>\n';
+                form += '</form>';
+                form_html += this._wrap_block('content', form);
                 return form_html;
             };
             this.render_list_html = function(){
@@ -846,17 +909,17 @@ function ModelServiceFactory() {
                 ul_html += '<li>{{object}}<\/li>\n';
                 ul_html += '{% endfor %}\n';
                 ul_html += '</ul>';
+                ul_html += '<a href="">Create new '+this.name+'</a>';
                 list_html += this._wrap_block('content', ul_html);
                 return list_html;
-
             };
             this.render_detail_html = function () {
                 var detail_html = this._template_header();
-                var table_html = '<table>';
+                var table_html = '<table class="table">\n';
                 jQuery.each(this.fields, function(i, field){
                     table_html += '<tr><td>'+field.name+'<\/td><td>{{ object.'+field.name+' }}<\/td><\/tr>\n';
                 });
-                table_html += '<\/table>';
+                table_html += '</table>';
                 detail_html += this._wrap_block('content', table_html);
                 detail_html += '\n<a href="{{object.get_update_url}}">Edit ' + this.name + '</a>\n';
                 return detail_html;
@@ -886,9 +949,101 @@ function ModelServiceFactory() {
         return new Model(options);
     };
 }
+function ModelParserFactory() {
+    return function ($scope) {
+        function Parser() {
+            this.parse = function(file, callback) {
+                var reader = new FileReader();
 
+                reader.onload = function (e) {
+                    var text = reader.result;
+                    var lines = text.split('\n');
+                    var model_definitions = [];
+                    var current_model = null;
+                    var multi_line = '';
+
+                    var model_regex = new RegExp("class\ ([a-zA-Z_]*)[\(]([a-zA-Z._]*)[\)][\:]$");
+                    var field_regex = new RegExp("^([a-zA-Z0-9_]+)\ \=\ ([a-zA-Z0-9._]+)[\(](.*)[\)]$");
+
+                    jQuery.each(lines, function (i, line) {
+                        line = line.trim();
+                        var model_match = model_regex.exec(line);
+                        if (model_match && model_match[2].match(/model/i)) {
+                            console.log('Model:', model_match[1]);
+                            current_model = {
+                                'name': model_match[1],
+                                'class': model_match[2],
+                                'fields': [],
+                                'relationships': []
+                            };
+                            model_definitions.push(current_model);
+                            multi_line = '';
+                        }
+                        var matched_content;
+                        var field_match = field_regex.exec(line);
+                        if(field_match){
+                            matched_content=field_match;
+                        }
+                        var multi_line_match = field_regex.exec(multi_line);
+                        if (multi_line_match) {
+                            matched_content=multi_line_match;
+                        }
+                        if (matched_content) {
+                            if (current_model && matched_content[2] && (matched_content[2].match(/field/i) || $scope.relationship_factory.relationship_match(matched_content[2]))){
+                                var is_relationship_field = $scope.relationship_factory.relationship_match(matched_content[2]);
+                                if(is_relationship_field) {
+                                    var rel_name = matched_content[1];
+                                    var rel_type = matched_content[2];
+                                    var raw_opts = matched_content[3].split(',');
+                                    var rel_to = raw_opts.shift();
+                                    var rel_opts = raw_opts.join(",").trim();
+                                    console.log('Model:', current_model.name, 'Relationship:', rel_name, rel_type, rel_to, rel_opts );
+                                    current_model.relationships.push($scope.relationship_factory.make_relationship({
+                                        'name': rel_name, 'type': rel_type, 'opts': rel_opts, 'to': rel_to
+                                    }));
+                                }else{
+                                    var f_name = matched_content[1];
+                                    var f_type = matched_content[2];
+                                    var f_opts = matched_content[3];
+                                    console.log('Model:', current_model.name, 'Field:', f_name, f_type, f_opts);
+                                    current_model.fields.push($scope.field_factory.make_field({
+                                        'name': f_name, 'type': f_type, 'opts': f_opts
+                                    }));
+                                }
+                            }
+                            multi_line = '';
+                        }else{
+                            /*
+                            There is no match for this line
+                            Append to multi_line to try and match
+                            if we are parsing a model
+                            */
+                            if(current_model) {
+                                multi_line = multi_line + line;
+                            }
+                        }
+
+                    });
+                    var new_models = [];
+                    jQuery.each(model_definitions, function (i, model_definition) {
+                        var model = $scope.model_factory(model_definition, $scope);
+                        new_models.push(model);
+                    });
+
+                    if(callback){
+                        callback(new_models);
+                    }
+
+                };
+                reader.readAsText(file);
+            }
+        }
+        return new Parser();
+    }
+}
 angular.module('builder.services', [])
     .factory('ModelFactory', [ModelServiceFactory])
+    .factory('ModelParser', [ModelParserFactory])
     .factory('MessageService', [MessageServiceFactory])
     .factory('FieldFactory', [FieldFactory])
     .factory('RelationshipFactory', [RelationshipFactory])
