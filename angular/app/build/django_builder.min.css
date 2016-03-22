@@ -1439,7 +1439,6 @@ textarea {
 
 .label-rotate {
     transform:rotate(-15deg);
-    transform:rotate(-15deg);
     -ms-transform:rotate(-15deg); /* IE 9 */
     -webkit-transform:rotate(-15deg); /* Opera, Chrome, and Safari */
     padding:12px .6em .3em
@@ -1505,6 +1504,11 @@ a:link {
 .builder_model_table {
     margin-bottom: 4px;
 }
+.builder_new_model_table tbody td:nth-child(1){width:20%;}
+.builder_new_model_table tbody td:nth-child(2){width:30%;}
+.builder_new_model_table tbody td:nth-child(3){}
+.builder_new_model_table tbody td:nth-child(4){width:10%;}
+
 .builder_model {
     border-radius: 4px;
     padding: 4px 8px 10px;
@@ -1516,6 +1520,9 @@ a:link {
 }
 .builder_model_header {
     word-break: break-all;
+}
+.builder_model_params_td {
+    /*word-break: keep-all;*/
 }
 .builder_model_table i{
     vertical-align:baseline;
@@ -1559,5 +1566,61 @@ a:link {
 .builder_btn_group[data-toggle="buttons"]>.btn>input[type="radio"], [data-toggle="buttons"]>.btn>input[type="checkbox"] {
 
 }
+.builder_dnd_target {
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    border: 1px dotted lightgray;
+    margin: 5px;
+    padding: 10px;
+}
+.builder_dnd_target_small {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+.builder_dnd_icon {
+    color: #ff4136;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.is-drag-over {
+    border: 1px solid lightgreen;
+    color: green;
+}
+.is-drag-over > .builder_dnd_icon  {
+    color: green;
+}
 
+/* file button */
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
 
+.builder_upload_models_py,
+.builder_upload_models_py:hover {
+    width: 50%;
+    margin-top: 15px;
+    border-bottom-width: 4px;
+}
+
+.builder_home_links {
+    margin-top: 30px;
+}

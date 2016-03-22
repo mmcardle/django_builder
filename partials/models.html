@@ -1,3 +1,4 @@
+<div id="builder_models_content">
 <div ng-app>
 
     <div class="row">
@@ -10,16 +11,24 @@
                 <input tabindex="1" class="form-control" ng-model="_app_name" id="appname" ng-change="set_app_name()">
             </div>
         </div>
+        <div class="col-sm-8">
+            <ANY ng-if="models.length">
+                <button tabindex="3" ng-click="upload_models_py()" class="btn btn-success pull-right hidden-xs" style="margin-right: 4px">Upload models.py <i class="fa fa-upload"></i></button>
+                <button tabindex="3" ng-click="upload_models_py()" class="btn btn-success pull-right visible-xs" style="margin-right: 4px"><i class="fa fa-upload"></i></button>
+            </ANY>
+        </div>
     </div>
     <div class="row">
         <div class="col-sm-2">
             <h2 style="margin: 0">Models</h2>
         </div>
         <div class="col-sm-10">
-            <button tabindex="4" ng-click="clearModels()" class="btn btn-danger pull-right hidden-xs">Clear all <i class="fa fa-times"></i></button>
-            <button tabindex="3" ng-click="create_tar_ball()" class="btn btn-info pull-right hidden-xs" style="margin-right: 4px">Download As Tarball <i class="fa fa-download"></i></button>
-            <button tabindex="4" ng-click="clearModels()" class="btn btn-danger pull-right visible-xs"><i class="fa fa-times"></i></button>
-            <button tabindex="3" ng-click="create_tar_ball()" class="btn btn-info pull-right visible-xs" style="margin-right: 4px"><i class="fa fa-download"></i></button>
+            <ANY ng-if="models.length">
+                <button tabindex="4" ng-click="clearModels()" class="btn btn-danger pull-right hidden-xs">Clear all <i class="fa fa-times"></i></button>
+                <button tabindex="3" ng-click="create_tar_ball()" class="btn btn-info pull-right hidden-xs" style="margin-right: 4px">Download As Tarball <i class="fa fa-download"></i></button>
+                <button tabindex="4" ng-click="clearModels()" class="btn btn-danger pull-right visible-xs"><i class="fa fa-times"></i></button>
+                <button tabindex="3" ng-click="create_tar_ball()" class="btn btn-info pull-right visible-xs" style="margin-right: 4px"><i class="fa fa-download"></i></button>
+            </ANY>
             <button tabindex="2" ng-click="addModel()" class="btn btn-primary hidden-xs" analytics-on="click" analytics-category="Models" analytics-event="AddModel">Add Model <i class="fa fa-plus"></i></button>
             <button tabindex="2" ng-click="addModel()" class="btn btn-primary visible-xs"><i class="fa fa-plus"></i></button>
         </div>
@@ -54,8 +63,7 @@
             </table>
             <!-- Single button -->
             <div class="btn-group pull-right">
-                <button type="button" class="btn btn-primary btn-group-sm dropdown-toggle" data-toggle="dropdown">
-                    Actions&nbsp;&nbsp;<span class="caret"></span>
+                <button type="button" class="btn btn-primary btn-group-sm dropdown-toggle" data-toggle="dropdown">Actions&nbsp;&nbsp;<span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
                     <li><a class="builder_a builder_model_add_field text-right" ng-click="rename_model($index)">Rename Model &nbsp;&nbsp;<i class="fa fa-edit"></i></a></li>
@@ -69,7 +77,27 @@
         </div>
     </div>
 </div>
-
+<ANY ng-if="models.length == 0">
+    <div class="row jumbotron">
+        <div class="col-sm-6 col-sm-offset-3">
+            <h3>Welcome to Django Builder, add some models to begin!</h3>
+            <hr>
+            <p style="text-align: justify">Start creating your app by &nbsp;
+                <button ng-click="addModel()" class="btn btn-primary btn-lg hidden-xs" analytics-on="click" analytics-category="Models" analytics-event="AddModel">Adding a Model <i class="fa fa-plus"></i></button>
+                <button ng-click="addModel()" class="btn btn-primary visible-xs"><i class="fa fa-plus"></i></button>
+                &nbsp;&nbsp;or&nbsp;&nbsp;
+                <button ng-click="upload_models_py()" class="btn btn-info btn-lg hidden-xs" style="margin-right: 4px">Upload your models.py file <i class="fa fa-upload"></i></button>
+                <button ng-click="upload_models_py()" class="btn btn-info visible-xs" style="margin-right: 4px"><i class="fa fa-upload"></i></button>
+            </p>
+            <p class="text-center">Or...</p>
+            <div class="builder_dnd_target text-center">
+                <div><em>Drag and Drop models.py files here.</em></div>
+                <i class="fa fa-upload fa-4x builder_dnd_icon"></i>
+            </div>
+        </div>
+    </div>
+</ANY>
+<ANY ng-if="models.length">
 <div class="row">
     <div class="col-md-6">
         <h4>{{ app_name()|lowercase }}/models.py</h4>
@@ -207,5 +235,47 @@
         </div>
     </div>
 </div>
+</ANY>
 
+<div id="builder_new_models">
+    <div class="row">
+        <div class="col-md-12 col-xs-12 col12" ng-repeat="model in new_models">
+            <div class="builder_model builder_new_model_table builder_model_{{ model.name }}">
+                <table class="table table-condensed table-hover builder_model_table">
+                    <thead>
+                    <tr>
+                        <th class="hidden-xs builder_model_header" colspan="2">
+                            <i class="fa fa-database"></i>&nbsp;&nbsp;{{ app_name()|lowercase }}.{{ model.name }}
+                            <ANY ng-if="existingModel(model.name)">
+                                <a href="" class="label label-danger" ng-click="remove_new_model($index)">Duplicate! - Click to remove</a>
+                            </ANY>
+                        </th>
+                        <th class="visible-xs">{{ model.name }}</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="relationship in model.relationships" ng-mouseover="new_model_highlight($parent.$index, $index)" ng-mouseout="new_model_unhighlight()">
+                        <td><a href="">{{ relationship.name }}&nbsp;&nbsp;<i class="fa fa-database"></i></a></td>
+                        <td class="hidden-xs builder_break">{{ relationship.class_name() }}({{ relationship.to }})</td>
+                        <td class="hidden-xs">{{ relationship.opts_args() }}</td>
+                        <td><a href=""><i ng-click="remove_new_relationship($parent.$index, $index)" class="fa fa-times pull-right"></i></a></td>
+                    </tr>
+                    <tr ng-repeat="field in model.fields">
+                        <td><a href="">{{ field.name }}</a></td>
+                        <td class="hidden-xs">{{ field.class_name() }}</td>
+                        <td class="hidden-xs builder_model_params_td">{{ field.opts_args() }}</td>
+                        <td><a href="" ng-click="remove_new_field($parent.$index, $index)" ><i class="fa fa-times pull-right"></i></a></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <!-- Single button -->
+                <a class="builder_a builder_model_remove btn btn-info pull-right" ng-click="remove_new_model($index)">Don't Import</a>
+                <div class="clearfix"></div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+</div>
 <iframe id="download_iframe" style="display:none"></iframe>
