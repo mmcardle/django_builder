@@ -172,6 +172,8 @@ function ModelRenderFactory() {
         };
         _this.render_models_py = function (app_name, models) {
             var models_py =  'from django.core.urlresolvers import reverse\n';
+            models_py += 'from django.db.models import *\n';
+            models_py += 'from django_extensions.db.fields import AutoSlugField\n';
 
             jQuery.each(_this.pre_imported_modules(), function(_import, import_conf){
                 var _import_split = _import.split('.');
@@ -642,7 +644,9 @@ function ModelServiceFactory() {
                 urls += 'class '+this.name+'Form(forms.ModelForm):\n';
                 urls += renderer.spaces(4)+'class Meta:\n';
                 urls += renderer.spaces(8)+'model = '+this.name+'\n';
-                urls += renderer.spaces(8)+'fields = '+this.form_fields()+'\n';
+                if(this.form_fields()) {
+                    urls += renderer.spaces(8) + 'fields = ' + this.form_fields() + '\n';
+                }
                 urls += renderer.new_lines(2);
 
                 return urls;
@@ -747,12 +751,18 @@ function ModelServiceFactory() {
                 admin_classes += renderer.new_lines(1);
                 admin_classes += renderer.spaces(4)+'class Meta:\n';
                 admin_classes += renderer.spaces(8)+'model = '+this.name+'\n';
+                admin_classes += renderer.spaces(8)+'fields = \'__all__\'\n';
                 admin_classes += renderer.new_lines(2);
 
                 admin_classes += 'class '+this.name+'Admin(admin.ModelAdmin):\n';
                 admin_classes += renderer.spaces(4)+'form = '+this.name+'AdminForm\n';
-                admin_classes += renderer.spaces(4)+'list_display = '+this.admin_fields()+'\n';
-                admin_classes += renderer.spaces(4)+'readonly_fields = '+this.admin_read_only_fields()+'\n';
+                var admin_fields = this.admin_fields();
+                if(admin_fields.length>0) {
+                    admin_classes += renderer.spaces(4) + 'list_display = ' + this.admin_fields() + '\n';
+                    admin_classes += renderer.spaces(4) + 'readonly_fields = ' + this.admin_read_only_fields() + '\n';
+                }else{
+                    admin_classes += renderer.new_lines(1);
+                }
                 admin_classes += renderer.new_lines(1);
                 admin_classes += 'admin.site.register('+this.name+', '+this.name+'Admin)\n';
                 admin_classes += renderer.new_lines(2);
@@ -810,7 +820,7 @@ function ModelServiceFactory() {
                     cls += renderer.new_lines(1);
                 }
                 jQuery.each(this.relationships, function (i, relationship) {
-                    var module = app_name + '.' + relationship.to;
+                    var module = app_name + '.' + relationship.to_clean();
 
                     // If the to field of the module is a built in class then use that as the relationship
                     if (renderer.built_in_models[relationship.to]) {
@@ -925,25 +935,44 @@ function ModelServiceFactory() {
                 return detail_html;
             };
             this.form_fields = function(){
-                var readable_field_names = (this.readable_fields()).map(function(field){return field.name});
-                var relationships = (this.relationships).map(function(relationship){return relationship.to.toLowerCase()});
+                var readable_field_names = (this.readable_fields()).map(function (field) {
+                    return field.name
+                });
+                var relationships = (this.relationships).map(function (relationship) {
+                    return relationship.name;
+                });
                 var all_fields = readable_field_names.concat(relationships);
-                return '[\''+all_fields.join('\', \'')+'\']'
+                if(all_fields.length) {
+                    return '[\'' + all_fields.join('\', \'') + '\']';
+                }else{
+                    return '\'__all__\'';
+                }
             };
             this.readable_fields = function(){
                 var readable_fields = [];
                 jQuery.each(this.fields, function(i, field){
-                    if(field.opts.indexOf('readonly')==-1 && field.opts.indexOf('editable')==-1 && field.type != 'django_extensions.db.fields.AutoSlugField') {
+                    if(field.opts.indexOf('readonly')==-1
+                        && field.opts.indexOf('editable')==-1
+                        && field.opts.indexOf('auto_now_add')==-1
+                        && field.type != 'django_extensions.db.fields.AutoSlugField') {
                         readable_fields.push(field);
                     }
                 });
                 return readable_fields;
             };
             this.admin_fields = function(){
-                return '[\''+this.field_names().join('\', \'')+'\']'
+                if(this.field_names().length>0) {
+                    return '[\'' + this.field_names().join('\', \'') + '\']'
+                }else{
+                    return '';
+                }
             };
             this.admin_read_only_fields = function(){
-                return '[\''+this.field_names().join('\', \'')+'\']'
+                if(this.field_names().length>0) {
+                    return '[\'' + this.field_names().join('\', \'') + '\']'
+                }else{
+                    return '';
+                }
             };
         }
         return new Model(options);

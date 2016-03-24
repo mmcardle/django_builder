@@ -139,6 +139,14 @@ describe('service', function () {
 
         expect(model.readable_fields().length).toBe(1);
 
+        // auto_now_add Field
+        var auto_add_field_name = 'Unreadable';
+        var auto_add_field_opts = {"name": un_field_name, "type": 'FieldType', 'opts': 'auto_now_add=true'};
+        var auto_add_field = ff.make_field(un_field_opts, $scope);
+        model.fields.push(auto_add_field);
+
+        expect(model.readable_fields().length).toBe(1);
+
         // Name Field
         var field_name_2 = 'name';
         var field_opts_2 = {"name": field_name_2, "type": 'FieldType'};
