@@ -7,7 +7,6 @@ npm-debug.log
 angular/node_modules/
 angular/bower_components/
 angular/app/bower_components/
-angular/app/build/
 angular/coverage/
 angular/test_out/
 tmp

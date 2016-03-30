@@ -904,7 +904,7 @@ function ModelServiceFactory() {
             };
             this.render_form_html = function(){
                 var form_html = this._template_header();
-                form_html += "{% load crispy_form_tags %}\n";
+                form_html += "{% load crispy_forms_tags %}\n";
                 var form = '<form method="post">\n';
                 form += '{% csrf_token %}\n{{form|crispy}}\n';
                 form += '<button class="btn btn-primary" type="submit">Submit</button>\n';
