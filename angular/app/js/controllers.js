@@ -66,14 +66,29 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 return tarfile.get_url();
             };
 
-            $scope.create_tar_ball = function(){
-                var download_iframe = document.getElementById("download_iframe");
-                download_iframe.src = $scope.create_tar_ball_url();
-                $scope.messageService.simple_info(
-                    'Download info',
-                    "Chrome can block downloads of the generated tarball, " +
-                    "if this happens navigate to the <strong>Downloads<\/strong> section of chrome to accept the download." +
-                    "<br>Window -> Downloads").modal('show');
+            $scope.create_download_modal = function(){
+                var download_url = $scope.create_tar_ball_url();
+
+                var filename = $scope.app_name() + '.tar';
+                var download_a = jQuery('<a>').attr('href', download_url).attr('id', 'django_builder_download_a');
+                download_a.addClass('btn btn-success btn-lg').css('text-transform', 'none');
+                download_a.text('Click here to download '+ filename);
+                download_a.attr('download', filename);
+
+                var download_button = jQuery('<div>').addClass('text-center').append(download_a);
+                var download_message = jQuery('<div>');
+                download_message.append(jQuery("<br>"));
+                download_message.append("Chrome can block downloads of the generated tarball, if this happens navigate to the ");
+                download_message.append(jQuery('<strong>').text('Downloads'));
+                download_message.append(" section of chrome to accept the download")
+                download_message.append(jQuery("<br>"));
+                download_message.append("Window -> Downloads");
+
+                var download_div = jQuery('<div>');
+                download_div.append(download_button)
+                download_div.append(download_message)
+
+                return $scope.messageService.simple_info('Download info', download_div).modal('show');
             };
             $scope.render_model_class_fields_only = function (model) {
                 return model.render_model_class_fields_only($scope._app_name, $scope.render_factory);

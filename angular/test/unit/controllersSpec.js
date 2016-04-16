@@ -75,10 +75,11 @@ describe('Testing ModelController', function () {
         expect($scope.model_count()).toBe(0);
         expect($scope.create_tar_ball_url().length).toBeGreaterThan(512);
 
-        // Fake iframe with an img tag so we don't try to download during tests
-        var fake_iframe = jQuery('<img>').attr('id', 'download_iframe').appendTo('body');
-        $scope.create_tar_ball();
-        expect(fake_iframe.attr('src')).toBe($scope.create_tar_ball_url());
+        // Test downloads
+        var expected_tar_ball_url = $scope.create_tar_ball_url();
+        var download_modal = $scope.create_download_modal();
+        var download_a = download_modal.find('#django_builder_download_a');
+        expect(download_a.attr('href')).toBe(expected_tar_ball_url);
 
         // Test ACE
         var ace_types = [
