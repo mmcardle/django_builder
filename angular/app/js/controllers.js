@@ -20,6 +20,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     fields: {
                         'name': {default:'group'}
                     }
+                },
+                'django.contrib.contenttypes.models.ContentType': {
+                    fields: {}
                 }
             };
             $scope.messageService = new message_service();

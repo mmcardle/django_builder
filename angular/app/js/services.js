@@ -174,6 +174,8 @@ function ModelRenderFactory() {
             var models_py =  'from django.core.urlresolvers import reverse\n';
             models_py += 'from django.db.models import *\n';
             models_py += 'from django_extensions.db.fields import AutoSlugField\n';
+            models_py += 'from django.contrib.contenttypes.fields import GenericForeignKey\n';
+            models_py += 'from django.contrib.contenttypes.models import ContentType\n';
 
             jQuery.each(_this.pre_imported_modules(), function(_import, import_conf){
                 var _import_split = _import.split('.');
@@ -214,9 +216,9 @@ function ModelRenderFactory() {
             var templates = [];
 
             jQuery.each(models, function(i, model){
-                templates.push([model.l_name()+'_form.html', model.render_form_html()]);
-                templates.push([model.l_name()+'_detail.html', model.render_detail_html()]);
-                templates.push([model.l_name()+'_list.html', model.render_list_html(model)]);
+                templates.push([model.l_name()+'_form.html', model.render_form_html(app_name)]);
+                templates.push([model.l_name()+'_detail.html', model.render_detail_html(app_name)]);
+                templates.push([model.l_name()+'_list.html', model.render_list_html(app_name)]);
             });
 
             return templates;
@@ -443,6 +445,9 @@ function RelationshipFactory() {
             this.to_clean = function () {
                 return this.to.replace(/['"]+/g, '')
             };
+            this.to_class = function () {
+                return this.to.split('.').reverse().shift();
+            };
             this.opts_args = function () {
                 return this.opts.split(',').join(', ');
             };
@@ -497,6 +502,7 @@ function FieldFactory() {
             return {
                 'django.db.models.TextField': {default_args: 'max_length=100'},
                 'django.db.models.CharField': {default_args: 'max_length=30'},
+                'django.contrib.contenttypes.fields.GenericForeignKey': {default_args: '\"content_type\", \"object_id\"'},
                 'django_extensions.db.fields.AutoSlugField': {},
                 'django.db.models.BooleanField': {},
                 'django.db.models.DateField': {},
@@ -505,6 +511,7 @@ function FieldFactory() {
                 'django.db.models.FilePathField': {},
                 'django.db.models.FloatField': {},
                 'django.db.models.IntegerField': {},
+                'django.db.models.PositiveIntegerField': {},
                 'django.db.models.IPAddressField': {},
                 'django.db.models.GenericIPAddressField': {},
                 'django.db.models.NullBooleanField': {},
@@ -820,17 +827,17 @@ function ModelServiceFactory() {
                     cls += renderer.new_lines(1);
                 }
                 jQuery.each(this.relationships, function (i, relationship) {
-                    var module = app_name + '.' + relationship.to_clean();
+                    var module = '\''+ app_name + '.' + relationship.to_clean() +'\'';
 
                     // If the to field of the module is a built in class then use that as the relationship
                     if (renderer.built_in_models[relationship.to]) {
-                        module = relationship.to;
+                        module = relationship.to_class();
                     }
                     if (renderer.pre_imported_modules_names().indexOf(relationship.module()) == -1) {
-                        cls += renderer.spaces(4) + relationship.name + ' = ' + relationship.class_name() + '(\'' + module + '\',' + relationship.opts + ')';
+                        cls += renderer.spaces(4) + relationship.name + ' = ' + relationship.class_name() + '(' + module + ', ' + relationship.opts + ')';
                     } else {
                         var _as = renderer.pre_imported_modules()[relationship.module()]['as'];
-                        cls += renderer.spaces(4) + relationship.name + ' = ' + _as + '.' + relationship.class_name() + '(\'' + module + '\',' + relationship.opts + ')';
+                        cls += renderer.spaces(4) + relationship.name + ' = ' + _as + '.' + relationship.class_name() + '(' + module + ', ' + relationship.opts + ')';
                     }
                     cls += renderer.new_lines(1);
                 });
@@ -897,41 +904,58 @@ function ModelServiceFactory() {
                 return serializer;
             };
             this._template_header = function(){
-                return  '{% extends "base.html" %}\n';
+                return '{% extends "base.html" %}\n{% load static %}\n';
+            };
+            this._template_links = function(app_name){
+                var list_url = app_name+'_'+this.l_name()+'_list';
+                return '<p><a class="btn btn-default" href="{% url \''+list_url+'\' %}">'+this.name+' Listing<\/a><\/p>\n';
             };
             this._wrap_block = function(block, content){
                 return '{% block '+block+' %}\n'+content+'\n{% endblock %}'
             };
-            this.render_form_html = function(){
+            this.render_form_html = function(app_name){
                 var form_html = this._template_header();
                 form_html += "{% load crispy_forms_tags %}\n";
-                var form = '<form method="post">\n';
+                var form = this._template_links(app_name) + '<form method="post">\n';
                 form += '{% csrf_token %}\n{{form|crispy}}\n';
                 form += '<button class="btn btn-primary" type="submit">Submit</button>\n';
                 form += '</form>';
                 form_html += this._wrap_block('content', form);
                 return form_html;
             };
-            this.render_list_html = function(){
+            this.render_list_html = function(app_name){
+                var create_url = app_name+'_'+this.l_name()+'_create';
                 var list_html = this._template_header();
-                var ul_html = '<ul>\n';
-                ul_html += '{% for object in object_list %}\n';
-                ul_html += '<li>{{object}}<\/li>\n';
-                ul_html += '{% endfor %}\n';
-                ul_html += '</ul>';
-                ul_html += '<a href="">Create new '+this.name+'</a>';
-                list_html += this._wrap_block('content', ul_html);
+                var table_html = this._template_links(app_name) +'<table class="table">\n';
+                table_html += '<tr>\n';
+                table_html += '<td>ID<\/td><td>Link<\/td>\n';
+                jQuery.each(this.fields, function(i, field){
+                    table_html += '    <td>'+field.name+'<\/td>\n';
+                });
+                table_html += '<\/tr>\n';
+                table_html += '{% for object in object_list %}\n';
+                table_html += '<tr>\n';
+                table_html += '    <td>{{object.id}}</td>\n';
+                table_html += '    <td><a href="{{object.get_absolute_url}}">{{object}}<\/a><\/td>\n';
+                jQuery.each(this.fields, function(i, field){
+                    table_html += '    <td>{{ object.'+field.name+' }}<\/td>\n';
+                });
+                table_html += '<\/tr>\n';
+                table_html += '{% endfor %}\n';
+                table_html += '<\/table>';
+                table_html += '<a class="btn btn-primary" href="{% url \''+create_url+'\' %}">Create new '+this.name+'<\/a>';
+                list_html += this._wrap_block('content', table_html);
                 return list_html;
             };
-            this.render_detail_html = function () {
+            this.render_detail_html = function (app_name) {
                 var detail_html = this._template_header();
-                var table_html = '<table class="table">\n';
+                var table_html = this._template_links(app_name) + '<table class="table">\n';
                 jQuery.each(this.fields, function(i, field){
                     table_html += '<tr><td>'+field.name+'<\/td><td>{{ object.'+field.name+' }}<\/td><\/tr>\n';
                 });
                 table_html += '</table>';
+                table_html += '\n<a class="btn btn-primary" href="{{object.get_update_url}}">Edit ' + this.name + '</a>\n';
                 detail_html += this._wrap_block('content', table_html);
-                detail_html += '\n<a href="{{object.get_update_url}}">Edit ' + this.name + '</a>\n';
                 return detail_html;
             };
             this.form_fields = function(){
@@ -954,6 +978,7 @@ function ModelServiceFactory() {
                     if(field.opts.indexOf('readonly')==-1
                         && field.opts.indexOf('editable')==-1
                         && field.opts.indexOf('auto_now_add')==-1
+                        && field.type != 'django.contrib.contenttypes.fields.GenericForeignKey'
                         && field.type != 'django_extensions.db.fields.AutoSlugField') {
                         readable_fields.push(field);
                     }
