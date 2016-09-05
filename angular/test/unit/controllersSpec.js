@@ -77,7 +77,8 @@ describe('Testing ModelController', function () {
 
         // Test downloads
         var expected_tar_ball_url = $scope.create_tar_ball_url();
-        var download_modal = $scope.create_download_modal();
+        var download_modal_id = $scope.create_download_modal();
+        var download_modal = jQuery('#'+download_modal_id);
         var download_a = download_modal.find('#django_builder_download_a');
         expect(download_a.attr('href')).toBe(expected_tar_ball_url);
 
@@ -106,7 +107,7 @@ describe('Testing ModelController', function () {
         var ff = new field_factory();
         var rf = new relationship_factory();
 
-        expect(ff.field_types().length).toBe(16);
+        expect(ff.field_types().length).toBe(18);
         expect(rf.relationship_types().length).toBe(3);
 
         // Field

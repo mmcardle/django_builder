@@ -20,6 +20,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     fields: {
                         'name': {default:'group'}
                     }
+                },
+                'django.contrib.contenttypes.models.ContentType': {
+                    fields: {}
                 }
             };
             $scope.messageService = new message_service();
@@ -88,7 +91,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 download_div.append(download_button)
                 download_div.append(download_message)
 
-                return $scope.messageService.simple_info('Download info', download_div).modal('show');
+                var identifier = 'django_builder_download_modal';
+                $scope.messageService.simple_info('Download info', download_div).modal('show').attr('id', identifier);
+                return identifier;
             };
             $scope.render_model_class_fields_only = function (model) {
                 return model.render_model_class_fields_only($scope._app_name, $scope.render_factory);
