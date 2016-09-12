@@ -5,11 +5,15 @@ Django Builder is deployed at:
 
 http://mmcardle.github.io/django_builder/
 
+Updates 12th September 2016
+===========================
+
+* Added some new fields from Django 1.1
+
 Updates 22nd March 2016
 =======================
 
 * Generation of models from a models.py file.
-
 
 Updates 4th Dec 2015
 ======================

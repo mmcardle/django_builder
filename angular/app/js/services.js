@@ -124,7 +124,7 @@ function ModelRenderFactory() {
             return tests_py;
         };
         _this.render_urls_py = function (app_name, models) {
-            var urls_py = 'from django.conf.urls import patterns, url, include\n';
+            var urls_py = 'from django.conf.urls import url, include\n';
             urls_py += 'from rest_framework import routers'+_this.new_lines(1);
             urls_py += 'import api'+_this.new_lines(1);
             urls_py += 'import views'+_this.new_lines(2);
@@ -134,7 +134,7 @@ function ModelRenderFactory() {
                 urls_py +='router.register(r\''+model.l_name()+'\', api.'+model.name+'ViewSet)'+_this.new_lines(1);
             });
             urls_py += _this.new_lines(2);
-            urls_py += 'urlpatterns = patterns(\'\','+_this.new_lines(1);
+            urls_py += 'urlpatterns = ('+_this.new_lines(1);
             urls_py += _this.spaces(4)+'# urls for Django Rest Framework API'+_this.new_lines(1);
             urls_py += _this.spaces(4)+'url(r\'^api/v1/\', include(router.urls)),'+_this.new_lines(1);
             urls_py += ')'+_this.new_lines(1);
@@ -172,10 +172,12 @@ function ModelRenderFactory() {
         };
         _this.render_models_py = function (app_name, models) {
             var models_py =  'from django.core.urlresolvers import reverse\n';
-            models_py += 'from django.db.models import *\n';
             models_py += 'from django_extensions.db.fields import AutoSlugField\n';
+            models_py += 'from django.db.models import *\n';
+            models_py += 'from django.conf import settings\n';
             models_py += 'from django.contrib.contenttypes.fields import GenericForeignKey\n';
             models_py += 'from django.contrib.contenttypes.models import ContentType\n';
+            models_py += 'from django.contrib.auth import get_user_model\n';
 
             jQuery.each(_this.pre_imported_modules(), function(_import, import_conf){
                 var _import_split = _import.split('.');
@@ -494,7 +496,7 @@ function RelationshipFactory() {
             return new Relationship(options);
         }
     };
-}
+}                
 function FieldFactory() {
     return function (options) {
         var _this = this;
@@ -504,20 +506,30 @@ function FieldFactory() {
                 'django.db.models.CharField': {default_args: 'max_length=30'},
                 'django.contrib.contenttypes.fields.GenericForeignKey': {default_args: '\"content_type\", \"object_id\"'},
                 'django_extensions.db.fields.AutoSlugField': {},
+                'django.db.models.CommaSeparatedIntegerField': {},
+                'django.db.models.BigAutoField': {},
+                'django.db.models.BigIntegerField': {},
                 'django.db.models.BooleanField': {},
                 'django.db.models.DateField': {},
                 'django.db.models.DateTimeField': {},
                 'django.db.models.DecimalField': {default_args: 'max_digits=10, decimal_places=2'},
+                'django.db.models.DurationField': {},
                 'django.db.models.FilePathField': {},
                 'django.db.models.FloatField': {},
                 'django.db.models.IntegerField': {},
                 'django.db.models.PositiveIntegerField': {},
+                'django.db.models.PositiveSmallIntegerField': {},
+                'django.db.models.SlugField': {},
                 'django.db.models.IPAddressField': {},
                 'django.db.models.GenericIPAddressField': {},
                 'django.db.models.NullBooleanField': {},
                 'django.db.models.TimeField': {},
                 'django.db.models.BinaryField': {},
-                'django.db.models.AutoField': {}
+                'django.db.models.AutoField': {},
+                'django.db.models.SmallIntegerField': {},
+                'django.db.models.URLField': {},
+                'django.db.models.UUIDField': {},
+                'django.db.models.EmailField': {}
             };
         };
         _this.default_field_args = function (field_type) {
@@ -739,7 +751,7 @@ function ModelServiceFactory() {
             this.render_urls = function(app_name, renderer){
                 var urls = '';
 
-                urls += 'urlpatterns += patterns(\'\',\n';
+                urls += 'urlpatterns += (\n';
                 urls += renderer.spaces(4)+'# urls for '+this.name+'\n';
 
                 urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/$\', views.'+this.name+'ListView.as_view(), name=\''+app_name+'_'+this.l_name()+'_list\'),\n';
@@ -830,9 +842,13 @@ function ModelServiceFactory() {
                     var module = '\''+ app_name + '.' + relationship.to_clean() +'\'';
 
                     // If the to field of the module is a built in class then use that as the relationship
-                    if (renderer.built_in_models[relationship.to]) {
+                    if(relationship.to == $scope.user_model){
+                        module = $scope.user_model_setting;
+                    }
+                    else if (renderer.built_in_models[relationship.to]) {
                         module = relationship.to_class();
                     }
+
                     if (renderer.pre_imported_modules_names().indexOf(relationship.module()) == -1) {
                         cls += renderer.spaces(4) + relationship.name + ' = ' + relationship.class_name() + '(' + module + ', ' + relationship.opts + ')';
                     } else {
