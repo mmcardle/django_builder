@@ -9,8 +9,10 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             //$ = jQuery();
             $scope.models = [];
             $scope.new_models = [];
+            $scope.user_model = 'django.contrib.auth.models.User';
+            $scope.user_model_setting = 'settings.AUTH_USER_MODEL';
             $scope.built_in_models = {
-                'django.contrib.auth.models.User' : {
+                'django.contrib.auth.models.User': {
                     fields: {
                         'username': {default:'username'},
                         'email': {default:'username@tempurl.com'}
