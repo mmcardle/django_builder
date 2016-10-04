@@ -320,8 +320,20 @@ describe('Testing ModelController', function () {
         $scope.do_remove_new_relationship(0, 0);
         expect($scope.new_models.length).toBe(1);
         expect($scope.new_models[0].relationships.length).toBe(0);
-
-
+    });
+    it('should have ability to add relationships to internal app models', function () {
+        var rf = new relationship_factory();
+        var rel_name = 'Rel';
+        var rel_opts = {"name": rel_name, "type": 'RelType', "to": 'RelTo'};
+        var rel = rf.make_relationship(rel_opts);
+        expect(rel.external_app).toBe(false);
+    });
+    it('should have ability to add relationships to external app models', function () {
+        var rf = new relationship_factory();
+        var rel_name = 'Rel';
+        var rel_opts = {"name": rel_name, "type": 'RelType', "to": 'RelTo', external_app: true};
+        var rel = rf.make_relationship(rel_opts);
+        expect(rel.external_app).toBe(true);
     });
     it('should have ability to remove model fields', function () {
         var ff = new field_factory();
