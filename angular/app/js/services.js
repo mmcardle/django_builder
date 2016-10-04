@@ -357,7 +357,9 @@ function MessageServiceFactory() {
             var cancel_button = jQuery('<button>').addClass('btn btn-default').text('Cancel');
             simple_confirm.find(".modal-footer").append(confirm_button).append(cancel_button);
             confirm_button.click(function () {
-                simple_confirm.modal('hide');
+                if(!_no_dismiss) {
+                    simple_confirm.modal('hide');
+                }
                 _callback(form);
             });
             cancel_button.attr("data-dismiss", "modal");
@@ -435,6 +437,7 @@ function RelationshipFactory() {
             this.type = options['type'];
             this.opts = options['opts'];
             this.to = options['to'];
+            this.external_app = options['external_app'] || false;
             this.class_name = function () {
                 return this.type.split('.').reverse()[0]
             };
@@ -678,7 +681,7 @@ function ModelServiceFactory() {
                     initial += renderer.new_lines(1);
                 });
                 jQuery.each(this.relationships, function(i, relationship){
-                    initial += renderer.spaces(12)+'\"'+relationship.name+'\": create_'+relationship.to.toLowerCase()+'().id,';
+                    initial += renderer.spaces(12)+'\"'+relationship.name+'\": create_'+relationship.to.toLowerCase().replace(/\./g, '_')+'().id,';
                     initial += renderer.new_lines(1);
                 });
                 initial += renderer.spaces(8)+'}';
@@ -694,7 +697,7 @@ function ModelServiceFactory() {
                 test_helpers += renderer.spaces(4)+'defaults.update(**kwargs)\n';
                 jQuery.each(this.relationships, function(i, relationship){
                     test_helpers += renderer.spaces(4)+'if \"'+relationship.name+'\" not in defaults:\n';
-                    var helper_create = 'create_'+relationship.to.toLowerCase();
+                    var helper_create = 'create_'+relationship.to.toLowerCase().replace(/\./g, '_');
 
                     if(renderer.built_in_models[relationship.to]){
                         helper_create = 'create_'+relationship.to.toLowerCase().replace(/\./g, '_');
@@ -840,6 +843,9 @@ function ModelServiceFactory() {
                 }
                 jQuery.each(this.relationships, function (i, relationship) {
                     var module = '\''+ app_name + '.' + relationship.to_clean() +'\'';
+                    if(relationship.external_app){
+                        module = '\'' + relationship.to_clean() +'\'';
+                    }
 
                     // If the to field of the module is a built in class then use that as the relationship
                     if(relationship.to == $scope.user_model){
