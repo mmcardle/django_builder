@@ -517,6 +517,8 @@ function FieldFactory() {
                 'django.db.models.DateTimeField': {},
                 'django.db.models.DecimalField': {default_args: 'max_digits=10, decimal_places=2'},
                 'django.db.models.DurationField': {},
+                'django.db.models.FileField': {default_args: 'upload_to=\"/upload/files/\"'},
+                'django.db.models.ImageField': {default_args: 'upload_to=\"/upload/images/\"'},
                 'django.db.models.FilePathField': {},
                 'django.db.models.FloatField': {},
                 'django.db.models.IntegerField': {},

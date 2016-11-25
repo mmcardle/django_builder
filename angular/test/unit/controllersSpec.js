@@ -107,7 +107,7 @@ describe('Testing ModelController', function () {
         var ff = new field_factory();
         var rf = new relationship_factory();
 
-        expect(ff.field_types().length).toBe(28);
+        expect(ff.field_types().length).toBe(30);
         expect(rf.relationship_types().length).toBe(3);
 
         // Field
