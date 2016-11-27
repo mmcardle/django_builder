@@ -75,12 +75,19 @@ describe('Testing ModelController', function () {
         expect($scope.model_count()).toBe(0);
         expect($scope.create_tar_ball_url().length).toBeGreaterThan(512);
 
-        // Test downloads
-        var expected_tar_ball_url = $scope.create_tar_ball_url();
-        var download_modal_id = $scope.create_download_modal();
-        var download_modal = jQuery('#'+download_modal_id);
-        var download_a = download_modal.find('#django_builder_download_a');
-        expect(download_a.attr('href')).toBe(expected_tar_ball_url);
+        // Test download app
+        var expected_tar_ball_url_app = $scope.create_tar_ball_url(false);
+        var download_modal_id_app = $scope.create_download_modal_app();
+        var download_modal_app = jQuery('#'+download_modal_id_app);
+        var download_a_app = download_modal_app.find('#django_builder_download_a');
+        expect(download_a_app.attr('href')).toBe(expected_tar_ball_url_app);
+
+        // Test download project
+        var expected_tar_ball_url_project = $scope.create_tar_ball_url(true);
+        var download_modal_id_project = $scope.create_download_modal_project();
+        var download_modal_project = jQuery('#'+download_modal_id_project);
+        var download_a_project = download_modal_project.find('a');
+        expect(download_a_project.attr('href')).toBe(expected_tar_ball_url_project);
 
         // Test ACE
         var ace_types = [
@@ -144,7 +151,7 @@ describe('Testing ModelController', function () {
         expect(new_model.name_field()).toBe('id');
 
         expect($scope.model_count()).toBe(1);
-        expect($scope.create_tar_ball_url().length).toBe(40988);
+        expect($scope.create_tar_ball_url().length).toBe(27336);
 
         $scope.updateModel(model);
         $scope.serializeApp();
