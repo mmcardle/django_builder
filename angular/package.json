@@ -25,6 +25,8 @@
     "karma-phantomjs-launcher": "^0.2.1",
     "phantomjs": "^1.9.18",
     "protractor": "~1.0.0-rc4",
+    "select2": "^4.0.3",
+    "select2-bootstrap-theme": "0.1.0-beta.9",
     "shelljs": "^0.2.6"
   },
   "scripts": {

@@ -1,5 +1,3 @@
-'use strict';
-
 /* Controllers */
 
 angular.module('builder.controllers', ['LocalStorageModule'])
@@ -94,7 +92,8 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.create_download_modal_app = function(){
                 var download_url = $scope.create_tar_ball_url(false);
                 var filename = $scope.app_name() + '.tar';
-                return $scope.create_download_modal(download_url, filename)
+                var identifier = 'django_builder_download_app_modal';
+                return $scope.create_download_modal(download_url, filename, identifier);
             };
             $scope.create_download_modal_project = function(){
                 var download_url = $scope.create_tar_ball_url(true);
@@ -107,12 +106,13 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 extra_ul.append(jQuery("<p>").text($scope.project_name()+'/settings.py'));
                 extra_ul.append(jQuery("<p>").text($scope.project_name()+'/urls.py'));
                 extra_ul.append(jQuery("<p>").text($scope.project_name()+'/wsgi.py'));
-                extra_message.append(jQuery("<br><br>"))
-                extra_message.append(extra_ul)
+                extra_message.append(jQuery("<br><br>"));
+                extra_message.append(extra_ul);
 
-                return $scope.create_download_modal(download_url, filename, extra_message)
+                var identifier = 'django_builder_download_project_modal';
+                return $scope.create_download_modal(download_url, filename, identifier, extra_message)
             };
-            $scope.create_download_modal = function(download_url, filename, extra_message){
+            $scope.create_download_modal = function(download_url, filename, identifier, extra_message){
 
                 var download_a = jQuery('<a>').attr('href', download_url).attr('id', 'django_builder_download_a');
                 download_a.addClass('btn btn-success btn-lg').css('text-transform', 'none');
@@ -124,7 +124,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 download_message.append(jQuery("<br>"));
                 download_message.append("Chrome can block downloads of the generated tarball, if this happens navigate to the ");
                 download_message.append(jQuery('<strong>').text('Downloads'));
-                download_message.append(" section of chrome to accept the download")
+                download_message.append(" section of chrome to accept the download");
                 download_message.append(jQuery("<br>"));
                 download_message.append("Window -> Downloads");
 
@@ -132,10 +132,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 if(extra_message!=undefined){
                     download_div.append(extra_message)
                 }
-                download_div.append(download_button)
-                download_div.append(download_message)
+                download_div.append(download_button);
+                download_div.append(download_message);
 
-                var identifier = 'django_builder_download_modal';
                 $scope.messageService.simple_info('Download info', download_div).modal('show').attr('id', identifier);
                 return identifier;
             };

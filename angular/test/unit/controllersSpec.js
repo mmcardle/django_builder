@@ -86,7 +86,7 @@ describe('Testing ModelController', function () {
         var expected_tar_ball_url_project = $scope.create_tar_ball_url(true);
         var download_modal_id_project = $scope.create_download_modal_project();
         var download_modal_project = jQuery('#'+download_modal_id_project);
-        var download_a_project = download_modal_project.find('a');
+        var download_a_project = download_modal_project.find('#django_builder_download_a');
         expect(download_a_project.attr('href')).toBe(expected_tar_ball_url_project);
 
         // Test ACE
