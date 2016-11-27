@@ -33,46 +33,87 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.editors = [];
             $scope.models_storage_key = 'local_models';
             $scope._app_name = 'app_name';
+            $scope._project_name = 'project_name';
 
-            $scope.create_tar_ball_url = function(){
+            $scope.create_tar_ball_url = function(include_project){
                 var README = 'Built with django_builder\n';
                 var __init__ = '#';
-                var models = $scope.render_factory.render_models_py($scope.app_name(), $scope.models);
-                var views = $scope.render_factory.render_views_py($scope.app_name(), $scope.models);
-                var admin = $scope.render_factory.render_admin_py($scope.app_name(), $scope.models);
-                var urls = $scope.render_factory.render_urls_py($scope.app_name(), $scope.models);
-                var tests = $scope.render_factory.render_tests_py($scope.app_name(), $scope.models);
-                var forms = $scope.render_factory.render_forms_py($scope.app_name(), $scope.models);
-                var api = $scope.render_factory.render_django_rest_framework_api_py($scope.app_name(), $scope.models);
-                var serializers = $scope.render_factory.render_django_rest_framework_serializers_py($scope.app_name(), $scope.models);
 
-                var templates = $scope.render_factory.render_templates_html($scope.app_name(), $scope.models);
+                const project_name = $scope.project_name();
+                const app_name = $scope.app_name();
+
+                var models = $scope.render_factory.render_models_py(app_name, $scope.models);
+                var views = $scope.render_factory.render_views_py(app_name, $scope.models);
+                var admin = $scope.render_factory.render_admin_py(app_name, $scope.models);
+                var urls = $scope.render_factory.render_urls_py(app_name, $scope.models);
+                var tests = $scope.render_factory.render_tests_py(app_name, $scope.models);
+                var forms = $scope.render_factory.render_forms_py(app_name, $scope.models);
+                var api = $scope.render_factory.render_django_rest_framework_api_py(app_name, $scope.models);
+                var serializers = $scope.render_factory.render_django_rest_framework_serializers_py(app_name, $scope.models);
+
+                var templates = $scope.render_factory.render_templates_html(app_name, $scope.models);
 
                 var tarfile = new tarballFactory();
+                
+                var root_folder = app_name;
+                if(include_project){
+                    root_folder = project_name+'/'+app_name
+                }
 
-                tarfile.append('README.txt', README);
-                tarfile.append($scope.app_name()+'/__init__.py', __init__);
-                tarfile.append($scope.app_name()+'/models.py', models);
-                tarfile.append($scope.app_name()+'/views.py', views);
-                tarfile.append($scope.app_name()+'/admin.py', admin);
-                tarfile.append($scope.app_name()+'/urls.py', urls);
-                tarfile.append($scope.app_name()+'/tests.py', tests);
-                tarfile.append($scope.app_name()+'/forms.py', forms);
-                tarfile.append($scope.app_name()+'/api.py', api);
-                tarfile.append($scope.app_name()+'/serializers.py', serializers);
-                tarfile.append($scope.app_name()+'/templates/base.html', $scope.render_factory.render_base_html($scope.app_name(), $scope.models));
+                if(include_project) {
+                    var project_settings = $scope.render_factory.render_project_settings_py(project_name);
+                    var project_urls = $scope.render_factory.render_project_urls_py(project_name);
+                    var project_manage = $scope.render_factory.render_project_urls_py(project_name);
+                    var project_wsgi = $scope.render_factory.render_project_wsgi_py(project_name);
+
+                    tarfile.append(project_name + '/manage.py', project_manage);
+                    tarfile.append(project_name + '/' + project_name + '/settings.py', project_settings);
+                    tarfile.append(project_name + '/' + project_name + '/urls.py', project_urls);
+                    tarfile.append(project_name + '/' + project_name + '/wsgi.py', project_wsgi);
+                    tarfile.append(project_name + '/' + project_name + '/__init__.py', __init__);
+                }
+
+                tarfile.append(root_folder+'/README.txt', README);
+                tarfile.append(root_folder+'/__init__.py', __init__);
+                tarfile.append(root_folder+'/models.py', models);
+                tarfile.append(root_folder+'/views.py', views);
+                tarfile.append(root_folder+'/admin.py', admin);
+                tarfile.append(root_folder+'/urls.py', urls);
+                tarfile.append(root_folder+'/tests.py', tests);
+                tarfile.append(root_folder+'/forms.py', forms);
+                tarfile.append(root_folder+'/api.py', api);
+                tarfile.append(root_folder+'/serializers.py', serializers);
+                tarfile.append(root_folder+'/templates/base.html', $scope.render_factory.render_base_html(app_name, $scope.models));
 
                 jQuery.each(templates, function(i, template){
-                    tarfile.append($scope.app_name()+'/templates/'+$scope.app_name()+'/'+template[0], template[1]);
+                    tarfile.append(root_folder+'/templates/'+app_name+'/'+template[0], template[1]);
                 });
 
                 return tarfile.get_url();
             };
-
-            $scope.create_download_modal = function(){
-                var download_url = $scope.create_tar_ball_url();
-
+            $scope.create_download_modal_app = function(){
+                var download_url = $scope.create_tar_ball_url(false);
                 var filename = $scope.app_name() + '.tar';
+                return $scope.create_download_modal(download_url, filename)
+            };
+            $scope.create_download_modal_project = function(){
+                var download_url = $scope.create_tar_ball_url(true);
+                var filename = $scope.project_name() + '.tar';
+
+                var extra_message = jQuery('<p>');
+                extra_message.text('The project download includes the following files:');
+                var extra_ul = jQuery('<div>').addClass('well well-sm');
+                extra_ul.append(jQuery("<p>").text('manage.py'));
+                extra_ul.append(jQuery("<p>").text($scope.project_name()+'/settings.py'));
+                extra_ul.append(jQuery("<p>").text($scope.project_name()+'/urls.py'));
+                extra_ul.append(jQuery("<p>").text($scope.project_name()+'/wsgi.py'));
+                extra_message.append(jQuery("<br><br>"))
+                extra_message.append(extra_ul)
+
+                return $scope.create_download_modal(download_url, filename, extra_message)
+            };
+            $scope.create_download_modal = function(download_url, filename, extra_message){
+
                 var download_a = jQuery('<a>').attr('href', download_url).attr('id', 'django_builder_download_a');
                 download_a.addClass('btn btn-success btn-lg').css('text-transform', 'none');
                 download_a.text('Click here to download '+ filename);
@@ -88,6 +129,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 download_message.append("Window -> Downloads");
 
                 var download_div = jQuery('<div>');
+                if(extra_message!=undefined){
+                    download_div.append(extra_message)
+                }
                 download_div.append(download_button)
                 download_div.append(download_message)
 
@@ -324,13 +368,23 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 $scope.do_set_app_name(jQuery('input#appname').val());
                 $scope.reLoadAce();
             };
-
+            $scope.do_set_project_name = function (project_name) {
+                $scope._project_name = project_name
+            };
+            $scope.set_project_name = function () {
+                $scope.do_set_project_name(jQuery('input#projectname').val());
+                $scope.reLoadAce();
+            };
             $scope.l_app_name = function () {
                 return $scope._app_name.toLowerCase();
             };
 
             $scope.app_name = function () {
                 return $scope._app_name.replace(new RegExp(' ', 'g'), '_');
+            };
+
+            $scope.project_name = function () {
+                return $scope._project_name.replace(new RegExp(' ', 'g'), '_');
             };
 
             $scope.updateModel = function(model){

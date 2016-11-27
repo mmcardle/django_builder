@@ -144,7 +144,7 @@ describe('Testing ModelController', function () {
         expect(new_model.name_field()).toBe('id');
 
         expect($scope.model_count()).toBe(1);
-        expect($scope.create_tar_ball_url().length).toBe(27336);
+        expect($scope.create_tar_ball_url().length).toBe(40988);
 
         $scope.updateModel(model);
         $scope.serializeApp();

@@ -71,6 +71,22 @@ function ModelRenderFactory() {
         _this.pre_imported_modules_names = function(n){
             return Object.keys(_this.pre_imported_modules());
         };
+        _this.render_project_manage_py = function(project_name){
+            var manage_py = "# Project: "+project_name+"\n";
+            return manage_py
+        };
+        _this.render_project_settings_py = function(project_name){
+            var settings_py = "# Project: "+project_name+"\n";
+            return settings_py
+        };
+        _this.render_project_wsgi_py = function(project_name){
+            var wsgi_py = "\n";
+            return wsgi_py
+        };
+        _this.render_project_urls_py = function(project_name){
+            var urls_py = "";
+            return urls_py
+        };
         _this.render_forms_py = function (app_name, models) {
             var tests_py = 'from django import forms\n';
 
