@@ -1,8 +1,8 @@
 /* Controllers */
 
 angular.module('builder.controllers', ['LocalStorageModule'])
-    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'ModelParser', 'FieldFactory', 'RelationshipFactory', 'localStorageService', 'MessageService', 'RenderFactory', 'TarballFactory',
-        function ($scope, $http, model_factory, ModelParser, field_factory, relationship_factory, localStorageService, message_service, renderFactory, tarballFactory) {
+    .controller('ModelController', ['$scope', '$http', 'ModelFactory', 'ModelParser', 'FieldFactory', 'RelationshipFactory', 'localStorageService', 'MessageService', 'RenderFactory', 'TarballFactory', '$templateCache',
+        function ($scope, $http, model_factory, ModelParser, field_factory, relationship_factory, localStorageService, message_service, renderFactory, tarballFactory, $template_cache) {
             $scope.models = [];
             $scope.new_models = [];
             $scope.user_model = 'django.contrib.auth.models.User';
@@ -26,6 +26,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.messageService = new message_service();
             $scope.field_factory = new field_factory();
             $scope.model_factory = model_factory;
+            $scope.template_cache = $template_cache;
             $scope.relationship_factory = new relationship_factory();
             $scope.render_factory = new renderFactory($scope.built_in_models);
             $scope.editors = [];
@@ -59,11 +60,13 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 }
 
                 if(include_project) {
-                    var project_settings = $scope.render_factory.render_project_settings_py(project_name);
-                    var project_urls = $scope.render_factory.render_project_urls_py(project_name);
-                    var project_manage = $scope.render_factory.render_project_urls_py(project_name);
-                    var project_wsgi = $scope.render_factory.render_project_wsgi_py(project_name);
+                    var project_settings = $scope.render_factory.render_project_settings_py(project_name, app_name, $scope.template_cache);
+                    var project_requirements = $scope.render_factory.render_project_requirements();
+                    var project_urls = $scope.render_factory.render_project_urls_py(app_name, $scope.template_cache);
+                    var project_manage = $scope.render_factory.render_project_manage_py(project_name, $scope.template_cache);
+                    var project_wsgi = $scope.render_factory.render_project_wsgi_py(project_name, $scope.template_cache);
 
+                    tarfile.append('requirements.txt', project_requirements);
                     tarfile.append(project_name + '/manage.py', project_manage);
                     tarfile.append(project_name + '/' + project_name + '/settings.py', project_settings);
                     tarfile.append(project_name + '/' + project_name + '/urls.py', project_urls);
@@ -102,6 +105,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var extra_message = jQuery('<p>');
                 extra_message.text('The project download includes the following files:');
                 var extra_ul = jQuery('<div>').addClass('well well-sm');
+                extra_ul.append(jQuery("<p>").text('requirements.txt'));
                 extra_ul.append(jQuery("<p>").text('manage.py'));
                 extra_ul.append(jQuery("<p>").text($scope.project_name()+'/settings.py'));
                 extra_ul.append(jQuery("<p>").text($scope.project_name()+'/urls.py'));

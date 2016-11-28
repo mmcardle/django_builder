@@ -71,21 +71,56 @@ function ModelRenderFactory() {
         _this.pre_imported_modules_names = function(n){
             return Object.keys(_this.pre_imported_modules());
         };
-        _this.render_project_manage_py = function(project_name){
-            var manage_py = "# Project: "+project_name+"\n";
-            return manage_py
+        _this.replace_in_template = function(template, replacements){
+            jQuery.each(replacements, function(i, repl){
+                template = template.replace(new RegExp(repl[0], 'g'), repl[1]);
+            });
+            return template;
         };
-        _this.render_project_settings_py = function(project_name){
-            var settings_py = "# Project: "+project_name+"\n";
-            return settings_py
+        _this.render_project_manage_py = function(project_name, template_cache){
+            var manage_template = template_cache.get('manage.py_1.10');
+            return _this.replace_in_template(
+                manage_template,
+                [
+                    ['___PROJECT_NAME___', project_name]
+                ]
+            );
         };
-        _this.render_project_wsgi_py = function(project_name){
-            var wsgi_py = "\n";
-            return wsgi_py
+        _this.render_project_requirements = function(){
+            var requirements = "Django==1.10.3\n";
+            requirements += "django-crispy-forms==1.6.1\n";
+            requirements += "django-extensions==1.7.5\n";
+            requirements += "djangorestframework==3.5.3\n";
+            return requirements;
         };
-        _this.render_project_urls_py = function(project_name){
-            var urls_py = "";
-            return urls_py
+        _this.render_project_settings_py = function(project_name, app_name, template_cache){
+            var manage_template = template_cache.get('settings.py_1.10');
+            console.log('manage_template', manage_template)
+            return _this.replace_in_template(
+                manage_template,
+                [
+                    ['___PROJECT_NAME___', project_name],
+                    ['___APP_NAME___', app_name]
+                ]
+            );
+        };
+        _this.render_project_wsgi_py = function(project_name, template_cache){
+            var manage_template = template_cache.get('wsgi.py_1.10');
+            return _this.replace_in_template(
+                manage_template,
+                [
+                    ['___PROJECT_NAME___', project_name]
+                ]
+            );
+        };
+        _this.render_project_urls_py = function(app_name, template_cache){
+            var manage_template = template_cache.get('urls.py_1.10');
+            return _this.replace_in_template(
+                manage_template,
+                [
+                    ['___APP_NAME___', app_name]
+                ]
+            );
         };
         _this.render_forms_py = function (app_name, models) {
             var tests_py = 'from django import forms\n';
