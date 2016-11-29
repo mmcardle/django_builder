@@ -1,5 +1,3 @@
-'use strict';
-
 /* Services */
 function TarballFactory() {
     return function () {
@@ -70,57 +68,6 @@ function ModelRenderFactory() {
         };
         _this.pre_imported_modules_names = function(n){
             return Object.keys(_this.pre_imported_modules());
-        };
-        _this.replace_in_template = function(template, replacements){
-            jQuery.each(replacements, function(i, repl){
-                template = template.replace(new RegExp(repl[0], 'g'), repl[1]);
-            });
-            return template;
-        };
-        _this.render_project_manage_py = function(project_name, template_cache){
-            var manage_template = template_cache.get('manage.py_1.10');
-            return _this.replace_in_template(
-                manage_template,
-                [
-                    ['___PROJECT_NAME___', project_name]
-                ]
-            );
-        };
-        _this.render_project_requirements = function(){
-            var requirements = "Django==1.10.3\n";
-            requirements += "django-crispy-forms==1.6.1\n";
-            requirements += "django-extensions==1.7.5\n";
-            requirements += "djangorestframework==3.5.3\n";
-            return requirements;
-        };
-        _this.render_project_settings_py = function(project_name, app_name, template_cache){
-            var manage_template = template_cache.get('settings.py_1.10');
-            console.log('manage_template', manage_template)
-            return _this.replace_in_template(
-                manage_template,
-                [
-                    ['___PROJECT_NAME___', project_name],
-                    ['___APP_NAME___', app_name]
-                ]
-            );
-        };
-        _this.render_project_wsgi_py = function(project_name, template_cache){
-            var manage_template = template_cache.get('wsgi.py_1.10');
-            return _this.replace_in_template(
-                manage_template,
-                [
-                    ['___PROJECT_NAME___', project_name]
-                ]
-            );
-        };
-        _this.render_project_urls_py = function(app_name, template_cache){
-            var manage_template = template_cache.get('urls.py_1.10');
-            return _this.replace_in_template(
-                manage_template,
-                [
-                    ['___APP_NAME___', app_name]
-                ]
-            );
         };
         _this.render_forms_py = function (app_name, models) {
             var tests_py = 'from django import forms\n';
@@ -1170,7 +1117,256 @@ function ModelParserFactory() {
         return new Parser();
     }
 }
+function ProjectFactory() {
+    return function () {
+
+        var _this = this;
+        _this.replace_in_template = function(template, replacements){
+            jQuery.each(replacements, function(i, repl){
+                template = template.replace(new RegExp(repl[0], 'g'), repl[1]);
+            });
+            return template;
+        };
+        _this.render_project_requirements = function(){
+            var requirements = "Django==1.10.3\n";
+            requirements += "django-crispy-forms==1.6.1\n";
+            requirements += "django-extensions==1.7.5\n";
+            requirements += "djangorestframework==3.5.3\n";
+            return requirements;
+        };
+        _this.render_project_manage_py = function(project_name){
+            return _this.replace_in_template(
+                this.MANAGE_PY_TEMPLATE,
+                [
+                    ['___PROJECT_NAME___', project_name]
+                ]
+            );
+        };
+        _this.render_project_settings_py = function(project_name, app_name){
+            return _this.replace_in_template(
+                this.SETTINGS_PY_TEMPLATE,
+                [
+                    ['___PROJECT_NAME___', project_name],
+                    ['___APP_NAME___', app_name]
+                ]
+            );
+        };
+        _this.render_project_wsgi_py = function(project_name){
+            return _this.replace_in_template(
+                this.WSGI_PY_TEMPLATE,
+                [
+                    ['___PROJECT_NAME___', project_name]
+                ]
+            );
+        };
+        _this.render_project_urls_py = function(app_name){
+            return _this.replace_in_template(
+                this.URLS_PY_TEMPLATE,
+                [
+                    ['___APP_NAME___', app_name]
+                ]
+            );
+        };
+        _this.WSGI_PY_TEMPLATE = `"""
+WSGI config for ___PROJECT_NAME___ project.
+
+It exposes the WSGI callable as a module-level variable named 'application'.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
+"""
+
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "___PROJECT_NAME___.settings")
+
+application = get_wsgi_application()
+`;
+
+        _this.URLS_PY_TEMPLATE = `"""
+___PROJECT_NAME___ URL Configuration
+
+The 'urlpatterns' list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/1.10/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.conf.urls import url, include
+    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
+"""
+from django.conf.urls import url, include
+from django.contrib import admin
+
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+    url(r'^___APP_NAME___/', include('___APP_NAME___.urls')),
+]
+`;
+
+        _this.MANAGE_PY_TEMPLATE = `#!/usr/bin/env python
+import os
+import sys
+
+if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "___PROJECT_NAME___.settings")
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError:
+        # The above import may fail for some other reason. Ensure that the
+        # issue is really that Django is missing to avoid masking other
+        # exceptions on Python 2.
+        try:
+            import django
+        except ImportError:
+            raise ImportError(
+                "Couldn't import Django. Are you sure it's installed and "
+                "available on your PYTHONPATH environment variable? Did you "
+                "forget to activate a virtual environment?"
+            )
+        raise
+    execute_from_command_line(sys.argv)
+
+`;
+
+        _this.SETTINGS_PY_TEMPLATE = `#!/usr/bin/env python
+"""
+Django settings for ___PROJECT_NAME___ project.
+
+Generated by 'django-admin startproject' using Django 1.10.3.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.10/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/1.10/ref/settings/
+"""
+
+import os
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'dw*vszsn+q!n&_8t(tjg5$5(s(@i+)2kvfat!q=r+^4-pr&-1k'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = []
+
+
+# Application definition
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django_extensions',
+    'crispy_forms',
+    'rest_framework',
+
+    '___APP_NAME___'
+]
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+ROOT_URLCONF = '___PROJECT_NAME___.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = '___PROJECT_NAME___.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
+
+# Password validation
+# https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/1.10/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_L10N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.10/howto/static-files/
+
+STATIC_URL = '/static/'
+`;
+
+    }
+}
 angular.module('builder.services', [])
+    .factory('ProjectFactory', [ProjectFactory])
     .factory('ModelFactory', [ModelServiceFactory])
     .factory('ModelParser', [ModelParserFactory])
     .factory('MessageService', [MessageServiceFactory])

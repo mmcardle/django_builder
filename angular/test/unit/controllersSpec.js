@@ -17,18 +17,20 @@ describe('Testing ModelController', function () {
     beforeEach(module('builder.services'));
 
     var $scope, $http, $rootScope, createController, localStorageService,
-        model_factory, field_factory, relationship_factory, message_service, renderFactory, tarballFactory, $template_cache;
+        project_factory, model_factory, field_factory, relationship_factory, message_service, renderFactory, tarballFactory;
 
     beforeEach(inject(function ($injector) {
         $rootScope = $injector.get('$rootScope');
         $http = $injector.get('$http');
         localStorageService = $injector.get('localStorageService');
+        project_factory = $injector.get('ProjectFactory');
         model_factory = $injector.get('ModelFactory');
         field_factory = $injector.get('FieldFactory');
         relationship_factory = $injector.get('RelationshipFactory');
         message_service = $injector.get('MessageService');
         renderFactory = $injector.get('RenderFactory');
         tarballFactory = $injector.get('TarballFactory');
+
         $scope = $rootScope.$new();
         $scope._app_name = 'app_name';
 
@@ -44,8 +46,7 @@ describe('Testing ModelController', function () {
                 'localStorageService': localStorageService,
                 'message_service': message_service,
                 'renderFactory': renderFactory,
-                'tarballFactory': tarballFactory,
-                '$template_cache': $template_cache
+                'tarballFactory': tarballFactory
             });
         };
         var controller = createController();
