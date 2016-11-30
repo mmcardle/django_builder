@@ -293,15 +293,15 @@ function MessageServiceFactory() {
             return jQuery('<icon>').addClass('fa').addClass(icon_name);
         };
         _this.simple_error = function (title, message) {
-            var simple_info = _this.base_modal();
+            var simple_error = _this.base_modal().addClass("django_builder_simple_error");
             var i = _this.icon('fa-info').addClass('pull-right');
-            simple_info.find(".modal-header-inner").append(i).append(jQuery('<span>').text(title));
-            simple_info.find(".modal-body").empty().append(message);
+            simple_error.find(".modal-header-inner").append(i).append(jQuery('<span>').text(title));
+            simple_error.find(".modal-body").empty().append(message);
             var ok_button = jQuery('<button>').addClass('btn btn-default').text('Ok');
-            simple_info.find(".modal-footer").append(ok_button);
+            simple_error.find(".modal-footer").append(ok_button);
             ok_button.attr("data-dismiss", "modal");
-            simple_info.modal();
-            return simple_info;
+            simple_error.modal();
+            return simple_error;
         };
         _this.simple_info = function (title, message) {
             var simple_info = _this.base_modal();
@@ -1045,7 +1045,6 @@ function ModelParserFactory() {
                         line = line.trim();
                         var model_match = model_regex.exec(line);
                         if (model_match && model_match[2].match(/model/i)) {
-                            console.log('Model:', model_match[1]);
                             current_model = {
                                 'name': model_match[1],
                                 'class': model_match[2],

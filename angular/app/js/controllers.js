@@ -26,6 +26,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 }
             };
             $scope.messageService = new message_service();
+            $scope.localStorageService = localStorageService;
             $scope.field_factory = new field_factory();
             $scope.project_factory = new project_factory($http);
             $scope.model_factory = model_factory;
@@ -250,16 +251,21 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 return add_new_models_id;
             };
 
+            $scope.ERR_PROCESS_MODELS_PY_NO_FILE = "You didn't seem to choose any files.";
+            $scope.ERR_PROCESS_MODELS_PY_MULTIPLE_FILES = "Multiple files not yet supported, please choose a single file.";
             $scope.process_models_py = function(files){
                 if(files.length==0) {
-                    $scope.messageService.simple_error('Sorry', "You didn't seem to choose any files.").modal('show');
+                    $scope.messageService.simple_error('Sorry', $scope.ERR_PROCESS_MODELS_PY_NO_FILE).modal('show');
+                    return false
                 } else if(files.length>1){
-                    $scope.messageService.simple_error('Sorry', "Multiple files not yet supported, please choose a single file.").modal('show');
+                    $scope.messageService.simple_error('Sorry', $scope.ERR_PROCESS_MODELS_PY_MULTIPLE_FILES).modal('show');
+                    return false
                 }else {
                     var parser = ModelParser($scope);
                     parser.parse(files[0], function(models){
                         $scope.add_new_models(models);
                     });
+                    return true
                 }
             };
             $scope.upload_models_py = function(){
@@ -382,11 +388,12 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.l_app_name = function () {
                 return $scope._app_name.toLowerCase();
             };
-
             $scope.app_name = function () {
                 return $scope._app_name.replace(new RegExp(' ', 'g'), '_');
             };
-
+            $scope.l_project_name = function () {
+                return $scope._project_name.toLowerCase();
+            };
             $scope.project_name = function () {
                 return $scope._project_name.replace(new RegExp(' ', 'g'), '_');
             };
@@ -535,17 +542,19 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var rename_model_existing_id = 'rename_model_existing';
                 var model = $scope.models[index];
                 if($scope.existingModel(new_model_name)) {
-                    $scope.messageService.simple_error(
+                    var x = $scope.messageService.simple_error(
                         'Error with Model Name',
                         "There is already a model with the name "+new_model_name
                     ).modal('show').attr('id', rename_model_existing_id);
+                    return false;
                 }else{
                     model.set_name(new_model_name);
                     $scope.updateModel(model);
                     $scope.$apply();
+                    return true;
                 }
             }
-            $scope.rename_model = function(index){
+            $scope.rename_model = function(index, callback){
                 var model = $scope.models[index];
                 var rename_model_id = 'rename_model';
                 var rename_model_callback = function(new_model_name){
