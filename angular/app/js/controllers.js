@@ -27,7 +27,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
             $scope.messageService = new message_service();
             $scope.field_factory = new field_factory();
-            $scope.project_factory = new project_factory();
+            $scope.project_factory = new project_factory($http);
             $scope.model_factory = model_factory;
             $scope.relationship_factory = new relationship_factory();
             $scope.render_factory = new renderFactory($scope.built_in_models);
@@ -59,10 +59,10 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var root_folder = app_name;
 
                 if(include_project){
-                    root_folder = project_name+'/'+app_name
+                    root_folder = project_name+'/'+app_name;
 
-                    var project_settings = $scope.project_factory.render_project_settings_py(project_name, app_name);
                     var project_requirements = $scope.project_factory.render_project_requirements();
+                    var project_settings = $scope.project_factory.render_project_settings_py(project_name, app_name);
                     var project_urls = $scope.project_factory.render_project_urls_py(app_name);
                     var project_manage = $scope.project_factory.render_project_manage_py(project_name);
                     var project_wsgi = $scope.project_factory.render_project_wsgi_py(project_name);
@@ -153,7 +153,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var dnd = jQuery('<div>').addClass("builder_dnd_target text-center");
                 var icon = jQuery('<i>').addClass("fa fa-upload fa-4x builder_dnd_icon");
                 dnd.append(jQuery("<div>").text("Drag and Drop files here!"));
-                dnd.append(icon)
+                dnd.append(icon);
                 return dnd;
             };
             $scope.upload_form = function(input, dnd){
@@ -356,7 +356,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 $scope.editors.push(_editor);
             };
 
-            $scope.$watch("[models,_app_name]", function() {
+            $scope.$watch("[models,_app_name,_project_name]", function() {
                 $scope.reLoadAce();
                 $scope.saveApp();
             }, true);
@@ -401,7 +401,8 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var config = {
                     'models': $scope.models,
                     'app_config': {
-                        'app_name': $scope._app_name
+                        'app_name': $scope._app_name,
+                        'project_name': $scope._project_name
                     }
                 };
                 return JSON.stringify(config);
@@ -501,11 +502,13 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
 
             $scope.loadModels = function(){
-                var loaded_app = localStorageService.get($scope.models_storage_key) || {'models': [], 'app_config': {'app_name': 'app_name'}};
+                const _default_app_config = {'app_name': 'app_name', 'project_name': 'project_name'}
+                var loaded_app = localStorageService.get($scope.models_storage_key) || {'models': [], 'app_config': _default_app_config};
                 if(typeof loaded_app == "string"){loaded_app = JSON.parse(loaded_app);}
                 var loaded_models = loaded_app["models"] || [];
-                var loaded_app_config = loaded_app['app_config'] || { 'app_name': 'app_name'};
+                var loaded_app_config = loaded_app['app_config'] || { 'app_name': 'app_name', 'project_name': 'project_name'};
                 $scope._app_name = loaded_app_config['app_name'];
+                $scope._project_name = loaded_app_config['project_name'];
                 jQuery.each(loaded_models, function(i, model){
                     $scope.cleanModel(model);
                 });

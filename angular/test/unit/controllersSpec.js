@@ -16,20 +16,28 @@ describe('Testing ModelController', function () {
     beforeEach(module('builder.controllers'));
     beforeEach(module('builder.services'));
 
-    var $scope, $http, $rootScope, createController, localStorageService,
+    var $scope, $httpBackend, $rootScope, createController, localStorageService, authRequestHandler,
         project_factory, model_factory, field_factory, relationship_factory, message_service, renderFactory, tarballFactory;
 
     beforeEach(inject(function ($injector) {
         $rootScope = $injector.get('$rootScope');
-        $http = $injector.get('$http');
+        $httpBackend = $injector.get('$httpBackend');
         localStorageService = $injector.get('localStorageService');
-        project_factory = $injector.get('ProjectFactory');
+
         model_factory = $injector.get('ModelFactory');
         field_factory = $injector.get('FieldFactory');
         relationship_factory = $injector.get('RelationshipFactory');
         message_service = $injector.get('MessageService');
         renderFactory = $injector.get('RenderFactory');
         tarballFactory = $injector.get('TarballFactory');
+
+        // backend definition common for all tests
+        $httpBackend.when('GET', 'partials/py/settings.py').respond('');
+        $httpBackend.when('GET', 'partials/py/manage.py').respond('');
+        $httpBackend.when('GET', 'partials/py/urls.py').respond('');
+        $httpBackend.when('GET', 'partials/py/wsgi.py').respond('');
+
+        project_factory = $injector.get('ProjectFactory');
 
         $scope = $rootScope.$new();
         $scope._app_name = 'app_name';
@@ -39,7 +47,7 @@ describe('Testing ModelController', function () {
         createController = function () {
             return $controller('ModelController', {
                 '$scope': $scope,
-                '$http': $http,
+                'project_factory': project_factory,
                 'model_factory': model_factory,
                 'field_factory': field_factory,
                 'relationship_factory': relationship_factory,
