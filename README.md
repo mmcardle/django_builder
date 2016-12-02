@@ -5,6 +5,11 @@ Django Builder is deployed at:
 
 http://mmcardle.github.io/django_builder/
 
+Updates 2nd December 2016
+===========================
+
+* Added Download Project
+
 Updates 12th September 2016
 ===========================
 
