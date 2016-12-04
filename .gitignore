@@ -4,11 +4,10 @@
 logs/*
 !.gitkeep
 npm-debug.log
-angular/node_modules/
-angular/bower_components/
-angular/app/bower_components/
-angular/coverage/
-angular/test_out/
+node_modules/
+app/bower_components/
+coverage/
+test_out/
 tmp
 .DS_Store
 .idea

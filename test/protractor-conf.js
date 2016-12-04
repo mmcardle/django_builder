@@ -12,7 +12,7 @@ exports.config = {
   seleniumAddress: 'http://localhost:4444/wd/hub',
   baseUrl: 'http://localhost:8020/app/',
 
-  framework: 'jasmine2',
+  framework: 'jasmine',
 
   jasmineNodeOpts: {
     defaultTimeoutInterval: 30000

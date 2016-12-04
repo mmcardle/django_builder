@@ -1,7 +1,5 @@
 #!/bin/sh 
-cp ../django_builder/angular/app/index.html ./
-cp ../django_builder/angular/app/build/django_builder.min.* ./build/
-cp ../django_builder/angular/app/img/favicon.ico ./img/
-cp ../django_builder/angular/app/partials/*.html partials/
-cp ../django_builder/angular/app/partials/templates/detail.html partials/templates/
-cp ../django_builder/angular/app/partials/py/* partials/py/
+cp app/index.html ./
+cp app/build/django_builder.min.* ./build/
+cp app/img/favicon.ico ./img/
+cp -R app/partials/* partials/
