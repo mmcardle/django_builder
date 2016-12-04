@@ -13,6 +13,7 @@
     "angular-loader": "~1.5.x",
     "angular-mocks": "~1.5.x",
     "angular-local-storage": "~0.5.0",
+    "angular-ui-ace": "^0.2.3",
     "grunt": "1.0.1",
     "grunt-contrib-concat": "1.0.1",
     "grunt-contrib-cssmin": "1.0.2",
