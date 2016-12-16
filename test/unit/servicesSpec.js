@@ -127,9 +127,9 @@ describe('service', function () {
 
         expect(model.has_relationship(rel_name)).toBe(true);
         expect(model.has_field(field_name)).toBe(true);
-        expect(model.name_field()).toBe('id');
-        expect(model.ordering_field()).toBe('id');
-        expect(model.identifier()).toBe('id');
+        expect(model.name_field()).toBe('pk');
+        expect(model.ordering_field()).toBe('pk');
+        expect(model.identifier()).toBe('pk');
 
         // unreadable Field
         var un_field_name = 'Unreadable';
