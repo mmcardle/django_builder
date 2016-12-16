@@ -1,6 +1,8 @@
 Django Builder
 ==============
 
+[![Build Status](https://travis-ci.org/mmcardle/django_builder.svg?branch=master)](https://travis-ci.org/mmcardle/django_builder)
+
 Django Builder is deployed at:
 
 http://mmcardle.github.io/django_builder/
