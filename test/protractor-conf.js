@@ -6,11 +6,10 @@ exports.config = {
   ],
 
   capabilities: {
-    'browserName': 'chrome'
+    'browserName': 'phantomjs'
   },
 
-  seleniumAddress: 'http://localhost:4444/wd/hub',
-  baseUrl: 'http://localhost:8020/app/',
+  baseUrl: 'http://localhost:8020/',
 
   framework: 'jasmine',
 

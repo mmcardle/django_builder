@@ -34,7 +34,7 @@ describe('Builder App', function() {
 
 
     it('should render view2 when user navigates to /view2', function() {
-      expect(element.all(by.css('[ng-view] h2')).first().getText()).toMatch('App Name');
+      expect(element.all(by.css('[ng-view] h2')).first().getText()).toMatch('Project Name');
     });
 
   });
