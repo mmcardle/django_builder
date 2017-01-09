@@ -641,7 +641,7 @@ function ModelServiceFactory() {
                 if(this.field_names().indexOf('name')!=-1){
                     return 'name';
                 }else{
-                    return 'id';
+                    return 'pk';
                 }
             };
             this.ordering_field = function () {
@@ -649,7 +649,7 @@ function ModelServiceFactory() {
                 if(this.field_names().indexOf('created')!=-1){
                     return 'created';
                 }else{
-                    return 'id';
+                    return 'pk';
                 }
             };
             this.identifier = function () {
@@ -657,7 +657,7 @@ function ModelServiceFactory() {
                 if(this.field_names().indexOf('slug')!=-1){
                     return 'slug';
                 }else{
-                    return 'id';
+                    return 'pk';
                 }
             };
             this.render_forms = function(app_name, renderer){
@@ -681,7 +681,7 @@ function ModelServiceFactory() {
                     initial += renderer.new_lines(1);
                 });
                 jQuery.each(this.relationships, function(i, relationship){
-                    initial += renderer.spaces(12)+'\"'+relationship.name+'\": create_'+relationship.to.toLowerCase().replace(/\./g, '_')+'().id,';
+                    initial += renderer.spaces(12)+'\"'+relationship.name+'\": create_'+relationship.to.toLowerCase().replace(/\./g, '_')+'().pk,';
                     initial += renderer.new_lines(1);
                 });
                 initial += renderer.spaces(8)+'}';
@@ -957,7 +957,7 @@ function ModelServiceFactory() {
                 table_html += '<\/tr>\n';
                 table_html += '{% for object in object_list %}\n';
                 table_html += '<tr>\n';
-                table_html += '    <td>{{object.id}}</td>\n';
+                table_html += '    <td>{{object.pk}}</td>\n';
                 table_html += '    <td><a href="{{object.get_absolute_url}}">{{object}}<\/a><\/td>\n';
                 jQuery.each(this.fields, function(i, field){
                     table_html += '    <td>{{ object.'+field.name+' }}<\/td>\n';

@@ -489,9 +489,11 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     }
                 };
                 var identifier = 'add_model';
+                var model_name = "Model" + $scope.models.length + 1;
                 $scope.messageService.simple_input(
                     'Model Name Required', "Enter a Model name",
-                    "Model1", add_model_callback, true).modal('show').attr('id', identifier);
+                    model_name, add_model_callback, true).modal('show').attr('id', identifier);
+
                 return identifier;
             };
             $scope.cleanModel = function(model){
