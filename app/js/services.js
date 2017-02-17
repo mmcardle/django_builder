@@ -1126,10 +1126,10 @@ function ProjectFactory() {
         _this.wsgi_py = '';
         _this.manage_py = '';
 
-        _this.http.get('partials/py/settings.py').then(function(e){_this.settings_py=e.data});
-        _this.http.get('partials/py/manage.py').then(function(e){_this.manage_py=e.data});
-        _this.http.get('partials/py/urls.py').then(function(e){_this.urls_py=e.data});
-        _this.http.get('partials/py/wsgi.py').then(function(e){_this.wsgi_py=e.data});
+        _this.http.get('app/partials/py/settings.py').then(function(e){_this.settings_py=e.data});
+        _this.http.get('app/partials/py/manage.py').then(function(e){_this.manage_py=e.data});
+        _this.http.get('app/partials/py/urls.py').then(function(e){_this.urls_py=e.data});
+        _this.http.get('app/partials/py/wsgi.py').then(function(e){_this.wsgi_py=e.data});
 
         _this.replace_in_template = function(template, replacements){
             jQuery.each(replacements, function(i, repl){
