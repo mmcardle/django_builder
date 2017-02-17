@@ -6,7 +6,7 @@ module.exports = function(config){
     files : [
         'node_modules/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js',
         'node_modules/html5-boilerplate/dist/js/vendor/jquery-3.1.0.min.js',
-        'node_modules/angular/angular.js',
+        'node_modules/angular/angular.min.js',
         'node_modules/angular-route/angular-route.js',
         'node_modules/angular-mocks/angular-mocks.js',
         'node_modules/angulartics/dist/angulartics.min.js',
