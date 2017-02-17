@@ -5,9 +5,8 @@ logs/*
 !.gitkeep
 npm-debug.log
 node_modules/
-app/bower_components/
 coverage/
 test_out/
 tmp
 .DS_Store
-.idea
+app/fonts/
