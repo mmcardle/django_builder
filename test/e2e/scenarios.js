@@ -4,7 +4,7 @@
 
 describe('Builder App', function() {
 
-  browser.get('index.html');
+  browser.get('/');
 
   it('should automatically redirect to /home when location hash/fragment is empty', function() {
     expect(browser.getLocationAbsUrl()).toMatch("/home");
@@ -14,11 +14,11 @@ describe('Builder App', function() {
   describe('home', function() {
 
     beforeEach(function() {
-      browser.get('index.html#/home');
+      browser.get('#!/home');
     });
 
 
-    it('should render home when user navigates to /home', function() {
+    it('should render home when user navigates to #!/home', function() {
       expect(element.all(by.css('[ng-view] h1')).first().getText()).toMatch('Django Builder');
       expect(element.all(by.css('[ng-view] p')).first().getText()).toMatch('building things....');
     });
@@ -29,11 +29,10 @@ describe('Builder App', function() {
   describe('models', function() {
 
     beforeEach(function() {
-      browser.get('index.html#/models');
+      browser.get('#!/models');
     });
 
-
-    it('should render view2 when user navigates to /view2', function() {
+    it('should render Project Name as a heading when user navigates to #!/models', function() {
       expect(element.all(by.css('[ng-view] h2')).first().getText()).toMatch('Project Name');
     });
 

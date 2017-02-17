@@ -1142,6 +1142,7 @@ function ProjectFactory() {
             requirements += "django-crispy-forms==1.6.1\n";
             requirements += "django-extensions==1.7.5\n";
             requirements += "djangorestframework==3.5.3\n";
+            requirements += "Pillow==4.0.0\n";
             return requirements;
         };
         _this.render_project_manage_py = function(project_name){
