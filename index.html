@@ -29,15 +29,15 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand label-rotate" href="#home">
+            <a class="navbar-brand label-rotate" href="#!/home">
                 <span class="label label-info">Beta</span>
             </a>
-            <a class="navbar-brand" href="#home">Django Builder&nbsp;&nbsp;&nbsp;
+            <a class="navbar-brand" href="#!/home">Django Builder&nbsp;&nbsp;&nbsp;
                 <i class="fa fa-cog fa-spin builder_icon"></i></a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li class="builder_nav"><a href="#models">Model Builder</a></li>
+                <li class="builder_nav"><a href="#!/models">Model Builder</a></li>
                 <li>
                     <div class="navbar-link" style="padding-top:15px;margin-left: 20px;">
                          <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="display: inline;vertical-align: baseline">
@@ -85,9 +85,11 @@
     }
 </script>
 <script type="application/javascript">
-    var base = document.createElement('base');
-    base.setAttribute('href', window.location.pathname);
-    document.getElementsByTagName('head')[0].appendChild(base);
+    //var base = document.createElement('base');
+    //base.setAttribute('href', window.location.pathname);
+    //console.log(window.location.pathname)
+    //document.getElementsByTagName('head')[0].appendChild(base);
+
 </script>
 <script src="app/build/django_builder.min.js"></script>
 </body>
