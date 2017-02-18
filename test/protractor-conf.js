@@ -6,7 +6,7 @@ exports.config = {
   ],
 
   capabilities: {
-    'browserName': 'phantomjs'
+    'browserName': 'chrome'
   },
 
   baseUrl: 'http://localhost:8020/',
