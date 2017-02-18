@@ -1,5 +1,4 @@
-Django Builder
-==============
+# Django Builder
 
 [![Build Status](https://travis-ci.org/mmcardle/django_builder.svg?branch=master)](https://travis-ci.org/mmcardle/django_builder)
 
@@ -7,54 +6,50 @@ Django Builder is deployed at:
 
 http://mmcardle.github.io/django_builder/
 
-Updates 2nd December 2016
-===========================
+#### Updates 18th February 2017
+
+* Added Django 1.10.X Support
+
+#### Updates 2nd December 2016
 
 * Added Download Project
 
-Updates 12th September 2016
-===========================
+#### Updates 12th September 2016
 
 * Added some new fields from Django 1.1
 
-Updates 22nd March 2016
-=======================
+#### Updates 22nd March 2016
 
 * Generation of models from a models.py file.
 
-Updates 4th Dec 2015
-======================
+#### Updates 4th Dec 2015
 
 * Add Django User and Group models
 
-Updates 10th Nov 2015
-======================
+#### Updates 10th Nov 2015
 
 * Django Rest Framework support
 * Rename Model
 * Code style changes
 * Bug Fixes
 
-Updates 16th June 2015
-======================
+#### Updates 16th June 2015
 
 * Source code now on github!
 * Persistence between sessions
 * Default Field parameters
 
-Development
-===========
+## Development
 
     cd angular
     npm install
     npm start
 
-Angular
-=======
+## Angular
 
 Original angular-seed README content below.
 
-# angular-seed — the seed for AngularJS apps
+### angular-seed — the seed for AngularJS apps
 
 This project is an application skeleton for a typical [AngularJS](http://angularjs.org/) web app.
 You can use it to quickly bootstrap your angular webapp projects and dev environment for these
