@@ -34,8 +34,15 @@ describe('Builder App', function () {
     describe('models', function () {
 
         beforeEach(function () {
-            browser.get('#!/models');
+             browser.get('#!/models');
         });
+
+        it('should render home when user navigates to #!/home', function() {
+            expect(element.all(by.css('[ng-view] h1')).first().getText()).toMatch('Django Builder');
+            expect(element.all(by.css('[ng-view] span.label')).first().getText()).toMatch('Django 1.10.X');
+            expect(element.all(by.css('[ng-view] p')).first().getText()).toMatch('building things....');
+        });
+
 
         it('should render Project Name as a heading when user navigates to #!/models', function () {
             expect(element.all(by.css('[ng-view] h2')).first().getText()).toMatch('Project Name');
