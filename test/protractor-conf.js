@@ -9,6 +9,11 @@ exports.config = {
     'browserName': 'chrome'
   },
 
+  //multiCapabilities: [
+    //{'browserName': 'chrome'},
+    //{'browserName': 'firefox'}
+  //],
+
   baseUrl: 'http://localhost:8020/',
 
   framework: 'jasmine',

@@ -3,6 +3,7 @@
 const EC = protractor.ExpectedConditions;
 const wait_timeout = 1000;
 
+var tmp = require('tmp');
 const fs = require('fs');
 const exec = require('child_process').exec;
 const spawn = require('child_process').spawn;
@@ -40,7 +41,7 @@ describe('Builder App', function () {
             expect(element.all(by.css('[ng-view] h2')).first().getText()).toMatch('Project Name');
         });
 
-        it('should produce a tar file', function () {
+        it('should produce a tar file', function (done) {
 
             const project_name = 'project';
             const project_name_el = element(by.id('projectname'));
@@ -69,7 +70,10 @@ describe('Builder App', function () {
                 expect(typeof data_tar_base64_url).toBe("string");
                 expect(data_tar_base64_url.substring(0, expected_prefix_len)).toBe(expected_prefix);
 
-                const filename = "/tmp/test.tar";
+                const tmpobj = tmp.dirSync();
+                console.log('Dir: ', tmpobj.name);
+
+                const filename = tmpobj.name + "/test.tar";
                 const data_tar = new Buffer(data_tar_base64_url.substring(expected_prefix_len), 'base64').toString();
 
                 fs.writeFile(filename, data_tar, function(err) {
@@ -78,28 +82,40 @@ describe('Builder App', function () {
                     }
                     const tar_cmd = 'tar vfx '+ filename;
 
-                    exec(tar_cmd, {'cwd': '/tmp/'}, (tar_error, tar_stdout, tar_stderr) => {
+                    exec(tar_cmd, {'cwd': tmpobj.name}, (tar_error, tar_stdout, tar_stderr) => {
                         if (tar_error) {
-                            throw Error("Failed to run '"+tar_cmd+"': "+tar_err)
+                            throw Error("Failed to run '" + tar_cmd + "': " + tar_error)
                         }
-                        console.log(`stdout: ${tar_stdout}`);
-                        console.log(`stderr: ${tar_stderr}`);
 
-                        // TODO - virtual env?
-                        const python_test_cmd = 'python ./manage.py';
-                        const project_dir = "/tmp/"+project_name+"/";
+                        console.log(`tar_stdout: ${tar_stdout}`);
+                        console.log(`tar_stderr: ${tar_stderr}`);
 
-                        exec(python_test_cmd, {'cwd': project_dir}, (py_error, py_stdout, py_stderr) => {
-                            if (py_error) {
-                                throw Error("Failed to run '"+python_test_cmd+"': "+py_error)
+                        const virtualenv_test_cmd = 'virtualenv virt-db && source ' + tmpobj.name + '/virt-db/bin/activate && pip install -r ' + tmpobj.name + '/requirements.txt'
+                        console.log(virtualenv_test_cmd)
+
+                        exec(virtualenv_test_cmd, {'cwd': tmpobj.name}, (virtualenv_error, virtualenv_stdout, virtualenv_stderr) => {
+                            if (virtualenv_error) {
+                                throw Error("Failed to run '" + virtualenv_test_cmd + "': " + virtualenv_error)
                             }
-                            console.log(`stdout: ${py_stdout}`);
-                            console.log(`stderr: ${py_stderr}`);
-                        });
+                            console.log(`virtualenv_stdout: ${virtualenv_stdout}`);
+                            console.log(`virtualenv_stderr: ${virtualenv_stderr}`);
 
+                            const python_test_cmd = 'python ./' + project_name + '/manage.py test ' + project_name;
+                            //const project_dir = "/tmp/" + project_name + "/";
+
+                            exec(python_test_cmd, {'cwd': tmpobj.name}, (py_error, py_stdout, py_stderr) => {
+                                if (py_error) {
+                                    throw Error("Failed to run '" + python_test_cmd + "': " + py_error)
+                                }
+                                console.log(`py_stdout: ${py_stdout}`);
+                                console.log(`py_stderr: ${py_stderr}`);
+                                //tmpobj.removeCallback();
+                                done()
+                            });
+                        });
                     });
                 });
             });
-        });
+        }, 60000); // 60 second jamine timeout
     });
 });
