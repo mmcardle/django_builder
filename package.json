@@ -45,7 +45,7 @@
     "start": "http-server -a localhost -p 8020",
     "pretest": "npm install",
     "test": "karma start test/karma.conf.js",
-    "test-single-run": "karma start test/karma.conf.js  --single-run",
+    "test-single-run": "karma start test/karma.conf.js --single-run",
     "preupdate-webdriver": "npm install",
     "update-webdriver": "webdriver-manager update",
     "preprotractor": "npm run update-webdriver",
