@@ -228,14 +228,21 @@ describe('Testing ModelController', function () {
         expect($scope.model_count()).toBe(1);
         expect($scope.models[0].name).toBe('Model1');
     });
-    it('should have ability to add new Models', function () {
-        // Models
-        var model1 = $scope.model_factory({"name": 'Model1'}, $scope);
-        var model2 = $scope.model_factory({"name": 'Model2'}, $scope);
-        var add_new_models_id = $scope.add_new_models([model1, model2]);
-        var add_new_modal = jQuery('#'+add_new_models_id);
-        add_new_modal.find('.btn-primary').click();
-        expect($scope.model_count()).toBe(2);
+    describe('should have ability to', function() {
+        var add_new_models_id;
+        beforeEach(function(done) {
+          var model1 = $scope.model_factory({"name": 'Model1'}, $scope);
+          var model2 = $scope.model_factory({"name": 'Model2'}, $scope);
+          add_new_models_id = $scope.add_new_models([model1, model2]);
+          // Wait for modal to show
+          setTimeout(function() {done();}, 500);
+        });
+
+        it('add/remove a Model', function() {
+          var add_new_modal = jQuery('#'+add_new_models_id);
+          add_new_modal.find('.btn-primary').click();
+          expect($scope.model_count()).toBe(2);
+        });
     });
     it('should have ability to add new Models adding uniques', function () {
         // Models
@@ -301,20 +308,26 @@ describe('Testing ModelController', function () {
         var add_modal = jQuery('#'+add_id);
         add_modal.find('.btn-primary').click();
     });
-    it('should have ability to clear Models', function () {
-        expect($scope.model_count()).toBe(0);
-        var model_opts = {"name": 'Model'};
-        var model = $scope.model_factory(model_opts, $scope);
-        $scope.models.push(model);
+    describe('should have ability to', function() {
+        var clear_modal_id;
+        beforeEach(function(done) {
+          expect($scope.model_count()).toBe(0);
+          var model_opts = {"name": 'Model'};
+          var model = $scope.model_factory(model_opts, $scope);
+          $scope.models.push(model);
+          expect($scope.model_count()).toBe(1);
 
-        expect($scope.model_count()).toBe(1);
+          clear_modal_id = $scope.clearModels();
 
-        var clear_modal_id = $scope.clearModels();
-        var clear_modal = jQuery('#'+clear_modal_id);
-        clear_modal.find('.btn-primary').click();
+          setTimeout(function() {done();}, 500);
+        });
 
-        expect($scope.model_count()).toBe(0);
+        it('clear Models', function() {
+          var clear_modal = jQuery('#'+clear_modal_id);
+          clear_modal.find('.btn-primary').click();
 
+          expect($scope.model_count()).toBe(0);
+        });
     });
     it('should have ability to remove new models', function () {
         var model_opts = {"name": 'Model'};
@@ -385,31 +398,25 @@ describe('Testing ModelController', function () {
         expect($scope.new_models[0].relationships.length).toBe(0);
 
     });
-
     describe('should have ability to rename Models', function () {
-
+        var rename_id;
         beforeEach(function(done) {
             var name = 'model1';
-            var new_name = 'model2';
             $scope.doClearModels();
             $scope.add_model(name);
-            var rename_id = $scope.rename_model(0);
+            rename_id = $scope.rename_model(0);
+            // Wait for modal to show
+            setTimeout(function() {done();}, 500);
+        });
+
+        it('should rename the model', function(){
+            var new_name = 'model2';
             var rename_modal = jQuery('#'+rename_id);
             rename_modal.find('input').val(new_name);
             rename_modal.find('.btn-primary').click();
-            done();
-        });
-
-        afterEach(inject(function ($injector) {
-            $scope.doClearModels();
-            jQuery(".modal").remove();
-        }));
-
-        it('should rename the model', function(){
             expect($scope.models[0].name).toBe('model2');
         })
     });
-
     it('should not rename a model to be blank', function () {
         var name = 'model1';
         $scope.add_model(name);
