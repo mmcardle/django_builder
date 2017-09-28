@@ -124,8 +124,8 @@ function ModelRenderFactory() {
         _this.render_urls_py = function (app_name, models) {
             var urls_py = 'from django.conf.urls import url, include\n';
             urls_py += 'from rest_framework import routers'+_this.new_lines(1);
-            urls_py += 'import api'+_this.new_lines(1);
-            urls_py += 'import views'+_this.new_lines(2);
+            urls_py += 'from . import api'+_this.new_lines(1);
+            urls_py += 'from . import views'+_this.new_lines(2);
 
             urls_py +='router = routers.DefaultRouter()'+_this.new_lines(1);
             jQuery.each(models, function(i, model){
@@ -224,8 +224,8 @@ function ModelRenderFactory() {
             return templates;
         };
         _this.render_django_rest_framework_api_py = function (app_name, models) {
-            var api_py = 'import models\n';
-            api_py += 'import serializers\n';
+            var api_py = 'from . import models\n';
+            api_py += 'from . import serializers\n';
             api_py += 'from rest_framework import viewsets, permissions\n';
             api_py += _this.new_lines(2);
 
@@ -236,7 +236,7 @@ function ModelRenderFactory() {
             return api_py;
         };
         _this.render_django_rest_framework_serializers_py = function (app_name, models) {
-            var serializers_py = 'import models';
+            var serializers_py = 'from . import models';
             serializers_py += _this.new_lines(2);
             serializers_py += 'from rest_framework import serializers';
             serializers_py += _this.new_lines(3);
@@ -497,7 +497,7 @@ function RelationshipFactory() {
             return new Relationship(options);
         }
     };
-}                
+}
 function FieldFactory() {
     return function (options) {
         var _this = this;
