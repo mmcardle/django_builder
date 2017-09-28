@@ -39,6 +39,7 @@
     "select2": "^4.0.3",
     "select2-bootstrap-theme": "0.1.0-beta.9",
     "shelljs": "^0.7.5",
+    "tmp": "0.0.33",
     "webdriver-manager": "^10.2.10"
   },
   "scripts": {
