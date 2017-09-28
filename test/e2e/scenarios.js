@@ -91,7 +91,7 @@ describe('Builder App', function () {
                         console.log(`tar_stdout: ${tar_stdout}`);
                         console.log(`tar_stderr: ${tar_stderr}`);
 
-                        const virtualenv_test_cmd = 'virtualenv virt-db && source ' + tmpobj.name + '/virt-db/bin/activate && pip install -r ' + tmpobj.name + '/requirements.txt'
+                        const virtualenv_test_cmd = 'virtualenv virt-db && . ' + tmpobj.name + '/virt-db/bin/activate && pip install -r ' + tmpobj.name + '/requirements.txt'
                         console.log(virtualenv_test_cmd)
 
                         exec(virtualenv_test_cmd, {'cwd': tmpobj.name}, (virtualenv_error, virtualenv_stdout, virtualenv_stderr) => {
