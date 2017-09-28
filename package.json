@@ -32,9 +32,8 @@
     "karma-firefox-launcher": "^1.0.0",
     "karma-jasmine": "^1.0.2",
     "karma-junit-reporter": "^1.1.0",
-    "karma-phantomjs-launcher": "^1.0.4",
+    "karma-phantomjs-launcher": "^1.0.2",
     "phantomjs": "^2.1.7",
-    "phantomjs-prebuilt": "^2.1.15",
     "protractor": "~4.0.11",
     "select2": "^4.0.3",
     "select2-bootstrap-theme": "0.1.0-beta.9",
@@ -50,7 +49,6 @@
     "test-single-run": "karma start test/karma.conf.js --single-run",
     "preupdate-webdriver": "npm install",
     "update-webdriver": "webdriver-manager update",
-    "start-webdriver": "webdriver-manager start",
     "preprotractor": "npm run update-webdriver",
     "protractor": "protractor test/protractor-conf.js",
     "update-index-async": "node -e \"require('shelljs/global'); sed('-i', /\\/\\/@@NG_LOADER_START@@[\\s\\S]*\\/\\/@@NG_LOADER_END@@/, '//@@NG_LOADER_START@@\\n' + cat('app/bower_components/angular-loader/angular-loader.min.js') + '\\n//@@NG_LOADER_END@@', 'app/index-async.html');\""
