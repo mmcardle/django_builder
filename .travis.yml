@@ -12,7 +12,7 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - npm start > /dev/null &
   - npm run update-webdriver
-  - sleep 1 # give server time to start
+  - sleep 5 # give server time to start
 
 script:
   - node_modules/.bin/karma start test/karma.conf.js --no-auto-watch --single-run --reporters=dots --browsers=Firefox
