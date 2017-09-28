@@ -78,12 +78,12 @@ describe('Testing ModelController', function () {
         expect($scope.app_name()).toBe('Other_Name');
         expect($scope.l_app_name()).toBe('other name');
 
-        const user_app_name = 'App Name';
-        const expected_app_name = 'App_Name';
-        const expected_app_name_l = 'app name';
-        const user_project_name = 'Project Name';
-        const expected_project_name = 'Project_Name';
-        const expected_project_name_l = 'project name';
+        var user_app_name = 'App Name';
+        var expected_app_name = 'App_Name';
+        var expected_app_name_l = 'app name';
+        var user_project_name = 'Project Name';
+        var expected_project_name = 'Project_Name';
+        var expected_project_name_l = 'project name';
 
         // Test app name input
         jQuery('<input>').attr('id', 'appname').val(user_app_name).appendTo('body');
@@ -99,7 +99,7 @@ describe('Testing ModelController', function () {
         expect($scope.create_tar_ball_url().length).toBeGreaterThan(512);
 
         // Test download app
-        const expected_tar_ball_url_app = $scope.create_tar_ball_url(false);
+        var expected_tar_ball_url_app = $scope.create_tar_ball_url(false);
         var download_modal_id_app = $scope.create_download_modal_app();
         var download_modal_app = jQuery('#'+download_modal_id_app);
         var download_a_app = download_modal_app.find('#django_builder_download_a');
@@ -427,7 +427,7 @@ describe('Testing ModelController', function () {
         expect($scope.models[0].name).toBe(name);
     });
     it('should be able to import', function () {
-        const model_text = "class MyModel(Model):\n";
+        var model_text = "class MyModel(Model):\n";
         var process_ret = $scope.process_models_py([new Blob([model_text])]);
         expect(process_ret).toBe(true)
     });

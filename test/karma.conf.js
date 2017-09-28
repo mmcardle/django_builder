@@ -30,6 +30,7 @@ module.exports = function(config){
     browsers : [
         'Chrome',
         'Firefox',
+        'PhantomJS'
     ],
 
     plugins : [

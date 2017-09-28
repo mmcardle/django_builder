@@ -1,5 +1,5 @@
 language: node_js
-dist: trusty
+#dist: trusty
 
 node_js:
   - 8
@@ -15,5 +15,5 @@ before_script:
   - sleep 1 # give server time to start
 
 script:
-  - node_modules/.bin/karma start test/karma.conf.js --no-auto-watch --single-run --reporters=dots --browsers=Firefox
+  - node_modules/.bin/karma start test/karma.conf.js --no-auto-watch --single-run --reporters=dots --browsers=PhantomJS
   - npm run protractor
