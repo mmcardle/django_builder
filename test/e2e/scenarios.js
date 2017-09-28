@@ -67,6 +67,27 @@ describe('Builder App', function () {
             const expected_prefix = 'data:application/tar;base64,';
             const expected_prefix_len = expected_prefix.length;
 
+            const test_func = function(tempfolder, virtualenv_test_cmd, python_test_cmd, fin){
+              console.log(`running: ${virtualenv_test_cmd}`);
+              exec(virtualenv_test_cmd, {'cwd': tempfolder}, (virtualenv_error, virtualenv_stdout, virtualenv_stderr) => {
+                  if (virtualenv_error) {
+                      throw Error("Failed to run '" + virtualenv_test_cmd + "': " + virtualenv_error)
+                  }
+                  console.log(`virtualenv_stdout: ${virtualenv_stdout}`);
+                  console.log(`virtualenv_stderr: ${virtualenv_stderr}`);
+
+                  console.log(`running: ${python_test_cmd}`);
+                  exec(python_test_cmd, {'cwd': tempfolder}, (py_error, py_stdout, py_stderr) => {
+                      if (py_error) {
+                          throw Error("Failed to run '" + python_test_cmd + "': " + py_error)
+                      }
+                      console.log(`py_stdout: ${py_stdout}`);
+                      console.log(`py_stderr: ${py_stderr}`);
+                      fin()
+                  });
+              });
+            }
+
             data_element.getAttribute('href').then(function (data_tar_base64_url) {
                 expect(typeof data_tar_base64_url).toBe("string");
                 expect(data_tar_base64_url.substring(0, expected_prefix_len)).toBe(expected_prefix);
@@ -91,29 +112,14 @@ describe('Builder App', function () {
                         console.log(`tar_stdout: ${tar_stdout}`);
                         console.log(`tar_stderr: ${tar_stderr}`);
 
-                        const virtualenv_test_cmd = 'virtualenv virt-db && . ' + tmpobj.name + '/virt-db/bin/activate && pip install -r ' + tmpobj.name + '/requirements.txt'
-                        console.log(virtualenv_test_cmd)
+                        const test_cmd_python2 = 'virtualenv virt-python2 -p python2 && . ' + tmpobj.name + '/virt-python2/bin/activate && pip install -r ' + tmpobj.name + '/requirements.txt'
+                        const test_cmd_python3 = 'virtualenv virt-python3 -p python3 && . ' + tmpobj.name + '/virt-python3/bin/activate && pip install -r ' + tmpobj.name + '/requirements.txt'
+                        const python2_test_cmd = tmpobj.name + '/virt-python2/bin/python ./' + project_name + '/manage.py test ' + project_name;
+                        const python3_test_cmd = tmpobj.name + '/virt-python3/bin/python ./' + project_name + '/manage.py test ' + project_name;
 
-                        exec(virtualenv_test_cmd, {'cwd': tmpobj.name}, (virtualenv_error, virtualenv_stdout, virtualenv_stderr) => {
-                            if (virtualenv_error) {
-                                throw Error("Failed to run '" + virtualenv_test_cmd + "': " + virtualenv_error)
-                            }
-                            console.log(`virtualenv_stdout: ${virtualenv_stdout}`);
-                            console.log(`virtualenv_stderr: ${virtualenv_stderr}`);
-
-                            const python_test_cmd = tmpobj.name + '/virt-db/bin/python ./' + project_name + '/manage.py test ' + project_name;
-                            //const project_dir = "/tmp/" + project_name + "/";
-
-                            exec(python_test_cmd, {'cwd': tmpobj.name}, (py_error, py_stdout, py_stderr) => {
-                                if (py_error) {
-                                    throw Error("Failed to run '" + python_test_cmd + "': " + py_error)
-                                }
-                                console.log(`py_stdout: ${py_stdout}`);
-                                console.log(`py_stderr: ${py_stderr}`);
-                                //tmpobj.removeCallback();
-                                done()
-                            });
-                        });
+                        test_func(tmpobj.name, test_cmd_python2, python2_test_cmd, function(){
+                          test_func(tmpobj.name, test_cmd_python3, python3_test_cmd, done)
+                        })
                     });
                 });
             });
