@@ -26,6 +26,7 @@ describe('Builder App', function () {
 
         it('should render home when user navigates to #!/home', function () {
             expect(element.all(by.css('[ng-view] h1')).first().getText()).toMatch('Django Builder');
+            expect(element.all(by.css('[ng-view] span.label')).first().getText()).toMatch('Django 1.10.X');
             expect(element.all(by.css('[ng-view] p')).first().getText()).toMatch('building things....');
         });
 
@@ -36,13 +37,6 @@ describe('Builder App', function () {
         beforeEach(function () {
              browser.get('#!/models');
         });
-
-        it('should render home when user navigates to #!/home', function() {
-            expect(element.all(by.css('[ng-view] h1')).first().getText()).toMatch('Django Builder');
-            expect(element.all(by.css('[ng-view] span.label')).first().getText()).toMatch('Django 1.10.X');
-            expect(element.all(by.css('[ng-view] p')).first().getText()).toMatch('building things....');
-        });
-
 
         it('should render Project Name as a heading when user navigates to #!/models', function () {
             expect(element.all(by.css('[ng-view] h2')).first().getText()).toMatch('Project Name');
@@ -107,7 +101,7 @@ describe('Builder App', function () {
                             console.log(`virtualenv_stdout: ${virtualenv_stdout}`);
                             console.log(`virtualenv_stderr: ${virtualenv_stderr}`);
 
-                            const python_test_cmd = 'python ./' + project_name + '/manage.py test ' + project_name;
+                            const python_test_cmd = tmpobj.name + '/virt-db/bin/python ./' + project_name + '/manage.py test ' + project_name;
                             //const project_dir = "/tmp/" + project_name + "/";
 
                             exec(python_test_cmd, {'cwd': tmpobj.name}, (py_error, py_stdout, py_stderr) => {
