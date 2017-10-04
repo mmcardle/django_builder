@@ -14,6 +14,8 @@ angular.module('builder', [
 ]).config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     // Angular
     $routeProvider.when('/models', {templateUrl: 'app/partials/models.html', controller: 'ModelController'});
+    $routeProvider.when('/project', {templateUrl: 'app/partials/project.html', controller: 'ModelController'});
+    $routeProvider.when('/channels', {templateUrl: 'app/partials/channels.html', controller: 'ModelController'});
     $routeProvider.when('/home', {templateUrl: 'app/partials/home.html', controller: 'ModelController'});
     $routeProvider.otherwise({redirectTo: '/home'});
 }]);

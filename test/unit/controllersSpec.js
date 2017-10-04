@@ -58,6 +58,14 @@ describe('Testing ModelController', function () {
             });
         };
         createController();
+
+        // Mock the loading in project factory
+        $scope.project_factory.load = function(py, pn){
+          return new Promise(function(resolve, reject){
+            resolve('Dummy content of ' + py)
+          })
+        }
+
         localStorageService.storageType = 'session';
     }));
 
@@ -96,22 +104,114 @@ describe('Testing ModelController', function () {
         expect($scope.l_app_name()).toBe(expected_app_name_l);
         expect($scope.l_project_name()).toBe(expected_project_name_l);
         expect($scope.model_count()).toBe(0);
-        expect($scope.create_tar_ball_url().length).toBeGreaterThan(512);
+      });
 
-        // Test download app
-        const expected_tar_ball_url_app = $scope.create_tar_ball_url(false);
-        var download_modal_id_app = $scope.create_download_modal_app();
-        var download_modal_app = jQuery('#'+download_modal_id_app);
-        var download_a_app = download_modal_app.find('#django_builder_download_a');
-        expect(download_a_app.attr('href')).toBe(expected_tar_ball_url_app);
+      it('should be able to create an app tarball', function (done) {
+        $scope.create_tar_ball_url().then(function(tar_ball_url){
+          expect(tar_ball_url.length).toBeGreaterThan(512)
+          var tar_content = atob(tar_ball_url.slice(28));
+          expect(tar_content.length).toBe(20480);
+          expect(tar_content.indexOf('models.py')).toBeGreaterThan(0);
+          expect(tar_content.indexOf('views.py')).toBeGreaterThan(0);
+          expect(tar_content.indexOf('requirements.txt')).toBe(-1);
+          expect(tar_content.indexOf('settings.py')).toBe(-1);
+          expect(tar_content.indexOf('asgi.py')).toBe(-1);
+          expect(tar_content.indexOf('consumers.py')).toBe(-1);
+          expect(tar_content.indexOf('routing.py')).toBe(-1);
+          done()
+        }).catch(function(err){
+          fail(err)
+          done()
+        });
+      });
 
-        // Test download project
-        var expected_tar_ball_url_project = $scope.create_tar_ball_url(true);
-        var download_modal_id_project = $scope.create_download_modal_project();
-        var download_modal_project = jQuery('#'+download_modal_id_project);
-        var download_a_project = download_modal_project.find('#django_builder_download_a');
-        expect(download_a_project.attr('href')).toBe(expected_tar_ball_url_project);
+      it('should be able to create a project tarball', function (done) {
+        $scope.create_tar_ball_url(true).then(function(expected_tar_ball_url_app){
+          var tar_content2 = atob(expected_tar_ball_url_app.slice(28));
+          expect(tar_content2.length).toBe(20480);
+          expect(tar_content2.indexOf('models.py')).toBeGreaterThan(0);
+          expect(tar_content2.indexOf('views.py')).toBeGreaterThan(0);
+          expect(tar_content2.indexOf('requirements.txt')).toBe(0);
+          expect(tar_content2.indexOf('settings.py')).toBeGreaterThan(0);
+          expect(tar_content2.indexOf('asgi.py')).toBe(-1);
+          expect(tar_content2.indexOf('consumers.py')).toBe(-1);
+          expect(tar_content2.indexOf('routing.py')).toBe(-1);
+          done()
+        }).catch(function(err){
+          fail(err)
+          done()
+        });
+      });
 
+      it('should be able to create a project tarball with channels', function (done) {
+        // Model
+        $scope.create_tar_ball_url(true, true).then(function(expected_tar_ball_url_app_channels){
+          var tar_content3 = atob(expected_tar_ball_url_app_channels.slice(28));
+          expect(tar_content3.length).toBe(20480);
+          expect(tar_content3.indexOf('models.py')).toBeGreaterThan(0);
+          expect(tar_content3.indexOf('views.py')).toBeGreaterThan(0);
+          expect(tar_content3.indexOf('requirements.txt')).toBe(0);
+          expect(tar_content3.indexOf('settings.py')).toBeGreaterThan(0);
+          expect(tar_content3.indexOf('asgi.py')).toBeGreaterThan(0);
+          expect(tar_content3.indexOf('consumers.py')).toBeGreaterThan(0);
+          expect(tar_content3.indexOf('routing.py')).toBeGreaterThan(0);
+          done()
+        }).catch(function(err){
+          fail(err)
+          done()
+        });
+      });
+
+      it('should be able to create a project tarball models', function (done) {
+        // Field
+        var field_opts = {"name": 'Field', "type": 'FieldType'};
+        var field = $scope.field_factory.make_field(field_opts, $scope);
+
+        // Relationship
+        var rel_opts = {"name": 'Rel', "type": 'RelType', "to": 'RelTo'};
+        var rel = $scope.relationship_factory.make_relationship(rel_opts);
+
+        // Model
+        var model_opts = {"name": 'ModelName'};
+        var model = $scope.model_factory(model_opts, $scope);
+        model.fields.push(field);
+        model.relationships.push(rel);
+        $scope.models.push(model);
+
+        $scope.create_tar_ball_url(true, true).then(function(expected_tar_ball_url_app_channels){
+          var tar_content3 = atob(expected_tar_ball_url_app_channels.slice(28));
+          expect(tar_content3.length).toBe(30720);
+          expect(tar_content3.indexOf('ModelName')).toBeGreaterThan(0);
+          expect(tar_content3.indexOf('RelType')).toBeGreaterThan(0);
+          expect(tar_content3.indexOf('Field')).toBeGreaterThan(0);
+          done()
+        }).catch(function(err){
+          fail(err)
+          done()
+        });
+      });
+
+      it('should be able to create a download modal for an app', function (done) {
+         var download_modal_id = $scope.create_download_modal_app()
+         var download_modal = jQuery('#'+download_modal_id);
+         download_modal.find('#django_builder_download_hidden').click(function(){
+           expect(jQuery(this).attr('href').slice(0,28)).toBe('data:application/tar;base64,');
+           done()
+         })
+         download_modal.find('#django_builder_download_a').click();
+      })
+
+      it('should be able to create a download modal for an project', function (done) {
+         var download_modal_id = $scope.create_download_modal_project()
+         var download_modal = jQuery('#'+download_modal_id);
+         download_modal.find('#django_builder_download_hidden').click(function(){
+           expect(jQuery(this).attr('href').slice(0,28)).toBe('data:application/tar;base64,');
+           done()
+         })
+         download_modal.find('#django_builder_download_a').click();
+      })
+
+      it('should have extended tests', function () {
         // Test ACE
         var ace_types = [
             'builder_NONE',
@@ -120,7 +220,15 @@ describe('Testing ModelController', function () {
             'builder_admin',
             'builder_urls',
             'builder_tests',
-            'builder_forms'
+            'builder_forms',
+            'builder_settings',
+            'builder_requirements',
+            'builder_wsgi',
+            'builder_django_rest_framework_api',
+            'builder_django_rest_framework_serializers',
+            'builder_channels_asgi',
+            'builder_channels_routing',
+            'builder_channels_consumers',
         ];
 
         for (var i = 0; i < ace_types.length; i++) {
@@ -174,8 +282,6 @@ describe('Testing ModelController', function () {
         expect(new_model.name_field()).toBe('pk');
 
         expect($scope.model_count()).toBe(1);
-        expect($scope.create_tar_ball_url().length).toBe(27336);
-
         $scope.updateModel(model);
         $scope.serializeApp();
         $scope.saveApp();
@@ -183,6 +289,49 @@ describe('Testing ModelController', function () {
         $scope.doClearModels();
         expect($scope.model_count()).toBe(0);
     });
+
+    it('should have ability to create an upload form', function () {
+      var input = jQuery('<input class="c" />')
+      var dnd = jQuery('<div>DND</div>')
+      var upload_form = $scope.upload_form(input, dnd)
+      expect(upload_form.html()).toBe(
+          '<span class="btn btn-default btn-file center-block builder_upload_models_py">Browse<input class="c"></span><div>DND</div>'
+      )
+    });
+
+    it('should have ability to create a upload input', function () {
+      var upload_input = $scope.upload_input()
+      expect(upload_input.html()).toBe('<input type="file">')
+    });
+
+    it('should have ability to create a upload drop target', function () {
+      var upload_drop_target = $scope.upload_drop_target()
+      expect(upload_drop_target.html()).toBe(
+          '<div>Drag and Drop files here!</div><i class="fa fa-upload fa-4x builder_dnd_icon"></i>'
+      )
+    });
+
+    it('should have ability to render model class fields only', function () {
+      // Model
+      var model_opts = {"name": 'Model1'};
+      var model = $scope.model_factory(model_opts, $scope);
+      model.fields.push(
+        $scope.field_factory.make_field(
+            {"name": 'Field', "type": 'FieldType'}, $scope
+        )
+      );
+
+      $scope.models.push(model);
+      var model_class_fields_only = $scope.render_model_class_fields_only(model)
+      var split = model_class_fields_only.split(/\n/)
+      expect(split.length).toBe(6)
+      expect(split[0]).toBe('class Model1(models.Model):')
+      expect(split[1]).toBe('')
+      expect(split[2]).toBe('    # Fields')
+      expect(split[3]).toBe('    Field = FieldType()')
+      expect(split[4]).toBe('')
+    });
+
     it('should have ability to clean Models', function () {
         var model_data1 = {
             '$$hashKey': 'key'
@@ -430,6 +579,10 @@ describe('Testing ModelController', function () {
         const model_text = "class MyModel(Model):\n";
         var process_ret = $scope.process_models_py([new Blob([model_text])]);
         expect(process_ret).toBe(true)
+        var process_ret_0 = $scope.process_models_py([]);
+        expect(process_ret_0).toBe(false)
+        var process_ret_multiple = $scope.process_models_py([new Blob(['']), new Blob([''])]);
+        expect(process_ret_multiple).toBe(false)
     });
     it('should not rename a model to be another model name', function () {
         var name1 = 'model1';

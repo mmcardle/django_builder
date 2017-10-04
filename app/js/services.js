@@ -1131,6 +1131,14 @@ function ProjectFactory() {
         _this.http.get('app/partials/py/urls.py').then(function(e){_this.urls_py=e.data});
         _this.http.get('app/partials/py/wsgi.py').then(function(e){_this.wsgi_py=e.data});
 
+        _this.load = function(py, project_name){
+          return _this.http.get(py).then(function(e){
+              return _this.replace_in_template(
+                  e.data, [['___PROJECT_NAME___', project_name]]
+              );
+          })
+        }
+
         _this.replace_in_template = function(template, replacements){
             jQuery.each(replacements, function(i, repl){
                 template = template.replace(new RegExp(repl[0], 'g'), repl[1]);
@@ -1138,11 +1146,11 @@ function ProjectFactory() {
             return template;
         };
         _this.render_project_requirements = function(){
-            var requirements = "Django==1.10.3\n";
+            var requirements = "Django==1.10.8\n";
+            requirements += "channels==1.1.8\n";
             requirements += "django-crispy-forms==1.6.1\n";
             requirements += "django-extensions==1.7.5\n";
             requirements += "djangorestframework==3.5.3\n";
-            requirements += "Pillow==4.0.0\n";
             return requirements;
         };
         _this.render_project_manage_py = function(project_name){
@@ -1173,6 +1181,14 @@ function ProjectFactory() {
         _this.render_project_urls_py = function(app_name){
             return _this.replace_in_template(
                 _this.urls_py,
+                [
+                    ['___APP_NAME___', app_name]
+                ]
+            );
+        };
+        _this.render_project_asgi_py = function(app_name){
+            return _this.replace_in_template(
+                _this.asgi_py,
                 [
                     ['___APP_NAME___', app_name]
                 ]
