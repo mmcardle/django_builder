@@ -29,6 +29,7 @@ describe('Testing ModelController', function () {
         relationship_factory = $injector.get('RelationshipFactory');
         message_service = $injector.get('MessageService');
         renderFactory = $injector.get('RenderFactory');
+        renderFactory = $injector.get('RenderFactory');
         tarballFactory = $injector.get('TarballFactory');
 
         // backend definition common for all tests
@@ -36,6 +37,7 @@ describe('Testing ModelController', function () {
         $httpBackend.when('GET', 'app/partials/py/manage.py').respond('');
         $httpBackend.when('GET', 'app/partials/py/urls.py').respond('');
         $httpBackend.when('GET', 'app/partials/py/wsgi.py').respond('');
+        $httpBackend.when('GET', 'app/partials/py/_channels.py').respond('');
 
         project_factory = $injector.get('ProjectFactory');
 
@@ -230,6 +232,7 @@ describe('Testing ModelController', function () {
             'builder_wsgi',
             'builder_django_rest_framework_api',
             'builder_django_rest_framework_serializers',
+            'builder_channels_settings',
             'builder_channels_asgi',
             'builder_channels_routing',
             'builder_channels_consumers',

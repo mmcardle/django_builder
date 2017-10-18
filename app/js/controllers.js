@@ -62,8 +62,8 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 if(include_project){
                     root_folder = project_name+'/'+app_name;
 
-                    var project_requirements = $scope.project_factory.render_project_requirements();
-                    var project_settings = $scope.project_factory.render_project_settings_py(project_name, app_name);
+                    var project_requirements = $scope.project_factory.render_project_requirements(include_channels);
+                    var project_settings = $scope.project_factory.render_project_settings_py(project_name, app_name, include_channels);
                     var project_urls = $scope.project_factory.render_project_urls_py(app_name);
                     var project_manage = $scope.project_factory.render_project_manage_py(project_name);
                     var project_wsgi = $scope.project_factory.render_project_wsgi_py(project_name);
@@ -138,7 +138,8 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var channels_message = jQuery('<div>')
 
                 var channels_check_box = jQuery("<input type='checkbox' />")
-                channels_message.append(jQuery("<span>Include Django Channels Config&nbsp;</span>"));
+                channels_message.append(jQuery("<i>").addClass('fa fa-star fa-spin').css('color', 'red'));
+                channels_message.append(jQuery("<span> Include Django Channels Config&nbsp;</span>"));
                 channels_message.append(channels_check_box);
 
                 var extra_channels = jQuery('<div>').addClass('well well-sm');
@@ -391,6 +392,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     break;
                   case "builder_settings":
                     $scope.project_factory.load('app/partials/py/settings.py', $scope.app_name()).then(function(data){set_editor_value(data)})
+                    break;
+                  case "builder_channels_settings":
+                    $scope.project_factory.load('app/partials/py/_channels.py', $scope.app_name()).then(function(data){set_editor_value(data)})
                     break;
                   case "builder_requirements":
                     set_editor_value($scope.project_factory.render_project_requirements());
