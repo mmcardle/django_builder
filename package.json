@@ -44,6 +44,7 @@
   "scripts": {
     "prestart": "npm install",
     "start": "http-server -a localhost -p 8020",
+    "build": "grunt",
     "watch": "grunt watch",
     "pretest": "npm install",
     "test": "karma start test/karma.conf.js",
