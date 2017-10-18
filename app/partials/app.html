@@ -1,0 +1,49 @@
+<div ng-app>
+    <div class="row">
+        <div class="col-sm-2">
+            <h2 style="margin: 0">Project Name</h2>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label class="sr-only" for="builder_project_name">Project Name</label>
+                <input tabindex="1" class="form-control" ng-model="_project_name" id="projectname" ng-change="set_project_name()">
+            </div>
+        </div>
+        <div class="col-sm-8">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+            <h2 style="margin: 0">App Name</h2>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label class="sr-only" for="builder_app_name">App Name</label>
+                <input tabindex="1" class="form-control" ng-model="_app_name" id="appname" ng-change="set_app_name()">
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <ANY ng-if="models.length">
+                <button tabindex="3" ng-click="upload_models_py()" class="btn btn-success pull-right hidden-xs" style="margin-right: 4px">Upload models.py <i class="fa fa-upload"></i></button>
+                <button tabindex="3" ng-click="upload_models_py()" class="btn btn-success pull-right visible-xs" style="margin-right: 4px"><i class="fa fa-upload"></i></button>
+            </ANY>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+            <h2 style="margin: 0">Models</h2>
+        </div>
+        <div class="col-sm-10">
+            <ANY ng-if="models.length">
+                <button tabindex="4" ng-click="clearModels()" class="btn btn-danger pull-right hidden-xs">Clear all <i class="fa fa-times"></i></button>
+                <button tabindex="3" ng-click="create_download_modal_app()" id="django_builder_download_as_app" class="btn btn-info pull-right hidden-xs" style="margin-right: 4px">Download as App <i class="fa fa-download"></i></button>
+                <button tabindex="3" ng-click="create_download_modal_project()" id="django_builder_download_as_project" class="btn btn-info pull-right hidden-xs" style="margin-right: 4px">Download as Project <i class="fa fa-download"></i></button>
+                <button tabindex="4" ng-click="clearModels()" class="btn btn-danger pull-right visible-xs"><i class="fa fa-times"></i></button>
+                <button tabindex="3" ng-click="create_download_modal_app()" class="btn btn-info pull-right visible-xs" style="margin-right: 4px"><i class="fa fa-download"></i></button>
+                <button tabindex="3" ng-click="create_download_modal_project()" class="btn btn-info pull-right visible-xs" style="margin-right: 4px"><i class="fa fa-download"></i></button>
+            </ANY>
+            <button id="django_builder_add_model" tabindex="2" ng-click="addModel()" class="btn btn-primary hidden-xs" analytics-on="click" analytics-category="Models" analytics-event="AddModel">Add Model <i class="fa fa-plus"></i></button>
+            <button tabindex="2" ng-click="addModel()" class="btn btn-primary visible-xs"><i class="fa fa-plus"></i></button>
+        </div>
+    </div>
+</div>

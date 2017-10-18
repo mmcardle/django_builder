@@ -6,6 +6,10 @@ Django Builder is deployed at:
 
 http://mmcardle.github.io/django_builder/
 
+#### Updates 18th October 2017
+
+* Added Django Channels Support
+
 #### Updates 18th February 2017
 
 * Added Django 1.10.X Support

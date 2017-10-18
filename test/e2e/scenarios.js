@@ -63,6 +63,9 @@ describe('Builder App', function () {
 
             const data_element = element(by.id('django_builder_download_a'));
             browser.wait(EC.elementToBeClickable(data_element), wait_timeout);
+            data_element.click()
+
+            const tar_element = element(by.id('django_builder_download_hidden'));
 
             const expected_prefix = 'data:application/tar;base64,';
             const expected_prefix_len = expected_prefix.length;
@@ -88,7 +91,7 @@ describe('Builder App', function () {
               });
             }
 
-            data_element.getAttribute('href').then(function (data_tar_base64_url) {
+            tar_element.getAttribute('href').then(function (data_tar_base64_url) {
                 expect(typeof data_tar_base64_url).toBe("string");
                 expect(data_tar_base64_url.substring(0, expected_prefix_len)).toBe(expected_prefix);
 
@@ -123,6 +126,6 @@ describe('Builder App', function () {
                     });
                 });
             });
-        }, 60000); // 60 second jamine timeout
+        }, 120000); // 120 second jamine timeout
     });
 });

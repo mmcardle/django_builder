@@ -85,19 +85,19 @@ var global = Function("return this;")();
 }(this);
 // pakmanager:tar-js/utils
 (function (context) {
-  
+
   var module = { exports: {} }, exports = module.exports
     , $ = require("ender")
     ;
-  
+
   /*
      * tar-js
      * MIT (c) 2011 T. Jameson Little
      */
-    
+
     (function () {
     	"use strict";
-    
+
     	var lookup = [
     			'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
     			'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
@@ -115,51 +115,51 @@ var global = Function("return this;")();
     		}
     		return buffer;
     	}
-    
+
     	function extend(orig, length, addLength, multipleOf) {
     		var newSize = length + addLength,
     			buffer = clean((parseInt(newSize / multipleOf) + 1) * multipleOf);
-    
+
     		buffer.set(orig);
-    
+
     		return buffer;
     	}
-    
+
     	function pad(num, bytes, base) {
     		num = num.toString(base || 8);
     		return "000000000000".substr(num.length + 12 - bytes) + num;
-    	}	
-    	
+    	}
+
     	function stringToUint8 (input, out, offset) {
     		var i, length;
-    
+
     		out = out || clean(input.length);
-    
+
     		offset = offset || 0;
     		for (i = 0, length = input.length; i < length; i += 1) {
     			out[offset] = input.charCodeAt(i);
     			offset += 1;
     		}
-    
+
     		return out;
     	}
-    
+
     	function uint8ToBase64(uint8) {
     		var i,
     			extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
     			output = "",
     			temp, length;
-    
+
     		function tripletToBase64 (num) {
     			return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F];
     		};
-    
+
     		// go through the array every three bytes, we'll deal with trailing stuff later
     		for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
     			temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2]);
     			output += tripletToBase64(temp);
     		}
-    
+
     		// this prevents an ERR_INVALID_URL in Chrome (Firefox okay)
     		switch (output.length % 4) {
     			case 1:
@@ -171,35 +171,35 @@ var global = Function("return this;")();
     			default:
     				break;
     		}
-    
+
     		return output;
     	}
-    
+
     	module.exports.clean = clean;
     	module.exports.pad = pad;
     	module.exports.extend = extend;
     	module.exports.stringToUint8 = stringToUint8;
     	module.exports.uint8ToBase64 = uint8ToBase64;
     }());
-    
+
   provide("tar-js/utils", module.exports);
 }(global));
 
 // pakmanager:tar-js/header
 (function (context) {
-  
+
   var module = { exports: {} }, exports = module.exports
     , $ = require("ender")
     ;
-  
+
   /*
      * tar-js
      * MIT (c) 2011 T. Jameson Little
      */
-    
+
     (function () {
     	"use strict";
-    	
+
     /*
     struct posix_header {             // byte offset
     	char name[100];               //   0
@@ -221,10 +221,10 @@ var global = Function("return this;")();
                                       // 500
     };
     */
-    
+
     	var utils =  require('tar-js/utils'),
     		headerFormat;
-    	
+
     	headerFormat = [
     		{
     			'field': 'fileName',
@@ -291,62 +291,62 @@ var global = Function("return this;")();
     			'length': 12
     		}
     	];
-    
+
     	function formatHeader(data, cb) {
     		var buffer = utils.clean(512),
     			offset = 0;
-    
+
     		headerFormat.forEach(function (value) {
     			var str = data[value.field] || "",
     				i, length;
-    
+
     			for (i = 0, length = str.length; i < length; i += 1) {
     				buffer[offset] = str.charCodeAt(i);
     				offset += 1;
     			}
-    
+
     			offset += value.length - i; // space it out with nulls
     		});
-    
+
     		if (typeof cb === 'function') {
     			return cb(buffer, offset);
     		}
     		return buffer;
     	}
-    	
+
     	module.exports.structure = headerFormat;
     	module.exports.format = formatHeader;
     }());
-    
+
   provide("tar-js/header", module.exports);
 }(global));
 
 // pakmanager:tar-js
 (function (context) {
-  
+
   var module = { exports: {} }, exports = module.exports
     , $ = require("ender")
     ;
-  
+
   /*
      * tar-js
      * MIT (c) 2011 T. Jameson Little
      */
-    
+
     (function () {
     	"use strict";
-    
+
     	var header =  require('tar-js/header'),
     		utils =  require('tar-js/utils'),
     		recordSize = 512,
     		blockSize;
-    	
+
     	function Tar(recordsPerBlock) {
     		this.written = 0;
     		blockSize = (recordsPerBlock || 20) * recordSize;
     		this.out = utils.clean(blockSize);
     	}
-    
+
     	Tar.prototype.append = function (filepath, input, opts, callback) {
     		var data,
     			checksum,
@@ -355,25 +355,25 @@ var global = Function("return this;")();
     			uid,
     			gid,
     			headerArr;
-    
+
     		if (typeof input === 'string') {
     			input = utils.stringToUint8(input);
     		} else if (input.constructor !== Uint8Array.prototype.constructor) {
     			throw 'Invalid input type. You gave me: ' + input.constructor.toString().match(/function\s*([$A-Za-z_][0-9A-Za-z_]*)\s*\(/)[1];
     		}
-    
+
     		if (typeof opts === 'function') {
     			callback = opts;
     			opts = {};
     		}
-    
+
     		opts = opts || {};
-    
+
     		mode = opts.mode || parseInt('777', 8) & 0xfff;
     		mtime = opts.mtime || Math.floor(+new Date() / 1000);
     		uid = opts.uid || 0;
     		gid = opts.gid || 0;
-    
+
     		data = {
     			fileName: filepath,
     			fileMode: utils.pad(mode, 7),
@@ -387,57 +387,57 @@ var global = Function("return this;")();
     			owner: opts.owner || '',
     			group: opts.group || ''
     		};
-    
+
     		// calculate the checksum
     		checksum = 0;
     		Object.keys(data).forEach(function (key) {
     			var i, value = data[key], length;
-    
+
     			for (i = 0, length = value.length; i < length; i += 1) {
     				checksum += value.charCodeAt(i);
     			}
     		});
-    
+
     		data.checksum = utils.pad(checksum, 6) + "\u0000 ";
-    
+
     		headerArr = header.format(data);
-    
+
     		var i, offset, length;
-    
+
     		this.out.set(headerArr, this.written);
-    
+
     		this.written += headerArr.length;
-    
+
     		// If there is not enough space in this.out, we need to expand it to
     		// fit the new input.
     		if (this.written + input.length > this.out.length) {
     			this.out = utils.extend(this.out, this.written, input.length, blockSize);
     		}
-    
+
     		this.out.set(input, this.written);
-    
+
     		// to the nearest multiple of recordSize
     		this.written += input.length + (recordSize - (input.length % recordSize || recordSize));
-    
+
     		// make sure there's at least 2 empty records worth of extra space
     		if (this.out.length - this.written < recordSize * 2) {
     			this.out = utils.extend(this.out, this.written, recordSize * 2, blockSize);
     		}
-    
+
     		if (typeof callback === 'function') {
     			callback(this.out);
     		}
-    
+
     		return this.out;
     	};
-    
+
     	Tar.prototype.clear = function () {
     		this.written = 0;
     		this.out = utils.clean(blockSize);
     	};
-    	
+
     	module.exports = Tar;
     }());
-    
+
   provide("tar-js", module.exports);
 }(global));

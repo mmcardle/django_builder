@@ -37,7 +37,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope._app_name = 'app_name';
             $scope._project_name = 'project_name';
 
-            $scope.create_tar_ball_url = function(include_project){
+            $scope.create_tar_ball_url = function(include_project, include_channels){
                 var README = 'Built with django_builder\n';
                 var __init__ = '#';
 
@@ -56,14 +56,14 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var templates = $scope.render_factory.render_templates_html(app_name, $scope.models);
 
                 var tarfile = new tarballFactory();
-                
+
                 var root_folder = app_name;
 
                 if(include_project){
                     root_folder = project_name+'/'+app_name;
 
-                    var project_requirements = $scope.project_factory.render_project_requirements();
-                    var project_settings = $scope.project_factory.render_project_settings_py(project_name, app_name);
+                    var project_requirements = $scope.project_factory.render_project_requirements(include_channels);
+                    var project_settings = $scope.project_factory.render_project_settings_py(project_name, app_name, include_channels);
                     var project_urls = $scope.project_factory.render_project_urls_py(app_name);
                     var project_manage = $scope.project_factory.render_project_manage_py(project_name);
                     var project_wsgi = $scope.project_factory.render_project_wsgi_py(project_name);
@@ -92,16 +92,36 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     tarfile.append(root_folder+'/templates/'+app_name+'/'+template[0], template[1]);
                 });
 
-                return tarfile.get_url();
+                var promises = []
+
+                if (include_channels){
+                  promises.push(new Promise(function(resolve, reject){
+                    $scope.project_factory.load('app/partials/py/asgi.py', $scope.app_name()).then(
+                        function(data){tarfile.append(project_name + '/' + project_name + '/asgi.py', data);resolve()
+                    })
+                  }));
+                  promises.push(new Promise(function(resolve, reject){
+                    $scope.project_factory.load('app/partials/py/consumers.py', $scope.app_name()).then(
+                        function(data){tarfile.append(project_name + '/' + project_name + '/consumers.py', data);resolve()
+                    })
+                  }));
+                  promises.push(new Promise(function(resolve, reject){
+                    $scope.project_factory.load('app/partials/py/routing.py', $scope.app_name()).then(
+                        function(data){tarfile.append(project_name + '/' + project_name + '/routing.py', data);resolve()
+                    })
+                  }));
+                }
+
+                return Promise.all(promises).then(function(){
+                  return tarfile.get_url();
+                })
             };
             $scope.create_download_modal_app = function(){
-                var download_url = $scope.create_tar_ball_url(false);
                 var filename = $scope.app_name() + '.tar';
                 var identifier = 'django_builder_download_app_modal';
-                return $scope.create_download_modal(download_url, filename, identifier);
+                return $scope.create_download_modal(false, false, filename, identifier);
             };
             $scope.create_download_modal_project = function(){
-                var download_url = $scope.create_tar_ball_url(true);
                 var filename = $scope.project_name() + '.tar';
 
                 var extra_message = jQuery('<p>');
@@ -115,17 +135,38 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 extra_message.append(jQuery("<br><br>"));
                 extra_message.append(extra_ul);
 
-                var identifier = 'django_builder_download_project_modal';
-                return $scope.create_download_modal(download_url, filename, identifier, extra_message)
-            };
-            $scope.create_download_modal = function(download_url, filename, identifier, extra_message){
+                var channels_message = jQuery('<div>')
 
-                var download_a = jQuery('<a>').attr('href', download_url).attr('id', 'django_builder_download_a');
+                var channels_check_box = jQuery("<input type='checkbox' />")
+                channels_message.append(jQuery("<i>").addClass('fa fa-star fa-spin').css('color', 'red'));
+                channels_message.append(jQuery("<span> Include Django Channels Config&nbsp;</span>"));
+                channels_message.append(channels_check_box);
+
+                var extra_channels = jQuery('<div>').addClass('well well-sm');
+                extra_channels.append(jQuery("<p>").text($scope.project_name()+'/asgi.py'));
+                extra_channels.append(jQuery("<p>").text($scope.project_name()+'/consumers.py'));
+                extra_channels.append(jQuery("<p>").text($scope.project_name()+'/routers.py'));
+
+                extra_message.append(jQuery('<p>').append(channels_message)).append(extra_channels);
+
+                var identifier = 'django_builder_download_project_modal';
+                return $scope.create_download_modal(true, channels_check_box, filename, identifier, extra_message)
+            };
+            $scope.create_download_modal = function(include_project, channels_check_box, filename, identifier, extra_message){
+
+                var hidden_download = jQuery('<a>').attr('id', 'django_builder_download_hidden').css('display', 'none');
+
+                var download_a = jQuery('<a>').attr('id', 'django_builder_download_a');
                 download_a.addClass('btn btn-success btn-lg').css('text-transform', 'none');
                 download_a.text('Click here to download '+ filename);
-                download_a.attr('download', filename);
+                download_a.on("click", function(){
+                  var include_channels = channels_check_box ? channels_check_box.is(':checked') : false;
+                  $scope.create_tar_ball_url(include_project, include_channels).then(function(download_url){
+                    jQuery(hidden_download).attr('href', download_url).attr('download', filename)[0].click();
+                  })
+                });
 
-                var download_button = jQuery('<div>').addClass('text-center').append(download_a);
+                var download_button = jQuery('<div>').addClass('text-center').append(download_a).append(hidden_download);;
                 var download_message = jQuery('<div>');
                 download_message.append(jQuery("<br>"));
                 download_message.append("Chrome can block downloads of the generated tarball, if this happens navigate to the ");
@@ -148,9 +189,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 return model.render_model_class_fields_only($scope._app_name, $scope.render_factory);
             };
             $scope.upload_input = function(){
-                return jQuery('<input type="file" />');
+                return jQuery('<div><input type="file" /></div>');
             };
-            $scope.upload_drop_target = function(input){
+            $scope.upload_drop_target = function(){
                 var dnd = jQuery('<div>').addClass("builder_dnd_target text-center");
                 var icon = jQuery('<i>').addClass("fa fa-upload fa-4x builder_dnd_icon");
                 dnd.append(jQuery("<div>").text("Drag and Drop files here!"));
@@ -267,6 +308,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     });
                     return true
                 }
+                return false
             };
             $scope.upload_models_py = function(){
                 var input =  $scope.upload_input();
@@ -323,24 +365,59 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
             $scope.aceLoad = function(_editor) {
                 var _id = jQuery(_editor.container).attr("id");
-                if(_id=="builder_models") {
-                    _editor.setValue($scope.render_factory.render_models_py($scope.app_name(), $scope.models));
-                }else if(_id=="builder_views"){
-                    _editor.setValue($scope.render_factory.render_views_py($scope.app_name(), $scope.models));
-                }else if(_id=="builder_admin"){
-                    _editor.setValue($scope.render_factory.render_admin_py($scope.app_name(), $scope.models));
-                }else if(_id=="builder_urls"){
-                    _editor.setValue($scope.render_factory.render_urls_py($scope.app_name(), $scope.models));
-                }else if(_id=="builder_tests"){
-                    _editor.setValue($scope.render_factory.render_tests_py($scope.app_name(), $scope.models));
-                }else if(_id=="builder_forms"){
-                    _editor.setValue($scope.render_factory.render_forms_py($scope.app_name(), $scope.models));
-                }else if(_id=="builder_django_rest_framework_api"){
-                    _editor.setValue($scope.render_factory.render_django_rest_framework_api_py($scope.app_name(), $scope.models));
-                }else if(_id=="builder_django_rest_framework_serializers"){
-                    _editor.setValue($scope.render_factory.render_django_rest_framework_serializers_py($scope.app_name(), $scope.models));
+
+                var set_editor_value = function(data){
+                  _editor.setValue(data);
+                  _editor.session.selection.clearSelection();
                 }
-                _editor.session.selection.clearSelection();
+
+                switch(_id) {
+                  case "builder_models":
+                    set_editor_value($scope.render_factory.render_models_py($scope.app_name(), $scope.models));
+                    break;
+                  case "builder_views":
+                    set_editor_value($scope.render_factory.render_views_py($scope.app_name(), $scope.models));
+                    break;
+                  case "builder_admin":
+                    set_editor_value($scope.render_factory.render_admin_py($scope.app_name(), $scope.models));
+                    break;
+                  case "builder_urls":
+                    set_editor_value($scope.render_factory.render_urls_py($scope.app_name(), $scope.models));
+                    break;
+                  case "builder_tests":
+                    set_editor_value($scope.render_factory.render_tests_py($scope.app_name(), $scope.models));
+                    break;
+                  case "builder_forms":
+                    set_editor_value($scope.render_factory.render_forms_py($scope.app_name(), $scope.models));
+                    break;
+                  case "builder_settings":
+                    $scope.project_factory.load('app/partials/py/settings.py', $scope.app_name()).then(function(data){set_editor_value(data)})
+                    break;
+                  case "builder_channels_settings":
+                    $scope.project_factory.load('app/partials/py/_channels.py', $scope.app_name()).then(function(data){set_editor_value(data)})
+                    break;
+                  case "builder_requirements":
+                    set_editor_value($scope.project_factory.render_project_requirements());
+                    break;
+                  case "builder_wsgi":
+                    $scope.project_factory.load('app/partials/py/asgi.py', $scope.app_name()).then(function(data){set_editor_value(data)})
+                    break;
+                  case "builder_django_rest_framework_api":
+                    set_editor_value($scope.render_factory.render_django_rest_framework_api_py($scope.app_name(), $scope.models));
+                    break;
+                  case "builder_django_rest_framework_serializers":
+                    set_editor_value($scope.render_factory.render_django_rest_framework_serializers_py($scope.app_name(), $scope.models));
+                    break;
+                  case "builder_channels_asgi":
+                    $scope.project_factory.load('app/partials/py/asgi.py', $scope.app_name()).then(function(data){set_editor_value(data)})
+                    break;
+                  case "builder_channels_routing":
+                    $scope.project_factory.load('app/partials/py/routing.py', $scope.app_name()).then(function(data){set_editor_value(data)})
+                    break;
+                  case "builder_channels_consumers":
+                    $scope.project_factory.load('app/partials/py/consumers.py', $scope.app_name()).then(function(data){set_editor_value(data)})
+                    break;
+                }
             };
 
             $scope.reLoadAce = function() {
