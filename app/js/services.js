@@ -1125,13 +1125,13 @@ function ProjectFactory() {
         _this.urls_py = '';
         _this.wsgi_py = '';
         _this.manage_py = '';
-        _this._channels_py = '';
+        _this.channels_py = '';
 
         _this.http.get('app/partials/py/settings.py').then(function(e){_this.settings_py=e.data});
         _this.http.get('app/partials/py/manage.py').then(function(e){_this.manage_py=e.data});
         _this.http.get('app/partials/py/urls.py').then(function(e){_this.urls_py=e.data});
         _this.http.get('app/partials/py/wsgi.py').then(function(e){_this.wsgi_py=e.data});
-        _this.http.get('app/partials/py/channels.py').then(function(e){_this._channels_py=e.data});
+        _this.http.get('app/partials/py/channels.py').then(function(e){_this.channels_py=e.data});
 
         _this.load = function(py, project_name){
           return _this.http.get(py).then(function(e){
@@ -1175,7 +1175,7 @@ function ProjectFactory() {
             );
             if(include_channels){
               var rendered_channels_py = _this.replace_in_template(
-                  _this._channels_py,
+                  _this.channels_py,
                   [
                       ['___PROJECT_NAME___', project_name],
                   ]
