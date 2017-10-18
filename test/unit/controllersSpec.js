@@ -194,22 +194,26 @@ describe('Testing ModelController', function () {
       it('should be able to create a download modal for an app', function (done) {
          var download_modal_id = $scope.create_download_modal_app()
          var download_modal = jQuery('#'+download_modal_id);
-         download_modal.find('#django_builder_download_hidden').click(function(){
-           expect(jQuery(this).attr('href').slice(0,28)).toBe('data:application/tar;base64,');
-           done()
-         })
-         download_modal.find('#django_builder_download_a').click();
-      })
+         setTimeout(function(){
+            jQuery('#django_builder_download_hidden').click(function(){
+              expect(jQuery(this).attr('href').slice(0,28)).toBe('data:application/tar;base64,');
+              done()
+            })
+            jQuery('#django_builder_download_a').click();
+         }, 1000);
+      }, 2000)
 
       it('should be able to create a download modal for an project', function (done) {
          var download_modal_id = $scope.create_download_modal_project()
          var download_modal = jQuery('#'+download_modal_id);
-         download_modal.find('#django_builder_download_hidden').click(function(){
-           expect(jQuery(this).attr('href').slice(0,28)).toBe('data:application/tar;base64,');
-           done()
-         })
-         download_modal.find('#django_builder_download_a').click();
-      })
+         setTimeout(function(){
+            jQuery('#django_builder_download_hidden').click(function(){
+              expect(jQuery(this).attr('href').slice(0,28)).toBe('data:application/tar;base64,');
+              done()
+            })
+            jQuery('#django_builder_download_a').click();
+         }, 1000)
+      }, 2000)
 
       it('should have extended tests', function () {
         // Test ACE
