@@ -394,7 +394,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     $scope.project_factory.load('app/partials/py/settings.py', $scope.app_name()).then(function(data){set_editor_value(data)})
                     break;
                   case "builder_channels_settings":
-                    $scope.project_factory.load('app/partials/py/_channels.py', $scope.app_name()).then(function(data){set_editor_value(data)})
+                    $scope.project_factory.load('app/partials/py/channels.py', $scope.app_name()).then(function(data){set_editor_value(data)})
                     break;
                   case "builder_requirements":
                     set_editor_value($scope.project_factory.render_project_requirements());

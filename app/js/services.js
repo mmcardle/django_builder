@@ -1131,7 +1131,7 @@ function ProjectFactory() {
         _this.http.get('app/partials/py/manage.py').then(function(e){_this.manage_py=e.data});
         _this.http.get('app/partials/py/urls.py').then(function(e){_this.urls_py=e.data});
         _this.http.get('app/partials/py/wsgi.py').then(function(e){_this.wsgi_py=e.data});
-        _this.http.get('app/partials/py/_channels.py').then(function(e){_this._channels_py=e.data});
+        _this.http.get('app/partials/py/channels.py').then(function(e){_this._channels_py=e.data});
 
         _this.load = function(py, project_name){
           return _this.http.get(py).then(function(e){
