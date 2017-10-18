@@ -37,7 +37,7 @@ describe('Testing ModelController', function () {
         $httpBackend.when('GET', 'app/partials/py/manage.py').respond('');
         $httpBackend.when('GET', 'app/partials/py/urls.py').respond('');
         $httpBackend.when('GET', 'app/partials/py/wsgi.py').respond('');
-        $httpBackend.when('GET', 'app/partials/py/_channels.py').respond('');
+        $httpBackend.when('GET', 'app/partials/py/channels.py').respond('');
 
         project_factory = $injector.get('ProjectFactory');
 
