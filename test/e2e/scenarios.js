@@ -126,6 +126,6 @@ describe('Builder App', function () {
                     });
                 });
             });
-        }, 60000); // 60 second jamine timeout
+        }, 120000); // 120 second jamine timeout
     });
 });
