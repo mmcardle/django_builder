@@ -40,17 +40,8 @@
                 <li class="builder_nav"><a href="#!/models">Model Builder</a></li>
                 <li class="builder_nav"><a href="#!/project">Project Config</a></li>
                 <li class="builder_nav"><a href="#!/channels">Django Channels <span class="label label-success">NEW</span></a></li>
-                <li>
-                    <div class="navbar-link" style="padding-top:15px;margin-left: 20px;">
-                         <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="display: inline;vertical-align: baseline">
-                             <input type="hidden" name="cmd" value="_s-xclick">
-                             <input type="hidden" name="hosted_button_id" value="J7LKKP24K42D8">
-                             <input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif"
-                                    border="0" name="submit" alt="PayPal – The safer, easier way to pay online!"
-                                    style="">
-                             <img alt="" border="0" src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" width="1" height="1">
-                         </form>
-                     </div>
+                <li class="builder_nav"><a data-toggle="modal" data-target="#donateModal" role="button">
+                    <i class="fa fa-info-circle" aria-hidden="true"></i> Donate</a>
                 </li>
             </ul>
             <div class="navbar-text pull-right">
@@ -62,6 +53,47 @@
     </div>
 
     <div ng-view></div>
+</div>
+
+<div class="modal fade" id="donateModal" tabindex="-1" role="dialog" aria-labelledby="donateModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h2 class="modal-title modal-header-inner" id="donateModalLabel">Donations Welcome</h2>
+      </div>
+      <div class="modal-body">
+        <br/>
+        <p>Django builder is free to use, and a personal project worked on in my spare time.
+          Any donations are very much appreciated.
+        </p>
+        <br/>
+        <div class="text-center">
+
+          <em><i class="fa fa-btc" aria-hidden="true"></i> Bitcoin Address:</em>
+          <code>1J7JaUA5YhowVNtWCEoSh2tUD7pVJQfwcx</code>
+
+          <br/><br/>
+          <img class="thumbnail text-center" src="app/img/bitcoin_add.png" style="padding:10px;margin:auto" />
+          <br/>
+
+          <em><i class="fa fa-paypal" aria-hidden="true"></i> Donate with Paypal:</em>
+          <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+              <input type="hidden" name="cmd" value="_s-xclick">
+              <input type="hidden" name="hosted_button_id" value="J7LKKP24K42D8">
+              <input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif"
+                     border="0" name="submit" alt="PayPal – The safer, easier way to pay online!"
+                     style="margin-top:10px;">
+              <img alt="" border="0" src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" width="1" height="1">
+          </form>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
 <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser.
