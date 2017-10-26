@@ -318,13 +318,12 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var modal = $scope.messageService.simple_form(
                     'Upload models.py', 'Choose a models.py file to analyse',
                     form, function(){
-                        $scope.process_models_py(jQuery(input)[0].files);
                         modal.modal('hide');
                     }
                 ).modal('show');
 
-                input.change(function(){
-                    $scope.process_models_py(jQuery(input)[0].files);
+                input.change(function(e){
+                    $scope.process_models_py(e.target.files);
                     modal.modal('hide');
                 });
 

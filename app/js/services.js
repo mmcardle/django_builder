@@ -1038,7 +1038,7 @@ function ModelParserFactory() {
                     var current_model = null;
                     var multi_line = '';
 
-                    var model_regex = new RegExp("class\ ([a-zA-Z_]*)[\(]([a-zA-Z._]*)[\)][\:]$");
+                    var model_regex = new RegExp("class\ ([a-zA-Z_0-9]*)[\(]([a-zA-Z._]*)[\)][\:]$");
                     var field_regex = new RegExp("^([a-zA-Z0-9_]+)\ \=\ ([a-zA-Z0-9._]+)[\(](.*)[\)]$");
 
                     jQuery.each(lines, function (i, line) {

@@ -5,7 +5,7 @@
 describe('service', function () {
     beforeEach(module('builder.services'));
 
-    var $scope, $http, $rootScope, model_factory, field_factory,
+    var $scope, $http, $rootScope, model_factory, field_factory, parserFactory,
         relationship_factory, message_service, renderFactory, tarballFactory;
 
     beforeEach(inject(function ($injector) {
@@ -17,6 +17,7 @@ describe('service', function () {
         message_service = $injector.get('MessageService');
         renderFactory = $injector.get('RenderFactory');
         tarballFactory = $injector.get('TarballFactory');
+        parserFactory = $injector.get('ModelParser');
         $scope = $rootScope.$new();
         // Prepare $scope
         $scope.models = [];
@@ -24,7 +25,42 @@ describe('service', function () {
         $scope.field_factory = new field_factory();
         $scope.relationship_factory = new relationship_factory();
         $scope.render_factory = new renderFactory();
+        $scope.model_factory = model_factory;
     }));
+
+    it('parserFactory correctly parses a model', function (done) {
+        const pfactory = parserFactory($scope)
+        const model_text = "class MyModel(Model):\n";
+        pfactory.parse(new Blob([model_text]), function(models){
+            expect(models.length).toBe(1)
+            expect(models[0].name).toBe('MyModel')
+            expect(models[0].fields.length).toBe(0)
+            done()
+        })
+    });
+
+    it('parserFactory correctly parses a model with numbers', function (done) {
+        const pfactory = parserFactory($scope)
+        const model_text = "class MyModel01(Model):\n";
+        pfactory.parse(new Blob([model_text]), function(models){
+            expect(models.length).toBe(1)
+            expect(models[0].name).toBe('MyModel01')
+            expect(models[0].fields.length).toBe(0)
+            done()
+        })
+    });
+
+    it('parserFactory correctly parses a model with fields', function (done) {
+        const pfactory = parserFactory($scope)
+        const model_text = "class MyModelWithFields(Model):\n    name = models.CharField(max_length=255)\n";
+        pfactory.parse(new Blob([model_text]), function(models){
+            expect(models.length).toBe(1)
+            expect(models[0].name).toBe('MyModelWithFields')
+            expect(models[0].fields.length).toBe(1)
+            expect(models[0].fields[0].name).toBe('name')
+            done()
+        })
+    });
 
     it('have message service checks', function () {
         var ms = new message_service();
@@ -82,11 +118,11 @@ describe('service', function () {
         expect($scope.render_factory.new_lines().length).toBe(1);
         expect($scope.render_factory.new_lines(1).length).toBe(1);
         expect($scope.render_factory.new_lines(2).length).toBe(2);
-        
+
         expect($scope.render_factory.spaces().length).toBe(1);
         expect($scope.render_factory.spaces(1).length).toBe(1);
         expect($scope.render_factory.spaces(2).length).toBe(2);
-        
+
         var render0 = $scope.render_factory.render_all('app_name', []);
         expect(render0.length).toBeGreaterThan(500);
         var model_name = 'Model';

@@ -7,6 +7,9 @@
 h4 {
     color: #ff4136;
 }
+.modal {
+    overflow-y: scroll
+}
 .modal-header, .modal-body, .modal-footer {
     padding: 15px 15px;
 }
