@@ -1,5 +1,5 @@
 from channels.routing import route
-from encode_api.consumers import ws_message, ws_job_connect, ws_disconnect
+from .consumers import ws_message, ws_job_connect, ws_disconnect
 
 channel_routing = [
     route("websocket.connect", ws_job_connect, path=r"^/ws/(?P<group_id>[a-zA-Z0-9_-]+)/$"),  # noqa
