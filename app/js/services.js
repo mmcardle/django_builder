@@ -854,13 +854,27 @@ function ModelServiceFactory() {
                     else if (renderer.built_in_models[relationship.to]) {
                         module = relationship.to_class();
                     }
-
                     if (renderer.pre_imported_modules_names().indexOf(relationship.module()) == -1) {
-                        cls += renderer.spaces(4) + relationship.name + ' = ' + relationship.class_name() + '(' + module + ', ' + relationship.opts + ')';
+                        cls += renderer.spaces(4) + relationship.name + ' = ' + relationship.class_name() + '(';
                     } else {
                         var _as = renderer.pre_imported_modules()[relationship.module()]['as'];
-                        cls += renderer.spaces(4) + relationship.name + ' = ' + _as + '.' + relationship.class_name() + '(' + module + ', ' + relationship.opts + ')';
+                        cls += renderer.spaces(4) + relationship.name + ' = ' + _as + '.' + relationship.class_name() + '('
                     }
+                    if(relationship.opts){
+                      if(relationship.type!="django.db.models.ManyToManyField"){
+                        cls += renderer.new_lines(1) + renderer.spaces(8);
+                      }
+                      cls += relationship.opts + ', ';
+                    }
+
+                    if(relationship.type!="django.db.models.ManyToManyField"){
+                      cls += 'on_delete=models.CASCADE';
+                      if(relationship.opts){
+                        cls += renderer.new_lines(1) + renderer.spaces(4)
+                      }
+                    }
+                    cls += ')';
+
                     cls += renderer.new_lines(1);
                 });
                 return cls;
@@ -1072,7 +1086,7 @@ function ModelParserFactory() {
                                     var raw_opts = matched_content[3].split(',');
                                     var rel_to = raw_opts.shift();
                                     var rel_opts = raw_opts.join(",").trim();
-                                    console.log('Model:', current_model.name, 'Relationship:', rel_name, rel_type, rel_to, rel_opts );
+                                    //console.log('Model:', current_model.name, 'Relationship:', rel_name, rel_type, rel_to, rel_opts );
                                     current_model.relationships.push($scope.relationship_factory.make_relationship({
                                         'name': rel_name, 'type': rel_type, 'opts': rel_opts, 'to': rel_to
                                     }));
@@ -1080,7 +1094,7 @@ function ModelParserFactory() {
                                     var f_name = matched_content[1];
                                     var f_type = matched_content[2];
                                     var f_opts = matched_content[3];
-                                    console.log('Model:', current_model.name, 'Field:', f_name, f_type, f_opts);
+                                    //console.log('Model:', current_model.name, 'Field:', f_name, f_type, f_opts);
                                     current_model.fields.push($scope.field_factory.make_field({
                                         'name': f_name, 'type': f_type, 'opts': f_opts
                                     }));
