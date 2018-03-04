@@ -36,6 +36,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.models_storage_key = 'local_models';
             $scope._app_name = 'app_name';
             $scope._project_name = 'project_name';
+            $scope.DJANGO_11 = '1.1'
+            $scope.DJANGO_2X = '2.0'
+            $scope._django_version = $scope.DJANGO_2X;
 
             $scope.create_tar_ball_url = function(include_project, include_channels){
                 var README = 'Built with django_builder\n';
@@ -44,11 +47,11 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 const project_name = $scope.project_name();
                 const app_name = $scope.app_name();
 
-                var models = $scope.render_factory.render_models_py(app_name, $scope.models);
+                var models = $scope.render_factory.render_models_py(app_name, $scope.models, $scope.django2());
                 var views = $scope.render_factory.render_views_py(app_name, $scope.models);
                 var admin = $scope.render_factory.render_admin_py(app_name, $scope.models);
-                var urls = $scope.render_factory.render_urls_py(app_name, $scope.models);
-                var tests = $scope.render_factory.render_tests_py(app_name, $scope.models);
+                var urls = $scope.render_factory.render_urls_py(app_name, $scope.models, $scope.django2());
+                var tests = $scope.render_factory.render_tests_py(app_name, $scope.models, $scope.django2());
                 var forms = $scope.render_factory.render_forms_py(app_name, $scope.models);
                 var api = $scope.render_factory.render_django_rest_framework_api_py(app_name, $scope.models);
                 var serializers = $scope.render_factory.render_django_rest_framework_serializers_py(app_name, $scope.models);
@@ -62,7 +65,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 if(include_project){
                     root_folder = project_name+'/'+app_name;
 
-                    var project_requirements = $scope.project_factory.render_project_requirements(include_channels);
+                    var project_requirements = $scope.project_factory.render_project_requirements(include_channels, $scope.django2());
                     var project_settings = $scope.project_factory.render_project_settings_py(project_name, app_name, include_channels);
                     var project_urls = $scope.project_factory.render_project_urls_py(app_name);
                     var project_manage = $scope.project_factory.render_project_manage_py(project_name);
@@ -372,7 +375,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
                 switch(_id) {
                   case "builder_models":
-                    set_editor_value($scope.render_factory.render_models_py($scope.app_name(), $scope.models));
+                    set_editor_value($scope.render_factory.render_models_py($scope.app_name(), $scope.models, $scope.django2()));
                     break;
                   case "builder_views":
                     set_editor_value($scope.render_factory.render_views_py($scope.app_name(), $scope.models));
@@ -381,10 +384,10 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     set_editor_value($scope.render_factory.render_admin_py($scope.app_name(), $scope.models));
                     break;
                   case "builder_urls":
-                    set_editor_value($scope.render_factory.render_urls_py($scope.app_name(), $scope.models));
+                    set_editor_value($scope.render_factory.render_urls_py($scope.app_name(), $scope.models, $scope.django2()));
                     break;
                   case "builder_tests":
-                    set_editor_value($scope.render_factory.render_tests_py($scope.app_name(), $scope.models));
+                    set_editor_value($scope.render_factory.render_tests_py($scope.app_name(), $scope.models,  $scope.django2()));
                     break;
                   case "builder_forms":
                     set_editor_value($scope.render_factory.render_forms_py($scope.app_name(), $scope.models));
@@ -396,7 +399,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     $scope.project_factory.load('app/partials/py/channels.py', $scope.app_name()).then(function(data){set_editor_value(data)})
                     break;
                   case "builder_requirements":
-                    set_editor_value($scope.project_factory.render_project_requirements());
+                    set_editor_value($scope.project_factory.render_project_requirements(true, $scope.django2()));
                     break;
                   case "builder_wsgi":
                     $scope.project_factory.load('app/partials/py/asgi.py', $scope.app_name()).then(function(data){set_editor_value(data)})
@@ -438,7 +441,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 $scope.editors.push(_editor);
             };
 
-            $scope.$watch("[models,_app_name,_project_name]", function() {
+            $scope.$watch("[models,_app_name,_project_name,_django_version]", function() {
                 $scope.reLoadAce();
                 $scope.saveApp();
             }, true);
@@ -460,6 +463,22 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.set_project_name = function () {
                 $scope.do_set_project_name(jQuery('input#projectname').val());
                 $scope.reLoadAce();
+            };
+            $scope.django2 = function (version) {
+              return $scope._django_version == $scope.DJANGO_2X;
+            }
+            $scope.django2_class = function (version) {
+              return $scope.django2() ? 'btn btn-info active' : 'btn btn-info'
+            };
+            $scope.django1_class = function (version) {
+              return !$scope.django2() ? 'btn btn-info active' : 'btn btn-info'
+            };
+            $scope.set_django_version = function (version) {
+                $scope._django_version = version;
+                $scope.reLoadAce();
+            };
+            $scope.django_version = function (version) {
+                return $scope._django_version
             };
             $scope.l_app_name = function () {
                 return $scope._app_name.toLowerCase();
@@ -485,7 +504,8 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     'models': $scope.models,
                     'app_config': {
                         'app_name': $scope._app_name,
-                        'project_name': $scope._project_name
+                        'project_name': $scope._project_name,
+                        'django_version': $scope._django_version
                     }
                 };
                 return JSON.stringify(config);
@@ -587,13 +607,15 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             };
 
             $scope.loadModels = function(){
-                const _default_app_config = {'app_name': 'app_name', 'project_name': 'project_name'}
+                const _default_app_config = {'app_name': 'app_name', 'project_name': 'project_name', 'django_version': $scope.DJANGO_2X};
                 var loaded_app = localStorageService.get($scope.models_storage_key) || {'models': [], 'app_config': _default_app_config};
                 if(typeof loaded_app == "string"){loaded_app = JSON.parse(loaded_app);}
                 var loaded_models = loaded_app["models"] || [];
-                var loaded_app_config = loaded_app['app_config'] || { 'app_name': 'app_name', 'project_name': 'project_name'};
+                var loaded_app_config = loaded_app['app_config'] || { 'app_name': 'app_name', 'project_name': 'project_name', 'django_version': $scope.DJANGO_2X};
                 $scope._app_name = loaded_app_config['app_name'];
                 $scope._project_name = loaded_app_config['project_name'];
+                $scope._django_version = loaded_app_config['django_version'] || $scope.DJANGO_2X;
+                $scope.set_django_version($scope._django_version)
                 jQuery.each(loaded_models, function(i, model){
                     $scope.cleanModel(model);
                 });
