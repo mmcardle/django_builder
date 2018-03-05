@@ -55,7 +55,7 @@ describe('Builder App', function () {
 
         it('should render home when user navigates to #!/home', function () {
             expect(element.all(by.css('[ng-view] h1')).first().getText()).toMatch('Django Builder');
-            expect(element.all(by.css('[ng-view] span.label')).first().getText()).toMatch('Django 1.10.X');
+            expect(element.all(by.css('[ng-view] span.label')).first().getText()).toMatch('Django 2.0.X');
             expect(element.all(by.css('[ng-view] p')).first().getText()).toMatch('building things....');
         });
 
