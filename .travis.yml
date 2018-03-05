@@ -4,6 +4,7 @@ dist: trusty
 node_js:
   - 8
 
+sudo: required
 addons:
   firefox: "47.0"
   chrome: stable
