@@ -41,15 +41,15 @@ function ModelRenderFactory() {
             var _n = n ||1;
             return new Array(_n+1).join("\n");
         };
-        _this.render_all = function(app_name, models){
+        _this.render_all = function(app_name, models, django2){
             // Primary used for testing
             var all_output = '';
             all_output+=_this.render_base_html(app_name, models);
             all_output+=_this.render_forms_py(app_name, models);
-            all_output+=_this.render_urls_py(app_name, models);
+            all_output+=_this.render_urls_py(app_name, models, django2);
             all_output+=_this.render_admin_py(app_name, models);
             all_output+=_this.render_views_py(app_name, models);
-            all_output+=_this.render_models_py(app_name, models);
+            all_output+=_this.render_models_py(app_name, models, django2);
             all_output+=_this.render_django_rest_framework_api_py(app_name, models);
             all_output+=_this.render_django_rest_framework_serializers_py(app_name, models);
             all_output+=_this.render_templates_html(app_name, models);
@@ -81,8 +81,15 @@ function ModelRenderFactory() {
 
             return tests_py;
         };
-        _this.render_tests_py = function (app_name, models) {
-            var tests_py = 'import unittest\nfrom django.core.urlresolvers import reverse\nfrom django.test import Client\n';
+        _this.render_tests_py = function (app_name, models, django2) {
+            var tests_py = 'import unittest\n';
+
+            if(django2){
+                tests_py += 'from django.urls import reverse\n';
+            }else{
+                tests_py += 'from django.core.urlresolvers import reverse\n';
+            }
+            tests_py += 'from django.test import Client\n';
 
             tests_py += 'from .models import '+_this.model_names(models, '').join(', ')+'\n';
             jQuery.each(_this.built_in_models, function(model, model_details){
@@ -121,9 +128,15 @@ function ModelRenderFactory() {
 
             return tests_py;
         };
-        _this.render_urls_py = function (app_name, models) {
-            var urls_py = 'from django.conf.urls import url, include\n';
-            urls_py += 'from rest_framework import routers'+_this.new_lines(1);
+        _this.render_urls_py = function (app_name, models, django2) {
+            var urls_py = '';
+            var path_import = django2 ? 'path' : 'url';
+            if(django2){
+              urls_py += 'from django.urls import path, include\n';
+            }else{
+              urls_py += 'from django.conf.urls import url, include\n';
+            }
+            urls_py += 'from rest_framework import routers'+_this.new_lines(2);
             urls_py += 'from . import api'+_this.new_lines(1);
             urls_py += 'from . import views'+_this.new_lines(2);
 
@@ -134,12 +147,16 @@ function ModelRenderFactory() {
             urls_py += _this.new_lines(2);
             urls_py += 'urlpatterns = ('+_this.new_lines(1);
             urls_py += _this.spaces(4)+'# urls for Django Rest Framework API'+_this.new_lines(1);
-            urls_py += _this.spaces(4)+'url(r\'^api/v1/\', include(router.urls)),'+_this.new_lines(1);
+            if(django2){
+                urls_py += _this.spaces(4)+path_import+'(\'api/v1/\', include(router.urls)),'+_this.new_lines(1);
+            }else{
+                urls_py += _this.spaces(4)+path_import+'(r\'^api/v1/\', include(router.urls)),'+_this.new_lines(1);
+            }
             urls_py += ')'+_this.new_lines(1);
             urls_py += _this.new_lines(1);
 
             jQuery.each(models, function(i, model){
-                urls_py += model.render_urls(app_name, _this);
+                urls_py += model.render_urls(app_name, _this, django2);
             });
 
             return urls_py;
@@ -168,8 +185,13 @@ function ModelRenderFactory() {
 
             return views_py;
         };
-        _this.render_models_py = function (app_name, models) {
-            var models_py =  'from django.core.urlresolvers import reverse\n';
+        _this.render_models_py = function (app_name, models, django2) {
+            var models_py = '';
+            if(django2){
+              models_py += 'from django.urls import reverse\n';
+            }else{
+              models_py += 'from django.core.urlresolvers import reverse\n';
+            }
             models_py += 'from django_extensions.db.fields import AutoSlugField\n';
             models_py += 'from django.db.models import *\n';
             models_py += 'from django.conf import settings\n';
@@ -660,6 +682,14 @@ function ModelServiceFactory() {
                     return 'pk';
                 }
             };
+            this.identifier_is_slug = function () {
+                // TODO - find another name AutoSlugField
+                if(this.field_names().indexOf('slug')!=-1){
+                    return true;
+                }else{
+                    return false;
+                }
+            };
             this.render_forms = function(app_name, renderer){
                 var urls = '';
 
@@ -751,16 +781,31 @@ function ModelServiceFactory() {
 
                 return tests;
             };
-            this.render_urls = function(app_name, renderer){
+            this.render_urls = function(app_name, renderer, django2){
                 var urls = '';
+                var path_import = django2 ? 'path' : 'url';
 
                 urls += 'urlpatterns += (\n';
                 urls += renderer.spaces(4)+'# urls for '+this.name+'\n';
 
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/$\', views.'+this.name+'ListView.as_view(), name=\''+app_name+'_'+this.l_name()+'_list\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/create/$\', views.'+this.name+'CreateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_create\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/detail/(?P<'+this.identifier()+'>\\S+)/$\', views.'+this.name+'DetailView.as_view(), name=\''+app_name+'_'+this.l_name()+'_detail\'),\n';
-                urls += renderer.spaces(4)+'url(r\'^'+app_name+'/'+this.l_name()+'/update/(?P<'+this.identifier()+'>\\S+)/$\', views.'+this.name+'UpdateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_update\'),\n';
+                if(django2){
+                  var prefix = renderer.spaces(4)+path_import+'(\''+app_name+'/'+this.l_name();
+                  if(this.identifier_is_slug()){
+                    var url_identifier = '<slug:'+this.identifier()+'>'
+                  }else{
+                    var url_identifier = '<int:'+this.identifier()+'>'
+                  }
+                  urls += prefix+'/\', views.'+this.name+'ListView.as_view(), name=\''+app_name+'_'+this.l_name()+'_list\'),\n';
+                  urls += prefix+'/create/\', views.'+this.name+'CreateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_create\'),\n';
+                  urls += prefix+'/detail/'+url_identifier+'/\', views.'+this.name+'DetailView.as_view(), name=\''+app_name+'_'+this.l_name()+'_detail\'),\n';
+                  urls += prefix+'/update/'+url_identifier+'/\', views.'+this.name+'UpdateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_update\'),\n';
+                }else{
+                  var prefix = renderer.spaces(4)+path_import+'(r\'^'+app_name+'/'+this.l_name();
+                  urls += prefix+'/$\', views.'+this.name+'ListView.as_view(), name=\''+app_name+'_'+this.l_name()+'_list\'),\n';
+                  urls += prefix+'/create/$\', views.'+this.name+'CreateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_create\'),\n';
+                  urls += prefix+'/detail/(?P<'+this.identifier()+'>\\S+)/$\', views.'+this.name+'DetailView.as_view(), name=\''+app_name+'_'+this.l_name()+'_detail\'),\n';
+                  urls += prefix+'/update/(?P<'+this.identifier()+'>\\S+)/$\', views.'+this.name+'UpdateView.as_view(), name=\''+app_name+'_'+this.l_name()+'_update\'),\n';
+                }
 
                 urls += ')\n';
                 urls += renderer.new_lines(1);
@@ -854,13 +899,27 @@ function ModelServiceFactory() {
                     else if (renderer.built_in_models[relationship.to]) {
                         module = relationship.to_class();
                     }
-
                     if (renderer.pre_imported_modules_names().indexOf(relationship.module()) == -1) {
-                        cls += renderer.spaces(4) + relationship.name + ' = ' + relationship.class_name() + '(' + module + ', ' + relationship.opts + ')';
+                        cls += renderer.spaces(4) + relationship.name + ' = ' + relationship.class_name() + '(';
                     } else {
                         var _as = renderer.pre_imported_modules()[relationship.module()]['as'];
-                        cls += renderer.spaces(4) + relationship.name + ' = ' + _as + '.' + relationship.class_name() + '(' + module + ', ' + relationship.opts + ')';
+                        cls += renderer.spaces(4) + relationship.name + ' = ' + _as + '.' + relationship.class_name() + '('
                     }
+                    if(relationship.opts){
+                      if(relationship.type!="django.db.models.ManyToManyField"){
+                        cls += renderer.new_lines(1) + renderer.spaces(8);
+                      }
+                      cls += relationship.opts + ', ';
+                    }
+
+                    if(relationship.type!="django.db.models.ManyToManyField"){
+                      cls += 'on_delete=models.CASCADE';
+                      if(relationship.opts){
+                        cls += renderer.new_lines(1) + renderer.spaces(4)
+                      }
+                    }
+                    cls += ')';
+
                     cls += renderer.new_lines(1);
                 });
                 return cls;
@@ -1072,7 +1131,7 @@ function ModelParserFactory() {
                                     var raw_opts = matched_content[3].split(',');
                                     var rel_to = raw_opts.shift();
                                     var rel_opts = raw_opts.join(",").trim();
-                                    console.log('Model:', current_model.name, 'Relationship:', rel_name, rel_type, rel_to, rel_opts );
+                                    //console.log('Model:', current_model.name, 'Relationship:', rel_name, rel_type, rel_to, rel_opts );
                                     current_model.relationships.push($scope.relationship_factory.make_relationship({
                                         'name': rel_name, 'type': rel_type, 'opts': rel_opts, 'to': rel_to
                                     }));
@@ -1080,7 +1139,7 @@ function ModelParserFactory() {
                                     var f_name = matched_content[1];
                                     var f_type = matched_content[2];
                                     var f_opts = matched_content[3];
-                                    console.log('Model:', current_model.name, 'Field:', f_name, f_type, f_opts);
+                                    //console.log('Model:', current_model.name, 'Field:', f_name, f_type, f_opts);
                                     current_model.fields.push($scope.field_factory.make_field({
                                         'name': f_name, 'type': f_type, 'opts': f_opts
                                     }));
@@ -1147,11 +1206,19 @@ function ProjectFactory() {
             });
             return template;
         };
-        _this.render_project_requirements = function(include_channels){
-            var requirements = "Django==1.10.8\n";
-            requirements += "django-crispy-forms==1.6.1\n";
-            requirements += "django-extensions==1.7.5\n";
-            requirements += "djangorestframework==3.5.3\n";
+        _this.render_project_requirements = function(include_channels, django2){
+            var requirements = "";
+            if(django2){
+              requirements += "Django>=2\n";
+              requirements += "django-extensions>=2\n";
+              requirements += "djangorestframework==3.7.7\n";
+              requirements += "django-crispy-forms==1.7.0\n";
+            }else{
+              requirements += "Django>=1.11,<2\n";
+              requirements += "django-extensions==1.7.5\n";
+              requirements += "djangorestframework==3.5.3\n";
+              requirements += "django-crispy-forms==1.6.1\n";
+            }
             if(include_channels){
               requirements += "channels==1.1.8\n";
             }
