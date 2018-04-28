@@ -34,7 +34,8 @@ const test_func = function(tempfolder, virtualenv_test_cmd, python_test_cmd, fin
 
 const create_command = function(python, tmpobj){
   var command = 'virtualenv virt-'+python+' -p '+python+' ';
-  command += '&& . ' + tmpobj.name + '/virt-'+python+'/bin/activate';
+  command += '&& . ' + tmpobj.name + '/virt-'+python+'/bin/activate ';
+  command += '&& pip install -U pip ';
   command += '&& pip install -r ' + tmpobj.name + '/requirements.txt';
   return command
 }
@@ -44,7 +45,7 @@ describe('Builder App', function () {
     browser.get('/');
 
     it('should automatically redirect to /home when location hash/fragment is empty', function () {
-        expect(browser.getLocationAbsUrl()).toMatch("/home");
+        expect(browser.getCurrentUrl()).toMatch("/home");
     });
 
     describe('home', function () {

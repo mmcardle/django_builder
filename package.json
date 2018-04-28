@@ -23,8 +23,6 @@
     "grunt-contrib-uglify": "~2.0.0",
     "grunt-contrib-watch": "1.0.0",
     "grunt-karma": "~2.0.0",
-    "hawk": "^7.0.7",
-    "hoek": "^5.0.3",
     "html5-boilerplate": "~5.3.0",
     "http-server": "^0.9.0",
     "jasmine-core": "^2.3.4",
@@ -36,12 +34,12 @@
     "karma-junit-reporter": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.2",
     "phantomjs": "^2.1.7",
-    "protractor": "~4.0.11",
+    "protractor": "^5.3.1",
     "select2": "^4.0.3",
     "select2-bootstrap-theme": "0.1.0-beta.9",
     "shelljs": "^0.7.5",
     "tmp": "0.0.33",
-    "webdriver-manager": "^10.2.10"
+    "webdriver-manager": "^12.0.6"
   },
   "scripts": {
     "prestart": "npm install",
@@ -56,5 +54,9 @@
     "preprotractor": "npm run update-webdriver",
     "protractor": "protractor test/protractor-conf.js",
     "update-index-async": "node -e \"require('shelljs/global'); sed('-i', /\\/\\/@@NG_LOADER_START@@[\\s\\S]*\\/\\/@@NG_LOADER_END@@/, '//@@NG_LOADER_START@@\\n' + cat('app/bower_components/angular-loader/angular-loader.min.js') + '\\n//@@NG_LOADER_END@@', 'app/index-async.html');\""
+  },
+  "dependencies": {
+    "hawk": "^7.0.7",
+    "hoek": "^5.0.3"
   }
 }
