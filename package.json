@@ -23,6 +23,8 @@
     "grunt-contrib-uglify": "~2.0.0",
     "grunt-contrib-watch": "1.0.0",
     "grunt-karma": "~2.0.0",
+    "hawk": "^7.0.7",
+    "hoek": "^5.0.3",
     "html5-boilerplate": "~5.3.0",
     "http-server": "^0.9.0",
     "jasmine-core": "^2.3.4",
@@ -54,9 +56,5 @@
     "preprotractor": "npm run update-webdriver",
     "protractor": "protractor test/protractor-conf.js",
     "update-index-async": "node -e \"require('shelljs/global'); sed('-i', /\\/\\/@@NG_LOADER_START@@[\\s\\S]*\\/\\/@@NG_LOADER_END@@/, '//@@NG_LOADER_START@@\\n' + cat('app/bower_components/angular-loader/angular-loader.min.js') + '\\n//@@NG_LOADER_END@@', 'app/index-async.html');\""
-  },
-  "dependencies": {
-    "hawk": "^7.0.7",
-    "hoek": "^5.0.3"
   }
 }
