@@ -252,7 +252,7 @@ describe('Testing ModelController', function () {
         var ff = $scope.field_factory;
         var rf = $scope.relationship_factory;
 
-        expect(ff.field_types().length).toBe(30);
+        expect(ff.field_types().length).toBe(36);
         expect(rf.relationship_types().length).toBe(3);
 
         // Field
