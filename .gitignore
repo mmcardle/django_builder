@@ -8,6 +8,7 @@ node_modules/
 coverage/
 test_out/
 tmp
+__py_cache__
 .DS_Store
 Chrome_*
 FireFox_*

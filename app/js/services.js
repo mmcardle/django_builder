@@ -193,7 +193,20 @@ function ModelRenderFactory() {
               models_py += 'from django.core.urlresolvers import reverse\n';
             }
             models_py += 'from django_extensions.db.fields import AutoSlugField\n';
-            models_py += 'from django.db.models import *\n';
+
+            var field_imports = []
+            jQuery.each(models, function(i, model){
+                jQuery.each(model.fields, function(i, field){
+                  var import_field = 'from ' + field.module() + ' import ' + field.class_name() + '\n'
+                  if (field_imports.indexOf(import_field) == -1){
+                    field_imports.push(import_field);
+                  }
+                });
+            });
+            var sorted_field_imports = field_imports.sort()
+            jQuery.each(sorted_field_imports, function(i, field_import){
+                models_py += field_import;
+            })
             models_py += 'from django.conf import settings\n';
             models_py += 'from django.contrib.contenttypes.fields import GenericForeignKey\n';
             models_py += 'from django.contrib.contenttypes.models import ContentType\n';
@@ -511,7 +524,7 @@ function RelationshipFactory() {
                 form_div3.append(select);
                 form_div4.append(jQuery('<label>').text('Arguments'));
                 form_div4.append(jQuery('<input>').attr('name', 'opts')
-                    .attr('placeholder', 'options').addClass('form-control').val(this.args));
+                    .attr('placeholder', 'options').addClass('form-control').val(this.opts));
                 return form;
             };
         }
@@ -530,7 +543,7 @@ function FieldFactory() {
                 'django.contrib.contenttypes.fields.GenericForeignKey': {default_args: '\"content_type\", \"object_id\"'},
                 'django_extensions.db.fields.AutoSlugField': {},
                 'django.contrib.postgres.fields.ArrayField': {default_args: 'models.CharField(max_length=100)'},
-                'django.contrib.postgres.fields.CICharField': {},
+                'django.contrib.postgres.fields.CICharField': {default_args: 'max_length=30'},
                 'django.contrib.postgres.fields.CIEmailField': {},
                 'django.contrib.postgres.fields.CITextField': {},
                 'django.contrib.postgres.fields.HStoreField': {},
@@ -897,6 +910,23 @@ function ModelServiceFactory() {
                     cls += renderer.spaces(4) + "# Relationship Fields";
                     cls += renderer.new_lines(1);
                 }
+
+                // Create a related name mapping if we have multiple relationships
+                // to the same model
+                const relatedList = []
+                const relatedNames = {}
+                const relatedIndexs = {}
+                this.relationships.forEach(function (relationship) {
+                  const toClass = relationship.to_class()
+                  relatedIndexs[toClass] = (relatedIndexs[toClass] || 0) + 1
+                  if (relatedList.indexOf(toClass) === -1) {
+                    relatedNames[relationship.name] = toClass.toLowerCase() + "s"
+                  } else {
+                    relatedNames[relationship.name] = toClass.toLowerCase() + "s_" + relatedIndexs[toClass]
+                  }
+                  relatedList.push(toClass)
+                })
+
                 jQuery.each(this.relationships, function (i, relationship) {
                     var module = '\''+ app_name + '.' + relationship.to_clean() +'\'';
                     if(relationship.external_app){
@@ -906,8 +936,7 @@ function ModelServiceFactory() {
                     // If the to field of the module is a built in class then use that as the relationship
                     if(relationship.to == $scope.user_model){
                         module = $scope.user_model_setting;
-                    }
-                    else if (renderer.built_in_models[relationship.to]) {
+                    } else if (renderer.built_in_models[relationship.to]) {
                         module = relationship.to_class();
                     }
                     if (renderer.pre_imported_modules_names().indexOf(relationship.module()) == -1) {
@@ -916,21 +945,25 @@ function ModelServiceFactory() {
                         var _as = renderer.pre_imported_modules()[relationship.module()]['as'];
                         cls += renderer.spaces(4) + relationship.name + ' = ' + _as + '.' + relationship.class_name() + '('
                     }
-                    if(relationship.opts){
-                      if(relationship.type!="django.db.models.ManyToManyField"){
-                        cls += renderer.new_lines(1) + renderer.spaces(8);
-                      }
-                      cls += relationship.opts + ', ';
-                    }
+                    cls += renderer.new_lines(1) + renderer.spaces(8);
 
+                    cls += module
+                    cls += ',';
                     if(relationship.type!="django.db.models.ManyToManyField"){
-                      cls += 'on_delete=models.CASCADE';
-                      if(relationship.opts){
-                        cls += renderer.new_lines(1) + renderer.spaces(4)
-                      }
+                      cls += renderer.new_lines(1) + renderer.spaces(8);
+                      cls += 'on_delete=models.CASCADE, ';
+                    } else {
+                      cls += renderer.new_lines(1) + renderer.spaces(8);
                     }
-                    cls += ')';
 
+                    const related_name = relatedNames[relationship.name]
+
+                    cls += 'related_name="' + related_name + '"';
+                    if(relationship.opts){
+                      cls += ', ' + relationship.opts;
+                    }
+                    cls += renderer.new_lines(1) + renderer.spaces(4);
+                    cls += ')';
                     cls += renderer.new_lines(1);
                 });
                 return cls;
@@ -1230,6 +1263,7 @@ function ProjectFactory() {
               requirements += "djangorestframework==3.5.3\n";
               requirements += "django-crispy-forms==1.6.1\n";
             }
+            requirements += "psycopg2-binary==2.7.5\n";
             if(include_channels){
               requirements += "channels==1.1.8\n";
             }
