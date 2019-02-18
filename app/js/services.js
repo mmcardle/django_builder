@@ -916,13 +916,14 @@ function ModelServiceFactory() {
                 const relatedList = []
                 const relatedNames = {}
                 const relatedIndexs = {}
+                const modelName = this.name
                 this.relationships.forEach(function (relationship) {
                   const toClass = relationship.to_class()
                   relatedIndexs[toClass] = (relatedIndexs[toClass] || 0) + 1
                   if (relatedList.indexOf(toClass) === -1) {
-                    relatedNames[relationship.name] = toClass.toLowerCase() + "s"
+                    relatedNames[relationship.name] = modelName.toLowerCase() + "s"
                   } else {
-                    relatedNames[relationship.name] = toClass.toLowerCase() + "s_" + relatedIndexs[toClass]
+                    relatedNames[relationship.name] = modelName.toLowerCase() + "s_" + relatedIndexs[toClass]
                   }
                   relatedList.push(toClass)
                 })
