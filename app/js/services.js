@@ -959,9 +959,11 @@ function ModelServiceFactory() {
 
                     const related_name = relatedNames[relationship.name]
 
-                    cls += 'related_name="' + related_name + '"';
+                    if(relationship.opts.indexOf('related_name=') === -1){
+                        cls += 'related_name="' + related_name + '", ';
+                    }
                     if(relationship.opts){
-                      cls += ', ' + relationship.opts;
+                      cls += relationship.opts;
                     }
                     cls += renderer.new_lines(1) + renderer.spaces(4);
                     cls += ')';
