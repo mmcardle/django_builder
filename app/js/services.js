@@ -928,6 +928,8 @@ function ModelServiceFactory() {
                   relatedList.push(toClass)
                 })
 
+                console.log(relatedNames)
+
                 jQuery.each(this.relationships, function (i, relationship) {
                     var module = '\''+ app_name + '.' + relationship.to_clean() +'\'';
                     if(relationship.external_app){
@@ -958,11 +960,11 @@ function ModelServiceFactory() {
                     }
 
                     const related_name = relatedNames[relationship.name]
-
-                    if(relationship.opts.indexOf('related_name=') === -1){
+                    const opts = relationship.opts || ''
+                    if (opts.indexOf('related_name=') === -1) {
                         cls += 'related_name="' + related_name + '", ';
                     }
-                    if(relationship.opts){
+                    if (relationship.opts) {
                       cls += relationship.opts;
                     }
                     cls += renderer.new_lines(1) + renderer.spaces(4);
