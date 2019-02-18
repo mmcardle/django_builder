@@ -928,8 +928,6 @@ function ModelServiceFactory() {
                   relatedList.push(toClass)
                 })
 
-                console.log(relatedNames)
-
                 jQuery.each(this.relationships, function (i, relationship) {
                     var module = '\''+ app_name + '.' + relationship.to_clean() +'\'';
                     if(relationship.external_app){
