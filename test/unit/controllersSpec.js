@@ -170,22 +170,60 @@ describe('Testing ModelController', function () {
         var field = $scope.field_factory.make_field(field_opts, $scope);
 
         // Relationship
-        var rel_opts = {"name": 'Rel', "type": 'RelType', "to": 'RelTo'};
+        var rel_opts = {
+          "name": 'Rel',
+          "type": 'RelType',
+          "to": 'RelTo'
+        };
         var rel = $scope.relationship_factory.make_relationship(rel_opts);
+
+        // Relationship with args
+        var rel_with_args_opts = {
+          "name": 'RelWithArgs',
+          "type": 'RelTypeWithArgs',
+          "to": 'RelToWithArgs',
+          "opts": 'xxx=1'
+        };
+        var rel_with_args = $scope.relationship_factory.make_relationship(
+          rel_with_args_opts
+        );
+
+        // Relationship with RelatedName
+        var rel_with_related_name_opts = {
+          "name": 'RelWithName',
+          "type": 'RelTypeWithName',
+          "to": 'RelToWithName',
+          "opts": 'related_name="RelToWithName"'
+        };
+        var rel_with_related_name = $scope.relationship_factory.make_relationship(
+          rel_with_related_name_opts
+        );
 
         // Model
         var model_opts = {"name": 'ModelName'};
         var model = $scope.model_factory(model_opts, $scope);
         model.fields.push(field);
         model.relationships.push(rel);
+        model.relationships.push(rel_with_args);
+        model.relationships.push(rel_with_related_name);
         $scope.models.push(model);
 
         $scope.create_tar_ball_url(true, true).then(function(expected_tar_ball_url_app_channels){
           var tar_content3 = atob(expected_tar_ball_url_app_channels.slice(28));
           expect(tar_content3.length).toBe(30720);
-          expect(tar_content3.indexOf('ModelName')).toBeGreaterThan(0);
-          expect(tar_content3.indexOf('RelType')).toBeGreaterThan(0);
-          expect(tar_content3.indexOf('Field')).toBeGreaterThan(0);
+          expect(tar_content3).toContain('ModelName');
+          expect(tar_content3).toContain('Rel');
+          expect(tar_content3).toContain('RelType');
+          expect(tar_content3).toContain('related_name="modelnames"');
+          expect(tar_content3).toContain('related_name="modelnames"');
+          expect(tar_content3).toContain('RelWithArgs');
+          expect(tar_content3).toContain('RelTypeWithArgs');
+          expect(tar_content3).toContain('xxx=1');
+          expect(tar_content3).toContain('RelWithName');
+          expect(tar_content3).toContain('RelTypeWithName');
+          expect(tar_content3).toContain('related_name="RelToWithName"');
+          expect(tar_content3).toContain('Field');
+          expect(tar_content3).toContain('FieldType');
           done()
         }).catch(function(err){
           fail(err)

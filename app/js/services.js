@@ -916,13 +916,14 @@ function ModelServiceFactory() {
                 const relatedList = []
                 const relatedNames = {}
                 const relatedIndexs = {}
+                const modelName = this.name
                 this.relationships.forEach(function (relationship) {
                   const toClass = relationship.to_class()
                   relatedIndexs[toClass] = (relatedIndexs[toClass] || 0) + 1
                   if (relatedList.indexOf(toClass) === -1) {
-                    relatedNames[relationship.name] = toClass.toLowerCase() + "s"
+                    relatedNames[relationship.name] = modelName.toLowerCase() + "s"
                   } else {
-                    relatedNames[relationship.name] = toClass.toLowerCase() + "s_" + relatedIndexs[toClass]
+                    relatedNames[relationship.name] = modelName.toLowerCase() + "s_" + relatedIndexs[toClass]
                   }
                   relatedList.push(toClass)
                 })
@@ -957,10 +958,12 @@ function ModelServiceFactory() {
                     }
 
                     const related_name = relatedNames[relationship.name]
-
-                    cls += 'related_name="' + related_name + '"';
-                    if(relationship.opts){
-                      cls += ', ' + relationship.opts;
+                    const opts = relationship.opts || ''
+                    if (opts.indexOf('related_name=') === -1) {
+                        cls += 'related_name="' + related_name + '", ';
+                    }
+                    if (relationship.opts) {
+                      cls += relationship.opts;
                     }
                     cls += renderer.new_lines(1) + renderer.spaces(4);
                     cls += ')';
