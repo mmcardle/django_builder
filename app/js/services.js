@@ -478,7 +478,7 @@ function RelationshipFactory() {
                 this.name = jQuery(form).find('input[name=name]').val();
                 this.type = jQuery(form).find('select[name=type]').val();
                 this.opts = jQuery(form).find('input[name=opts]').val();
-                this.to = jQuery(form).find('input[name=to]').val();
+                this.to = jQuery(form).find('select[name=to]').val();
             };
             this.to_clean = function () {
                 return this.to.replace(/['"]+/g, '')
@@ -507,21 +507,49 @@ function RelationshipFactory() {
                 form_div1.append(jQuery('<input>').attr('name', 'name').addClass('form-control').val(this.name));
                 form_div1.append(jQuery('<span>').text('error message').addClass('help-block hide'));
 
-                form_div2.append(jQuery('<label>').text('To'));
-                form_div2.append(jQuery('<input>').attr('name', 'to')
-                    .attr('placeholder', 'to').addClass('form-control').val(this.to));
+                form_div2.append(jQuery('<label>').text('Relationship to Model'));
 
-                var select = jQuery('<select>').attr('name', 'type').addClass('form-control');
-                var that = this;
-                jQuery.each($scope.relationship_factory.relationship_types(), function(i, field_type){
-                    var input = jQuery('<option>').attr('val', field_type).text(field_type);
-                    if(field_type==that.type){
-                        input.attr('selected', 'selected');
+                const to_select = jQuery('<select>').attr('name', 'to').addClass('form-control');
+
+                const that = this;
+
+                /* include built in models */
+                const _opt_builtin = jQuery('<optgroup>').attr('label', 'Django models');
+                jQuery.each($scope.built_in_models, function(model_name, built_in_model){
+                    const opt = jQuery('<option>').attr('val', model_name).text(model_name)
+                    if (model_name == that.to) {
+                      opt.attr('selected', 'selected');
                     }
-                    select.append(input);
+                    _opt_builtin.append(opt);
                 });
-                form_div3.append(jQuery('<label>').text('Field Type'));
-                form_div3.append(select);
+                to_select.append(_opt_builtin);
+
+                /* include application models */
+                const _opt_models = jQuery('<optgroup>').attr('label', 'Your App models');
+                jQuery.each($scope.models, function(i, model){
+                    const opt = jQuery('<option>').attr('val', model.name).text(model.name)
+                    if (model.name == that.to) {
+                      opt.attr('selected', 'selected');
+                    }
+                    _opt_models.append(opt);
+                });
+                to_select.append(_opt_models);
+
+                form_div2.append(to_select)
+
+                const type_select = jQuery('<select>').attr('name', 'type');
+
+                jQuery.each($scope.relationship_factory.relationship_types(), function(i, relationship_type){
+                    type_select.append(jQuery('<option>').attr('val', relationship_type).text(relationship_type));
+                });
+
+                form_div3.append(jQuery('<label>').text('Relationship Type'));
+                form_div3.append(type_select);
+
+                // Setup select after adding to form
+                to_select.select2({theme: "bootstrap", allowClear: true, placeholder: "Select a model.", tags: true, selectOnClose: true});
+                type_select.select2({theme: "bootstrap"});
+
                 form_div4.append(jQuery('<label>').text('Arguments'));
                 form_div4.append(jQuery('<input>').attr('name', 'opts')
                     .attr('placeholder', 'options').addClass('form-control').val(this.opts));
