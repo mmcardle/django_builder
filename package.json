@@ -36,12 +36,12 @@
     "karma-junit-reporter": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.2",
     "phantomjs": "^2.1.7",
-    "protractor": "^5.3.1",
+    "protractor": "^5.4.2",
     "select2": "^4.0.3",
     "select2-bootstrap-theme": "0.1.0-beta.9",
     "shelljs": "^0.7.5",
     "tmp": "0.0.33",
-    "webdriver-manager": "^12.0.6"
+    "webdriver-manager": "^12.1.5"
   },
   "scripts": {
     "prestart": "npm install",
