@@ -745,7 +745,9 @@ angular.module('builder.controllers', ['LocalStorageModule'])
 
                 form_div2.append(jQuery('<label>').text('Relationship to Model'));
                 form_div2.append(to_select);
-                form_div2.append(jQuery('<p>').addClass("text-primary small clearfix").text('You can add external models (otherapp.models.Model1)').css('margin', '4px'));
+                form_div2.append(jQuery('<p>').addClass("text-primary small clearfix").text(
+                  'You can add external models (otherapp.models.Model1)'
+                ).css('margin', '4px'));
 
                 const type_select = jQuery('<select>').attr('name', 'type');
 
@@ -758,13 +760,22 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 form_div4.append(jQuery('<label>').text('Arguments'));
                 form_div4.append(jQuery('<input>').attr('name', 'opts').attr('placeholder', 'options').addClass('form-control'));
 
-                // Setup select after adding to form
-                to_select.select2({theme: "bootstrap", allowClear: true, placeholder: "Select a model.", tags: true, selectOnClose: true});
-                type_select.select2({theme: "bootstrap"});
-
                 const identifier = 'add_rel_'+model['name']+'_'+index;
+
                 $scope.messageService.simple_form_no_dismiss('Add Relationship', '', form, on_input).modal('show')
                     .attr('id', identifier).appendTo('body');
+
+                var dropdownParent = jQuery("#" + identifier)
+
+                // Setup selects after adding to form
+                type_select.select2({
+                  dropdownParent: dropdownParent, width: '100%', theme: "bootstrap"
+                });
+                to_select.select2({
+                  dropdownParent: dropdownParent, width: '100%', theme: "bootstrap",
+                  allowClear: true, placeholder: "Select a model.", tags: true, selectOnClose: true
+                });
+
                 return identifier;
 
             };
@@ -828,6 +839,11 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 var identifier = 'add_field_'+model['name']+'_'+index;
                 $scope.messageService.simple_form_no_dismiss('Add Field', '', form, on_input).modal('show')
                     .attr('id', identifier).appendTo('body');
+
+                var dropdownParent = jQuery('.modal-content').last()
+                select.select2({
+                  dropdownParent: dropdownParent, width: '100%', theme: "bootstrap"
+                });
                 return identifier;
             };
             $scope.edit_relationship = function (model_index, relationship_index) {
@@ -838,9 +854,16 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     jQuery('.modal').modal('hide');
                 };
                 var identifier = relationship['$$hashKey'] || 'edit_relationship_'+relationship.name;
-                $scope.messageService.simple_form("Edit Relationship '" + relationship.name+"'",
-                    "", relationship.edit_form($scope),
+                identifier = identifier.replace(':', '_')
+                var edit_form = relationship.edit_form($scope, identifier)
+                $scope.messageService.simple_form(
+                    "Edit Relationship '" + relationship.name+"'", "", edit_form,
                     on_confirm).modal('show').attr('id', identifier).appendTo('body');
+
+                var dropdownParent = jQuery('.modal-content').last()
+                edit_form.find('select[name=to]').select2({dropdownParent: dropdownParent, width: '100%', theme: "bootstrap", allowClear: true, placeholder: "Select a model.", tags: true, selectOnClose: true});
+                edit_form.find('select[name=type]').select2({dropdownParent: dropdownParent, width: '100%', theme: "bootstrap"});
+
                 return identifier;
             };
             $scope.edit_field = function (model_index, field_index) {
@@ -851,9 +874,15 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                     jQuery('.modal').modal('hide');
                 };
                 var identifier = field['$$hashKey'] || 'edit_field_'+field.name;
-                $scope.messageService.simple_form("Edit field '" + field.name+"'",
-                    "", field.edit_form($scope),
+                identifier = identifier.replace(':', '_')
+                var edit_form = field.edit_form($scope, identifier)
+                $scope.messageService.simple_form(
+                    "Edit field '" + field.name+"'", "", edit_form,
                     on_confirm).modal('show').attr('id', identifier).appendTo('body');
+
+                var dropdownParent = jQuery('.modal-content').last()
+                edit_form.find('select[name=type]').select2({dropdownParent: dropdownParent, width: '100%', theme: "bootstrap"});
+
                 return identifier;
             };
             $scope.do_remove_new_model = function (model_index) {
@@ -872,6 +901,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 };
                 var relationship = $scope.models[model_index].relationships[relationship_index];
                 var identifier = relationship['$$hashKey'] || 'remove_relationship_'+relationship.name;
+                identifier = identifier.replace(':', '_')
                 $scope.messageService.simple_confirm('Confirm',
                         "Remove the relationship '" + relationship.name+"'",
                     on_confirm).modal('show').attr('id', identifier).appendTo('body');
@@ -901,6 +931,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 };
                 var field = $scope.models[model_index].fields[field_index];
                 var identifier = field['$$hashKey'] || 'remove_field_'+field.name;
+                identifier = identifier.replace(':', '_')
                 $scope.messageService.simple_confirm('Confirm',
                         "Remove the field '" + field.name+"'",
                     on_confirm).modal('show').attr('id', identifier).appendTo('body');
@@ -913,6 +944,7 @@ angular.module('builder.controllers', ['LocalStorageModule'])
                 };
                 var model = $scope.models[index];
                 var identifier = model['$$hashKey'] || 'remove_model_'+model.name;
+                identifier = identifier.replace(':', '_')
                 $scope.messageService.simple_confirm('Confirm',
                         "Remove the model '" + model.name +"'",
                     on_confirm).modal('show').modal('show').attr('id', identifier).appendTo('body');
