@@ -474,11 +474,12 @@ function RelationshipFactory() {
             this.class_name = function () {
                 return this.type.split('.').reverse()[0]
             };
-            this.form_update = function (form) {
+            this.form_update = function (form, external_app) {
                 this.name = jQuery(form).find('input[name=name]').val();
                 this.type = jQuery(form).find('select[name=type]').val();
                 this.opts = jQuery(form).find('input[name=opts]').val();
                 this.to = jQuery(form).find('select[name=to]').val();
+                this.external_app = external_app
             };
             this.to_clean = function () {
                 return this.to.replace(/['"]+/g, '')
