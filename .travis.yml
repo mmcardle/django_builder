@@ -13,6 +13,7 @@ before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - npm start > /dev/null &
+  - npm list --depth=0
   - npm run update-webdriver
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
   - sleep 5 # give server time to start
