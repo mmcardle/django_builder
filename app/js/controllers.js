@@ -849,7 +849,21 @@ angular.module('builder.controllers', ['LocalStorageModule'])
             $scope.edit_relationship = function (model_index, relationship_index) {
                 var relationship = $scope.models[model_index].relationships[relationship_index];
                 var on_confirm = function(form){
-                    relationship.form_update(form);
+
+                    var external_app = true;
+                    var to = jQuery(form).find('select[name=to]').val();
+                    jQuery.each($scope.built_in_models, function(model_name, built_in_model){
+                        if(to==model_name){
+                            external_app = false;
+                        }
+                    });
+                    jQuery.each($scope.models, function(i, model){
+                        if(to==model.name){
+                            external_app = false;
+                        }
+                    });
+
+                    relationship.form_update(form, external_app);
                     $scope.$apply();
                     jQuery('.modal').modal('hide');
                 };
