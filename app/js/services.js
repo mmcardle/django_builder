@@ -513,16 +513,17 @@ function RelationshipFactory() {
 
                 const that = this;
 
+                var has_selected = false;
                 /* include built in models */
                 const _opt_builtin = jQuery('<optgroup>').attr('label', 'Django models');
                 jQuery.each($scope.built_in_models, function(model_name, built_in_model){
                     const opt = jQuery('<option>').attr('val', model_name).text(model_name)
                     if (model_name == that.to) {
                       opt.attr('selected', 'selected');
+                      has_selected = true
                     }
                     _opt_builtin.append(opt);
                 });
-                to_select.append(_opt_builtin);
 
                 /* include application models */
                 const _opt_models = jQuery('<optgroup>').attr('label', 'Your App models');
@@ -530,12 +531,26 @@ function RelationshipFactory() {
                     const opt = jQuery('<option>').attr('val', model.name).text(model.name)
                     if (model.name == that.to) {
                       opt.attr('selected', 'selected');
+                      has_selected = true
                     }
                     _opt_models.append(opt);
                 });
+
+                if (!has_selected && that.to){
+                  const _opt_external = jQuery('<optgroup>').attr('label', 'External models');
+                  const opt = jQuery('<option>').attr('val', that.to).text(that.to)
+                  opt.attr('selected', 'selected');
+                  _opt_external.append(opt);
+                  to_select.append(_opt_external)
+                }
+
+                to_select.append(_opt_builtin);
                 to_select.append(_opt_models);
 
                 form_div2.append(to_select)
+                form_div2.append(jQuery('<p>').addClass("text-primary small clearfix").text(
+                  'You can add external models e.g. (otherapp.models.Model1)'
+                ).css('margin', '4px'));
 
                 const type_select = jQuery('<select>').attr('name', 'type');
 
@@ -545,11 +560,6 @@ function RelationshipFactory() {
 
                 form_div3.append(jQuery('<label>').text('Relationship Type'));
                 form_div3.append(type_select);
-
-                // Setup select after adding to form
-                to_select.select2({theme: "bootstrap", allowClear: true, placeholder: "Select a model.", tags: true, selectOnClose: true});
-                type_select.select2({theme: "bootstrap"});
-
                 form_div4.append(jQuery('<label>').text('Arguments'));
                 form_div4.append(jQuery('<input>').attr('name', 'opts')
                     .attr('placeholder', 'options').addClass('form-control').val(this.opts));
