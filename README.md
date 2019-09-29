@@ -1,12 +1,12 @@
 
 # Django Builder
 
-## NEW VERSION OF DJANGO BUILDER 
+## NEW VERSION OF DJANGO BUILDER (Versions 2)
 ## Try it out at https://djangobuilder.io
 
 [![Build Status](https://travis-ci.org/mmcardle/django_builder.svg?branch=master)](https://travis-ci.org/mmcardle/django_builder)
 
-Django Builder is deployed at:
+The original Django Builder v1 is deployed at:
 
 http://mmcardle.github.io/django_builder/
 
