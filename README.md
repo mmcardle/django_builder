@@ -1,4 +1,8 @@
+
 # Django Builder
+
+## NEW VERSION OF DJANGO BUILDER 
+## Try it out at https://djangobuilder.io
 
 [![Build Status](https://travis-ci.org/mmcardle/django_builder.svg?branch=master)](https://travis-ci.org/mmcardle/django_builder)
 
