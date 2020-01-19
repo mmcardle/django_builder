@@ -1,15 +1,27 @@
-*.pyc
+.DS_Store
+node_modules
+/dist
+/dist_*
+.firebase
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
 .idea
-*.sqlite3
-logs/*
-!.gitkeep
-npm-debug.log
-node_modules/
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+
+
+# Coverage
 coverage/
-test_out/
-tmp
-__py_cache__
-.DS_Store
-Chrome_*
-FireFox_*
-.DS_Store

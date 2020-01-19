@@ -1,0 +1,17 @@
+{
+  "indexes": [
+    {
+      "collectionId": "projects",
+      "fields": [
+        {
+          "fieldPath": "owner",
+          "mode": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "mode": "ASCENDING"
+        }
+      ]
+    }
+  ]
+}
