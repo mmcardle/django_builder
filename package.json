@@ -1,60 +1,84 @@
 {
-  "name": "django_builder",
+  "name": "DjangoBuilder",
+  "version": "0.1.0",
   "private": true,
-  "version": "0.0.0",
-  "description": "Django Builder",
-  "repository": "https://github.com/mmcardle/",
-  "license": "MIT",
-  "devDependencies": {
-    "angular": "^1.6.2",
-    "angular-loader": "~1.5.x",
-    "angular-local-storage": "~0.5.0",
-    "angular-mocks": "~1.5.x",
-    "angular-route": "~1.5.x",
-    "angular-ui-ace": "^0.2.3",
-    "angulartics": "~1.3.0",
-    "angulartics-google-analytics": "~0.4.0",
-    "bootstrap": "^3.3.7",
-    "font-awesome": "^4.7.0",
-    "grunt": "1.0.1",
-    "grunt-contrib-concat": "1.0.1",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-cssmin": "1.0.2",
-    "grunt-contrib-uglify": "~2.0.0",
-    "grunt-contrib-watch": "1.0.0",
-    "grunt-karma": "~2.0.0",
-    "hawk": "^7.0.7",
-    "hoek": "^5.0.3",
-    "html5-boilerplate": "~5.3.0",
-    "http-server": "^0.9.0",
-    "jasmine-core": "^2.3.4",
-    "karma": "~1.3",
-    "karma-chrome-launcher": "^2.0.0",
-    "karma-coverage": "^1.1.1",
-    "karma-firefox-launcher": "^1.0.0",
-    "karma-jasmine": "^1.0.2",
-    "karma-junit-reporter": "^1.1.0",
-    "karma-phantomjs-launcher": "^1.0.2",
-    "phantomjs": "^2.1.7",
-    "protractor": "^5.4.2",
-    "select2": "^4.0.7",
-    "select2-bootstrap-theme": "0.1.0-beta.9",
-    "shelljs": "^0.7.5",
-    "tmp": "0.0.33",
-    "webdriver-manager": "^12.1.5"
-  },
   "scripts": {
-    "prestart": "npm install",
-    "start": "http-server -a localhost -p 8020",
-    "build": "grunt",
-    "watch": "grunt watch",
-    "pretest": "npm install",
-    "test": "karma start test/karma.conf.js",
-    "test-single-run": "karma start test/karma.conf.js --single-run",
-    "preupdate-webdriver": "npm install",
-    "update-webdriver": "webdriver-manager update",
-    "preprotractor": "npm run update-webdriver",
-    "protractor": "protractor test/protractor-conf.js",
-    "update-index-async": "node -e \"require('shelljs/global'); sed('-i', /\\/\\/@@NG_LOADER_START@@[\\s\\S]*\\/\\/@@NG_LOADER_END@@/, '//@@NG_LOADER_START@@\\n' + cat('app/bower_components/angular-loader/angular-loader.min.js') + '\\n//@@NG_LOADER_END@@', 'app/index-async.html');\""
-  }
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "test": "vue-cli-service test:unit"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.17",
+    "@fortawesome/free-brands-svg-icons": "^5.8.1",
+    "@fortawesome/free-solid-svg-icons": "^5.8.1",
+    "@fortawesome/vue-fontawesome": "^0.1.6",
+    "firebase": "^6.4.2",
+    "firebase-tools": "^7.3.0",
+    "highlight.js": "^9.15.6",
+    "raw-loader": "^1.0.0",
+    "tar-js": "^0.3.0",
+    "vue": "^2.5.21",
+    "vue-analytics": "^5.16.4",
+    "vue-drag-drop": "^1.1.4",
+    "vue-highlight.js": "^3.1.0",
+    "vue-router": "^3.0.1",
+    "vuetify": "^1.5.16",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.7.2",
+    "@vue/cli-plugin-babel": "^3.3.0",
+    "@vue/cli-plugin-eslint": "^3.3.0",
+    "@vue/cli-plugin-unit-jest": "^3.3.0",
+    "@vue/cli-service": "^3.3.0",
+    "@vue/test-utils": "^1.0.0-beta.20",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^23.6.0",
+    "eslint": "^5.8.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "jest-raw-loader": "^1.0.1",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.1",
+    "vue-cli-plugin-vuetify": "^0.4.6",
+    "vue-template-compiler": "^2.5.21",
+    "vuetify-loader": "^1.0.5"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {
+      "no-console": "off",
+      "no-empty-pattern": "error",
+      "no-unused-vars": [
+        "error",
+        {
+          "vars": "all",
+          "args": "after-used",
+          "argsIgnorePattern": "^_|^unused$",
+          "varsIgnorePattern": "^_.*$"
+        }
+      ]
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
 }

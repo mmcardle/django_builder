@@ -1,0 +1,14 @@
+{% load static %}
+<html>
+  <head>
+    <title>Django Builder - XXX_PROJECT_NAME_XXX</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  </head>
+  <body>
+    <div id="content" class="container">
+      <h2><a href="{% url 'index' %}">XXX_PROJECT_NAME_XXX</a></h2>
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>
