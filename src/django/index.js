@@ -125,29 +125,34 @@ class Django {
     }
     this._builtInModels = {
       'django.contrib.auth.models.User': {
+        app: 'auth.User',
         fields: {
           'username': {default:'username'},
           'email': {default:'username@tempurl.com'}
         }
       },
       'django.contrib.auth.models.AbstractUser': {
+        app: 'auth.AbstractUser',
         fields: {
           'username': {default:'username'},
           'email': {default:'username@tempurl.com'}
         }
       },
       'django.contrib.auth.models.AbstractBaseUser': {
+        app: 'auth.AbstractBaseUser',
         fields: {
           'username': {default:'username'},
           'email': {default:'username@tempurl.com'}
         }
       },
       'django.contrib.auth.models.Group': {
+        app: 'auth.Group',
         fields: {
           'name': {default:'group'}
         }
       },
       'django.contrib.contenttypes.models.ContentType': {
+        app: 'contenttypes.ContentType',
         fields: {}
       }
     }
@@ -155,6 +160,10 @@ class Django {
 
   fieldDefault(typ) {
     return this._fieldDefaults[typ]
+  }
+
+  builtInModel(kls) {
+    return this._builtInModels[kls]
   }
 
   get fieldTypes() {

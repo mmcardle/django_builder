@@ -413,7 +413,7 @@
             </template>
           </template>
         </template>
-        <template v-for="(render_name, i) in renderer.root_template_renderers()">
+        <template v-for="render_name in renderer.root_template_renderers()">
            <v-card class="ma-2" elevation="10" :key="render_name">
             <v-card-title class="ma-0 pb-0">
               <h3>

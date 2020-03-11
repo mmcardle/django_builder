@@ -12,6 +12,11 @@ http://mmcardle.github.io/django_builder/
 yarn install
 ```
 
+#### Firebase
+```
+npm install -g firebase-tools
+```
+
 ## Setup Firebase Environment
 
 Django Builder uses a Firebase backend. Copy the example env file
@@ -31,6 +36,16 @@ yarn run serve
 yarn build --mode=development
 yarn build --mode=production
 ```
+
+### Initial setup
+
+When a fresh checkout is done aliases must be setup for each project, e.g. development
+
+```
+firebase use --add
+```
+
+Follow the instructions to link to your Firebase application, choose the alias 'development' and your firebase project
 
 ### Deploy development
 ```

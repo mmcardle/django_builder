@@ -541,14 +541,16 @@ class Renderer {
       }
 
       if (model.relationships && keys(model.relationships).length > 0) {
-        models_py += '    #  Relationships\n'
+        models_py += '    # Relationships\n'
         for ( var relationship in model.relationships ) {
           const rData = store.getters.relationships()[relationship].data()
-          // e.g. Convert django.contrib.auth.models.User to auth.User
-          const toData = rData.to.split('.').reverse()
-          const app = toData[2]
-          const modelClass = toData[0]
-          models_py += '    ' + rData.name + ' = models.' + rData.type.split('.').pop() + '("' + app + '.' + modelClass + '"'
+          // e.g. If a built in model, convert django.contrib.auth.models.User to auth.User else just use app.Model
+          const builtIn = django.builtInModel(rData.to)
+          if (builtIn !== undefined) {
+            models_py += '    ' + rData.name + ' = models.' + rData.type.split('.').pop() + '("' + builtIn.app + '"'
+          } else {
+            models_py += '    ' + rData.name + ' = models.' + rData.type.split('.').pop() + '("' + rData.to + '"'
+          }
           if (rData.args) {
             models_py += ', ' + rData.args
           }
@@ -558,7 +560,7 @@ class Renderer {
       }
 
       if (model.fields && keys(model.fields).length > 0) {
-        models_py += '    #  Fields\n'
+        models_py += '    # Fields\n'
         for( var field in model.fields ) {
           const fData = store.getters.fields()[field].data()
           models_py += '    ' + fData.name + ' = models.' + fData.type.split('.').pop() + '(' + fData.args + ')\n'
