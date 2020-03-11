@@ -1,17 +1,19 @@
 {
   "indexes": [
     {
-      "collectionId": "projects",
+      "collectionGroup": "projects",
+      "queryScope": "COLLECTION",
       "fields": [
         {
           "fieldPath": "owner",
-          "mode": "ASCENDING"
+          "order": "ASCENDING"
         },
         {
           "fieldPath": "name",
-          "mode": "ASCENDING"
+          "order": "ASCENDING"
         }
       ]
     }
-  ]
+  ],
+  "fieldOverrides": []
 }
