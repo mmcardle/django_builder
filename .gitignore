@@ -3,8 +3,11 @@ node_modules
 /dist
 /dist_*
 .firebase
+firestore-debug.log
+.firebaserc
 
-# local env files
+# env files
+.env
 .env.local
 .env.*.local
 
