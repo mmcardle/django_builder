@@ -74,13 +74,14 @@
       <v-layout row wrap align-center justify-center class="text-xs-center">
         <v-flex pl-2 xs12 md4 v-if="isloaded"  >
           <!-- Desktop -->
-          <a class="hidden-xs-only hljs-title display-3 font-weight-medium red--text text--darken-4 text-capitalize"
-            @click="showEditProjectDialog()">
-            <font-awesome-icon class="red--text text--darken-4 mr-3" icon="project-diagram" />
-            <span class="grey--text text--lighten-1 font-weight-black">
-              <span class="red--text text--darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
-            </span>
-          </a>
+          <div @click="showEditProjectDialog()" class="hidden-xs-only">
+            <a class="hljs-title display-3 font-weight-medium red--text text--darken-4 text-capitalize">
+              <font-awesome-icon class="red--text text--darken-4 mr-3" icon="project-diagram" />
+              <span class="grey--text text--lighten-1 font-weight-black">
+                <span class="red--text text--darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
+              </span>
+            </a>
+          </div>
           <!-- Mobile -->
           <div class="hidden-sm-and-up mt-2">
             <a class="hljs-title display-1 font-weight-medium red--text text--darken-4 text-capitalize"
@@ -91,6 +92,14 @@
               </span>
             </a>
           </div>
+          <a class="d-block" @click="showEditProjectDialog()">
+            <span v-if="channels" class="orange--text">
+              Django Channels <font-awesome-icon class="green--text" icon="check-circle" />
+            </span>
+            <span v-if="!channels" class="grey--text">
+              Django Channels <font-awesome-icon class="grey--text" icon="times-circle" />
+            </span>
+          </a>
         </v-flex>
         <v-flex v-if="Object.keys(this.apps).length > 0">
           <v-btn large ripple @click="showAppDialog()">
@@ -329,7 +338,7 @@
       <v-layout row wrap justify-space-around >
         <template v-for="(app, appid) in this.apps">
           <template v-for="render_name in renderer.app_renderers()">
-             <v-card class="ma-2" elevation="10" :key="'app_render_' + render_name + appid">
+            <v-card class="ma-2" elevation="10" :key="'app_render_' + render_name + appid">
               <v-card-title class="ma-0 pb-0">
                 <h3>
                   <span>{{name}}</span>
@@ -344,8 +353,24 @@
               </v-card-text>
             </v-card>
           </template>
+          <template v-for="render_name in renderer.channels_app_renderers()">
+            <v-card class="ma-2" elevation="10" :key="'app_render_' + render_name + appid">
+              <v-card-title class="ma-0 pb-0">
+                <h3>
+                  <span>{{name}}</span>
+                  <span class="blue-grey--text text--lighten-4"> / </span>
+                  <span class="blue--text text--darken-1">{{appData(appid).name}}</span>
+                  <span class="blue-grey--text text--lighten-4"> / </span>
+                  <span class="orange--text text--darken-1">{{render_name}}</span>
+                </h3>
+              </v-card-title>
+              <v-card-text class="ma-0 pt-0">
+                <highlight-code lang="python">{{renderer.channels_app_render(render_name, appid)}}</highlight-code>
+              </v-card-text>
+            </v-card>
+          </template>
           <template v-for="render_name in renderer.test_renderers()">
-             <v-card class="ma-2" elevation="10" :key="render_name + appid">
+            <v-card class="ma-2" elevation="10" :key="render_name + appid">
               <v-card-title class="ma-0 pb-0">
                 <h3>
                   <span>{{name}}</span>
@@ -373,6 +398,18 @@
               </v-card-title>
               <v-card-text class="ma-0 pt-0">
                 <highlight-code lang="python">{{renderer.project_render(render_name, id)}}</highlight-code>
+              </v-card-text>
+            </v-card>
+          </template>
+          <template v-for="render_name in renderer.channels_renderers()">
+            <v-card class="ma-2" elevation="10" :key="'channels' + render_name + appid">
+              <v-card-title class="ma-0 pb-0">
+                <h3>
+                  <span class="orange--text text--darken-1">{{render_name}}</span>
+                </h3>
+              </v-card-title>
+              <v-card-text class="ma-0 pt-0">
+                <highlight-code lang="python">{{renderer.channels_render(render_name, id)}}</highlight-code>
               </v-card-text>
             </v-card>
           </template>
@@ -485,6 +522,10 @@ export default {
     name: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return ''
       return this.$store.getters.projectData(this.id).name
+    },
+    channels: function () {
+      if (this.$store.getters.projectData(this.id) === undefined) return false
+      return this.$store.getters.projectData(this.id).channels
     },
     apps: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return []

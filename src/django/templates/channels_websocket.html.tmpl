@@ -1,0 +1,38 @@
+<div class="container mt-3">
+    <div class="card">
+    <div class="card-body">
+        <h5 class="card-title">WebSocket Messages</h5>
+        <p class="card-text"><code id="messages"></code></p>
+    </div>
+    </div>
+</div>
+<script>
+    var wsprotocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://'
+    var ws = wsprotocol + window.location.hostname + ':' + window.location.port + '/ws/'
+    var socket = new WebSocket(ws);
+
+    socket.onopen = function() {
+      // Web Socket is connected, send some text
+      socket.send("Text from Javascript");
+      // Send some binary data
+      socket.send(new Blob(["Bytes from Javascript"]));
+    };
+
+    socket.onmessage = function (evt) { 
+      console.log(evt)
+      var received_msg = evt.data;
+      console.log("Message received...", received_msg);
+      var node = document.createElement("div");
+      if (received_msg instanceof Blob) {
+        received_msg.text().then(function (received_text) {
+          var textnode = document.createTextNode("> " + received_text);
+          node.appendChild(textnode);
+          document.getElementById("messages").appendChild(node);
+        })
+      } else {
+        var textnode = document.createTextNode("> " + received_msg);
+        node.appendChild(textnode);
+        document.getElementById("messages").appendChild(node);
+      }
+    };
+  </script>

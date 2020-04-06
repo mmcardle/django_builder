@@ -8,7 +8,7 @@ import {
   faProjectDiagram, faSignOutAlt, faSignInAlt, faDatabase, faUser, faUserSecret,
   faGripHorizontal, faTrash, faCircle, faCaretSquareDown, faCircleNotch,
   faInfoCircle, faArrowRight, faArrowLeft, faArrowDown, faFileDownload,
-  faEllipsisH
+  faEllipsisH, faCheck, faSquare, faCheckCircle, faTimesCircle
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
@@ -34,6 +34,10 @@ library.add(faArrowLeft)
 library.add(faArrowDown)
 library.add(faFileDownload)
 library.add(faEllipsisH)
+library.add(faCheck)
+library.add(faSquare)
+library.add(faTimesCircle)
+library.add(faCheckCircle)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
