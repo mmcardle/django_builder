@@ -16,6 +16,11 @@ const project = [
     placeholder: "",
     label: "An optional description for your project.",
     name: "description"
+  },
+  {
+    fieldType: "BooleanInput",
+    label: "Include Django Channels in this project.",
+    name: "channels",
   }
 ]
 

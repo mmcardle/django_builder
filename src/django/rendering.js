@@ -7,6 +7,11 @@ import manage from '@/django/python/manage.py'
 import wsgi from '@/django/python/wsgi.py'
 import urls from '@/django/python/urls.py'
 
+import asgi from '@/django/python/asgi.py'
+import routing from '@/django/python/routing.py'
+import consumers from '@/django/python/consumers.py'
+import app_consumers from '@/django/python/app_consumers.py'
+
 import requirements_txt from '@/django/requirements/requirements.txt'
 
 import test_settings from '@/django/tests/test_settings.py'
@@ -14,6 +19,7 @@ import test_requirements_txt from '@/django/tests/test_requirements.txt'
 import _pytest_ini from '@/django/tests/pytest.ini'
 
 import _base_html from '@/django/templates/base.html.tmpl'
+import _channels_websocket_html from '@/django/templates/channels_websocket.html.tmpl'
 
 const django = new Django()
 const keys = Object.keys
@@ -60,6 +66,16 @@ class Renderer {
     'test_helpers.py': {function: this.test_helpers_py},
   }
 
+  _channels_renderers = {
+    'asgi.py': {function: this.channels_asgi_py},
+    'routing.py': {function: this.channels_routing_py},
+    'consumers.py': {function: this.consumers_py},
+  }
+
+  _channels_app_renderers = {
+    'consumers.py': {function: this.channels_app_consumers_py},
+  }
+
   app_renderers() {
     return keys(this._app_renderers)
   }
@@ -84,12 +100,28 @@ class Renderer {
     return keys(this._root_renderers)
   }
 
+  channels_renderers() {
+    return keys(this._channels_renderers)
+  }
+
+  channels_app_renderers() {
+    return keys(this._channels_app_renderers)
+  }
+
   app_render(render_name, appid) {
     if (!this._app_renderers[render_name]) {
       console.error('Unknown app render name', render_name)
       return ''
     }
     return this._app_renderers[render_name].function.apply(this, [appid])
+  }
+
+  channels_app_render(render_name, appid) {
+    if (!this._channels_app_renderers[render_name]) {
+      console.error('Unknown channel app render name', render_name)
+      return ''
+    }
+    return this._channels_app_renderers[render_name].function.apply(this, [appid])
   }
 
   project_render(render_name, projectid) {
@@ -130,6 +162,14 @@ class Renderer {
       return ''
     }
     return this._root_renderers[render_name].function.apply(this, [projectid])
+  }
+
+  channels_render(render_name, appid) {
+    if (!this._channels_renderers[render_name]) {
+      console.error('Unknown channel render name', render_name)
+      return ''
+    }
+    return this._channels_renderers[render_name].function.apply(this, [appid])
   }
 
   get_apps(projectid) {
@@ -190,28 +230,22 @@ class Renderer {
 
   requirements (projectid) {
     const project = store.getters.projectData(projectid)
-    if (project.include_channels) {
-      return requirements_txt.replace(
-          'XXX_PROJECT_EXTRA_REQUIREMENTS_XXX', 'channels==1.1.8'
-      )
-    } else {
-        return requirements_txt.replace(
-          'XXX_PROJECT_EXTRA_REQUIREMENTS_XXX', ''
-        )
+    let requirements = requirements_txt
+    if (project.channels === true) {
+      requirements += 'channels\n'
+      requirements += 'channels_redis\n'
     }
+    return requirements
   }
 
-  test_requirements (projectid) {
-    const project = store.getters.projectData(projectid)
-    return test_requirements_txt.replace(
-        'XXX_PROJECT_EXTRA_REQUIREMENTS_XXX', 'channels==1.1.8'
-    ).replace(/XXX_PROJECT_NAME_XXX/g, project.name)
+  test_requirements (_) {
+    return test_requirements_txt
   }
 
   project_settings (projectid) {
     const project = store.getters.projectData(projectid)
     const apps = this.get_apps(projectid)
-    let app_names = ''
+    let app_names = project.channels ? "'channels',\n    " : ''
     apps.forEach((app, i) => {
       if (i !== 0){
         app_names += "    "
@@ -221,9 +255,26 @@ class Renderer {
         app_names += "\n"
       }
     })
-    return settings
+    let _settings = settings
+    _settings = settings
       .replace(/'XXX_PROJECT_APPS_XXX'/, app_names)
       .replace(/XXX_PROJECT_NAME_XXX/g, project.name)
+
+    if (project.channels === true) {
+      _settings += '\n# Django Channels\n'
+      _settings += 'ASGI_APPLICATION = "' + project.name + '.routing.application"'
+      _settings += `
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        # Use a redis instance
+        # "BACKEND": "channels_redis.core.RedisChannelLayer",
+        # "CONFIG": {"hosts": [("127.0.0.1", 6379)],},
+    },
+}`
+    }
+
+    return _settings
   }
 
   init () {
@@ -232,7 +283,12 @@ class Renderer {
 
   base_html (projectid) {
     const project = store.getters.projectData(projectid)
-    return _base_html.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
+    let html = _base_html.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
+    if (project.channels === true) {
+      return html.replace(/XXX__EXTRA_BODY__XXX/g, _channels_websocket_html)
+    } else {
+      return html.replace(/XXX__EXTRA_BODY__XXX/g, "")
+    }
   }
 
   index_html (projectid) {
@@ -350,6 +406,37 @@ class Renderer {
     detail_html += `\n\n{% endblock %}`
 
     return detail_html
+  }
+
+  channels_asgi_py (projectid) {
+    const project = store.getters.projectData(projectid)
+    return asgi.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
+  }
+
+  consumers_py (projectid) {
+    const project = store.getters.projectData(projectid)
+    return consumers.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
+  }
+
+  channels_routing_py (projectid) {
+    const project = store.getters.projectData(projectid)
+    let consumer_imports = '# Consumer Imports\n'
+    let consumers = ''
+
+    const apps = this.get_apps(projectid)
+    apps.forEach((app) => {
+      consumer_imports += "from " + app.name + ".consumers import " + app.name + 'Consumer\n'
+    })
+
+    apps.forEach((app) => {
+      consumers += '    '
+      consumers += '"' + app.name + '": ' + app.name +  'Consumer,'
+    })
+
+    return routing
+      .replace(/XXX_CONSUMER_IMPORTS_XXX/g, consumer_imports)
+      .replace(/XXX_CONSUMERS_XXX/g, consumers)
+      .replace(/XXX_PROJECT_NAME_XXX/g, project.name)
   }
 
   project_manage (projectid) {
@@ -511,6 +598,12 @@ class Renderer {
       admin += 'admin.site.register(models.' + model.name + ', '+ model.name + 'Admin)\n'
     })
     return admin
+  }
+
+  channels_app_consumers_py(appid) {
+    const appData = store.getters.appData(appid)
+    return app_consumers
+      .replace(/XXX_APP_NAME_XXX/g, appData.name)
   }
 
   models_py(appid) {
@@ -908,6 +1001,15 @@ class Renderer {
         const path = project.name + '/tests/' + appData.name + '/' + renderer
         tarball.append(path, content)
       })
+
+      if (project.channels === true) {
+        this.channels_app_renderers().forEach((renderer) => {
+          const content = this.channels_app_render(renderer, app)
+          const path = project.name + '/' + appData.name + '/' + renderer
+          tarball.append(path, content)
+        })
+      }
+
       this.template_renderers().forEach((renderer) => {
         keys(project.apps).map((app) => {
           const appData = store.getters.appData(app)
@@ -925,6 +1027,14 @@ class Renderer {
         this.init(this.id)
       )
     })
+
+    if (project.channels === true) {
+      this.channels_renderers().forEach((renderer) => {
+        const content = this.channels_render(renderer, projectid)
+        const path = project.name + '/' + project.name + '/' + renderer
+        tarball.append(path, content)
+      })
+    }
 
     this.project_renderers().forEach((renderer) => {
       const content = this.project_render(renderer, projectid)

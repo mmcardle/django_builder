@@ -7,8 +7,14 @@
   </head>
   <body>
     <div id="content" class="container">
-      <h2><a href="{% url 'index' %}">XXX_PROJECT_NAME_XXX</a></h2>
-      {% block content %}{% endblock %}
+      <h2>Home: <a href="{% url 'index' %}">XXX_PROJECT_NAME_XXX</a></h2>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Your Apps</h5>
+          <p class="card-text">{% block content %}{% endblock %}</p>
+        </div>
+      </div>
     </div>
+  XXX__EXTRA_BODY__XXX
   </body>
 </html>
