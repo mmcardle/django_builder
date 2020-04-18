@@ -381,7 +381,13 @@ CHANNEL_LAYERS = {
       var html_field_type = "text"
       switch (field.type) {
         case 'django.db.models.DateTimeField':
+          html_field_type = "datetime-local"
+          break
+        case 'django.db.models.DateField':
           html_field_type = "date"
+          break
+        case 'django.db.models.TimeField':
+          html_field_type = "time"
           break
         case 'django.db.models.IntegerField':
           html_field_type = "number"
