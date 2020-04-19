@@ -9,6 +9,8 @@ import firebase from 'firebase/app'
 import App from './App.vue'
 import VueHighlightJS from 'vue-highlight.js';
 import python from 'highlight.js/lib/languages/python';
+import django from 'highlight.js/lib/languages/django';
+import ini from 'highlight.js/lib/languages/ini';
 import VueDragDrop from 'vue-drag-drop'
 import DjangoBuilderTitle from '@/components/inc/DjangoBuilderTitle'
 
@@ -16,7 +18,7 @@ let app;
 
 Vue.use(VueDragDrop)
 
-Vue.use(VueHighlightJS, {languages: {python}});
+Vue.use(VueHighlightJS, {languages: {python, django, ini}});
 
 Vue.component('django-builder-title', DjangoBuilderTitle)
 

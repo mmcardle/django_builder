@@ -147,12 +147,18 @@
       </v-layout>
     </v-container>
 
-    <v-container fluid ref="apps" px-5>
-      <v-layout row wrap  justify-center>
+    <v-container fluid ref="apps" px-0>
+      <v-layout row wrap>
+        <v-flex md8 hidden-sm-and-down >
+          <directoryview v-bind:id="id" />
+        </v-flex>
         <template v-if="isloaded">
-          <v-flex xs12 sm10 md6 lg4 xl3 v-for="(app, appid) in this.apps"
-            class="overflow-hidden" :key="appid">
-            <v-card elevation="6" class="ma-2 mb-4">
+          <v-flex xs12 md4 >
+            <h2 class="red--text text--darken-4 mr-3 mx-2">
+              <font-awesome-icon icon="database" /> Project Models
+            </h2>
+            <div v-for="(app, appid) in this.apps" class="overflow-hidden" :key="appid">
+              <v-card elevation="2" class="ma-2 mb-4">
               <v-card-title>
                 <h2>
                   <a class="orange--text text--darken-1" @click="showEditAppDialog(appid)">
@@ -173,7 +179,7 @@
                 </drop>
 
                 <v-card v-for="model in $store.getters.ordered_models(appid)" :key="model.id + appid"
-                  class="mb-5 pa-2" elevation="8">
+                  class="mb-5 pa-2" elevation="4">
                   <drag :transfer-data="{app: appid, model: model.id}"
                     @drag="dragModel({app: appid, model: model.id})"
                     @dragend="dragModelEnd({app: appid, model: model.id})"
@@ -329,147 +335,34 @@
                 <font-awesome-icon icon="trash" />
               </v-btn>
             </v-card>
+            </div>
           </v-flex>
         </template>
       </v-layout>
     </v-container>
 
-    <v-container fluid ref="rendered_files" pa-0 v-if="Object.keys(this.apps).length > 0">
-      <v-layout row wrap justify-space-around >
-        <template v-for="(app, appid) in this.apps">
-          <template v-for="render_name in renderer.app_renderers()">
-            <v-card class="ma-2" elevation="10" :key="'app_render_' + render_name + appid">
-              <v-card-title class="ma-0 pb-0">
-                <h3>
-                  <span>{{name}}</span>
-                  <span class="blue-grey--text text--lighten-4"> / </span>
-                  <span class="blue--text text--darken-1">{{appData(appid).name}}</span>
-                  <span class="blue-grey--text text--lighten-4"> / </span>
-                  <span class="orange--text text--darken-1">{{render_name}}</span>
-                </h3>
-              </v-card-title>
-              <v-card-text class="ma-0 pt-0">
-                <highlight-code lang="python">{{renderer.app_render(render_name, appid)}}</highlight-code>
-              </v-card-text>
-            </v-card>
-          </template>
-          <template v-for="render_name in renderer.channels_app_renderers()">
-            <v-card class="ma-2" elevation="10" :key="'app_render_' + render_name + appid">
-              <v-card-title class="ma-0 pb-0">
-                <h3>
-                  <span>{{name}}</span>
-                  <span class="blue-grey--text text--lighten-4"> / </span>
-                  <span class="blue--text text--darken-1">{{appData(appid).name}}</span>
-                  <span class="blue-grey--text text--lighten-4"> / </span>
-                  <span class="orange--text text--darken-1">{{render_name}}</span>
-                </h3>
-              </v-card-title>
-              <v-card-text class="ma-0 pt-0">
-                <highlight-code lang="python">{{renderer.channels_app_render(render_name, appid)}}</highlight-code>
-              </v-card-text>
-            </v-card>
-          </template>
-          <template v-for="render_name in renderer.test_renderers()">
-            <v-card class="ma-2" elevation="10" :key="render_name + appid">
-              <v-card-title class="ma-0 pb-0">
-                <h3>
-                  <span>{{name}}</span>
-                  <span class="blue-grey--text text--lighten-4"> / </span>
-                  <span>tests</span>
-                  <span class="blue-grey--text text--lighten-4"> / </span>
-                  <span class="blue--text text--darken-1">{{appData(appid).name}}</span>
-                  <span class="blue-grey--text text--lighten-4"> / </span>
-                  <span class="orange--text text--darken-1">{{render_name}}</span>
-                </h3>
-              </v-card-title>
-              <v-card-text class="ma-0 pt-0">
-                <highlight-code lang="python">{{renderer.test_render(render_name, appid)}}</highlight-code>
-              </v-card-text>
-            </v-card>
-          </template>
-          <template v-for="render_name in renderer.project_renderers()">
-             <v-card class="ma-2 overflow-hidden" elevation="10" :key="render_name + appid">
-              <v-card-title class="ma-0 pb-0">
-                <h3>
-                  <span>{{name}}</span>
-                  <span class="blue-grey--text text--lighten-4"> / </span>
-                  <span class="orange--text text--darken-1">{{render_name}}</span>
-                </h3>
-              </v-card-title>
-              <v-card-text class="ma-0 pt-0">
-                <highlight-code lang="python">{{renderer.project_render(render_name, id)}}</highlight-code>
-              </v-card-text>
-            </v-card>
-          </template>
-          <template v-for="render_name in renderer.channels_renderers()">
-            <v-card class="ma-2" elevation="10" :key="'channels' + render_name + appid">
-              <v-card-title class="ma-0 pb-0">
-                <h3>
-                  <span class="orange--text text--darken-1">{{render_name}}</span>
-                </h3>
-              </v-card-title>
-              <v-card-text class="ma-0 pt-0">
-                <highlight-code lang="python">{{renderer.channels_render(render_name, id)}}</highlight-code>
-              </v-card-text>
-            </v-card>
-          </template>
-          <template v-for="render_name in renderer.root_renderers()">
-             <v-card class="ma-2" elevation="10" :key="render_name + appid">
-              <v-card-title class="ma-0 pb-0">
-                <h3>
-                  <span class="orange--text text--darken-1">{{render_name}}</span>
-                </h3>
-              </v-card-title>
-              <v-card-text class="ma-0 pt-0">
-                <highlight-code lang="python">{{renderer.root_render(render_name, id)}}</highlight-code>
-              </v-card-text>
-            </v-card>
-          </template>
-          <template v-for="render_name in renderer.template_renderers()">
-            <template v-for="model in $store.getters.ordered_models(appid)">
-               <v-card class="ma-2" elevation="10" :key="render_name + model.id">
-                <v-card-title class="ma-0 pb-0">
-                  <h3>
-                    <span>{{name}}</span>
-                    <span class="blue-grey--text text--lighten-4"> / </span>
-                    <span class="blue--text text--darken-1">{{appData(appid).name}}</span>
-                    <span class="blue-grey--text text--lighten-4"> / </span>
-                    <span class="blue--text text--darken-1">templates</span>
-                    <span class="blue-grey--text text--lighten-4"> / </span>
-                    <span class="blue--text text--darken-1">{{appData(appid).name}}</span>
-                    <span class="blue-grey--text text--lighten-4"> / </span>
-                    <span class="orange--text text--darken-1">{{model.name}}_{{render_name}}</span>
-                  </h3>
-                </v-card-title>
-                <v-card-text class="ma-0 pt-0">
-                  <highlight-code lang="python">
-                    {{renderer.template_render(render_name, appid, model.id)}}
-                  </highlight-code>
-                </v-card-text>
-              </v-card>
-            </template>
-          </template>
-        </template>
-        <template v-for="render_name in renderer.root_template_renderers()">
-           <v-card class="ma-2" elevation="10" :key="render_name">
+    <v-container fluid hidden-md-and-up>
+      <template v-for="(renderdata, i) in all_renderers">
+        <v-layout row :key="'app_render_' + i">
+        <v-flex>
+          <v-card class="my-1" elevation="2" :key="'app_render_card_' + i">
             <v-card-title class="ma-0 pb-0">
-              <h3>
-                <span>{{name}}</span>
-                <span class="blue-grey--text text--lighten-4"> / </span>
-                <span class="blue--text text--darken-1">templates</span>
-                <span class="blue-grey--text text--lighten-4"> / </span>
-                <span class="orange--text text--darken-1">{{render_name}}</span>
-              </h3>
+              <h2 class="blue--text text--darken-4 mx-2">
+                <span v-for="(part, i) in renderdata.path.split('/')" v-bind:key="i">
+                  <span class="blue-grey--text text--lighten-4" v-if="i !== 0"> / </span>
+                  <span :class="i === renderdata.path.split('/').length - 1 ? ['orange--text' , 'text--darken-1'] : ['blue--text', 'text--darken-1']">
+                  {{ part }}
+                  </span>
+                </span>
+              </h2>
             </v-card-title>
             <v-card-text class="ma-0 pt-0">
-              <highlight-code lang="python">
-                {{renderer.root_template_render(render_name, id)}}
-              </highlight-code>
+              <highlight-code lang="python">{{renderdata.render()}}</highlight-code>
             </v-card-text>
           </v-card>
-        </template>
-      <!--{{this.id}}: {{this.data}}-->
-      </v-layout>
+        </v-flex>
+        </v-layout>
+      </template>
     </v-container>
 
   </v-layout>
@@ -490,6 +383,7 @@
 
 <script>
 import ImportableModel from '@/components/ImportableModel'
+import DirectoryView from '@/components/DirectoryView'
 import firebase from 'firebase/app'
 import Renderer from '@/django/rendering'
 import Django from '@/django/'
@@ -503,7 +397,7 @@ const django = new Django()
 
 export default {
   props: ['id'],
-  components: { 'importable-model': ImportableModel },
+  components: { 'importable-model': ImportableModel, 'directoryview': DirectoryView},
   data: () => {
     return {
       data: undefined,
@@ -516,6 +410,9 @@ export default {
   },
   computed: {
     renderer: () => renderer,
+    all_renderers: function () {
+      return renderer.project_flat(this.id)
+    },
     isloaded: function () {
       return this.$store.getters.loaded()
     },

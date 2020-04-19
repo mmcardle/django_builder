@@ -8,11 +8,12 @@ import {
   faProjectDiagram, faSignOutAlt, faSignInAlt, faDatabase, faUser, faUserSecret,
   faGripHorizontal, faTrash, faCircle, faCaretSquareDown, faCircleNotch,
   faInfoCircle, faArrowRight, faArrowLeft, faArrowDown, faFileDownload,
-  faEllipsisH, faCheck, faSquare, faCheckCircle, faTimesCircle
+  faEllipsisH, faCheck, faSquare, faCheckCircle, faTimesCircle, faFileAlt,
+  faFolder, faFolderOpen
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
-  faGithub, faTwitter
+  faGithub, faTwitter, faPython, faHtml5
 } from '@fortawesome/free-brands-svg-icons'
 
 library.add(faGithub)
@@ -38,6 +39,11 @@ library.add(faCheck)
 library.add(faSquare)
 library.add(faTimesCircle)
 library.add(faCheckCircle)
+library.add(faPython)
+library.add(faHtml5)
+library.add(faFileAlt)
+library.add(faFolder)
+library.add(faFolderOpen)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
