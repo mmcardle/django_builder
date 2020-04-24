@@ -1,20 +1,19 @@
 <template>
-  <v-layout row wrap v-if="isloaded">
-
+  <v-row  v-if="isloaded">
     <template ref="dialogs"></template>
 
-    <v-toolbar dense flat absolute v-if="imported_models.length > 0">
-      <v-toolbar-title to="/">
-        <span class="grey--text text--lighten-1 small-caps font-weight-black">
+    <v-toolbar dense v-if="imported_models.length > 0">
+      <v-toolbar-title class="toolbar-title px-3" to="/">
+        <h3 class="grey--text text--lighten-1 small-caps font-weight-black">
           <span class="blue--text text--darken-2">I</span>mported
           <span class="blue--text text--darken-2">M</span>odels
-        </span>
+        </h3>
       </v-toolbar-title>
 
-      <v-toolbar-items>
+      <v-toolbar-items >
         <template v-for="(model, i) in imported_models">
 
-          <v-btn flat v-bind:key="i" @click="import_dialog = true">
+          <v-btn text v-bind:key="i" @click="import_dialog = true">
             <v-icon style="font-size:0.8em" class="mr-1">fas fa-database</v-icon>
             {{model.name}}
           </v-btn>
@@ -25,9 +24,8 @@
       <v-spacer></v-spacer>
 
       <v-dialog v-model="import_dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
-        <v-toolbar-side-icon slot="activator"></v-toolbar-side-icon>
         <v-card>
-          <v-toolbar flat>
+          <v-app-bar flat>
             <v-toolbar-title>
               <django-builder-title />
               -
@@ -40,43 +38,42 @@
             <v-btn icon @click.native="import_dialog = false">
               <v-icon>close</v-icon>
             </v-btn>
-          </v-toolbar>
+          </v-app-bar>
 
-          <v-layout row wrap fill-height v-if="!importing">
-            <v-flex pa-2 xs12 md6 lg3 class="mb-3"
+          <v-row fill-height v-if="!importing">
+            <v-col pa-2 cols="12" md="6" lg="3" class="mb-3"
               v-for="(model, i) in imported_models" v-bind:key="i" >
               <importable-model v-bind:index="i" v-bind="model"
                 v-bind:add="addModelToApp" v-bind:apps="apps"
                 v-bind:remove="removeImportedModel"
               />
-            </v-flex>
-          </v-layout>
-          <v-layout v-else row wrap ref="importing" text-xs-center class="ma-3">
-            <v-flex offset-xs3 xs6>
+            </v-col>
+          </v-row>
+          <v-row v-else  ref="importing" text-center class="ma-3">
+            <v-col offset="3" cols="6">
               <h4 class="title font-weight-medium font-italics">
                 Importing Model ...
               </h4>
               <v-progress-linear slot="extension" :indeterminate="true" class="ma-2">
               </v-progress-linear>
-            </v-flex>
-            <v-flex>
+            </v-col>
+            <v-col>
               <v-icon class="ma-4" color="primary">
                 fas fa-circle-notch fa-4x fa-spin
               </v-icon>
-            </v-flex>
-          </v-layout>
+            </v-col>
+          </v-row>
 
         </v-card>
       </v-dialog>
     </v-toolbar>
 
     <v-container fluid pa-0 ref="project_title">
-      <v-layout row wrap align-center justify-center class="text-xs-center">
-        <v-flex pl-2 xs12 md4 v-if="isloaded"  >
+      <v-row  align="center" justify="center" class="text-center">
+        <v-col pl-2 cols="12" md="4" v-if="isloaded"  >
           <!-- Desktop -->
           <div @click="showEditProjectDialog()" class="hidden-xs-only">
             <a class="hljs-title display-3 font-weight-medium red--text text--darken-4 text-capitalize">
-              <font-awesome-icon class="red--text text--darken-4 mr-3" icon="project-diagram" />
               <span class="grey--text text--lighten-1 font-weight-black">
                 <span class="red--text text--darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
               </span>
@@ -86,7 +83,7 @@
           <div class="hidden-sm-and-up mt-2">
             <a class="hljs-title display-1 font-weight-medium red--text text--darken-4 text-capitalize"
               @click="showEditProjectDialog()">
-              <font-awesome-icon class="red--text text--darken-4 mr-3" icon="project-diagram" />
+              <v-icon size=50 class="red--text text--darken-4 mr-3" >mdi-file-tree</v-icon>
               <span class="grey--text text--lighten-1 font-weight-black">
                 <span class="red--text text--darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
               </span>
@@ -94,31 +91,31 @@
           </div>
           <a class="d-block" @click="showEditProjectDialog()">
             <span v-if="channels" class="orange--text">
-              Django Channels <font-awesome-icon class="green--text" icon="check-circle" />
+              Django Channels <v-icon class="green--text" >mdi-check-circle</v-icon>
             </span>
             <span v-if="!channels" class="grey--text">
-              Django Channels <font-awesome-icon class="grey--text" icon="times-circle" />
+              Django Channels <v-icon class="gray--text" >mdi-close-circle</v-icon>
             </span>
           </a>
-        </v-flex>
-        <v-flex v-if="Object.keys(this.apps).length > 0">
-          <v-btn large ripple @click="showAppDialog()">
+        </v-col>
+        <v-col v-if="Object.keys(this.apps).length > 0">
+          <v-btn large ripple @click="showAppDialog()" class="mr-3">
             Add App
           </v-btn>
-          <v-btn large ripple @click.stop="downloadProject()">
+          <v-btn large ripple @click.stop="downloadProject()" class="mr-3">
             Download
           </v-btn>
-          <v-btn v-if="importReady" large ripple color="success" type="file"
+          <v-btn v-if="importReady" large ripple color="success" type="file" class="mr-3"
             @click="$refs.inputUpload !== undefined ? $refs.inputUpload.click() : () => {}" >
             Upload models.py
           </v-btn>
           <input v-show="false" ref="inputUpload" type="file" @change="importModels"
             v-if="importReady" multiple>
-          <v-btn large ripple @click="showDeleteProjectDialog()" color="error">
+          <v-btn large ripple @click="showDeleteProjectDialog()" color="error" class="mr-3">
             Delete
           </v-btn>
-        </v-flex>
-        <v-flex row wrap v-else>
+        </v-col>
+        <v-col v-else>
           <v-btn color="success" ripple large @click="$refs.inputUpload.click()" type="file" >
             Upload models.py
           </v-btn>
@@ -126,14 +123,14 @@
           <v-btn large ripple @click="showDeleteProjectDialog()" color="error">
             Delete Project
           </v-btn>
-        </v-flex>
-      </v-layout>
+        </v-col>
+      </v-row>
     </v-container>
 
     <v-container fluid pa-0 ref="empty_apps" v-if="Object.keys(this.apps).length === 0">
-      <v-layout row wrap>
-        <v-flex xs12 offset-sm1 sm10 offset-md2 md8 offset-lg3 lg6 offset-xl4 xl4>
-          <v-card class="pa-3 mt-3 text-xs-center">
+      <v-row >
+        <v-col cols="12" offset-sm="1" sm="10" offset-md="2" md="8" offset-lg="3" lg="6" offset-xl="4" xl="4">
+          <v-card class="pa-3 mt-3 text-center">
             <v-card-text>
               Start your project by adding an App.
             </v-card-text>
@@ -143,126 +140,121 @@
               </v-btn>
             </v-card-text>
           </v-card>
-        </v-flex>
-      </v-layout>
+        </v-col>
+      </v-row>
     </v-container>
-
+    
     <v-container fluid ref="apps" px-0>
-      <v-layout row wrap>
-        <v-flex md8 hidden-sm-and-down >
+      <v-row >
+        <v-col md="8" hidden-sm-and-down class="py-0">
           <directoryview v-bind:id="id" />
-        </v-flex>
+        </v-col>
         <template v-if="isloaded">
-          <v-flex xs12 md4 >
+          <v-col cols="12" md="4" >
             <h2 class="red--text text--darken-4 mr-3 mx-2">
-              <font-awesome-icon icon="database" /> Project Models
+              <v-icon class="red--text text--darken-4" >mdi-database</v-icon> Project Models
             </h2>
             <div v-for="(app, appid) in this.apps" class="overflow-hidden" :key="appid">
-              <v-card elevation="2" class="ma-2 mb-4">
-              <v-card-title>
-                <h2>
-                  <a class="orange--text text--darken-1" @click="showEditAppDialog(appid)">
-                    {{appData(appid).name}}
-                  </a>
-                </h2>
+              <v-card elevation="2" class="ma-2 mb-5">
+              <v-card-title class="py-0">
+                <a class="orange--text text--darken-1" @click="showEditAppDialog(appid)">
+                  {{appData(appid).name}}
+                </a>
               </v-card-title>
-              <v-card-text class="mb-2">
+              <v-card-text class="mb-5">
                 <drop v-if="Object.keys(draggingModel).length !== 0 && draggingModel.app !== appid"
                   @drop="(modelid) => {dropModeltoApp(appid, modelid)}">
-                  <v-alert class="text-xs-center drag-model-location" :value="true" color="primary">
+                  <v-alert class="text-center drag-model-location" :value="true" color="primary">
                     Drop model here to move model to {{appData(appid).name}}
                     <div class="mt-3">
-                      <font-awesome-icon class="fa-4x" icon="caret-square-down" />
-                      <v-icon x-large color="white">fas fa-caret-square-down</v-icon>
+                      <v-icon x-large >mdi-chevron-down</v-icon>
                     </div>
                   </v-alert>
                 </drop>
 
                 <v-card v-for="model in $store.getters.ordered_models(appid)" :key="model.id + appid"
-                  class="mb-5 pa-2" elevation="4">
+                  class="mb-5 pt-1 pb-4" elevation="4">
                   <drag :transfer-data="{app: appid, model: model.id}"
                     @drag="dragModel({app: appid, model: model.id})"
                     @dragend="dragModelEnd({app: appid, model: model.id})"
                   >
-                  <div>
-                    <v-layout align-start justify-start row fill-height >
-                      <v-flex xs11>
-                        <h2>
-                          <font-awesome-icon icon="database" />
-                          <a class="hljs-function"
-                            @click="showEditModelDialog(appid, model.id)">
-                            {{modelData(model.id).name}}
-                            <span class="hljs-params"
-                              v-if="modelData(model.id).parents && modelData(model.id).parents.length > 0">
-                              ({{modelsParents(model.id)}})
-                            </span>
-                            <span v-else></span>
-                            <v-chip small v-if="modelData(model.id).abstract">Abstract</v-chip>
-                          </a>
-                        </h2>
-                      </v-flex>
-                      <v-flex xs1>
-                        <font-awesome-icon class="grey--text lighten-2" icon="grip-horizontal" />
-                      </v-flex>
-                    </v-layout>
+                  <v-card-title class="py-0">
+                    <v-row align="start" justify="start" fill-height>
+                      <v-col cols="11" class="py-0">
+                        <v-icon class="red--text text--darken-4" >mdi-database</v-icon>
+                        <a class="hljs-function"
+                          @click="showEditModelDialog(appid, model.id)">
+                          {{modelData(model.id).name}}
+                          <span class="hljs-params"
+                            v-if="modelData(model.id).parents && modelData(model.id).parents.length > 0">
+                            ({{modelsParents(model.id)}})
+                          </span>
+                          <span v-else></span>
+                          <v-chip small v-if="modelData(model.id).abstract">Abstract</v-chip>
+                        </a>
+                      </v-col>
+                      <v-col cols="1" class="py-0">
+                        <v-icon>mdi-drag</v-icon>
+                      </v-col>
+                    </v-row>
 
-                  </div>
+                  </v-card-title>
 
-                  <v-list dense>
-                    <v-list-tile @click="showEditRelationshipDialog(relationshipid)"  class="mb-1"
+                  <v-list dense v-if="Object.keys(modelData(model.id).relationships).length > 0">
+                    <v-list-item @click="showEditRelationshipDialog(relationshipid)"  class="mb-1"
                       v-for="(relationship, relationshipid) in modelData(model.id).relationships" ripple
                       :key="relationshipid + appid"
                     >
-                      <v-list-tile-avatar size="20" style="min-width: 30px">
+                      <v-list-item-avatar size="20" style="min-width: 30px">
                         <v-icon>device_hub</v-icon>
-                      </v-list-tile-avatar>
+                      </v-list-item-avatar>
 
-                      <v-list-tile-content>
-                        <v-list-tile-title class="subheading font-weight-medium">
+                      <v-list-item-content>
+                        <v-list-item-title class="subheading font-weight-medium">
                           <span class="red--text"> {{relationshipData(relationshipid).name}}</span>
-                        </v-list-tile-title>
-                        <v-list-tile-sub-title class="body-2">
+                        </v-list-item-title>
+                        <v-list-item-subtitle class="body-2">
                           {{relationshipData(relationshipid).type.split('.').pop()}}
                           (<span class="green--text">{{relationshipData(relationshipid).to.split('.').pop()}}</span>,
                           {{relationshipData(relationshipid).args}})
-                        </v-list-tile-sub-title>
-                      </v-list-tile-content>
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
 
-                      <v-list-tile-action>
+                      <v-list-item-action>
                         <v-btn icon ripple
                           @click.stop="showDeleteRelationshipDialog(model.id, relationshipid)">
-                          <font-awesome-icon icon="trash" class="red--text text--darken-4" />
+                          <v-icon class="red--text text--darken-4" >mdi-delete</v-icon>
                         </v-btn>
-                      </v-list-tile-action>
+                      </v-list-item-action>
 
-                    </v-list-tile>
+                    </v-list-item>
                   </v-list>
 
-                  <v-list two-line dense>
-                    <v-list-tile @click="showEditFieldDialog(fieldid)" ripple
+                  <v-list two-line dense v-if="Object.keys(modelData(model.id).fields).length > 0">
+                    <v-list-item @click="showEditFieldDialog(fieldid)" ripple
                       v-for="(field, fieldid) in modelData(model.id).fields" :key="fieldid + appid"
                     >
-                      <v-list-tile-avatar size="20" style="min-width: 30px" class="hidden-xs-only">
-                        <font-awesome-icon icon="circle" class="grey--text text--lighten-1" />
-                      </v-list-tile-avatar>
+                      <v-list-item-avatar size="20" style="min-width: 30px" class="hidden-xs-only">
+                          <v-icon small class="grey--text text--lighten-1" >mdi-circle</v-icon>
+                      </v-list-item-avatar>
 
-                      <v-list-tile-content class="subheading font-weight-medium">
-                        <v-list-tile-title>
+                      <v-list-item-content class="subheading font-weight-medium">
+                        <v-list-item-title>
                           <span class="primary--text">{{fieldData(fieldid).name}}</span>
-                        </v-list-tile-title>
-                        <v-list-tile-sub-title>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>
                           {{fieldData(fieldid).type.split('.').pop()}}
                           <span class="hidden-xs-only">({{fieldData(fieldid).args}})</span>
-                        </v-list-tile-sub-title>
-                      </v-list-tile-content>
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
 
-                      <v-list-tile-action>
-                        <v-btn icon ripple
+                      <v-list-item-action>
+                        <v-btn icon ripple red
                           @click.stop="showDeleteFieldDialog(model.id, fieldid)">
-                          <font-awesome-icon icon="trash" class="red--text text--darken-4" />
+                          <v-icon class="red--text text--darken-4" >mdi-delete</v-icon>
                         </v-btn>
-                      </v-list-tile-action>
-                    </v-list-tile>
+                      </v-list-item-action>
+                    </v-list-item>
                   </v-list>
 
                   <v-card-text v-if='Object.keys(modelData(model.id).fields).length + Object.keys(modelData(model.id).relationships).length == 0'>
@@ -282,33 +274,41 @@
                     </v-subheader>
                   </v-card-text>
 
-                  <v-speed-dial absolute right direction="left"
-                   open-on-hover transition="slide-x-reverse-transition">
-                    <v-btn slot="activator" color="primary" dark icon class="mt-0" small>
-                      <v-icon>apps</v-icon>
-                    </v-btn>
-
-                    <v-tooltip top>
-                      <v-btn small icon color="info" slot="activator" class="mt-0"
-                        @click="showFieldDialog(model.id)">
+                  <v-speed-dial
+                    absolute right
+                    direction="left"
+                    open-on-hover
+                    transition="slide-x-reverse-transition"
+                  >
+                    <template v-slot:activator>
+                      <v-btn x-small color="info" dark fab >
                         <v-icon>add</v-icon>
                       </v-btn>
-                      <span> Add Field</span>
+                    </template>
+
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                        <v-btn x-small fab dark color="green" @click="showFieldDialog(model.id)" v-on="on">
+                          <v-icon>add</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Add Model</span>
                     </v-tooltip>
 
                     <v-tooltip top>
-                      <v-btn small icon color="info" slot="activator" class="mt-0"
-                        @click="showRelationshipDialog(model.id)">
-                        <v-icon>device_hub</v-icon>
-                      </v-btn>
-                      <span> Add Relationship</span>
+                      <template v-slot:activator="{ on }">
+                        <v-btn x-small fab dark color="warning" @click="showRelationshipDialog(model.id)" v-on="on" >
+                          <v-icon>share</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Add Relationship</span>
                     </v-tooltip>
 
                   </v-speed-dial>
-
-                  <v-btn small absolute bottom left icon color="error"
+                  
+                  <v-btn fab x-small dark absolute left color="error"
                     @click="showDeleteModelDialog(appid, model.id)">
-                    <font-awesome-icon icon="trash" />
+                    <v-icon>mdi-delete</v-icon>
                   </v-btn>
 
                 </drag>
@@ -326,25 +326,23 @@
                   </v-subheader>
                 </div>
               </v-card-text>
-              <v-btn small absolute bottom right round color="info" dark class="ml-4"
-                @click="showModelDialog(appid)">
-                <v-icon>add</v-icon> Model
+              <v-btn fab x-small absolute bottom right color="info" dark @click="showModelDialog(appid)">
+                <v-icon>add</v-icon>
               </v-btn>
-              <v-btn small absolute bottom left icon color="error"
-                @click="showDeleteAppDialog(appid)">
-                <font-awesome-icon icon="trash" />
+              <v-btn fab x-small absolute bottom left color="error" @click="showDeleteAppDialog(appid)">
+                <v-icon>mdi-delete</v-icon>
               </v-btn>
             </v-card>
             </div>
-          </v-flex>
+          </v-col>
         </template>
-      </v-layout>
+      </v-row>
     </v-container>
 
     <v-container fluid hidden-md-and-up>
       <template v-for="(renderdata, i) in all_renderers">
-        <v-layout row :key="'app_render_' + i">
-        <v-flex>
+        <v-row :key="'app_render_' + i">
+        <v-col>
           <v-card class="my-1" elevation="2" :key="'app_render_card_' + i">
             <v-card-title class="ma-0 pb-0">
               <h2 class="blue--text text--darken-4 mx-2">
@@ -360,24 +358,24 @@
               <highlight-code lang="python">{{renderdata.render()}}</highlight-code>
             </v-card-text>
           </v-card>
-        </v-flex>
-        </v-layout>
+        </v-col>
+        </v-row>
       </template>
     </v-container>
 
-  </v-layout>
-  <v-layout v-else row wrap ref="loading" text-xs-center>
-    <v-flex xs12>
+  </v-row>
+  <v-row v-else  ref="loading" text-center>
+    <v-col cols="12">
       <h4 class="title font-weight-medium font-italics">
         Loading ...
       </h4>
-    </v-flex>
-    <v-flex>
+    </v-col>
+    <v-col>
       <v-icon class="ma-4" color="primary">
         fas fa-circle-notch fa-4x fa-spin
       </v-icon>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 
 </template>
 
@@ -788,14 +786,16 @@ export default {
 </script>
 <style>
 .hljs {
+  color: #545454 !important;
+  padding: 0;
   background: white !important;
+  width: 100%;
+  height: 100%;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
 }
-code {
-  box-shadow: none;
-  -webkit-box-shadow: none;
-}
-code:before {
-  content: "";
+code:before, .hljs:before {
+  content: "" !important;
 }
 .drag-model-location {
   border-radius: 10px;

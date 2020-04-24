@@ -1,17 +1,17 @@
 <template>
   <v-dialog v-model="formdialog" max-width="600" persistent @keydown.esc="do_esc">
-    <v-card >
+    <v-card>
       <v-card-title class="primary white--text">
         <span class="white--text headline">
           <v-icon style="font-size:1.2em" color="white">{{icon}}</v-icon> {{headline}}
         </span>
       </v-card-title>
-      <v-card-text>
+      <v-card-text class="pt-3">
         <div ref="formcontainer"></div>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="darken-1" flat="flat" @click="do_cancel">
+        <v-btn color="darken-1" text @click="do_cancel">
           Cancel
         </v-btn>
         <v-btn @click="do_ok">
@@ -24,6 +24,7 @@
 
 <script>
 import Vue from 'vue'
+import vuetify from '@/plugins/vuetify';
 import FormGenerator from '@/components/forms/FormGenerator'
 
 export default {
@@ -66,13 +67,20 @@ export default {
   mounted: function () {
     const FormGeneratorClass = Vue.extend(FormGenerator)
     this.form = new FormGeneratorClass({
-      propsData: {schema: this.schema, value: this.formdata}
+      vuetify, propsData: {schema: this.schema, value: this.formdata}
     })
     this.$refs.formcontainer.appendChild(this.form.$mount().$el)
   },
   methods: {
     do_ok: function() {
+      console.log('do_ok', this)
+      console.log('do_ok', this.form)
+      console.log('do_ok', this.form.$refs)
+      console.log('do_ok', this.form.valid)
+      //console.log('do_ok', this.$refs)
+      //console.log('do_ok', this.$refs.formcontainer)
       if (this.form.$refs.form.validate()) {
+        //if (this.$refs.formcontainer.validate()) {
         this.formdialog = false
         this.ok(this.formdata)
       }

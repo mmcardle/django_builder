@@ -3,17 +3,15 @@
     <v-card>
       <v-card-title class="primary white--text">
         <span class="white--text headline">
-          <font-awesome-icon icon="trash" class="white--text" /> {{headline}}
+          <v-icon class="white--text" large>mdi-delete</v-icon> {{headline}}
         </span>
       </v-card-title>
-      <v-card-text>
-        <p>
-          <v-alert :value="true" color="error">{{text}}</v-alert>
-        </p>
+      <v-card-text class="pt-5">
+          {{text}}
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="darken-1" flat="flat" @click="do_cancel">
+        <v-btn color="darken-1" text @click="do_cancel">
           Cancel
         </v-btn>
         <v-btn color="error darken-1" @click="do_ok">

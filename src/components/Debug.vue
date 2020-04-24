@@ -3,10 +3,7 @@
     <h1>{{ msg }}</h1>
     <v-text-field box v-model="new_name" placeholder="Enter a Name" />
     <p v-if="error">
-      <v-alert
-        :value="true"
-        color="error"
-      >
+      <v-alert color="error">
       {{error}}
       </v-alert>
     </p>

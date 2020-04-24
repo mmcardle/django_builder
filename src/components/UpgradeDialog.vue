@@ -3,32 +3,32 @@
     <v-card>
       <v-card-title class="primary white--text">
         <span class="white--text headline">
-          <font-awesome-icon icon="info-circle" class="white--text" /> Create Account
+          <v-icon color="white" large>mdi-information</v-icon> Create Account
         </span>
       </v-card-title>
       <v-card-text>
 
-        <p class="py-2">
+        <p class="pt-5">
           When you log out as an anonymous user you <span class="font-weight-bold">lose</span> any data you created.
           Would you like to create an account?
         </p>
 
-        <v-alert :value="error" type="error" class="my-3">
+        <v-alert v-if="error" :value="error" type="error" class="my-3">
           {{error}}
         </v-alert>
 
         <v-form>
-          <v-text-field autocomplete="email" prepend-icon="person" name="login" label="Email" type="email" v-model="email"
-           :rules="[rules.required]" :error="errors.email !== undefined" :hint="errors.password">
+          <v-text-field autocomplete="email" prepend-icon="mdi-account" name="login" label="Email" type="email" v-model="email"
+          :rules="[rules.required]" :error="errors.email !== undefined" :hint="errors.password">
           </v-text-field>
 
           <v-text-field
-            autocomplete="new-password" id="password" prepend-icon="lock" name="password" label="Password" type="password"
+            autocomplete="new-password" id="password" prepend-icon="mdi-lock" name="password" label="Password" type="password"
             v-model="password" :rules="[rules.required, rules.min]" :hint="errors.password" :error="errors.password !== undefined">
           </v-text-field>
 
           <v-text-field
-            autocomplete="new-password" id="password2" prepend-icon="lock" name="password2" label="Password Verify" type="password"
+            autocomplete="new-password" id="password2" prepend-icon="mdi-lock-plus" name="password2" label="Password Verify" type="password"
             v-model="password2" :rules="[rules.required, rules.min]" :hint="errors.password2" :error="errors.password2 !== undefined">
           </v-text-field>
         </v-form>

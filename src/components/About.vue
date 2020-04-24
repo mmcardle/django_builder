@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="text-xs-center">
-    <v-layout row wrap align-center justify-center fill-height >
-      <v-flex xs12 >
+  <v-container fluid class="text-center">
+    <v-row  align="center" justify="center" fill-height >
+      <v-col cols="12" >
         <div class="display-4 hidden-sm-and-down" ><django-builder-title /></div>
         <div class="display-2 hidden-md-and-up" ><django-builder-title /></div>
         <p style="color: gray">building things....</p>
@@ -10,21 +10,21 @@
         </div>
         <div class="body-2">
             <div class="ma-2">
-              <font-awesome-icon :icon="['fab', 'github']" />&nbsp;
+              <v-icon class="red--text text-darken-3" >mdi-github-circle</v-icon>
               <a href="https://github.com/mmcardle/django_builder" target="_blank">
                 Django Builder on Github
               </a>
             </div>
 
             <div class="ma-2">
-              <font-awesome-icon :icon="['fab', 'github']" />&nbsp;
+              <v-icon class="red--text text-darken-3" >mdi-github-circle</v-icon>
               <a href="https://github.com/mmcardle/" target="_blank">
                 mmcardle
               </a>
             </div>
 
             <div class="ma-2">
-              <font-awesome-icon :icon="['fab', 'twitter']" />&nbsp;
+              <v-icon class="red--text text-darken-3" >mdi-twitter</v-icon>
               <a href="https://twitter.com/mmc4rdle" target="_blank">
                 @mmc4rdle
               </a>
@@ -56,7 +56,7 @@
               <img alt="" border="0" src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" width="1" height="1">
             </form>
         </div>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>

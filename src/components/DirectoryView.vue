@@ -1,52 +1,55 @@
 
 <template>
-  <v-layout row wrap v-if="isloaded">
-    <v-flex xs4>
-      <h2 class="mx-2">
-        <span class="grey--text text--lighten-1 font-weight-black">
-          <span class="red--text text--darken-2 text-capitalize">
-            <font-awesome-icon icon="file-alt" /> Project Files</span>
-        </span>
-      </h2>
-      <v-card class="ma-2" elevation="2">
-        <v-card-text class="ma-0 pt-0">
-          <v-treeview :items="items" :open.sync="open" :open-all="false" item-key="path" open-on-click return-object>
-          <template v-slot:prepend="{ item, open }" v-on:click="click">
-            <font-awesome-icon class="blue--text text--darken-4" v-if="item.folder" :icon="open ? ['fa', 'folder-open'] : ['fa', 'folder']" />
-            <font-awesome-icon class="blue--text text--darken-4" v-else :icon="icon(item.name)" />
-          </template>
-          <template slot="label" slot-scope="{ item }">
-            <div @click="click(item)" :class="active !== undefined && active.path === item.path ? 'red--text text--darken-4 font-weight-bold' : ''">
-              {{ item.name }}
-            </div>
-          </template>
-        </v-treeview>
-      </v-card-text>
-      </v-card>
-    </v-flex>
-    <v-flex xs8>
-      <!--div>active_nodes:{{active_nodes}}</div>
-      <div>active:{{active}}</div-->
-      <template v-if="active">
-        <h2 class="blue--text text--darken-4 mx-2">
-          <font-awesome-icon :icon="icon(active.name)" class="mr-2" />
-          <span v-for="(part, i) in active_split" v-bind:key="i">
-            <span class="blue-grey--text text--lighten-4" v-if="i !== 0"> / </span>
-            <span :class="i === active_split.length - 1 ? ['orange--text' , 'text--darken-1'] : ['blue--text', 'text--darken-1']">
-             {{ part }}
-            </span>
+  <v-container pl-2 py-0>
+    <v-row v-if="isloaded">
+      <v-col cols="4">
+        <h2 class="mx-2">
+          <span class="grey--text text--lighten-1 font-weight-black">
+            <v-icon class="red--text text--darken-4 mr-2" large>mdi-file-tree</v-icon>
+            <span class="red--text text--darken-2 text-capitalize">Project Files</span>
           </span>
         </h2>
         <v-card class="ma-2" elevation="2">
-          <v-card-text class="ma-0 pt-0">
-            <highlight-code :lang="lang(active.name)" style="min-height: 800px; max-height:800px; overflow-y:auto">
-              {{active.render()}}
-            </highlight-code>
+          <v-card-text class="ma-0 pa-0">
+            <v-treeview dense :items="items" :open.sync="open" :open-all="false" item-key="path" open-on-click return-object
+              style="min-height: 800px;">
+              <template v-slot:prepend="{ item, open }" v-on:click="click">
+                <v-icon class="blue--text text--darken-4" v-if="item.folder && open" small>mdi-folder-open</v-icon>
+                <v-icon class="blue--text text--darken-4" v-else-if="item.folder" small>mdi-folder</v-icon>
+                <v-icon class="blue--text text--darken-4" v-else small>{{icon(item.name)}}</v-icon>
+              </template>
+              <template slot="label" slot-scope="{ item }">
+                <div @click="click(item)" :class="active !== undefined && active.path === item.path ? 'red--text text--darken-4 font-weight-bold' : ''">
+                  {{ item.name }}
+                </div>
+              </template>
+            </v-treeview>
           </v-card-text>
         </v-card>
-      </template>
-    </v-flex>
-  </v-layout>
+      </v-col>
+      <v-col cols="8">
+        <!--div>active_nodes:{{active_nodes}}</div>
+        <div>active:{{active}}</div-->
+        <template v-if="active">
+          <h2 class="blue--text text--darken-4 mx-2">
+            <v-icon class="blue--text text--darken-4 mr-2">{{icon(active.name)}}</v-icon>
+            <span v-for="(part, i) in active_split" v-bind:key="i">
+              <span class="blue-grey--text text--lighten-4" v-if="i !== 0"> / </span>
+              <span :class="i === active_split.length - 1 ? ['orange--text' , 'text--darken-1'] : ['blue--text', 'text--darken-1']">
+              {{ part }}
+              </span>
+            </span>
+          </h2>
+          <v-card class="ma-2" elevation="2">
+            <v-card-text class="ma-0 pt-1">
+              <!-- Important this the next line is all one line! -->
+              <highlight-code :lang="lang(active.name)" style="min-height: 800px; max-height:800px; overflow-y:auto">{{active.render()}}</highlight-code>
+            </v-card-text>
+          </v-card>
+        </template>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -64,6 +67,7 @@ const renderer = new Renderer()
       open: [],
     }),
     computed: {
+      sourcecode: () => "from django.db import models",
       renderer: () => renderer,
       isloaded: function () {
         return this.$store.getters.loaded()
@@ -127,11 +131,11 @@ const renderer = new Renderer()
       },
       icon: function (filename) {
         if (filename.endsWith(".py")) {
-          return ["fab", 'python'] 
+          return "mdi-language-python"
         } else if (filename.endsWith(".html")) {
-          return ["fab", "html5"] 
+          return "mdi-language-html5"
         } else {
-          return ["fa", "file-alt"]
+          return "mdi-file"
         }
       },
       lang: function (filename) {

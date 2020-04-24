@@ -1,12 +1,10 @@
 <template>
-  <div>
-    <v-text-field
-      :value="default_value" :rules="rules" :required="required"
-      :label="label" :placeholder="placeholder"
-      :default="default_value" @input="$emit('input', $event);">
-      >
-    </v-text-field>
-  </div>
+  <v-text-field
+    :value="default_value" :rules="rules" :required="required"
+    :label="label" :placeholder="placeholder"
+    :default="default_value" @input="$emit('input', $event);">
+    >
+  </v-text-field>
 </template>
 <script>
 export default {

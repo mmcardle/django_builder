@@ -2,16 +2,16 @@
 
   <v-container fluid class="px-0 mx-0">
 
-    <v-layout row align-center justify-center fill-height class="text-xs-center">
-      <v-flex xs12 >
+    <v-row align="center" justify="center" fill-height class="text-center">
+      <v-col cols="12" >
         <div class="display-4 hidden-sm-and-down" ><django-builder-title /></div>
         <div class="display-2 hidden-md-and-up" ><django-builder-title /></div>
-     </v-flex>
-    </v-layout>
+     </v-col>
+    </v-row>
 
-    <v-layout align-space-around justify-center row fill-height wrap
+    <v-row align-content="space-around" justify="center" fill-height 
       v-if="this.$store.getters.loaded()">
-      <v-flex xs12 md6 lg3 v-for="(project, i) in this.$store.getters.projectsData()"
+      <v-col cols="12" md="6" lg="3" v-for="(project, i) in this.$store.getters.projectsData()"
         :key="project.id" elevation="6"
         class="ma-2" >
 
@@ -33,31 +33,31 @@
           </template-->
 
         </v-card>
-      </v-flex>
+      </v-col>
 
-      <v-flex xs12 md12 lg12 v-if="this.$store.getters.projectsData().length > 0"
-        elevation="6" class="ma-3 text-xs-center">
+      <v-col cols="12" md="12" lg="12" v-if="this.$store.getters.projectsData().length > 0"
+        elevation="6" class="ma-3 text-center">
         <v-btn color="primary" @click="showAddProjectDialog" class="mb-4">
           <v-icon>add</v-icon> Create a New Project
         </v-btn>
-      </v-flex>
+      </v-col>
 
-      <v-flex xs12 md6 lg3 v-if="this.$store.getters.projectsData().length === 0"
-        class="text-xs-center ma-2 font-weight-medium">
+      <v-col cols="12" md="6" lg="3" v-if="this.$store.getters.projectsData().length === 0"
+        class="text-center ma-2 font-weight-medium">
         <v-card >
           <v-card-title primary-title>
             Welcome to Django Builder, you dont seem to have any projects. To start just...
           </v-card-title>
-          <v-card-text class="text-xs-center">
+          <v-card-text class="text-center">
             <v-btn color="primary" @click="showAddProjectDialog" class="mb-4">
               <v-icon>add</v-icon> Create a New Project
             </v-btn>
           </v-card-text>
           <v-img :src="images[0]" aspect-ratio="2.75" height="180"></v-img>
         </v-card>
-      </v-flex>
+      </v-col>
 
-    </v-layout>
+    </v-row>
   </v-container>
 </template>
 <script>

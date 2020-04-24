@@ -1,7 +1,7 @@
 <template>
   <v-container>
-    <v-layout align-center justify-center>
-      <v-flex xs12 sm8 md4>
+    <v-row align="center" justify="center">
+      <v-col cols="12" sm="8" md="4">
         <v-card class="elevation-12 mr-5">
           <v-toolbar dark color="primary">
             <v-toolbar-title>Verify?</v-toolbar-title>
@@ -11,15 +11,15 @@
               {{error}}
             </v-alert>
           </v-card-text>
-          <v-card-text v-if="!error" class="text-xs-center">
-            <font-awesome-icon class="fa-4x fa-spin red--text text--darken-4" icon="circle-notch" />
+          <v-card-text v-if="!error" class="text-center">
+            <v-icon size="90" color="red" class="red--text text--darken-4" spin>mdi-cached mdi-spin</v-icon>
           </v-card-text>
           <v-card-actions v-if="error">
             <v-btn block color="info" v-on:click="verify">Try Again?</v-btn>
           </v-card-actions>
         </v-card>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

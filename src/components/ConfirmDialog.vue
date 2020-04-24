@@ -3,11 +3,11 @@
     <v-card>
       <v-card-title class="primary white--text">
         <span class="white--text headline">
-          <font-awesome-icon icon="info-circle" class="white--text" /> {{headline}}
+          <v-icon large color="white" class="mr-2">mdi-information</v-icon> {{headline}}
         </span>
       </v-card-title>
       <v-card-text>
-        <p>{{text}}</p>
+        <p class="pt-4">{{text}}</p>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>

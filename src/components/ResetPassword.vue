@@ -1,7 +1,7 @@
 <template>
   <v-container fluid fill-height>
-    <v-layout align-center justify-center row wrap>
-      <v-flex pa-2 xs12 sm8 md6 lg4>
+    <v-row align="center" justify="center" >
+      <v-col pa-2 cols="12" sm="8" md="6" lg="4">
         <v-card class="elevation-12">
           <v-toolbar dark color="primary">
             <v-toolbar-title>Reset your password!</v-toolbar-title>
@@ -28,8 +28,8 @@
             </v-card-text>
           </template>
         </v-card>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
