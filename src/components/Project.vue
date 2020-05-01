@@ -68,11 +68,12 @@
       </v-dialog>
     </v-toolbar>
 
-    <v-container fluid pa-0 ref="project_title">
+    <v-container ref="project_title">
       <v-row  align="center" justify="center" class="text-center">
-        <v-col pl-2 cols="12" md="4" v-if="isloaded"  >
+        <v-col cols="12" md=4 lg=3 v-if="isloaded">
           <!-- Desktop -->
           <div @click="showEditProjectDialog()" class="hidden-xs-only">
+            <v-icon size=50 class="red--text text--darken-4 mr-3 mt-n8" >mdi-file-tree</v-icon>
             <a class="hljs-title display-3 font-weight-medium red--text text--darken-4 text-capitalize">
               <span class="grey--text text--lighten-1 font-weight-black">
                 <span class="red--text text--darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
@@ -81,9 +82,9 @@
           </div>
           <!-- Mobile -->
           <div class="hidden-sm-and-up mt-2">
-            <a class="hljs-title display-1 font-weight-medium red--text text--darken-4 text-capitalize"
+            <a class="hljs-title display-2 font-weight-medium red--text text--darken-4 text-capitalize"
               @click="showEditProjectDialog()">
-              <v-icon size=50 class="red--text text--darken-4 mr-3" >mdi-file-tree</v-icon>
+              <v-icon size=50 class="red--text text--darken-4 mr-3 mt-n3" >mdi-file-tree</v-icon>
               <span class="grey--text text--lighten-1 font-weight-black">
                 <span class="red--text text--darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
               </span>
@@ -98,32 +99,46 @@
             </span>
           </a>
         </v-col>
-        <v-col v-if="Object.keys(this.apps).length > 0">
-          <v-btn large ripple @click="showAppDialog()" class="mr-3">
-            Add App
-          </v-btn>
-          <v-btn large ripple @click.stop="downloadProject()" class="mr-3">
-            Download
-          </v-btn>
-          <v-btn v-if="importReady" large ripple color="success" type="file" class="mr-3"
-            @click="$refs.inputUpload !== undefined ? $refs.inputUpload.click() : () => {}" >
-            Upload models.py
-          </v-btn>
-          <input v-show="false" ref="inputUpload" type="file" @change="importModels"
-            v-if="importReady" multiple>
-          <v-btn large ripple @click="showDeleteProjectDialog()" color="error" class="mr-3">
-            Delete
-          </v-btn>
-        </v-col>
-        <v-col v-else>
-          <v-btn color="success" ripple large @click="$refs.inputUpload.click()" type="file" >
-            Upload models.py
-          </v-btn>
-          <input v-show="false" ref="inputUpload" type="file" @change="importModels" multiple>
-          <v-btn large ripple @click="showDeleteProjectDialog()" color="error">
-            Delete Project
-          </v-btn>
-        </v-col>
+        <template v-if="Object.keys(this.apps).length > 0">
+          <v-col cols=12 sm=6 md=4 lg=2>
+            <v-btn style="width:95%" large ripple @click="showAppDialog()" class="mx-2">
+              <v-icon>add</v-icon> Add App
+            </v-btn>
+          </v-col>
+          <v-col cols=12 sm=6 md=4 lg=2>
+            <v-btn style="width:95%" large ripple @click.stop="downloadProject()" class="mx-2">
+              <v-icon class=mr-1 color=blue>mdi-cloud-download</v-icon>  Download
+            </v-btn>
+          </v-col>
+          <v-col cols=12 sm=6 md=4 lg=3 offset-md=4 offset-lg=0>
+            <v-btn style="width:95%" v-if="importReady" large ripple color="success" type="file" class="mx-2"
+              @click="$refs.inputUpload !== undefined ? $refs.inputUpload.click() : () => {}" >
+              <v-icon class=mr-1 color=white>mdi-cloud-upload</v-icon> Upload models.py
+            </v-btn>
+          </v-col>
+          <v-col cols=12 sm=6 md=4 lg=2 >
+            <input v-show="false" ref="inputUpload" type="file" @change="importModels"
+              v-if="importReady" multiple>
+            <v-btn style="width:95%" large ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
+              <v-icon>delete</v-icon> Delete
+            </v-btn>
+          </v-col>
+        </template>
+        <template v-else>
+          <v-col cols=12 sm=5 md=4 lg=3 xl=2>
+            <v-btn style="width:95%" v-if="importReady" large ripple color="success" type="file" class="mx-2"
+              @click="$refs.inputUpload !== undefined ? $refs.inputUpload.click() : () => {}" >
+              <v-icon class=mr-1 color=white>mdi-cloud-upload</v-icon> Upload models.py
+            </v-btn>
+          </v-col>
+          <v-col cols=12 sm=5 md=4 lg=3 xl=2 >
+            <input v-show="false" ref="inputUpload" type="file" @change="importModels"
+              v-if="importReady" multiple>
+            <v-btn style="width:95%" large ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
+              <v-icon>delete</v-icon> Delete
+            </v-btn>
+          </v-col>
+        </template>
       </v-row>
     </v-container>
 
@@ -136,7 +151,7 @@
             </v-card-text>
             <v-card-text>
               <v-btn large ripple color="primary" @click="showAppDialog()">
-                Add App
+                <v-icon>add</v-icon> Add App
               </v-btn>
             </v-card-text>
           </v-card>
@@ -144,16 +159,21 @@
       </v-row>
     </v-container>
     
-    <v-container fluid ref="apps" px-0>
+    <v-container fluid ref="apps" px-0 >
       <v-row >
-        <v-col md="8" hidden-sm-and-down class="py-0">
+        <v-col md="8" hidden-sm-and-down class="py-0 pr-0">
           <directoryview v-bind:id="id" />
         </v-col>
         <template v-if="isloaded">
           <v-col cols="12" md="4" >
-            <h2 class="red--text text--darken-4 mr-3 mx-2">
+            <h2 class="red--text text--darken-4 mx-3">
               <v-icon class="red--text text--darken-4" >mdi-database</v-icon> Project Models
             </h2>
+            <v-card elevation="2" class="ma-2 mb-5 mr-5" v-if="Object.keys(this.apps).length == 0">
+              <v-card-text class="mb-5">
+                <em>Add some apps so you can create models.</em>
+              </v-card-text>
+            </v-card>
             <div v-for="(app, appid) in this.apps" class="overflow-hidden" :key="appid">
               <v-card elevation="2" class="ma-2 mb-5">
               <v-card-title class="py-0">
@@ -339,7 +359,7 @@
       </v-row>
     </v-container>
 
-    <v-container fluid hidden-md-and-up>
+    <!--v-container fluid hidden-md-and-up>
       <template v-for="(renderdata, i) in all_renderers">
         <v-row :key="'app_render_' + i">
         <v-col>
@@ -361,7 +381,7 @@
         </v-col>
         </v-row>
       </template>
-    </v-container>
+    </v-container-->
 
   </v-row>
   <v-row v-else  ref="loading" text-center>

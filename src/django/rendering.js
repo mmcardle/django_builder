@@ -110,20 +110,31 @@ class Renderer {
 
   project_tree(projectid) {
     const project = store.getters.projectData(projectid)
+
+    let project_children = this.project_renderers().map(render_name => {
+      return {
+        path: project.name + '/' + render_name,
+        name: render_name,
+        render: () => this.project_render(render_name, projectid)
+      }
+    })
+
+    if (project.channels) {
+      project_children.push(...this.channels_renderers().map(render_name => {
+        return {
+          path: project.name + '/' + render_name,
+          name: render_name,
+          render: () => this.channels_render(render_name, projectid)
+        }
+      }))
+    }
+
     const project_item = {
       path: project.name,
       name: project.name,
       folder: true,
-      children: this.project_renderers().map(render_name => {
-        return {
-          path: project.name + '/' + render_name,
-          name: render_name,
-          render: () => this.project_render(render_name, projectid)
-        }
-      })
+      children: project_children
     }
-
-    console.error("ADD CHANNELS APPS AND CONFIG")
 
     const apps = keys(store.getters.projectData(projectid).apps).map(app_id =>{
       const app = store.getters.appData(app_id)
@@ -142,24 +153,38 @@ class Renderer {
         }))
       })
 
+      let model_children = this.app_renderers().map(render_name => {
+        return {
+          path: app.name + '/' + render_name,
+          name: render_name,
+          render: () => this.app_render(render_name, app_id)
+        }
+      })
+
+      if (project.channels) {
+        model_children.push(...this.channels_app_renderers().map(render_name => {
+          return {
+            path: app.name + '/' + render_name,
+            name: render_name,
+            render: () => this.channels_app_render(render_name, app_id)
+          }
+        }))
+      }
+
+      model_children = model_children.concat(
+        {
+          path: app.name + "/templates/" + app.name,
+          name: "templates/" + app.name,
+          folder: true,
+          children: model_templates
+        }
+      )
+
       return {
         path: app.name,
         name: app.name,
         folder: true,
-        children: this.app_renderers().map(render_name => {
-          return {
-            path: app.name + '/' + render_name,
-            name: render_name,
-            render: () => this.app_render(render_name, app_id)
-          }
-        }).concat(
-          {
-            path: app.name + "/templates/" + app.name,
-            name: "templates/" + app.name,
-            folder: true,
-            children: model_templates
-          }
-        )
+        children: model_children
       }
     })
 

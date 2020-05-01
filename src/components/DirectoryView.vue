@@ -1,15 +1,16 @@
 
 <template>
-  <v-container pl-2 py-0>
+  <v-container pl-2 pr-0 py-0>
     <v-row v-if="isloaded">
-      <v-col cols="4">
+      <v-col cols=6 md=4 lg=3 class="pr-0">
         <h2 class="mx-2">
           <span class="grey--text text--lighten-1 font-weight-black">
             <v-icon class="red--text text--darken-4 mr-2" large>mdi-file-tree</v-icon>
-            <span class="red--text text--darken-2 text-capitalize">Project Files</span>
+            <span class="red--text text--darken-2 text-capitalize">
+              <span class="hidden-sm-and-down">Project</span> Files</span>
           </span>
         </h2>
-        <v-card class="ma-2" elevation="2">
+        <v-card class="ma-2 mr-0" elevation="2">
           <v-card-text class="ma-0 pa-0">
             <v-treeview dense :items="items" :open.sync="open" :open-all="false" item-key="path" open-on-click return-object
               style="min-height: 800px;">
@@ -19,7 +20,10 @@
                 <v-icon class="blue--text text--darken-4" v-else small>{{icon(item.name)}}</v-icon>
               </template>
               <template slot="label" slot-scope="{ item }">
-                <div @click="click(item)" :class="active !== undefined && active.path === item.path ? 'red--text text--darken-4 font-weight-bold' : ''">
+                <div @click="click(item)" :class="active !== undefined && active.path === item.path ? 'red--text text--darken-4 font-weight-bold hidden-md-and-up' : 'hidden-md-and-up'">
+                  {{ item.name }}
+                </div>
+                <div @click="click(item, true)" :class="active !== undefined && active.path === item.path ? 'red--text text--darken-4 font-weight-bold hidden-sm-and-down' : 'hidden-sm-and-down'">
                   {{ item.name }}
                 </div>
               </template>
@@ -27,25 +31,52 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="8">
+      <v-col cols=6 md=8 lg=9 class="pl-1">
         <!--div>active_nodes:{{active_nodes}}</div>
         <div>active:{{active}}</div-->
         <template v-if="active">
           <h2 class="blue--text text--darken-4 mx-2">
             <v-icon class="blue--text text--darken-4 mr-2">{{icon(active.name)}}</v-icon>
             <span v-for="(part, i) in active_split" v-bind:key="i">
-              <span class="blue-grey--text text--lighten-4" v-if="i !== 0"> / </span>
-              <span :class="i === active_split.length - 1 ? ['orange--text' , 'text--darken-1'] : ['blue--text', 'text--darken-1']">
+              <span hidden-sm-and-down class="blue-grey--text text--lighten-4 hidden-sm-and-down" v-if="i !== 0" > / </span>
+              <span :class="i === active_split.length - 1 ? ['orange--text' , 'text--darken-1'] : ['blue--text', 'text--darken-1', 'hidden-sm-and-down']">
               {{ part }}
               </span>
             </span>
           </h2>
           <v-card class="ma-2" elevation="2">
-            <v-card-text class="ma-0 pt-1">
+            <v-card-text class="ma-0 pt-1" @click="code_click">
               <!-- Important this the next line is all one line! -->
               <highlight-code :lang="lang(active.name)" style="min-height: 800px; max-height:800px; overflow-y:auto">{{active.render()}}</highlight-code>
             </v-card-text>
           </v-card>
+
+          <v-dialog v-model="code_dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+            <v-card>
+              <v-toolbar dark color="primary">
+                <v-toolbar-title>
+                  <h2 class="blue--text text--darken-4 mx-2">
+                    <v-icon class="white--text text--darken-4 mr-2">{{icon(active.name)}}</v-icon>
+                    <span v-for="(part, i) in active_split" v-bind:key="i">
+                      <span class="blue-grey--text text--lighten-4 hidden-sm-and-down" v-if="i !== 0" > / </span>
+                      <span :class="i === active_split.length - 1 ? ['white--text'] : ['white--text', 'hidden-sm-and-down']">
+                      {{ part }}
+                      </span>
+                    </span>
+                  </h2>
+                </v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-btn dark text @click="code_dialog = false">Close</v-btn>
+                </v-toolbar-items>
+              </v-toolbar>
+
+              <div class="pa-1">
+                <highlight-code :lang="lang(active.name)" style="min-height: 800px; max-height:800px; overflow-y:auto">{{active.render()}}</highlight-code>
+              </div>
+
+            </v-card>
+          </v-dialog>
         </template>
       </v-col>
     </v-row>
@@ -65,6 +96,7 @@ const renderer = new Renderer()
       active_nodes: [],
       active: undefined,
       open: [],
+      code_dialog: undefined,
     }),
     computed: {
       sourcecode: () => "from django.db import models",
@@ -124,6 +156,9 @@ const renderer = new Renderer()
       }
     },
     methods: {
+      code_click() {
+        this.code_dialog = true
+      },
       click(item) {
         if (item.render) {
           this.active = item

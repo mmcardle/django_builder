@@ -22,8 +22,14 @@
      </v-col>
      <v-col lg="6" md="6" cols="12">
        <div class="mt-4 hidden-lg-and-up"></div>
-       <h1 class="red--text text--darken-3">How does it work?</h1>
-       <div class="grey--text pa-2">Scroll down to see what you can create ...</div>
+        <v-btn x-large color="primary" @click="showAddProjectDialog" class="ma-4" v-if="this.$store.getters.user()">
+          <v-icon>add</v-icon> Create a New Project
+        </v-btn>
+        <v-btn x-large color="primary" :to="{name: 'Login'}" class="ma-4" v-else>
+          <v-icon>mdi-login</v-icon> Sign In
+        </v-btn>
+        <h1 class="red--text text--darken-3">How does it work?</h1>
+        <div class="grey--text pa-2">Scroll down to see what you can create ...</div>
      </v-col>
    </v-row>
 
@@ -126,7 +132,10 @@ import project1 from '@/assets/project1.png'
 import import1 from '@/assets/import1.png'
 import runserver1 from '@/assets/runserver1.png'
 
+import addProjectMixin from '@/mixins/AddProject'
+
 export default {
+  mixins: [addProjectMixin],
   data () {
     return {
       db1: db1,

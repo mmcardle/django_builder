@@ -53,7 +53,7 @@
             </v-icon>
             Projects
           </v-btn>
-          <v-btn text @click.stop="drawer = !drawer" v-if="loaded && verified">
+          <v-btn text @click.stop="drawer = !drawer" v-if="loaded && verified && has_projects">
             <v-icon class="red--text text--darken-4" style="font-size:2em" large>mdi-file-tree</v-icon>
             Switch Project
           </v-btn>
@@ -106,54 +106,56 @@
       <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
         <template v-slot:activator="{ on }">
           <v-app-bar-nav-icon v-on="on"></v-app-bar-nav-icon>
-          <v-card v-on="on">
-            <v-toolbar text>
-              <v-toolbar-title><django-builder-title /></v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn icon @click.native="dialog = false">
-                <v-icon>close</v-icon>
-              </v-btn>
-            </v-toolbar>
+        </template>
+        <v-card>
+          <v-toolbar text>
+            <v-toolbar-title><django-builder-title /></v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon @click.native="dialog = false">
+              <v-icon>close</v-icon>
+            </v-btn>
+          </v-toolbar>
 
-            <v-list>
+          <v-list>
 
-              <v-list-item :to="{name: 'Home'}" @click="dialog = false">
-                <v-list-item-action>
-                  <v-icon class="red--text text--darken-4">home</v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title>Home</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
+            <v-list-item :to="{name: 'Home'}" @click="dialog = false">
+              <v-list-item-action>
+                <v-icon class="red--text text--darken-4">home</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Home</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
 
-              <v-list-item :to="{name: 'About'}" @click="dialog = false">
-                <v-list-item-action>
-                  <v-icon class="red--text text--darken-4">info</v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title>About</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
+            <v-list-item :to="{name: 'About'}" @click="dialog = false">
+              <v-list-item-action>
+                <v-icon class="red--text text--darken-4">info</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>About</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
 
-              <v-list-item v-if="user" @click="logout">
-                <v-list-item-action>
-                  <v-icon class="ml-1">mdi-logout</v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title>Sign Out</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-list-item v-else :to="{name: 'Login'}" @click="dialog = false">
-                <v-list-item-action>
-                  <v-icon class="ml-1">mdi-login</v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title>Sign In</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
+            <v-list-item v-if="user" @click="logout">
+              <v-list-item-action>
+                <v-icon class="ml-1">mdi-logout</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Sign Out</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item v-else :to="{name: 'Login'}" @click="dialog = false">
+              <v-list-item-action>
+                <v-icon class="ml-1">mdi-login</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Sign In</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
 
-            </v-list>
-            <v-list dense two-line v-if="user">
+          </v-list>
+          <v-list dense two-line v-if="user">
+            <template v-if="has_projects">
               <v-subheader>Switch to Project ...</v-subheader>
               <v-list-item :to="{ name: 'Project', params: { id: project.id } }"
                 v-for="(project, i) in $store.getters.projects()" :key="i" class="mb-3" @click="dialog = false">
@@ -174,16 +176,16 @@
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-list-item v-if="user">
-                <v-list-item-content>
-                  <v-btn small rounded @click="showAddProjectDialog">
-                    <v-icon>add</v-icon> New Project
-                  </v-btn>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </template>
+            </template>
+            <v-list-item v-if="user">
+              <v-list-item-content>
+                <v-btn color="primary" @click="showAddProjectDialog">
+                  <v-icon>add</v-icon> New Project
+                </v-btn>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card>
       </v-dialog>
     </v-app-bar>
 
@@ -320,6 +322,9 @@ export default {
   computed: {
     loaded: function () {
       return this.$store.getters.loaded()
+    },
+    has_projects: function () {
+      return this.loaded && this.$store.getters.projects() && Object.keys(this.$store.getters.projects()).length > 0
     },
     year: () => {return new Date().getFullYear()}
   },

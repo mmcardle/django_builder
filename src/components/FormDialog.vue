@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="formdialog" max-width="600" persistent @keydown.esc="do_esc">
+  <v-dialog v-model="formdialog" max-width="600" @keydown.enter="do_ok">
     <v-card>
       <v-card-title class="primary white--text">
         <span class="white--text headline">
@@ -73,23 +73,12 @@ export default {
   },
   methods: {
     do_ok: function() {
-      console.log('do_ok', this)
-      console.log('do_ok', this.form)
-      console.log('do_ok', this.form.$refs)
-      console.log('do_ok', this.form.valid)
-      //console.log('do_ok', this.$refs)
-      //console.log('do_ok', this.$refs.formcontainer)
       if (this.form.$refs.form.validate()) {
-        //if (this.$refs.formcontainer.validate()) {
         this.formdialog = false
         this.ok(this.formdata)
       }
     },
     do_cancel: function() {
-      this.formdialog = false
-      this.cancel()
-    },
-    do_esc: function() {
       this.formdialog = false
       this.cancel()
     },

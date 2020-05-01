@@ -9,17 +9,29 @@
      </v-col>
     </v-row>
 
-    <v-row align-content="space-around" justify="center" fill-height 
+    <v-col cols="12" md="12" lg="12" v-if="this.$store.getters.projectsData().length > 0"
+      elevation="6" class="ma-3 text-center">
+      <v-btn color="primary" @click="showAddProjectDialog" class="mb-4">
+        <v-icon>add</v-icon> Create a New Project
+      </v-btn>
+    </v-col>
+
+    <v-row align-content="space-around" justify="center" fill-height class="ma-1"
       v-if="this.$store.getters.loaded()">
       <v-col cols="12" md="6" lg="3" v-for="(project, i) in this.$store.getters.projectsData()"
         :key="project.id" elevation="6"
         class="ma-2" >
 
         <v-card :to="{ name: 'Project', params: { id: project.id } }" min-height="250px">
+
           <v-card-title primary-title>
             <div>
-              <h3 class="headline mb-0">{{project.name}}</h3>
-              <div>{{project.description}}&nbsp;</div>
+              <div class="hljs-title display-1 font-weight-medium red--text text--darken-4 text-capitalize">
+                <span class="grey--text text--lighten-1 font-weight-black">
+                  <span class="red--text text--darken-2">{{project.name.substring(0,1)}}</span>{{project.name.substring(1)}}
+                </span>
+              </div>
+              <div>{{project.description}}</div>
             </div>
           </v-card-title>
 
@@ -35,21 +47,17 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="12" lg="12" v-if="this.$store.getters.projectsData().length > 0"
-        elevation="6" class="ma-3 text-center">
-        <v-btn color="primary" @click="showAddProjectDialog" class="mb-4">
-          <v-icon>add</v-icon> Create a New Project
-        </v-btn>
-      </v-col>
-
       <v-col cols="12" md="6" lg="3" v-if="this.$store.getters.projectsData().length === 0"
-        class="text-center ma-2 font-weight-medium">
+        class="ma-2 font-weight-medium">
         <v-card >
-          <v-card-title primary-title>
-            Welcome to Django Builder, you dont seem to have any projects. To start just...
+          <v-card-title class="red--text text--darken-2">
+            Welcome to Django Builder
           </v-card-title>
-          <v-card-text class="text-center">
-            <v-btn color="primary" @click="showAddProjectDialog" class="mb-4">
+          <v-card-text class="">
+            You dont seem to have any projects. To start just...
+          </v-card-text>
+          <v-card-text>
+            <v-btn x-large block color="primary" @click="showAddProjectDialog" class="mb-4">
               <v-icon>add</v-icon> Create a New Project
             </v-btn>
           </v-card-text>

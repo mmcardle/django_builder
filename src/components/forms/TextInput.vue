@@ -1,7 +1,7 @@
 <template>
   <v-text-field
     :value="default_value" :rules="rules" :required="required"
-    :label="label" :placeholder="placeholder"
+    :label="label" :placeholder="placeholder" :autofocus="autofocus"
     :default="default_value" @input="$emit('input', $event);">
     >
   </v-text-field>
@@ -11,7 +11,7 @@ export default {
   name: 'TextInput',
   props: [
     'placeholder', 'label', 'name', 'value', 'required',
-    'max', 'nospaces'
+    'max', 'nospaces', 'autofocus'
   ],
   data() {
     return {
