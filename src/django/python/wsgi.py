@@ -1,5 +1,5 @@
 """
-WSGI config for newproject project.
+WSGI config for XXX_PROJECT_NAME_XXX.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
