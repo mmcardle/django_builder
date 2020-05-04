@@ -312,7 +312,7 @@
                           <v-icon>add</v-icon>
                         </v-btn>
                       </template>
-                      <span>Add Model</span>
+                      <span>Add Field</span>
                     </v-tooltip>
 
                     <v-tooltip top>
