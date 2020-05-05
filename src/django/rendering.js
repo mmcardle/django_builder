@@ -501,7 +501,8 @@ CHANNEL_LAYERS = {
 </p>
     `
     detail_html += `\n<form method="post">`
-    detail_html += `\n{% csrf_token %}`
+    detail_html += `\n  {% csrf_token %}`
+    detail_html += `\n  {{form.errors}}`
 
     this.get_fields(modelData).forEach((field) => {
 

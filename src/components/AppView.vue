@@ -10,189 +10,170 @@
     </v-card>
     <div v-for="(app, appid) in this.apps" class="overflow-hidden" :key="appid">
       <v-card class="ma-2 mb-5">
-        <v-card-title class="py-0">
-          <a
-            class="orange--text text--darken-1"
-            @click="showEditAppDialog(appid)"
-          >{{appData(appid).name}}</a>
+        <v-card-title class="pb-0 pt-2">
+          <v-icon class="blue--text text--darken-4 mr-1">mdi-folder</v-icon>
+          <a class="blue--text text--darken-1" @click="showEditAppDialog(appid)">{{appData(appid).name}}</a>
         </v-card-title>
-        <v-card-text class="mb-5">
-          <drop
-            v-if="Object.keys(draggingModel).length !== 0 && draggingModel.app !== appid"
-            @drop="(modelid) => {dropModeltoApp(appid, modelid)}"
-          >
-            <v-alert class="text-center drag-model-location" :value="true" color="primary">
-              Drop model here to move model to {{appData(appid).name}}
-              <div class="mt-3">
-                <v-icon x-large>mdi-chevron-down</v-icon>
-              </div>
+        <v-card-text class="mb-5 py-1">
+
+          <div v-if="movingModel !== undefined && movingModel.app !== appid" @click="moveModelToApp(appid)" style="cursor: pointer">
+            <v-alert class="white--text" :value="true" color="primary" type=info>
+              <v-btn class="mt-2" color="error" absolute right top fab x-small @click="clearMoveModel"><v-icon x-small>mdi-close</v-icon></v-btn>
+              Click here to move
+              <span class="orange--text2 text--darken-3 font-weight-bold">{{appData(movingModel.app).name}}</span>.<span class="orange--text">{{modelData(movingModel.model).name}}
+              </span>
+              to
+              <span class="orange--text2 text--darken-3 font-weight-bold">{{appData(appid).name}}</span>.<span class="orange--text">{{modelData(movingModel.model).name}}
+              </span>
             </v-alert>
-          </drop>
+          </div>
 
           <v-card
             v-for="model in $store.getters.ordered_models(appid)"
             :key="model.id + appid"
-            class="mb-5 pt-1 pb-4"
+            class="mb-2 pt-1 pb-1"
             elevation="0"
           >
-            <drag
-              :transfer-data="{app: appid, model: model.id}"
-              @drag="dragModel({app: appid, model: model.id})"
-              @dragend="dragModelEnd({app: appid, model: model.id})"
-            >
-              <v-speed-dial
-                absolute
-                right
-                direction="left"
-                open-on-hover
-                transition="slide-x-reverse-transition"
-              >
-                <template v-slot:activator>
-                  <v-btn x-small color="info" right dark fab>
-                    <v-icon>mdi-cogs</v-icon>
+
+            <v-speed-dial absolute right direction="left" open-on-hover transition="slide-x-reverse-transition">
+              <template v-slot:activator>
+                <v-btn x-small color="info" right dark fab>
+                  <v-icon>mdi-cogs</v-icon>
+                </v-btn>
+              </template>
+
+              <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                  <v-btn x-small fab dark color="green" @click="showFieldDialog(model.id)" v-on="on">
+                    <v-icon>add</v-icon>
                   </v-btn>
                 </template>
+                <span>Add Field</span>
+              </v-tooltip>
 
-                <v-tooltip top>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      x-small
-                      fab
-                      dark
-                      color="green"
-                      @click="showFieldDialog(model.id)"
-                      v-on="on"
-                    >
-                      <v-icon>add</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Add Field</span>
-                </v-tooltip>
+              <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                  <v-btn x-small fab dark color="warning" @click="showRelationshipDialog(model.id)" v-on="on">
+                    <v-icon>share</v-icon>
+                  </v-btn>
+                </template>
+                <span>Add Relationship</span>
+              </v-tooltip>
 
-                <v-tooltip top>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      x-small
-                      fab
-                      dark
-                      color="warning"
-                      @click="showRelationshipDialog(model.id)"
-                      v-on="on"
-                    >
-                      <v-icon>share</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Add Relationship</span>
-                </v-tooltip>
+              <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                  <v-btn x-small fab dark color="info" @click="moveModel(appid, model.id)" v-on="on">
+                    <v-icon>mdi-folder-move</v-icon>
+                  </v-btn>
+                </template>
+                <span>Move Model</span>
+              </v-tooltip>
 
-                <v-tooltip top>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      x-small
-                      fab
-                      dark
-                      color="error"
-                      @click="showDeleteModelDialog(appid, model.id)"
-                      v-on="on"
-                    >
-                      <v-icon>mdi-delete</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Delete Model</span>
-                </v-tooltip>
-              </v-speed-dial>
+              <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                  <v-btn x-small fab dark color="error" @click="showDeleteModelDialog(appid, model.id)" v-on="on">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </template>
+                <span>Delete Model</span>
+              </v-tooltip>
+            </v-speed-dial>
 
-              <v-card-title class="py-0">
-                <v-icon class="red--text text--darken-4 mr-1">mdi-database</v-icon>
-                <a class="hljs-function" @click="showEditModelDialog(appid, model.id)">
-                  {{modelData(model.id).name}}
-                  <span
-                    class="hljs-params"
-                    v-if="modelData(model.id).parents && modelData(model.id).parents.length > 0"
-                  >({{modelsParents(model.id)}})</span>
-                  <span v-else></span>
-                  <v-chip small v-if="modelData(model.id).abstract">Abstract</v-chip>
-                </a>
-                <!--v-icon>mdi-drag</v-icon-->
-              </v-card-title>
+            <v-card-title class="py-0">
+              <v-icon class="red--text text--darken-4 mr-1">mdi-database</v-icon>
+              <a class="orange--text text--darken-3" @click="showEditModelDialog(appid, model.id)">
+                {{modelData(model.id).name}}
+                <span
+                  class="hljs-params"
+                  v-if="modelData(model.id).parents && modelData(model.id).parents.length > 0"
+                >({{modelsParents(model.id)}})</span>
+                <span v-else></span>
+                <v-chip small v-if="modelData(model.id).abstract">Abstract</v-chip>
+              </a>
+            </v-card-title>
 
-              <v-list dense v-if="Object.keys(modelData(model.id).relationships).length > 0">
-                <v-list-item
-                  @click="showEditRelationshipDialog(relationshipid)" class="mb-1"
-                  v-for="(relationship, relationshipid) in modelData(model.id).relationships"
-                  ripple :key="relationshipid + appid"
-                >
-                  <v-list-item-avatar size="20" style="min-width: 30px">
-                    <v-icon>device_hub</v-icon>
-                  </v-list-item-avatar>
-
-                  <v-list-item-content>
-                    <v-list-item-title class="subheading font-weight-medium">
-                      <span class="red--text">{{relationshipData(relationshipid).name}}</span>
-                    </v-list-item-title>
-                    <v-list-item-subtitle class="body-2">
-                      {{relationshipData(relationshipid).type.split('.').pop()}}
-                      (<span class="green--text">{{relationshipData(relationshipid).to.split('.').pop()}}</span>,{{relationshipData(relationshipid).args}})
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-
-                  <v-list-item-action>
-                    <v-btn icon ripple @click.stop="showDeleteRelationshipDialog(model.id, relationshipid)"
-                    >
-                      <v-icon class="red--text text--darken-4">mdi-delete</v-icon>
-                    </v-btn>
-                  </v-list-item-action>
-                </v-list-item>
-              </v-list>
-
-              <v-list two-line dense v-if="Object.keys(modelData(model.id).fields).length > 0">
-                <v-list-item
-                  @click="showEditFieldDialog(fieldid)" ripple
-                  v-for="(field, fieldid) in modelData(model.id).fields"
-                  :key="fieldid + appid"
-                >
-                  <v-list-item-avatar size="20" style="min-width: 30px" class="hidden-xs-only">
-                    <v-icon small class="grey--text text--lighten-1">mdi-circle</v-icon>
-                  </v-list-item-avatar>
-
-                  <v-list-item-content class="subheading font-weight-medium">
-                    <v-list-item-title>
-                      <span class="primary--text">{{fieldData(fieldid).name}}</span>
-                    </v-list-item-title>
-                    <v-list-item-subtitle>
-                      {{fieldData(fieldid).type.split('.').pop()}}
-                      <span
-                        class="hidden-xs-only"
-                      >({{fieldData(fieldid).args}})</span>
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-
-                  <v-list-item-action>
-                    <v-btn icon ripple red @click.stop="showDeleteFieldDialog(model.id, fieldid)">
-                      <v-icon small class="red--text">mdi-delete</v-icon>
-                    </v-btn>
-                  </v-list-item-action>
-                </v-list-item>
-              </v-list>
-
-              <v-card-text
-                v-if="Object.keys(modelData(model.id).fields).length + Object.keys(modelData(model.id).relationships).length == 0"
+            <v-list v-if="Object.keys(modelData(model.id).relationships).length > 0" class="py-0">
+              <v-list-item
+                @click="showEditRelationshipDialog(relationshipid)"
+                class="mb-1"
+                v-for="(relationship, relationshipid) in modelData(model.id).relationships"
+                ripple 
+                :key="relationshipid + appid"
               >
-                <v-subheader class="ma-1">Add some relationships or fields.</v-subheader>
-                <v-subheader class="ma-1">
-                  <v-btn color="info" block @click="showFieldDialog(model.id)">
-                    <v-icon>add</v-icon>Add Field
-                    <v-icon class="ml-1">fa fa-dot-circle</v-icon>
+                <v-list-item-avatar size="20" style="min-width: 30px">
+                  <v-icon>device_hub</v-icon>
+                </v-list-item-avatar>
+
+                <v-list-item-content class="py-0">
+                  <v-list-item-title class="subheading font-weight-medium">
+                    <span class="red--text">{{relationshipData(relationshipid).name}}</span>
+                  </v-list-item-title>
+                  <v-list-item-subtitle class="body-2">
+                    {{relationshipData(relationshipid).type.split('.').pop()}}
+                    (
+                    <span
+                      class="green--text"
+                    >{{relationshipData(relationshipid).to.split('.').pop()}}</span>
+                    ,{{relationshipData(relationshipid).args}})
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-action>
+                  <v-btn icon ripple @click.stop="showDeleteRelationshipDialog(model.id, relationshipid)">
+                    <v-icon small class="red--text text--darken-4">mdi-delete</v-icon>
                   </v-btn>
-                </v-subheader>
-                <v-subheader class="ma-1">
-                  <v-btn color="info" block @click="showRelationshipDialog(model.id)">
-                    <v-icon>add</v-icon>Add Relationship
-                    <v-icon class="ml-1">device_hub</v-icon>
+                </v-list-item-action>
+              </v-list-item>
+            </v-list>
+
+            <v-list v-if="Object.keys(modelData(model.id).fields).length > 0" class="py-0">
+              <v-list-item
+                @click="showEditFieldDialog(fieldid)"
+                ripple
+                v-for="(field, fieldid) in modelData(model.id).fields"
+                :key="fieldid + appid"
+              >
+                <v-list-item-avatar size="20" style="min-width: 30px" class="hidden-xs-only">
+                  <v-icon small class="grey--text text--lighten-1">mdi-circle</v-icon>
+                </v-list-item-avatar>
+
+                <v-list-item-content class="py-0 subheading font-weight-medium">
+                  <v-list-item-title>
+                    <span class="primary--text">{{fieldData(fieldid).name}}</span>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{fieldData(fieldid).type.split('.').pop()}}
+                    <span
+                      class="hidden-xs-only"
+                    >({{fieldData(fieldid).args}})</span>
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-action>
+                  <v-btn icon ripple red @click.stop="showDeleteFieldDialog(model.id, fieldid)">
+                    <v-icon small class="red--text text--darken-4">mdi-delete</v-icon>
                   </v-btn>
-                </v-subheader>
-              </v-card-text>
-            </drag>
+                </v-list-item-action>
+              </v-list-item>
+            </v-list>
+
+            <v-card-text
+              v-if="Object.keys(modelData(model.id).fields).length + Object.keys(modelData(model.id).relationships).length == 0"
+            >
+              <v-subheader class="ma-1">Add some relationships or fields.</v-subheader>
+              <v-subheader class="ma-1">
+                <v-btn color="info" block @click="showFieldDialog(model.id)">
+                  <v-icon>add</v-icon>Add Field
+                  <v-icon class="ml-1">fa fa-dot-circle</v-icon>
+                </v-btn>
+              </v-subheader>
+              <v-subheader class="ma-1">
+                <v-btn color="info" block @click="showRelationshipDialog(model.id)">
+                  <v-icon>add</v-icon>Add Relationship
+                  <v-icon class="ml-1">device_hub</v-icon>
+                </v-btn>
+              </v-subheader>
+            </v-card-text>
           </v-card>
 
           <div v-if="Object.keys(appData(appid).models).length === 0" class="mb-3">
@@ -204,29 +185,10 @@
             </v-subheader>
           </div>
         </v-card-text>
-        <v-btn
-          fab
-          x-small
-          absolute
-          bottom
-          right
-          color="info"
-          dark
-          @click="showModelDialog(appid)"
-          class="mb-2"
-        >
+        <v-btn fab x-small absolute bottom right color="info" dark @click="showModelDialog(appid)" class="mb-2 mr-4">
           <v-icon>add</v-icon>
         </v-btn>
-        <v-btn
-          fab
-          x-small
-          absolute
-          bottom
-          left
-          color="error"
-          @click="showDeleteAppDialog(appid)"
-          class="mb-2"
-        >
+        <v-btn fab x-small absolute bottom left color="error" @click="showDeleteAppDialog(appid)" class="mb-2">
           <v-icon>mdi-delete</v-icon>
         </v-btn>
       </v-card>
@@ -244,7 +206,7 @@ export default {
   props: ["id"],
   data: () => {
     return {
-      draggingModel: {}
+      movingModel: undefined
     };
   },
   computed: {
@@ -266,16 +228,19 @@ export default {
         })
         .join(" ");
     },
-    dragModel: function(model, _transferData, _nativeEvent) {
-      this.draggingModel = model;
+    clearMoveModel: function (e) {
+      e.preventDefault()
+      this.movingModel = undefined
     },
-    dragModelEnd: function(_model, _transferData, _nativeEvent) {
-      this.draggingModel = {};
+    moveModel: function(appid, modelid) {
+      this.movingModel = {app: appid, model: modelid}
     },
-    dropModeltoApp: function(toApp, modelData) {
-      this.draggingModel = {};
-      const fromApp = modelData.app;
-      const model = modelData.model;
+    moveModelToApp: function(appid) {
+      if (!this.movingModel) return
+      const fromApp = this.movingModel.app;
+      const model = this.movingModel.model;
+      const toApp = appid;
+      this.movingModel = undefined;
       if (fromApp === toApp) {
         console.error("Not Moving ", model, "to same app", toApp);
         return;
@@ -330,9 +295,7 @@ export default {
       );
     },
     showEditRelationshipDialog: function(relationshipid) {
-      const relationshipData = this.$store.getters
-        .relationships()
-        [relationshipid].data();
+      const relationshipData = this.$store.getters.relationships()[relationshipid].data();
       showFormDialog(
         "Edit Relationship",
         formdata => {
@@ -566,15 +529,9 @@ export default {
   }
 };
 </script>
-<style>
-.drag-model-location {
-  border-radius: 10px;
-  position: absolute;
-  z-index: 9999;
-  width: 80%;
-  top: 40px;
-  left: 0;
-  right: 0;
-  opacity: 0.8;
+
+<style scoped>
+.v-list-item__content {
+  
 }
 </style>
