@@ -1,10 +1,10 @@
 """
-WSGI config for newproject project.
+WSGI config for XXX_PROJECT_NAME_XXX.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/2.1/howto/deployment/wsgi/
+https://docs.djangoproject.com/
 """
 
 import os

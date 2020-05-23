@@ -89,7 +89,7 @@ class Renderer {
   }
 
   project_renderers() {
-      return keys(this._project_renderers)
+    return keys(this._project_renderers)
   }
 
   test_renderers() {
@@ -106,6 +106,133 @@ class Renderer {
 
   channels_app_renderers() {
     return keys(this._channels_app_renderers)
+  }
+
+  project_tree(projectid) {
+    const project = store.getters.projectData(projectid)
+
+    let project_children = this.project_renderers().map(render_name => {
+      return {
+        path: project.name + '/' + render_name,
+        name: render_name,
+        render: () => this.project_render(render_name, projectid)
+      }
+    })
+
+    if (project.channels) {
+      project_children.push(...this.channels_renderers().map(render_name => {
+        return {
+          path: project.name + '/' + render_name,
+          name: render_name,
+          render: () => this.channels_render(render_name, projectid)
+        }
+      }))
+    }
+
+    const project_item = {
+      path: project.name,
+      name: project.name,
+      folder: true,
+      children: project_children
+    }
+
+    const apps = keys(store.getters.projectData(projectid).apps).map(app_id =>{
+      const app = store.getters.appData(app_id)
+
+      const models = this.get_models(app_id)
+
+      let model_templates = []
+
+      models.forEach((model) => {
+        model_templates.push(...this.template_renderers().map(render_name => {
+          return {
+            path: app.name  + "/templates/" + app.name + '/' + model.name + '_' + render_name,
+            name: model.name + '_' + render_name,
+            render: () => this.template_render(render_name, app_id, model.id)
+          }
+        }))
+      })
+
+      let model_children = this.app_renderers().map(render_name => {
+        return {
+          path: app.name + '/' + render_name,
+          name: render_name,
+          render: () => this.app_render(render_name, app_id)
+        }
+      })
+
+      if (project.channels) {
+        model_children.push(...this.channels_app_renderers().map(render_name => {
+          return {
+            path: app.name + '/' + render_name,
+            name: render_name,
+            render: () => this.channels_app_render(render_name, app_id)
+          }
+        }))
+      }
+
+      model_children = model_children.concat(
+        {
+          path: app.name + "/templates/" + app.name,
+          name: "templates/" + app.name,
+          folder: true,
+          children: model_templates
+        }
+      )
+
+      return {
+        path: app.name,
+        name: app.name,
+        folder: true,
+        children: model_children
+      }
+    })
+
+    const root_items = this.root_renderers().map(render_name => {
+      return {
+        path: render_name,
+        name: render_name,
+        render: () => this.root_render(render_name, projectid)
+      }
+    })
+
+    const template_items = [
+      {
+        path: "templates",
+        name: "templates",
+        folder: true,
+        children: this.root_template_renderers().map(render_name => {
+          return {
+            path: 'templates/' + render_name,
+            name: render_name,
+            render: () => this.root_template_render(render_name, projectid)
+          }
+        })
+      }
+    ]
+
+    return [project_item].concat(apps).concat(template_items).concat(root_items)
+  }
+
+  project_flat(projectid, folders=false) {
+    function flattenTree(arr, d = 1) {
+      /* Flatten a tree structure to a flat list */
+      return d > 0 ?
+        arr.reduce(
+          (acc, val) => acc.concat(
+            Array.isArray(val.children) ?
+              flattenTree(val.children, d - 1).concat([val]) : val
+            ),
+          []
+        ):
+        arr.slice();
+    }
+
+    const listing = flattenTree(this.project_tree(projectid))
+    // Return folders if requested
+    return listing.filter((item) => {
+      return folders === true ? true : !item.folder
+    })
   }
 
   app_render(render_name, appid) {
@@ -374,7 +501,8 @@ CHANNEL_LAYERS = {
 </p>
     `
     detail_html += `\n<form method="post">`
-    detail_html += `\n{% csrf_token %}`
+    detail_html += `\n  {% csrf_token %}`
+    detail_html += `\n  {{form.errors}}`
 
     this.get_fields(modelData).forEach((field) => {
 

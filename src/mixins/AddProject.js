@@ -24,11 +24,12 @@ var addProjectMixin = {
           showFormDialog(
             'Add new project',
             (formdata) => {
-              console.log('Add project', formdata.name, formdata.description)
+              console.log('Add project', formdata)
               this.$store.dispatch(
                 'addProject', {
                   name: formdata.name,
-                  description: formdata.description || ""
+                  description: formdata.description || "",
+                  channels: formdata.channels || false
                 }
               ).then((newProject) => {
                 console.log('NewProject', newProject)

@@ -3,6 +3,7 @@
     <v-form ref="form" v-model="valid">
       <component v-for="(field, index) in schema"
                  :key="index" :ref="field.name"
+                 :autofocus="index===0"
                  :is="field.fieldType"
                  :value="formData[field.name]"
                  @input="updateForm(field.name, $event)"

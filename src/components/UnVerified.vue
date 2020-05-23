@@ -1,7 +1,7 @@
 <template>
   <v-container>
-    <v-layout align-center justify-center>
-      <v-flex xs12 sm10 md8 lg6 xl4>
+    <v-row align="center" justify="center">
+      <v-col cols="12" sm="10" md="8" lg="6" xl="4">
         <v-card class="elevation-12">
           <v-toolbar dark color="primary">
             <v-toolbar-title>Verify Email</v-toolbar-title>
@@ -14,7 +14,7 @@
               {{error}}
             </v-alert>
           </v-card-text>
-          <v-card-text class="text-xs-center body-2">
+          <v-card-text class="text-center body-2">
             Email address has not been verified.
             Please check your email and click the link to verify your account.
           </v-card-text>
@@ -22,8 +22,8 @@
             <v-btn block color="info" v-on:click="resendVerification">Resend Verification Email</v-btn>
           </v-card-actions>
         </v-card>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

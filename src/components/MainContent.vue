@@ -4,46 +4,42 @@
       app clipped temporary>
       <v-list three-line>
         <v-subheader>Switch to Project ...</v-subheader>
-        <v-list-tile :to="{ name: 'Project', params: { id: project.id } }"
+        <v-list-item :to="{ name: 'Project', params: { id: project.id } }"
           v-for="(project, i) in this.$store.getters.projects()"
           :key="i" class="mb-3">
-          <v-list-tile-action>
-            <font-awesome-icon class="red--text text--darken-4" icon="project-diagram" />
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>
+          <v-list-item-action>
+            <v-icon class="red--text text--darken-4" large>mdi-file-tree</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>
               <h2>{{project.data().name}}</h2>
-            </v-list-tile-title>
-            <v-list-tile-title class="orange--text text--darken-1">
+            </v-list-item-title>
+            <v-list-item-title class="orange--text text--darken-1">
               <template v-if="project.data().description">
                 {{project.data().description}}
               </template>
-              <template v-else>
-                ---
-              </template>
-            </v-list-tile-title>
-            <v-list-tile-sub-title v-if="loaded && verified">
-              <template v-for="(d, app) in project.data().apps">
-               <template v-for="(d, model) in $store.getters.appData(app).models">
-                <font-awesome-icon :key="app + model" class="red--text text--darken-4"
-                  icon="database" />
+            </v-list-item-title>
+            <v-list-item-subtitle v-if="loaded && verified">
+              <div v-for="(d, app) in project.data().apps" v-bind:key="app" class="mt-2">
+               <div v-for="(d, model) in $store.getters.appData(app).models" v-bind:key="app+model">
+                  <v-icon class="red--text text--darken-4" >mdi-database</v-icon>
                 {{$store.getters.appData(app).name}}.{{$store.getters.modelData(model).name}}
-               </template>
-              </template>
-            </v-list-tile-sub-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-if="user">
-          <v-list-tile-content>
+               </div>
+              </div>
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item v-if="user">
+          <v-list-item-content>
             <v-btn small color="primary" @click="showAddProjectDialog">
               <v-icon>add</v-icon> New Project
             </v-btn>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer >
 
-    <v-toolbar app fixed clipped-left class="hidden-xs-only" extension-height="0">
+    <v-app-bar app fixed clipped-left class="hidden-xs-only" extension-height="0">
       <v-toolbar-title class="toolbar-title pr-3">
         <router-link :to="{name: 'Splash'}">
           <h2><django-builder-title /></h2>
@@ -51,21 +47,20 @@
       </v-toolbar-title>
       <v-toolbar-items >
         <template v-if="user">
-          <v-btn flat :to="{name: 'Home'}">
+          <v-btn text :to="{name: 'Home'}">
             <v-icon class="mr-2 red--text text--darken-4" small>
               info
             </v-icon>
             Projects
           </v-btn>
-          <v-btn flat @click.stop="drawer = !drawer" v-if="loaded && verified">
-            <font-awesome-icon style="font-size:1.4em" class="mr-2 red--text text--darken-4"
-              icon="project-diagram" />
+          <v-btn text @click.stop="drawer = !drawer" v-if="loaded && verified && has_projects">
+            <v-icon class="red--text text--darken-4" style="font-size:2em" large>mdi-file-tree</v-icon>
             Switch Project
           </v-btn>
         </template>
-        <v-btn flat :to="{name: 'About'}">
-          <v-icon class="mr-2 red--text text--darken-4" small>
-            info
+        <v-btn text :to="{name: 'About'}">
+          <v-icon class="mr-2 red--text text--darken-4">
+            mdi-information
           </v-icon>
           About
         </v-btn>
@@ -73,7 +68,7 @@
       <v-spacer />
       <v-toolbar-items>
         <template v-if="user">
-          <v-btn flat>
+          <v-btn text>
             <span v-if="user.email" class="blue--text pl-1 pr-1">
               {{user.email}}
             </span>
@@ -81,25 +76,25 @@
               <img :src="user.photoURL" alt="avatar">
             </v-avatar>
           </v-btn>
-          <v-btn flat v-on:click="logout">
+          <v-btn text v-on:click="logout">
             <v-avatar :size="40" color="grey lighten-4" v-if="user.photoURL">
               <img :src="user.photoURL" alt="avatar">
             </v-avatar>
-            <font-awesome-icon class="mr-1" icon="sign-out-alt" />
+            <v-icon class="mr-1">mdi-logout</v-icon>
             Sign Out
           </v-btn>
         </template>
         <template v-else>
           <v-spacer></v-spacer>
-          <v-btn flat :to="{name: 'Login'}" active-class="">
-            <font-awesome-icon class="mr-1" icon="sign-in-alt" />
+          <v-btn text :to="{name: 'Login'}" active-class="">
+            <v-icon class="mr-1">mdi-login</v-icon>
             Sign In
           </v-btn>
         </template>
       </v-toolbar-items>
-    </v-toolbar>
+    </v-app-bar >
 
-    <v-toolbar app class="hidden-sm-and-up" extension-height="0">
+    <v-app-bar app class="hidden-sm-and-up" extension-height="0">
       <!-- Mobile Menu -->
       <v-toolbar-title class="toolbar-title pr-3">
         <router-link :to="{name: 'Home'}">
@@ -109,9 +104,11 @@
       <v-spacer></v-spacer>
 
       <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
-        <v-toolbar-side-icon slot="activator"></v-toolbar-side-icon>
+        <template v-slot:activator="{ on }">
+          <v-app-bar-nav-icon v-on="on"></v-app-bar-nav-icon>
+        </template>
         <v-card>
-          <v-toolbar flat>
+          <v-toolbar text>
             <v-toolbar-title><django-builder-title /></v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon @click.native="dialog = false">
@@ -121,161 +118,165 @@
 
           <v-list>
 
-            <v-list-tile :to="{name: 'Home'}" @click="dialog = false">
-              <v-list-tile-action>
+            <v-list-item :to="{name: 'Home'}" @click="dialog = false">
+              <v-list-item-action>
                 <v-icon class="red--text text--darken-4">home</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>Home</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Home</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
 
-            <v-list-tile :to="{name: 'About'}" @click="dialog = false">
-              <v-list-tile-action>
+            <v-list-item :to="{name: 'About'}" @click="dialog = false">
+              <v-list-item-action>
                 <v-icon class="red--text text--darken-4">info</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>About</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>About</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
 
-            <v-list-tile v-if="user" @click="logout">
-              <v-list-tile-action>
-                <font-awesome-icon class="ml-1" icon="sign-out-alt" />
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>Sign Out</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile v-else :to="{name: 'Login'}" @click="dialog = false">
-              <v-list-tile-action>
-                <font-awesome-icon class="ml-1" icon="sign-in-alt" />
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>Sign In</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
+            <v-list-item v-if="user" @click="logout">
+              <v-list-item-action>
+                <v-icon class="ml-1">mdi-logout</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Sign Out</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item v-else :to="{name: 'Login'}" @click="dialog = false">
+              <v-list-item-action>
+                <v-icon class="ml-1">mdi-login</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Sign In</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
 
           </v-list>
           <v-list dense two-line v-if="user">
-            <v-subheader>Switch to Project ...</v-subheader>
-              <v-list-tile :to="{ name: 'Project', params: { id: project.id } }"
-                v-for="(project, i) in this.$store.getters.projects()"
-                :key="i" class="mb-3" @click="dialog = false">
-                <v-list-tile-action>
-                  <font-awesome-icon class="red--text text--darken-4" icon="project-diagram" />
-                </v-list-tile-action>
-                <v-list-tile-content>
-                  <v-list-tile-title>
+            <template v-if="has_projects">
+              <v-subheader>Switch to Project ...</v-subheader>
+              <v-list-item :to="{ name: 'Project', params: { id: project.id } }"
+                v-for="(project, i) in $store.getters.projects()" :key="i" class="mb-3" @click="dialog = false">
+                <v-list-item-action>
+                  <v-icon class="red--text text--darken-4" style="font-size:2em" large>mdi-file-tree</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>
                     <h2>{{project.data().name}}</h2>
-                  </v-list-tile-title>
-                  <v-list-tile-title class="orange--text text--darken-1">
+                  </v-list-item-title>
+                  <v-list-item-title class="orange--text text--darken-1">
                     <template v-if="project.data().description">
                       {{project.data().description}}
                     </template>
                     <template v-else>
                       ---
                     </template>
-                  </v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile v-if="user">
-              <v-list-tile-content>
-                <v-btn small round @click="showAddProjectDialog">
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+            <v-list-item v-if="user">
+              <v-list-item-content>
+                <v-btn color="primary" @click="showAddProjectDialog">
                   <v-icon>add</v-icon> New Project
                 </v-btn>
-              </v-list-tile-content>
-            </v-list-tile>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-card>
       </v-dialog>
-    </v-toolbar>
+    </v-app-bar>
 
     <v-content>
-      <v-container fluid class="px-0">
+      <v-container fluid class="pa-0">
         <router-view/>
       </v-container>
     </v-content>
 
-    <v-dialog v-model="privacy_dialog" width="500">
-      <v-card dense>
-        <v-card-title class="headline grey lighten-2" primary-title>
-          Privacy Policy
-          <v-btn outline absolute right flat @click="privacy_dialog = false">
-            Close
-          </v-btn>
-        </v-card-title>
-
-        <v-card-title class="body-2 pb-1 pt-3" primary-title>
-          What data we collect and how we use it.
-        </v-card-title>
-
-        <v-card-text>
-          We ask for an email address if you choose to create an account.
-          We only use this for the purposes of logging in.
-          You can use the <strong>Continue without Account</strong> function
-          when logging in if you do not want to do this.
-        </v-card-text>
-
-        <v-card-title class="body-2 py-1" primary-title>
-          How we use your data
-        </v-card-title>
-
-        <v-card-text>
-          We don't use your data in any way, except to login and verify your email
-          address.
-        </v-card-text>
-
-        <v-card-title class="body-2 py-1" primary-title>
-          Cookies
-        </v-card-title>
-
-        <v-card-text>
-          This website uses cookies for basic functionality, these are required
-          for the site to function.
-        </v-card-text>
-
-        <v-card-text class="body-2 py-1" primary-title>
-          Analytics Cookies
-        </v-card-text>
-
-        <v-card-text>
-          This website uses analytics cookies to help develop and maintain the
-          site. you can turn these off and the webstite will still function.
-          <v-switch v-model="cookie_value" color="blue" :label="cookie_label"></v-switch>
-        </v-card-text>
-
-        <v-card-text class="body-2 py-1" primary-title>
-          Contact
-        </v-card-text>
-
-        <v-card-text class="">
-          If you wish to contact us please see the
-          <v-btn outline color="info" :to="{name: 'About'}" @click="privacy_dialog = false">About</v-btn> page
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" flat @click="privacy_dialog = false">
-            Close
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <v-snackbar class="hidden-xs-only" color="white" v-model="cookie_snackbar" bottom right :timeout="0">
       <v-switch v-model="cookie_value" color="blue" :label="cookie_label"></v-switch>
-      <v-btn class="primary" @click="privacy_dialog = true">Privacy Policy</v-btn>
+      <v-dialog v-model="privacy_dialog" width="500">
+        <template v-slot:activator="{ on }">
+          <v-btn class="primary" v-on="on">Privacy Policy</v-btn>
+        </template>
+        <template>
+          <v-card dense>
+            <v-card-title class="headline grey lighten-2" primary-title>
+              Privacy Policy
+              <v-btn outlined absolute right text @click="privacy_dialog = false">
+                Close
+              </v-btn>
+            </v-card-title>
+
+            <v-card-title class="body-2 pb-1 pt-3" primary-title>
+              What data we collect and how we use it.
+            </v-card-title>
+
+            <v-card-text>
+              We ask for an email address if you choose to create an account.
+              We only use this for the purposes of logging in.
+              You can use the <strong>Continue without Account</strong> function
+              when logging in if you do not want to do this.
+            </v-card-text>
+
+            <v-card-title class="body-2 py-1" primary-title>
+              How we use your data
+            </v-card-title>
+
+            <v-card-text>
+              We don't use your data in any way, except to login and verify your email
+              address.
+            </v-card-text>
+
+            <v-card-title class="body-2 py-1" primary-title>
+              Cookies
+            </v-card-title>
+
+            <v-card-text>
+              This website uses cookies for basic functionality, these are required
+              for the site to function.
+            </v-card-text>
+
+            <v-card-text class="body-2 py-1" primary-title>
+              Analytics Cookies
+            </v-card-text>
+
+            <v-card-text>
+              This website uses analytics cookies to help develop and maintain the
+              site. you can turn these off and the webstite will still function.
+              <v-switch v-model="cookie_value" color="blue" :label="cookie_label"></v-switch>
+            </v-card-text>
+
+            <v-card-text class="body-2 py-1" primary-title>
+              Contact
+            </v-card-text>
+
+            <v-card-text class="">
+              If you wish to contact us please see the
+              <v-btn outlined color="info" :to="{name: 'About'}" @click="privacy_dialog = false">About</v-btn> page
+            </v-card-text>
+
+            <v-divider></v-divider>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" text @click="privacy_dialog = false">
+                Close
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </template>
+      </v-dialog>
       <v-btn class="info" @click="agreeAndClose">Agree &amp; Close</v-btn>
     </v-snackbar>
 
     <v-footer app fixed>
       <span>&copy; {{year}}</span>
       <v-spacer />
-      <v-btn class="hidden-xs-only" flat @click.stop="cookie_snackbar = !cookie_snackbar">Privacy Settings</v-btn>
-      <v-btn class="hidden-sm-and-up" flat @click.stop="privacy_dialog = true">Privacy Policy</v-btn>
+      <v-btn class="hidden-xs-only" text @click.stop="cookie_snackbar = !cookie_snackbar">Privacy Settings</v-btn>
+      <v-btn class="hidden-sm-and-up" text @click.stop="privacy_dialog = true">Privacy Policy</v-btn>
     </v-footer>
 
   </v-app>
@@ -292,6 +293,7 @@
 </style>
 
 <script>
+import { mdiDatabase } from '@mdi/js'
 
 import addProjectMixin from '@/mixins/AddProject'
 import {userVerified} from '@/firebase_utils/'
@@ -313,12 +315,16 @@ export default {
       drawer: null,
       user: null,
       verified: false,
-      dialog: false
+      dialog: false,
+      mdiDatabase: mdiDatabase
     }
   },
   computed: {
     loaded: function () {
       return this.$store.getters.loaded()
+    },
+    has_projects: function () {
+      return this.loaded && this.$store.getters.projects() && Object.keys(this.$store.getters.projects()).length > 0
     },
     year: () => {return new Date().getFullYear()}
   },
@@ -428,7 +434,6 @@ export default {
             ok_text: 'Logout'
           }
         )
-
       }
     },
   },

@@ -192,6 +192,7 @@ export default new Vuex.Store({
         owner: firebase.auth().currentUser.uid,
         name: payload.name,
         description: payload.description,
+        channels: payload.channels,
         apps: {}
       })
     },

@@ -5,8 +5,9 @@ describe('DeleteDialog.vue', () => {
 
   it('renders with default headline and text', () => {
     const wrapper = shallowMount(DeleteDialog)
-    expect(wrapper.find("span").text()).toEqual('Delete?')
-    expect(wrapper.find("p").text()).toEqual('Are you sure you wish to delete?')
+    expect(wrapper.find("span").text()).toContain('Delete?')
+    expect(wrapper.find("span").text()).toContain('mdi-delete')
+    expect(wrapper.text()).toContain('Are you sure you wish to delete?')
   })
 
   it('renders with set headline and text', () => {
@@ -18,8 +19,9 @@ describe('DeleteDialog.vue', () => {
         'text': text
       }
     })
-    expect(wrapper.find("span").text()).toEqual(headline)
-    expect(wrapper.find("p").text()).toEqual(text)
+    expect(wrapper.find("span").text()).toContain(headline)
+    expect(wrapper.find("span").text()).toContain('mdi-delete')
+    expect(wrapper.text()).toContain(text)
   })
 
   it('has ok method', () => {

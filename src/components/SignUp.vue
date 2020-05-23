@@ -1,7 +1,7 @@
 <template>
   <v-container fluid fill-height>
-    <v-layout align-center justify-center row wrap>
-      <v-flex pa-2 xs12 sm8 md6 lg4>
+    <v-row align="center" justify="center" >
+      <v-col pa-2 cols="12" sm="8" md="6" lg="4">
         <v-card class="elevation-12">
           <v-toolbar dark color="primary">
             <v-toolbar-title>Create a new account!</v-toolbar-title>
@@ -23,8 +23,8 @@
             or if you have an account <router-link :to="{name: 'Login'}">login</router-link>
           </v-card-text>
         </v-card>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

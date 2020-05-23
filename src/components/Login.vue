@@ -1,13 +1,13 @@
 <template>
   <v-container fluid fill-height>
-    <v-layout align-top justify-center row wrap>
-      <v-flex pa-2 xs12 sm8 md6 lg4>
+    <v-row align-top justify="center" >
+      <v-col pa-2 cols="12" sm="8" md="6" lg="4">
         <v-card class="elevation-12" height="100%">
           <v-toolbar dark color="primary">
             <v-toolbar-title>Sign in</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-alert :value="error" type="error" class="my-3">
+            <v-alert v-if="error" type="error" class="my-3">
               {{error}}
             </v-alert>
             <v-form>
@@ -24,22 +24,21 @@
             <div>Have you forgotten your password ? You can <router-link :to="{name: 'ResetPassword'}">reset your password</router-link></div>
           </v-card-text>
         </v-card>
-      </v-flex>
-      <v-flex pa-2 xs12 sm8 md6 lg4>
+      </v-col>
+      <v-col pa-2 cols="12" sm="8" md="6" lg="4">
         <v-card class="elevation-12" height="100%">
           <v-toolbar dark color="primary">
             <v-toolbar-title>Sign In Anonymously</v-toolbar-title>
           </v-toolbar>
-          <v-card-text class="text-xs-center mt-3">
+          <v-card-text class="text-center mt-3">
             Continue without an account and stay anonymous.
           </v-card-text>
           <v-card-actions class="justify-center pa-4">
-            <v-btn color="default" v-on:click="signInAnonymously" class="mr-4">
-              Continue
+            <v-btn width="200" large v-on:click="signInAnonymously">
+              <v-icon class="mr-2">mdi-account-circle</v-icon> Continue
             </v-btn>
-            <font-awesome-icon class="fa-4x" icon="user-secret" />
           </v-card-actions>
-          <v-card-text class="text-xs-center font-italic bold">
+          <v-card-text class="text-center font-italic bold">
             Note: You can always create a user account later.
           </v-card-text>
         </v-card>
@@ -56,11 +55,11 @@
             <v-btn color="default" v-on:click="signInWithGithub" class="mr-4">
                Continue
             </v-btn>
-            <font-awesome-icon class="fa-4x" :icon="['fab', 'github']" />
+            <v-icon class="red--text text-darken-3" >mdi-github-circle</v-icon>
           </v-card-actions>
         </v-card-->
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
