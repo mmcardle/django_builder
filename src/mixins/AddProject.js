@@ -38,7 +38,7 @@ var addProjectMixin = {
                 console.log('caught', e)
               })
             },
-            schemas.project
+            schemas.project()
           )
         }
       })

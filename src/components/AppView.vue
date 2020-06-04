@@ -272,7 +272,7 @@ export default {
             .doc(appid)
             .update(formdata);
         },
-        schemas.app,
+        schemas.app(),
         { name: this.$store.getters.apps()[appid].data().name }
       );
     },
@@ -323,7 +323,7 @@ export default {
             .doc(fieldid)
             .update(formdata);
         },
-        schemas.field,
+        schemas.field(),
         {
           name: fieldData.name,
           type: fieldData.type,
@@ -367,24 +367,30 @@ export default {
       );
     },
     _modelSchemaForApp: function() {
-      var schema_with_users_models = schemas.model.slice(0);
+      var schema_with_users_models = schemas.model();
       const data = this.$store.getters.projectData(this.id);
-      Object.keys(data.apps).map(app => {
+      const newOpts = {}
+      Object.keys(data.apps).forEach(app => {
         const appData = this.appData(app);
-        Object.keys(appData.models).map(modelid => {
+        Object.keys(appData.models).forEach(modelid => {
           const modelData = this.modelData(modelid);
           const rel = appData.name + ".models." + modelData.name;
-          schema_with_users_models[1].options[rel] = {
+          newOpts[rel] = {
             type: "user",
             model: modelid,
             app: app
           };
         });
       });
+
+      const baseOpts = Object.assign({}, schema_with_users_models[1].options)
+      const opts = Object.assign({}, baseOpts, newOpts)
+
+      schema_with_users_models[1].options = opts
       return schema_with_users_models;
     },
     _relationshipSchemaForApp: function() {
-      var schema_with_users_models = schemas.relationship.slice(0);
+      var schema_with_users_models = schemas.relationship();
       const data = this.$store.getters.projectData(this.id);
       Object.keys(data.apps).map(app => {
         const appData = this.appData(app);
@@ -431,7 +437,7 @@ export default {
         formdata => {
           this.addField(model, formdata.name, formdata.type, formdata.args);
         },
-        schemas.field
+        schemas.field()
       );
     },
     addModel: function(

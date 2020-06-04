@@ -2,7 +2,7 @@ import Django from '@/django/'
 
 const django = new Django()
 
-const project = [
+const project = () => [
   {
     fieldType: "TextInput",
     placeholder: "This will be the importable python name for your project.",
@@ -24,7 +24,7 @@ const project = [
   }
 ]
 
-const app = [
+const app = () => [
   {
     fieldType: "TextInput",
     placeholder: "This will be the importable python name for your app.",
@@ -35,7 +35,7 @@ const app = [
   }
 ]
 
-const model = [
+const model = () => [
   {
     fieldType: "TextInput",
     placeholder: "amodel",
@@ -58,7 +58,7 @@ const model = [
   }
 ]
 
-const field = [
+const field = () => [
   {
     fieldType: "TextInput",
     placeholder: "afield",
@@ -91,7 +91,7 @@ const field = [
   }
 ]
 
-const relationship = [
+const relationship = () => [
   {
     fieldType: "TextInput",
     placeholder: "arelationship",
