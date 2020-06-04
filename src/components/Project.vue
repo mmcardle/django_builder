@@ -282,7 +282,7 @@ export default {
         (formdata) => {
           this.$firestore.collection('projects').doc(this.id).update(formdata)
         },
-        schemas.project,
+        schemas.project(),
         this.$store.getters.projectData(this.id)
       )
     },
@@ -298,7 +298,7 @@ export default {
       showFormDialog(
         'Add new application',
         (formdata) => {this.addApp(formdata.name)},
-        schemas.app
+        schemas.app()
       )
     },
     addApp: function (name) {
