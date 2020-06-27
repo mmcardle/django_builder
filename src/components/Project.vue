@@ -2,72 +2,6 @@
   <v-row  v-if="isloaded">
     <template ref="dialogs"></template>
 
-    <v-toolbar dense v-if="imported_models.length > 0">
-      <v-toolbar-title class="toolbar-title px-3" to="/">
-        <h3 class="grey--text text--lighten-1 small-caps font-weight-black">
-          <span class="blue--text text--darken-2">I</span>mported
-          <span class="blue--text text--darken-2">M</span>odels
-        </h3>
-      </v-toolbar-title>
-
-      <v-toolbar-items >
-        <template v-for="(model, i) in imported_models">
-
-          <v-btn text v-bind:key="i" @click="import_dialog = true">
-            <v-icon style="font-size:0.8em" class="mr-1">fas fa-database</v-icon>
-            {{model.name}}
-          </v-btn>
-
-        </template>
-      </v-toolbar-items>
-
-      <v-spacer></v-spacer>
-
-      <v-dialog v-model="import_dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
-        <v-card>
-          <v-app-bar flat>
-            <v-toolbar-title>
-              <django-builder-title />
-              -
-              <span class="grey--text text--lighten-1 small-caps font-weight-black">
-                <span class="blue--text text--darken-2">I</span>mported
-                <span class="blue--text text--darken-2">M</span>odels
-              </span>
-            </v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon @click.native="import_dialog = false">
-              <v-icon>close</v-icon>
-            </v-btn>
-          </v-app-bar>
-
-          <v-row fill-height v-if="!importing">
-            <v-col pa-2 cols="12" md="6" lg="3" class="mb-3"
-              v-for="(model, i) in imported_models" v-bind:key="i" >
-              <importable-model v-bind:index="i" v-bind="model"
-                v-bind:add="addModelToApp" v-bind:apps="apps"
-                v-bind:remove="removeImportedModel"
-              />
-            </v-col>
-          </v-row>
-          <v-row v-else  ref="importing" text-center class="ma-3">
-            <v-col offset="3" cols="6">
-              <h4 class="title font-weight-medium font-italics">
-                Importing Model ...
-              </h4>
-              <v-progress-linear slot="extension" :indeterminate="true" class="ma-2">
-              </v-progress-linear>
-            </v-col>
-            <v-col>
-              <v-icon class="ma-4" color="primary">
-                fas fa-circle-notch fa-4x fa-spin
-              </v-icon>
-            </v-col>
-          </v-row>
-
-        </v-card>
-      </v-dialog>
-    </v-toolbar>
-
     <v-container ref="project_title">
       <v-row  align="center" justify="center" class="text-center">
         <v-col cols="12" md=4 lg=3 v-if="isloaded">
@@ -99,25 +33,17 @@
           </a>
         </v-col>
         <template v-if="Object.keys(this.apps).length > 0">
-          <v-col cols=12 sm=6 md=4 lg=2>
+          <v-col cols=12 sm=4 md=2 lg=2>
             <v-btn style="width:95%" large ripple @click="showAppDialog()" class="mx-2">
               <v-icon>add</v-icon> Add App
             </v-btn>
           </v-col>
-          <v-col cols=12 sm=6 md=4 lg=2>
+          <v-col cols=12 sm=4 md=3 lg=2>
             <v-btn style="width:95%" large ripple @click.stop="downloadProject()" class="mx-2">
               <v-icon class=mr-1 color=blue>mdi-cloud-download</v-icon>  Download
             </v-btn>
           </v-col>
-          <v-col cols=12 sm=6 md=4 lg=3 offset-md=4 offset-lg=0>
-            <v-btn style="width:95%" v-if="importReady" large ripple color="success" type="file" class="mx-2"
-              @click="$refs.inputUpload !== undefined ? $refs.inputUpload.click() : () => {}" >
-              <v-icon class=mr-1 color=white>mdi-cloud-upload</v-icon> Upload models.py
-            </v-btn>
-          </v-col>
-          <v-col cols=12 sm=6 md=4 lg=2 >
-            <input v-show="false" ref="inputUpload" type="file" @change="importModels"
-              v-if="importReady" multiple>
+          <v-col cols=12 sm=4 md=2 lg=2 >
             <v-btn style="width:95%" large ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
               <v-icon>delete</v-icon> Delete
             </v-btn>
@@ -131,8 +57,6 @@
             </v-btn>
           </v-col>
           <v-col cols=12 sm=5 md=4 lg=3 xl=2 >
-            <input v-show="false" ref="inputUpload" type="file" @change="importModels"
-              v-if="importReady" multiple>
             <v-btn style="width:95%" large ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
               <v-icon>delete</v-icon> Delete
             </v-btn>
@@ -183,7 +107,6 @@
 </template>
 
 <script>
-import ImportableModel from '@/components/ImportableModel'
 import DirectoryView from '@/components/DirectoryView'
 import AppView from '@/components/AppView'
 import firebase from 'firebase/app'
@@ -197,7 +120,7 @@ const renderer = new Renderer()
 
 export default {
   props: ['id'],
-  components: { 'importable-model': ImportableModel, 'directoryview': DirectoryView, appview: AppView},
+  components: {directoryview: DirectoryView, appview: AppView},
   data: () => {
     return {
       data: undefined,
@@ -226,9 +149,6 @@ export default {
       if (this.$store.getters.projectData(this.id) === undefined) return []
       return this.$store.getters.projectData(this.id).apps
     },
-    imported_models: function () {
-      return this.$store.getters.imported_models()
-    }
   },
   methods: {
     downloadProject: function () {
@@ -322,29 +242,6 @@ export default {
       this.$firestore.collection('projects').doc(this.id).update(
         {[`apps.${appid}`]: firebase.firestore.FieldValue.delete()}
       )
-    },
-    addModelToApp: function (app, model_index) {
-      this.importing = true
-      const modelData =  this.imported_models[model_index]
-      // TODO - add correct parents
-      this.addModel(
-        app, modelData.name, [], modelData.abstract,
-        false
-      ).then((model) => {
-        return this.$store.dispatch(
-          'addFieldsAndRelationships', {
-            model: model,
-            fields: modelData.fields,
-            relationships: modelData.relationships
-          }
-        ).then(() => {
-          this.importing = false
-          console.log('Added model', modelData, model)
-        })
-      })
-    },
-    removeImportedModel: function (i) {
-      this.$store.commit('remove_imported_model', i)
     },
   },
 }

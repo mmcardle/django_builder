@@ -15,7 +15,6 @@ class ModelImporter {
     }
 
     return Promise.all(promises).then((results) => {
-      console.log(results)
       return results
     })
   }
@@ -27,7 +26,7 @@ class ModelImporter {
     const relationshipTypes = Object.keys(that.django.relationshipTypes)
 
     const filePromise = new Promise((resolve) => {
-      console.log('parsing file', file)
+      console.debug('parsing file', file)
       const reader = new FileReader()
       reader.onload = function () {
         var text = reader.result
@@ -105,7 +104,7 @@ class ModelImporter {
                   field['type'] = type
                 }
 
-                console.log('Model:', current_model.name, 'Field:', field)
+                console.debug('Model:', current_model.name, 'Field:', field)
                 current_model.fields.push(field)
               }
             }
@@ -132,7 +131,7 @@ class ModelImporter {
           }
         })
 
-        console.log('Model definitions', model_definitions)
+        console.debug('Model definitions', model_definitions)
 
         const result = {
           file: file,

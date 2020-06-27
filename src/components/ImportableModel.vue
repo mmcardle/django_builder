@@ -30,30 +30,11 @@
       <span>No fields in this model</span>
     </v-card-text>
 
-    <v-menu offset-y transition="scale-transition">
-      <template v-slot:activator="{ on }">
-        <v-btn fab small absolute bottom right color="primary" v-on="on">
-          <v-icon>add</v-icon>
-        </v-btn>
-      </template>
-      <v-list>
-        <v-list-item v-for="(app, k) in Object.keys(apps)" :key="k"
-          @click="add(app, index)" class="p-0">
-          <v-list-item-title>
-            Add to <strong class="orange--text text--darken-1">{{ appData(app).name }}</strong>
-          </v-list-item-title>
-        </v-list-item>
-        <v-list-item v-if="Object.keys(apps).length == 0">
-          <v-list-item-title>
-            Hello!, You need to add an app before you can import a model.
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
-
-    <v-btn fab small absolute bottom left color="error" @click="remove(index)">
-      <v-icon>mdi-delete</v-icon>
-    </v-btn>
+    <v-card-text>
+      <v-btn block color="primary" @click="do_add()">
+        <v-icon>add</v-icon> Add
+      </v-btn>
+    </v-card-text>
 
   </v-card>
 </template>
@@ -64,7 +45,7 @@ export default {
   name: 'importableModel',
   props: [
     'index', 'file', 'name', 'type', 'abstract', 'fields', 'relationships',
-    'apps', 'add', 'remove'
+    'apps', 'add', 'remove', 'app'
   ],
   data: () => {
     return {
@@ -73,9 +54,17 @@ export default {
     }
   },
   methods: {
-    appData: function (appid) {
-      return this.$store.getters.apps()[appid].data()
-    }
+    do_add() {
+      this.add({
+        index: this.index,
+        app: this.app,
+        name: this.name,
+        type: this.type,
+        abstract: this.abstract,
+        fields: this.fields,
+        relationships: this.relationships,
+      });
+    },
   }
 }
 </script>

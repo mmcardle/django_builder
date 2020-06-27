@@ -16,7 +16,6 @@ export default new Vuex.Store({
     models: {},
     fields: {},
     relationships: {},
-    imported_models: []
   },
   getters: {
     user: (state) => () => state.user,
@@ -58,7 +57,6 @@ export default new Vuex.Store({
 
       return models_no_parents.concat(models_with_parents_sorted)
     },
-    imported_models: (state) => () => state.imported_models,
   },
   mutations: {
     set_state (state, payload) {
@@ -99,24 +97,6 @@ export default new Vuex.Store({
       state.models = {}
       state.fields = {}
       state.relationships = {}
-    },
-    add_imported_models (state, imported_models) {
-      event({
-        eventCategory: 'model',
-        eventAction: 'import-models',
-        eventLabel: 'ImportModels',
-        eventValue: 1
-      })
-      state.imported_models = state.imported_models.concat(imported_models)
-    },
-    remove_imported_model (state, index) {
-      event({
-        eventCategory: 'model',
-        eventAction: 'remove-imported-model',
-        eventLabel: state.imported_models[index].name,
-        eventValue: 1
-      })
-      Vue.delete(state.imported_models, index)
     },
   },
   actions: {
