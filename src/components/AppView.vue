@@ -23,7 +23,6 @@
             v-for="(model, i) in imported_models" v-bind:key="i" >
             <importable-model v-bind:index="i" v-bind="model"
               v-bind:add="addModelToApp" v-bind:apps="apps"
-              v-bind:remove="removeImportedModel"
             />
           </v-col>
         </v-row>
@@ -499,6 +498,7 @@ export default {
       return schema_with_users_models;
     },
     showModelDialog: function (app) {
+      this.$refs.inputUpload[0].value = null
       const extra = {
         name: "Upload",
         callback: () => {

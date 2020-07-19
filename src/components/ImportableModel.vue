@@ -45,7 +45,7 @@ export default {
   name: 'importableModel',
   props: [
     'index', 'file', 'name', 'type', 'abstract', 'fields', 'relationships',
-    'apps', 'add', 'remove', 'app'
+    'apps', 'add', 'app'
   ],
   data: () => {
     return {
