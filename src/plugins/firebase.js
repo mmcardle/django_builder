@@ -7,7 +7,14 @@ const FirebasePlugin = {}
 
 FirebasePlugin.install = function (Vue) {
   var firestore = firebase.firestore();
-  const settings = {};
+  let settings = {};
+  if (location.hostname === "localhost") {
+    settings = {
+      host: "localhost:8080",
+      ssl: false
+    };
+    console.log("Setting up local firestore database at ", settings)
+  }
   firestore.settings(settings);
   Vue.prototype.$firestore = firestore
 }
@@ -21,7 +28,7 @@ let config = {
   messagingSenderId: process.env.VUE_APP_FIREBASE_MESSAGINGSENDERID
 }
 
-//console.log("Connecting to", config.authDomain)
+console.debug("Connecting to", config.authDomain, config)
 
 firebase.initializeApp(config)
 

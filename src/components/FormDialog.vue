@@ -6,6 +6,12 @@
           <v-icon style="font-size:1.2em" color="white">{{icon}}</v-icon> {{headline}}
         </span>
       </v-card-title>
+      <v-card-text class="pt-3 text-center" v-if="extra">
+        <v-btn small ripple color="success" type="file" style="width:50%"
+          @click="extra_callback()">
+          <v-icon class=mr-1 color=white>mdi-cloud-upload</v-icon> {{extra_name()}}
+        </v-btn>
+      </v-card-text>
       <v-card-text class="pt-3">
         <div ref="formcontainer"></div>
       </v-card-text>
@@ -37,6 +43,10 @@ export default {
     schema: {
       type: Array,
       default: (() => [])
+    },
+    extra: {
+      type: Object,
+      default: undefined
     },
     formdata: {
       type: Object,
@@ -72,6 +82,13 @@ export default {
     this.$refs.formcontainer.appendChild(this.form.$mount().$el)
   },
   methods: {
+    extra_name() {
+      return this.extra.name;
+    },
+    extra_callback() {
+      this.do_cancel()
+      this.extra.callback();
+    },
     do_ok: function() {
       if (this.form.$refs.form.validate()) {
         this.formdialog = false

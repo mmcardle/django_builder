@@ -1,5 +1,50 @@
 <template>
   <v-col cols="12" md="4" order-sm="1" order-md="2">
+
+    <v-dialog v-model="import_dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+      <v-card>
+        <v-app-bar flat>
+          <v-toolbar-title>
+            <django-builder-title />
+            -
+            <span class="grey--text text--lighten-1 small-caps font-weight-black">
+              <span class="blue--text text--darken-2">I</span>mported
+              <span class="blue--text text--darken-2">M</span>odels
+            </span>
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click.native="import_dialog = false">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </v-app-bar>
+
+        <v-row fill-height v-if="!importing">
+          <v-col pa-2 cols="12" md="6" lg="3" class="mb-3"
+            v-for="(model, i) in imported_models" v-bind:key="i" >
+            <importable-model v-bind:index="i" v-bind="model"
+              v-bind:add="addModelToApp" v-bind:apps="apps"
+              v-bind:remove="removeImportedModel"
+            />
+          </v-col>
+        </v-row>
+        <v-row v-else  ref="importing" text-center class="ma-3">
+          <v-col offset="3" cols="6">
+            <h4 class="title font-weight-medium font-italics">
+              Importing Model ...
+            </h4>
+            <v-progress-linear slot="extension" :indeterminate="true" class="ma-2">
+            </v-progress-linear>
+          </v-col>
+          <v-col>
+            <v-icon class="ma-4" color="primary">
+              fas fa-circle-notch fa-4x fa-spin
+            </v-icon>
+          </v-col>
+        </v-row>
+
+      </v-card>
+    </v-dialog>
+
     <h2 class="red--text text--darken-4 mx-3">
       <v-icon class="red--text text--darken-4">mdi-database</v-icon>Project Models
     </h2>
@@ -185,6 +230,9 @@
             </v-subheader>
           </div>
         </v-card-text>
+        
+        <input ref="inputUpload" v-show="false" type="file" @change="importModels" multiple>
+        
         <v-btn fab x-small absolute bottom right color="info" dark @click="showModelDialog(appid)" class="mb-2 mr-4">
           <v-icon>add</v-icon>
         </v-btn>
@@ -199,14 +247,22 @@
 <script>
 import firebase from "firebase/app";
 import { schemas } from "@/schemas/";
+import ImportableModel from '@/components/ImportableModel'
+import ModelImporter from '@/django/importer'
 import { showDeleteDialog, showFormDialog } from "@/dialogs/";
 import "highlight.js/styles/a11y-light.css";
 
 export default {
   props: ["id"],
+  components: { 'importable-model': ImportableModel, },
   data: () => {
     return {
-      movingModel: undefined
+      movingModel: undefined,
+      importReady: false,
+      import_dialog: false,
+      importing: false,
+      importingForApp: undefined,
+      imported_models: []
     };
   },
   computed: {
@@ -216,6 +272,46 @@ export default {
     }
   },
   methods: {
+    addModelToApp: function (modelData) {
+      this.importing = true
+      // TODO - add correct parents
+      this.addModel(
+        modelData.app, modelData.name, [], modelData.abstract,
+        false
+      ).then((model) => {
+        return this.$store.dispatch(
+          'addFieldsAndRelationships', {
+            model: model,
+            fields: modelData.fields,
+            relationships: modelData.relationships
+          }
+        ).then(() => {
+          console.log('Added model', modelData, model)
+          this.importing = false
+          this.imported_models.splice(modelData.index, 1);
+          this.import_dialog = this.imported_models.length !== 0
+        })
+      })
+    },
+    importModels: function (e) {
+      this.import_dialog = true
+      this.importReady = false
+      const importer = new ModelImporter()
+      importer.import_models(e.target.files).then((results) => {
+        const modelList = []
+        results.forEach((result) => {
+          result.models.forEach((model) => {
+            model['file'] = result.file.name
+            model['app'] = this.importingForApp
+            modelList.push(model)
+          })
+        })
+        this.imported_models = modelList;
+        this.$nextTick(() => {
+          this.importReady = true
+        })
+      })
+    },
     modelsParents: function(model) {
       return this.modelData(model)
         .parents.map(parent => {
@@ -402,7 +498,15 @@ export default {
       });
       return schema_with_users_models;
     },
-    showModelDialog: function(app) {
+    showModelDialog: function (app) {
+      const extra = {
+        name: "Upload",
+        callback: () => {
+          this.importingForApp = app;
+          this.$refs.inputUpload[0].click()
+        }
+      }
+
       showFormDialog(
         "Add new model",
         formdata => {
@@ -413,7 +517,9 @@ export default {
             formdata.abstract
           );
         },
-        this._modelSchemaForApp()
+        this._modelSchemaForApp(),
+        undefined,
+        extra
       );
     },
     showRelationshipDialog: function(model) {

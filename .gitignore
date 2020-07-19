@@ -25,6 +25,11 @@ yarn-error.log*
 *.sln
 *.sw*
 
+# Testing
+tests_output/
+chromedriver.log
+geckodriver.log
+ui-debug.log
 
 # Coverage
 coverage/
