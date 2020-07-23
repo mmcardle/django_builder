@@ -19,6 +19,14 @@
         </v-app-bar>
 
         <v-row fill-height v-if="!importing">
+          <v-col pa-4 cols="2" class="mb-3">
+            <v-btn block color="primary" @click="addAllModelsToApp()" class="ma-2">
+              <v-icon>add</v-icon> Add All
+            </v-btn>
+          </v-col>
+        </v-row>
+
+        <v-row fill-height v-if="!importing">
           <v-col pa-2 cols="12" md="6" lg="3" class="mb-3"
             v-for="(model, i) in imported_models" v-bind:key="i" >
             <importable-model v-bind:index="i" v-bind="model"
@@ -271,6 +279,27 @@ export default {
     }
   },
   methods: {
+    addAllModelsToApp: function () {
+      this.importing = true
+      const promises = this.imported_models.map((imported_model) => {
+        return this.addModel(
+          imported_model.app, imported_model.name, [], imported_model.abstract, false
+        ).then((model) => {
+          return this.$store.dispatch(
+            'addFieldsAndRelationships', {
+              model: model,
+              fields: imported_model.fields,
+              relationships: imported_model.relationships
+            }
+          )
+        })
+      })
+      return Promise.all(promises).then(() => {
+        this.importing = false
+        this.imported_models = [];
+        this.import_dialog = false;
+      })
+    },
     addModelToApp: function (modelData) {
       this.importing = true
       // TODO - add correct parents
