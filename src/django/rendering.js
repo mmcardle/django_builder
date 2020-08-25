@@ -500,7 +500,7 @@ CHANNEL_LAYERS = {
     </a>
 </p>
     `
-    detail_html += `\n<form method="post">`
+    detail_html += `\n<form method="post" enctype="multipart/form-data">`
     detail_html += `\n  {% csrf_token %}`
     detail_html += `\n  {{form.errors}}`
 
