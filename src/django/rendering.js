@@ -520,6 +520,12 @@ CHANNEL_LAYERS = {
         case 'django.db.models.IntegerField':
           html_field_type = "number"
           break
+        case 'django.db.models.FileField':
+          html_field_type = "file"
+          break
+        case 'django.db.models.ImageField':
+          html_field_type = "file"
+          break
       }
 
       const disabled = field.args.indexOf('editable=False') !== -1
