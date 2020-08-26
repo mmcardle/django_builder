@@ -500,7 +500,7 @@ CHANNEL_LAYERS = {
     </a>
 </p>
     `
-    detail_html += `\n<form method="post">`
+    detail_html += `\n<form method="post" enctype="multipart/form-data">`
     detail_html += `\n  {% csrf_token %}`
     detail_html += `\n  {{form.errors}}`
 
@@ -519,6 +519,12 @@ CHANNEL_LAYERS = {
           break
         case 'django.db.models.IntegerField':
           html_field_type = "number"
+          break
+        case 'django.db.models.FileField':
+          html_field_type = "file"
+          break
+        case 'django.db.models.ImageField':
+          html_field_type = "file"
           break
       }
 
