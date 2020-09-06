@@ -41,7 +41,6 @@ const showDeleteDialog = function (text, ok, cancel = () => {}) {
 
 const showFormDialog = function (headline, ok, schema, formdata, extra) {
   var FormDialogClass = Vue.extend(FormDialog)
-  console.log(extra)
   var dialog = new FormDialogClass({
     vuetify,
     propsData: {
