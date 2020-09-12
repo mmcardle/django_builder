@@ -50,12 +50,12 @@
           </v-col>
         </template>
         <template v-else>
-          <v-col cols=12 sm=5 md=4 lg=3 xl=2>
+          <!--v-col cols=12 sm=5 md=4 lg=3 xl=2>
             <v-btn style="width:95%" v-if="importReady" large ripple color="success" type="file" class="mx-2"
               @click="$refs.inputUpload !== undefined ? $refs.inputUpload.click() : () => {}" >
               <v-icon class=mr-1 color=white>mdi-cloud-upload</v-icon> Upload models.py
             </v-btn>
-          </v-col>
+          </v-col-->
           <v-col cols=12 sm=5 md=4 lg=3 xl=2 >
             <v-btn style="width:95%" large ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
               <v-icon>delete</v-icon> Delete

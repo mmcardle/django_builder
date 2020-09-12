@@ -21,7 +21,7 @@
         <v-row fill-height v-if="!importing">
           <v-col pa-4 cols="2" class="mb-3">
             <v-btn block color="primary" @click="addAllModelsToApp()" class="ma-2">
-              <v-icon>add</v-icon> Add All
+              <v-icon>add</v-icon> Add All {{imported_models.length}} Models
             </v-btn>
           </v-col>
         </v-row>
@@ -37,9 +37,9 @@
         <v-row v-else  ref="importing" text-center class="ma-3">
           <v-col offset="3" cols="6">
             <h4 class="title font-weight-medium font-italics">
-              Importing Model ...
+              Importing Models - {{num_imported}}/{{imported_models.length}} complete ...
             </h4>
-            <v-progress-linear slot="extension" :indeterminate="true" class="ma-2">
+            <v-progress-linear slot="extension" :value="importing_percent" class="ma-2">
             </v-progress-linear>
           </v-col>
           <v-col>
@@ -55,18 +55,28 @@
     <h2 class="red--text text--darken-4 mx-3">
       <v-icon class="red--text text--darken-4">mdi-database</v-icon>Project Models
     </h2>
+
     <v-card class="ma-2 mb-5 mr-5" v-if="Object.keys(this.apps).length == 0">
       <v-card-text class="mb-5">
         <em>Add some apps so you can create models.</em>
       </v-card-text>
     </v-card>
+
+    <div v-if="!import_dialog">
     <div v-for="(app, appid) in this.apps" class="overflow-hidden" :key="appid">
       <v-card class="ma-2 mb-5">
         <v-card-title class="pb-0 pt-2">
           <v-icon class="blue--text text--darken-4 mr-1">mdi-folder</v-icon>
           <a class="blue--text text--darken-1" @click="showEditAppDialog(appid)">{{appData(appid).name}}</a>
+          <v-btn v-if="$store.getters.ordered_models(appid).length > 4" fab x-small color="info" dark @click="showModelDialog(appid)" class="ml-4">
+            <v-icon>add</v-icon>
+          </v-btn>
+          <v-btn v-if="$store.getters.ordered_models(appid).length > 4" fab x-small absolute right color="error" @click="showDeleteAppDialog(appid)" class="mb-2 mr-5">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
         </v-card-title>
-        <v-card-text class="mb-5 py-1">
+
+        <v-card-text class="mb-5 pt-2 pb-4">
 
           <div v-if="movingModel !== undefined && movingModel.app !== appid" @click="moveModelToApp(appid)" style="cursor: pointer">
             <v-alert class="white--text" :value="true" color="primary" type=info>
@@ -240,13 +250,14 @@
         
         <input ref="inputUpload" v-show="false" type="file" @change="importModels" multiple>
         
-        <v-btn fab x-small absolute bottom right color="info" dark @click="showModelDialog(appid)" class="mb-2 mr-4">
+        <v-btn fab x-small absolute bottom right color="info" dark @click="showModelDialog(appid)" class="mb-1 mr-4">
           <v-icon>add</v-icon>
         </v-btn>
-        <v-btn fab x-small absolute bottom left color="error" @click="showDeleteAppDialog(appid)" class="mb-2">
+        <v-btn fab x-small absolute bottom left color="error" @click="showDeleteAppDialog(appid)" class="mb-1">
           <v-icon>mdi-delete</v-icon>
         </v-btn>
       </v-card>
+    </div>
     </div>
   </v-col>
 </template>
@@ -256,12 +267,14 @@ import firebase from "firebase/app";
 import { schemas } from "@/schemas/";
 import ImportableModel from '@/components/ImportableModel'
 import ModelImporter from '@/django/importer'
-import { showDeleteDialog, showFormDialog } from "@/dialogs/";
+import { showDeleteDialog, showFormDialog, showMessageDialog } from "@/dialogs/";
+import { MAX_BATCH_IMPORTABLE_MODELS, MAX_MODELS } from '@/constants'
+import { batchModelsForTransaction } from '@/utils'
 import "highlight.js/styles/a11y-light.css";
 
 export default {
   props: ["id"],
-  components: { 'importable-model': ImportableModel, },
+  components: { 'importable-model': ImportableModel },
   data: () => {
     return {
       movingModel: undefined,
@@ -269,6 +282,8 @@ export default {
       import_dialog: false,
       importing: false,
       importingForApp: undefined,
+      importing_percent: 0,
+      num_imported: 0,
       imported_models: []
     };
   },
@@ -279,28 +294,45 @@ export default {
     }
   },
   methods: {
+    checkCanAddNModels: function (n) {
+      return this.$store.getters.ordered_models(this.importingForApp) + n < MAX_MODELS
+    },
+    tooManyModels: function (n) {
+      showMessageDialog(
+        "Sorry, Too many models.",
+        "Sorry you have too many models in this app, maximum is " + MAX_MODELS + ".",
+        () => {},
+      );
+    },
     addAllModelsToApp: function () {
+      if (!this.checkCanAddNModels(this.imported_models.length)) {
+        this.tooManyModels();
+        return
+      }
       this.importing = true
-      const promises = this.imported_models.map((imported_model) => {
-        return this.addModel(
-          imported_model.app, imported_model.name, [], imported_model.abstract, false
-        ).then((model) => {
-          return this.$store.dispatch(
-            'addFieldsAndRelationships', {
-              model: model,
-              fields: imported_model.fields,
-              relationships: imported_model.relationships
-            }
-          )
+      const batchOfModels = batchModelsForTransaction(this.imported_models, MAX_BATCH_IMPORTABLE_MODELS);
+      const promises = batchOfModels.map((modelBatch, i) => {
+        console.debug('Started import models batch number', i)
+        return this.$store.dispatch("addModels", modelBatch).then(() => {
+          this.num_imported += modelBatch.length;
+          this.importing_percent = (this.num_imported / this.imported_models.length) * 100;
+          console.debug('Completed import models batch number', i, ',', modelBatch.length, 'models', this.num_imported, this.importing_percent)
+          this.$forceUpdate();
         })
       })
       return Promise.all(promises).then(() => {
+        console.debug('Completed importing', batchOfModels.length , 'batches', this.imported_models.length, 'models')
         this.importing = false
         this.imported_models = [];
+        this.importing_percent = 0;
         this.import_dialog = false;
       })
     },
     addModelToApp: function (modelData) {
+      if (!this.checkCanAddNModels(1)) {
+        this.tooManyModels();
+        return
+      }
       this.importing = true
       // TODO - add correct parents
       this.addModel(
@@ -385,7 +417,7 @@ export default {
       return this.$store.getters.relationships()[relationshipid].data();
     },
     fieldData: function(fieldid) {
-      return this.$store.getters.fields()[fieldid].data();
+      return this.$store.getters.fields()[fieldid] ? this.$store.getters.fields()[fieldid].data() : {name: '?', type: '?'};
     },
     showEditAppDialog: function(appid) {
       showFormDialog(

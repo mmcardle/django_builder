@@ -312,7 +312,7 @@ class Renderer {
 
   get_fields(model) {
     return keys(model.fields).map((field) => {
-      return store.getters.fields()[field].data()
+      return store.getters.fields()[field] ? store.getters.fields()[field].data() : [];
     })
   }
 
@@ -795,8 +795,13 @@ CHANNEL_LAYERS = {
       if (model.fields && keys(model.fields).length > 0) {
         models_py += '    # Fields\n'
         for( var field in model.fields ) {
-          const fData = store.getters.fields()[field].data()
-          models_py += '    ' + fData.name + ' = models.' + fData.type.split('.').pop() + '(' + fData.args + ')\n'
+          const f = store.getters.fields()[field]
+          if (f) {
+            const fData = f.data()
+            models_py += '    ' + fData.name + ' = models.' + fData.type.split('.').pop() + '(' + fData.args + ')\n'
+          } else {
+            models_py += '    ' + 'UNKNOWN' + ' = models.' + 'UNKNOWN' + '(' + 'UNKNOWN'+ ')\n'
+          }
         }
         models_py += '\n'
       }

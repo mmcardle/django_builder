@@ -23,7 +23,7 @@
               <div v-for="(d, app) in project.data().apps" v-bind:key="app" class="mt-2">
                <div v-for="(d, model) in $store.getters.appData(app).models" v-bind:key="app+model">
                   <v-icon class="red--text text--darken-4" >mdi-database</v-icon>
-                {{$store.getters.appData(app).name}}.{{$store.getters.modelData(model).name}}
+                {{$store.getters.appData(app).name}}.{{$store.getters.modelData(model) ? $store.getters.modelData(model).name : 'loading'}}
                </div>
               </div>
             </v-list-item-subtitle>
@@ -272,7 +272,7 @@
       <v-btn class="info" @click="agreeAndClose">Agree &amp; Close</v-btn>
     </v-snackbar>
 
-    <v-footer app fixed>
+    <v-footer app fixed style="z-index:5">
       <span>&copy; {{year}}</span>
       <v-spacer />
       <v-btn class="hidden-xs-only" text @click.stop="cookie_snackbar = !cookie_snackbar">Privacy Settings</v-btn>

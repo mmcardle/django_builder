@@ -35,10 +35,6 @@ export default {
       type: Function,
       default: (() => {console.log('messagedialog ok handler')})
     },
-    color: {
-      type: String,
-      default: 'info'
-    },
   },
   data: function() {
     return {

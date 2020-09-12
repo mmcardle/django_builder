@@ -94,7 +94,6 @@ export default {
             "Password Reset",
             "Your password has been reset",
             () => {},
-            "info"
           )
           this.$router.push({name: 'Login'})
         },

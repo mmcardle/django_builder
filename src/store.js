@@ -7,6 +7,8 @@ import { event } from 'vue-analytics'
 
 Vue.use(Vuex)
 
+
+
 export default new Vuex.Store({
   state: {
     user: undefined,
@@ -30,19 +32,21 @@ export default new Vuex.Store({
     apps: (state) => () => state.apps,
     appData: (state) => (id) => state.apps[id].data(),
     models: (state) => () => state.models,
-    modelData: (state) => (id) => state.models[id].data(),
+    modelData: (state) => (id) => state.models[id] ? state.models[id].data() : undefined,
     fields: (state) => () => state.fields,
     relationships: (state) => () => state.relationships,
     ordered_models: (state) => (appid) => {
       const appData = state.apps[appid].data()
       const unordered_models = Object.keys(appData.models).map((model) => {
-        return Object.assign(state.models[model].data(), {id: model})
+        if (state.models[model]) {
+          return Object.assign(state.models[model].data(), {id: model})
+        }
       })
-      const models_no_parents = unordered_models.filter((model) => {
+      const models_no_parents = unordered_models.filter(model => model !== undefined).filter((model) => {
         return model.parents.length === 0
       })
 
-      const models_with_parents = unordered_models.filter((model) => {
+      const models_with_parents = unordered_models.filter(model => model !== undefined).filter((model) => {
         return model.parents.length !== 0
       })
 
@@ -192,6 +196,57 @@ export default new Vuex.Store({
           {[`apps.${app.id}`]: true}
         )
       })
+    },
+    addModels: function (_, payload) {
+      event({
+        eventCategory: 'model',
+        eventAction: 'add-models',
+        eventLabel: 'multiple-models',
+        eventValue: payload.length
+      })
+      const userid = firebase.auth().currentUser.uid
+
+      const db = firebase.firestore()
+      // Get a new write batch
+      var batch = db.batch();
+      payload.forEach(model => {
+
+        const fields = {};
+        const relationships = {}
+
+        model.fields.forEach(field => {
+          const newFieldRef= db.collection('fields').doc();
+          batch.set(newFieldRef, {
+            owner: userid,
+            name: field.name,
+            type: field.type,
+            args: field.args || ''
+          })
+          fields[newFieldRef.id] = true;
+        })
+
+        const modelData = {
+          owner: userid,
+          name: model.name,
+          parents: model.parents || [],
+          abstract: Boolean(model.abstract),
+          fields,
+          relationships,
+        }
+        var newModelRef = db.collection('models').doc();
+
+        // Add it in the batch
+        batch.set(newModelRef, modelData);
+
+        var appRef = db.collection("apps").doc(model.app);
+        const appData = {[`models.${newModelRef.id}`]: true}
+        batch.update(appRef, appData);
+
+      })
+      // Commit the batch
+      return batch.commit().then(function () {
+        console.debug('Added batch of ', payload.length, 'models')
+      });
     },
     addModel: function ({dispatch}, payload) {
       event({

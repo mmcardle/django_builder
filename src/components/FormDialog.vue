@@ -58,11 +58,11 @@ export default {
     },
     ok: {
       type: Function,
-      default: (() => {console.log('FormDialog ok handler')})
+      default: (() => {console.debug('FormDialog ok handler')})
     },
     cancel: {
       type: Function,
-      default: (() => {console.log('FormDialog cancel handler')})
+      default: (() => {console.debug('FormDialog cancel handler')})
     },
   },
   created: function () {
