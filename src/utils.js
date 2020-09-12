@@ -31,15 +31,4 @@ const batchModelsForTransaction = function ( models, limit) {
   return batches;
 }
 
-
-batchModelsForTransaction([
-  {fields: [1,2], relationships: [1,2]},
-  {fields: [1,2], relationships: [6,7]},
-  {fields: [1,2,3,4], relationships: [6,7,8,9]},
-  {fields: [1,2,3,4], relationships: [6,7,8,9]},
-  {fields: [1,2,3,4], relationships: [6,7,8,9]},
-  {fields: [1,2,3,4], relationships: [6,7,8,9]},
-], 100)
-
-
 export {keyByValue, batchModelsForTransaction}

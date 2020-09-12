@@ -16,13 +16,14 @@
 <script>
 // from https://codesandbox.io/s/0p9n4y5kyw
 import SelectList from "./SelectList";
-import SelectListObjects from "./SelectListObjects"
+import SelectListObjects from "./SelectListObjects";
+import ButtonGroupSelect from "./ButtonGroupSelect";
 import TextInput from "./TextInput";
 import BooleanInput from "./BooleanInput";
 
 export default {
   name: "FormGenerator",
-  components: { SelectList, TextInput, BooleanInput, SelectListObjects },
+  components: { SelectList, TextInput, BooleanInput, SelectListObjects, ButtonGroupSelect },
   props: ["schema", "value"],
   data() {
     return {

@@ -7,12 +7,11 @@ import { event } from 'vue-analytics'
 
 Vue.use(Vuex)
 
-
-
 export default new Vuex.Store({
   state: {
     user: undefined,
     loaded: false,
+    error: false,
     projects: {},
     apps: {},
     models: {},
@@ -22,6 +21,7 @@ export default new Vuex.Store({
   getters: {
     user: (state) => () => state.user,
     loaded: (state) => () => state.loaded,
+    error: (state) => () => state.error,
     projects: (state) => () => state.projects,
     projectsData: (state) => () => {
       return Object.keys(state.projects).map((pid) => {
@@ -66,6 +66,9 @@ export default new Vuex.Store({
     set_state (state, payload) {
       Vue.set(state, payload.key, payload.values)
     },
+    set_error (state, error) {
+      state.error = error
+    },
     set_user (state, user) {
       console.log('Loaded', !user.isAnonymous ? user.display_name : 'Anonymous User ' + user.uid)
       state.loaded = true
@@ -107,12 +110,12 @@ export default new Vuex.Store({
     load : function ({commit}, userid) {
       var firestore = firebase.firestore()
 
-      const snapShotErrorHandler = function (err) {
+      const snapShotErrorHandler = function (error) {
         if (firebase.auth().currentUser) {
-          console.log('OnSnapshot error', firebase.auth().currentUser)
-          throw err
+          commit('set_error', error)
+          throw error
         } else {
-          // This is OK user is no longer logged in'
+          // This is OK user as no longer logged in
         }
       }
 
@@ -177,6 +180,7 @@ export default new Vuex.Store({
         name: payload.name,
         description: payload.description,
         channels: payload.channels,
+        django_version: payload.django_version,
         apps: {}
       })
     },

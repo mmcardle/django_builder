@@ -10,7 +10,7 @@
 </template>
 <script>
 export default {
-  name: 'SelectList',
+  name: 'SelectListObjects',
   props: ['multi', 'options', 'name', 'label', 'value', 'required', 'nospaces'],
   computed: {
     items ()  {

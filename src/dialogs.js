@@ -23,7 +23,6 @@ const showConfirmDialog = function (headline, text, ok, cancel = () => {}, optio
 }
 
 const showUpgradeDialog = function (upgrade, ok, cancel = () => {}) {
-  console.log('showUpgradeDialog')
   var UpgradeDialogClass = Vue.extend(UpgradeDialog)
   var dialog = new UpgradeDialogClass({
     vuetify, propsData: { upgrade: upgrade, ok: ok, cancel: cancel }

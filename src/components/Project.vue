@@ -24,6 +24,11 @@
             </a>
           </div>
           <a class="d-block orange--text" @click="showEditProjectDialog()">
+            <span >
+              Django Version: {{django_version}}
+            </span>
+          </a>
+          <a class="d-block orange--text" @click="showEditProjectDialog()">
             <span v-if="channels">
               Django Channels <v-icon class="green--text" >mdi-toggle-switch</v-icon>
             </span>
@@ -91,6 +96,28 @@
 
   </v-row>
 
+  <v-container v-else-if="error">
+    <v-dialog v-model="error_dialog" max-width="600" persistent>
+      <v-card>
+        <v-card-title class="primary white--text">
+          <span class="white--text headline">
+            <v-icon large color="white" class="mr-2">mdi-information</v-icon>
+            Sorry there has been an error loading.
+          </span>
+        </v-card-title>
+        <v-card-text>
+          <div class="pt-4">
+            Details of the error are as follows: 
+            <p class="my-4">
+              <em>{{error.message}}</em>
+            </p>
+            Please state this error when reporting any issues.
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+  </v-container>
+
   <v-container v-else ref="loading" text-center>
     <v-row>
       <v-col cols="12">
@@ -112,7 +139,8 @@ import AppView from '@/components/AppView'
 import firebase from 'firebase/app'
 import Renderer from '@/django/rendering'
 import ModelImporter from '@/django/importer'
-import {schemas} from '@/schemas/'
+import { DEFAULT_DJANGO_VERSION } from '@/django'
+import {schemas} from '@/schemas'
 import {showDeleteDialog, showFormDialog} from '@/dialogs/'
 import 'highlight.js/styles/a11y-light.css'
 
@@ -126,7 +154,8 @@ export default {
       data: undefined,
       import_dialog: false,
       importing: false,
-      importReady: true
+      importReady: true,
+      error_dialog: true,
     }
   },
   computed: {
@@ -137,6 +166,9 @@ export default {
     isloaded: function () {
       return this.$store.getters.loaded()
     },
+    error: function () {
+      return this.$store.getters.error()
+    },
     name: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return ''
       return this.$store.getters.projectData(this.id).name
@@ -144,6 +176,10 @@ export default {
     channels: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return false
       return this.$store.getters.projectData(this.id).channels
+    },
+    django_version: function () {
+      if (this.$store.getters.projectData(this.id) === undefined) return '?'
+      return this.$store.getters.projectData(this.id).django_version || DEFAULT_DJANGO_VERSION
     },
     apps: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return []

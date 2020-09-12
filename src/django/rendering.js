@@ -358,6 +358,16 @@ class Renderer {
   requirements (projectid) {
     const project = store.getters.projectData(projectid)
     let requirements = requirements_txt
+    const DJANGO_3 = 'Django>=3,<4';
+    const DJANGO_2 = 'Django>=2,<3';
+    if (project.django_version === 3) {
+      requirements = requirements.replace('XXX_DJANGO_VERSION_XXX', DJANGO_3)
+    } else if (project.django_version == 2) {
+      requirements = requirements.replace('XXX_DJANGO_VERSION_XXX', DJANGO_2)
+    } else {
+      console.error('Unknown Django version ' + project.django_version + ', defaulting to ' + DJANGO_3)
+      requirements = requirements.replace('XXX_DJANGO_VERSION_XXX', DJANGO_3)
+    }
     if (project.channels === true) {
       requirements += 'channels\n'
       requirements += 'channels_redis\n'
