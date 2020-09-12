@@ -17,7 +17,6 @@ var addProjectMixin = {
             "Could not create project.",
             "Sorry the maximum number of projects is currently " + MAX_PROJECTS,
             () => {},
-            "error"
           )
           return Promise.reject(new Error("Too many projects"))
         } else {

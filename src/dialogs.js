@@ -6,10 +6,10 @@ import UpgradeDialog from '@/components/UpgradeDialog'
 import DeleteDialog from '@/components/DeleteDialog'
 import FormDialog from '@/components/FormDialog'
 
-const showMessageDialog = function (headline, text, ok, color) {
+const showMessageDialog = function (headline, text, ok) {
   var MessageDialogClass = Vue.extend(MessageDialog)
   var dialog = new MessageDialogClass({
-    vuetify, propsData: { headline: headline, text: text, ok: ok, color: color }
+    vuetify, propsData: { headline: headline, text: text, ok: ok }
   })
   dialog.$mount()
 }

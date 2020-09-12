@@ -21,7 +21,7 @@
         <v-row fill-height v-if="!importing">
           <v-col pa-4 cols="2" class="mb-3">
             <v-btn block color="primary" @click="addAllModelsToApp()" class="ma-2">
-              <v-icon>add</v-icon> Add All
+              <v-icon>add</v-icon> Add All {{imported_models.length}} Models
             </v-btn>
           </v-col>
         </v-row>
@@ -37,7 +37,7 @@
         <v-row v-else  ref="importing" text-center class="ma-3">
           <v-col offset="3" cols="6">
             <h4 class="title font-weight-medium font-italics">
-              Importing Models - {{Math.floor(num_imported/2)}}/{{imported_models.length}} complete ...
+              Importing Models - {{num_imported}}/{{imported_models.length}} complete ...
             </h4>
             <v-progress-linear slot="extension" :value="importing_percent" class="ma-2">
             </v-progress-linear>
@@ -55,11 +55,14 @@
     <h2 class="red--text text--darken-4 mx-3">
       <v-icon class="red--text text--darken-4">mdi-database</v-icon>Project Models
     </h2>
+
     <v-card class="ma-2 mb-5 mr-5" v-if="Object.keys(this.apps).length == 0">
       <v-card-text class="mb-5">
         <em>Add some apps so you can create models.</em>
       </v-card-text>
     </v-card>
+
+    <div v-if="!import_dialog">
     <div v-for="(app, appid) in this.apps" class="overflow-hidden" :key="appid">
       <v-card class="ma-2 mb-5">
         <v-card-title class="pb-0 pt-2">
@@ -255,6 +258,7 @@
         </v-btn>
       </v-card>
     </div>
+    </div>
   </v-col>
 </template>
 
@@ -263,13 +267,14 @@ import firebase from "firebase/app";
 import { schemas } from "@/schemas/";
 import ImportableModel from '@/components/ImportableModel'
 import ModelImporter from '@/django/importer'
-import { showDeleteDialog, showFormDialog } from "@/dialogs/";
-import { MAX_BATCH_IMPORTABLE_MODELS } from '@/constants'
+import { showDeleteDialog, showFormDialog, showMessageDialog } from "@/dialogs/";
+import { MAX_BATCH_IMPORTABLE_MODELS, MAX_MODELS } from '@/constants'
+import { batchModelsForTransaction } from '@/utils'
 import "highlight.js/styles/a11y-light.css";
 
 export default {
   props: ["id"],
-  components: { 'importable-model': ImportableModel, },
+  components: { 'importable-model': ImportableModel },
   data: () => {
     return {
       movingModel: undefined,
@@ -289,24 +294,30 @@ export default {
     }
   },
   methods: {
-    batchArray: function (arr, chunk_size){
-      var index = 0;
-      var arrayLength = arr.length;
-      var tempArray = [];
-      for (index = 0; index < arrayLength; index += chunk_size) {
-        tempArray.push(arr.slice(index, index+chunk_size));
-      }
-      return tempArray;
+    checkCanAddNModels: function (n) {
+      return this.$store.getters.ordered_models(this.importingForApp) + n < MAX_MODELS
+    },
+    tooManyModels: function (n) {
+      showMessageDialog(
+        "Sorry, Too many models.",
+        "Sorry you have too many models in this app, maximum is " + MAX_MODELS + ".",
+        () => {},
+      );
     },
     addAllModelsToApp: function () {
+      if (!this.checkCanAddNModels(this.imported_models.length)) {
+        this.tooManyModels();
+        return
+      }
       this.importing = true
-      const batchOfModels = this.batchArray(this.imported_models, MAX_BATCH_IMPORTABLE_MODELS);
+      const batchOfModels = batchModelsForTransaction(this.imported_models, MAX_BATCH_IMPORTABLE_MODELS);
       const promises = batchOfModels.map((modelBatch, i) => {
         console.debug('Started import models batch number', i)
         return this.$store.dispatch("addModels", modelBatch).then(() => {
-          console.debug('Completed import models batch number', i)
-          this.num_imported = modelBatch.length;
+          this.num_imported += modelBatch.length;
           this.importing_percent = (this.num_imported / this.imported_models.length) * 100;
+          console.debug('Completed import models batch number', i, ',', modelBatch.length, 'models', this.num_imported, this.importing_percent)
+          this.$forceUpdate();
         })
       })
       return Promise.all(promises).then(() => {
@@ -318,6 +329,10 @@ export default {
       })
     },
     addModelToApp: function (modelData) {
+      if (!this.checkCanAddNModels(1)) {
+        this.tooManyModels();
+        return
+      }
       this.importing = true
       // TODO - add correct parents
       this.addModel(
