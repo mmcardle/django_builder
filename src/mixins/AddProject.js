@@ -1,4 +1,4 @@
-import {schemas} from '@/schemas/'
+import {schemas} from '@/schemas'
 import {showFormDialog} from '@/dialogs/'
 import {showMessageDialog} from '@/dialogs/'
 import firebase from 'firebase/app'
@@ -28,7 +28,8 @@ var addProjectMixin = {
                 'addProject', {
                   name: formdata.name,
                   description: formdata.description || "",
-                  channels: formdata.channels || false
+                  channels: formdata.channels || false,
+                  django_version: formdata.django_version,
                 }
               ).then((newProject) => {
                 console.log('NewProject', newProject)

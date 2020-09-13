@@ -1,5 +1,5 @@
 import Django from '@/django/'
-
+import { DEFAULT_DJANGO_VERSION } from '@/django/'
 const django = new Django()
 
 const project = () => [
@@ -16,6 +16,17 @@ const project = () => [
     placeholder: "",
     label: "An optional description for your project.",
     name: "description"
+  },
+  {
+    fieldType: "ButtonGroupSelect",
+    name: "django_version",
+    label: "Version",
+    default_value: DEFAULT_DJANGO_VERSION,
+    options: [
+      {text: "Django 3", value: 3},
+      {text: "Django 2", value: 2},
+    ],
+    required: true,
   },
   {
     fieldType: "BooleanInput",

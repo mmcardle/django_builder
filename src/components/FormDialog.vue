@@ -63,7 +63,7 @@ export default {
     cancel: {
       type: Function,
       default: (() => {console.debug('FormDialog cancel handler')})
-    },
+    }
   },
   created: function () {
     this.icon = Object.keys(this.formdata).length === 0 ? 'add' : 'edit'

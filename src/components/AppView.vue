@@ -264,7 +264,7 @@
 
 <script>
 import firebase from "firebase/app";
-import { schemas } from "@/schemas/";
+import { schemas } from "@/schemas";
 import ImportableModel from '@/components/ImportableModel'
 import ModelImporter from '@/django/importer'
 import { showDeleteDialog, showFormDialog, showMessageDialog } from "@/dialogs/";
@@ -297,7 +297,7 @@ export default {
     checkCanAddNModels: function (n) {
       return this.$store.getters.ordered_models(this.importingForApp) + n < MAX_MODELS
     },
-    tooManyModels: function (n) {
+    tooManyModels: function () {
       showMessageDialog(
         "Sorry, Too many models.",
         "Sorry you have too many models in this app, maximum is " + MAX_MODELS + ".",
