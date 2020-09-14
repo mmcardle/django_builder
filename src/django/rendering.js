@@ -145,9 +145,10 @@ class Renderer {
 
       models.forEach((model) => {
         model_templates.push(...this.template_renderers().map(render_name => {
+          const fileName = model.name.toLowerCase()  + '_' + render_name;
           return {
-            path: app.name  + "/templates/" + app.name + '/' + model.name + '_' + render_name,
-            name: model.name + '_' + render_name,
+            path: app.name  + "/templates/" + app.name + '/' + fileName,
+            name: fileName,
             render: () => this.template_render(render_name, app_id, model.id)
           }
         }))
@@ -1171,7 +1172,7 @@ CHANNEL_LAYERS = {
           keys(appData.models).map((modelid) => {
             const modelData = store.getters.modelData(modelid)
             const content = this.template_render(renderer, app, modelid)
-            const path = project.name + '/' + appData.name + '/templates/' + appData.name + '/' + modelData.name + '_' + renderer
+            const path = project.name + '/' + appData.name + '/templates/' + appData.name + '/' + modelData.name.toLowerCase() + '_' + renderer
             tarball.append(path, content)
           })
         })
