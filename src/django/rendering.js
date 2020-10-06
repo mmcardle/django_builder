@@ -136,8 +136,12 @@ class Renderer {
       children: project_children
     }
 
-    const apps = keys(store.getters.projectData(projectid).apps).map(app_id =>{
+    const apps = keys(store.getters.projectData(projectid).apps).filter(
+      app_id => store.getters.appData(app_id) !== undefined
+    ).map(app_id =>{
       const app = store.getters.appData(app_id)
+
+      if (app == undefined) return
 
       const models = this.get_models(app_id)
 
@@ -302,7 +306,7 @@ class Renderer {
 
   get_apps(projectid) {
     const project = store.getters.projectData(projectid)
-    return keys(project.apps).map((app) => {
+    return keys(project.apps).filter(app => store.getters.appData(app)).map((app) => {
       return Object.assign(store.getters.appData(app), {id: app})
     })
   }

@@ -30,13 +30,14 @@ export default new Vuex.Store({
     },
     projectData: (state) => (id) => state.projects[id].data(),
     apps: (state) => () => state.apps,
-    appData: (state) => (id) => state.apps[id].data(),
+    appData: (state) => (id) => state.apps[id] ? state.apps[id].data() : undefined,
     models: (state) => () => state.models,
     modelData: (state) => (id) => state.models[id] ? state.models[id].data() : undefined,
     fields: (state) => () => state.fields,
     relationships: (state) => () => state.relationships,
     ordered_models: (state) => (appid) => {
-      const appData = state.apps[appid].data()
+      const appData = state.apps[appid] ? state.apps[appid].data() : undefined;
+      if (appData === undefined) { return [] };
       const unordered_models = Object.keys(appData.models).map((model) => {
         if (state.models[model]) {
           return Object.assign(state.models[model].data(), {id: model})

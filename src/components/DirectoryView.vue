@@ -135,9 +135,13 @@ const renderer = new Renderer()
     mounted: function () {
       const project = this.$store.getters.projectData(this.id)
       const apps = Object.keys(project.apps).map((app) => {
-        return Object.assign(this.$store.getters.appData(app), {id: app})
+        if (this.$store.getters.appData(app)) {
+          return Object.assign(this.$store.getters.appData(app), {id: app})
+        } else {
+          return {}
+        }
       })
-      if (apps.length > 0) {
+      if (apps.length > 0 && this.$store.getters.appData(apps[0].id) !== undefined ) {
         const app = apps[0]
         const a = {
           path: app.name + "/models.py",
@@ -159,9 +163,13 @@ const renderer = new Renderer()
     created: function () {
       const project = this.$store.getters.projectData(this.id)
       const apps = Object.keys(project.apps).map((app) => {
-        return Object.assign(this.$store.getters.appData(app), {id: app})
+        if (this.$store.getters.appData(app)) {
+          return Object.assign(this.$store.getters.appData(app), {id: app})
+        } else {
+          return {}
+        }
       })
-      if (apps.length > 0) {
+      if (apps.length > 0 && this.$store.getters.appData(apps[0].id) !== undefined ) {
         const app = apps[0]
         this.open = [project.name, app.name]
       } else {

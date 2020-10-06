@@ -64,7 +64,7 @@
 
     <div v-if="!import_dialog">
     <div v-for="(app, appid) in this.apps" class="overflow-hidden" :key="appid">
-      <v-card class="ma-2 mb-5">
+      <v-card class="ma-2 mb-5" v-if="appData(appid)">
         <v-card-title class="pb-0 pt-2">
           <v-icon class="blue--text text--darken-4 mr-1">mdi-folder</v-icon>
           <a class="blue--text text--darken-1" @click="showEditAppDialog(appid)">{{appData(appid).name}}</a>
@@ -238,7 +238,7 @@
             </v-card-text>
           </v-card>
 
-          <div v-if="Object.keys(appData(appid).models).length === 0" class="mb-3">
+          <div v-if="appData(appid) && Object.keys(appData(appid).models).length === 0" class="mb-3">
             <v-subheader class="ma-2">Add some models.</v-subheader>
             <v-subheader class="ma-2">
               <v-btn color="info" block @click="showModelDialog(appid)">
@@ -290,7 +290,7 @@ export default {
   computed: {
     apps: function() {
       if (this.$store.getters.projectData(this.id) === undefined) return [];
-      return this.$store.getters.projectData(this.id).apps;
+      return Object.keys(this.$store.getters.projectData(this.id).apps).filter(app => this.appData(app) !== undefined);
     }
   },
   methods: {
@@ -408,7 +408,7 @@ export default {
       });
     },
     appData: function(appid) {
-      return this.$store.getters.apps()[appid].data();
+      return this.$store.getters.apps()[appid] ? this.$store.getters.apps()[appid].data() : undefined;
     },
     modelData: function(modelid) {
       return this.$store.getters.modelData(modelid);
@@ -429,7 +429,7 @@ export default {
             .update(formdata);
         },
         schemas.app(),
-        { name: this.$store.getters.apps()[appid].data().name }
+        { name: this.appData(appid).name }
       );
     },
     showEditModelDialog: function(app, modelid) {
