@@ -63,7 +63,7 @@
     </v-card>
 
     <div v-if="!import_dialog">
-    <div v-for="(app, appid) in this.apps" class="overflow-hidden" :key="appid">
+    <div v-for="appid in this.apps" class="overflow-hidden" :key="appid">
       <v-card class="ma-2 mb-5" v-if="appData(appid)">
         <v-card-title class="pb-0 pt-2">
           <v-icon class="blue--text text--darken-4 mr-1">mdi-folder</v-icon>
