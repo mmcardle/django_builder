@@ -21,10 +21,12 @@
             </v-list-item-title>
             <v-list-item-subtitle v-if="loaded && verified">
               <div v-for="(d, app) in project.data().apps" v-bind:key="app" class="mt-2">
-               <div v-for="(d, model) in $store.getters.appData(app).models" v-bind:key="app+model">
-                  <v-icon class="red--text text--darken-4" >mdi-database</v-icon>
-                {{$store.getters.appData(app).name}}.{{$store.getters.modelData(model) ? $store.getters.modelData(model).name : 'loading'}}
-               </div>
+                <div v-if="$store.getters.appData(app)">
+                  <div v-for="(d, model) in $store.getters.appData(app).models" v-bind:key="app+model" >
+                    <v-icon class="red--text text--darken-4" >mdi-database</v-icon>
+                    {{$store.getters.appData(app).name}}.{{$store.getters.modelData(model) ? $store.getters.modelData(model).name : 'loading'}}
+                  </div>
+                </div>
               </div>
             </v-list-item-subtitle>
           </v-list-item-content>
