@@ -12,7 +12,7 @@ application = ProtocolTypeRouter({
     # WebSocket handler
     "websocket": AuthMiddlewareStack(
         URLRouter([
-            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer),
+            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
         ])
     ),
     "channel": ChannelNameRouter({
