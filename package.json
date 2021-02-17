@@ -13,7 +13,7 @@
     "ci": "start-server-and-test test:e2e_serve http://localhost:8082 test:e2e"
   },
   "dependencies": {
-    "firebase": "^6.4.2",
+    "firebase": "^7.24.0",
     "firebase-tools": "^7.3.0",
     "highlight.js": "^9.15.6",
     "raw-loader": "^1.0.0",
@@ -36,7 +36,7 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^23.6.0",
-    "chromedriver": "^83.0.0",
+    "chromedriver": "^88.0.0",
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0",
     "eslint-plugin-vuetify": "^1.0.0-beta.6",
