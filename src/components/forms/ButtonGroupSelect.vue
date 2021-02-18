@@ -15,9 +15,9 @@ export default {
   name: 'ButtonGroupSelect',
   props: ['options', 'name', 'label', 'value', 'required', 'default_value'],
   data () {
-    return {
-      selected_value: this.value || this.default_value,
-    }
+    const selected_value = this.value || this.default_value;
+    this.$emit("input", selected_value);
+    return { selected_value }
   },
   methods: {
     setValue(v) {

@@ -20,7 +20,7 @@
     "tar-js": "^0.3.0",
     "vue": "^2.5.21",
     "vue-analytics": "^5.16.4",
-    "vue-highlight.js": "^3.1.0",
+    "vue-highlight.js": "^4.0.0-beta",
     "vue-router": "^3.0.1",
     "vuetify": "^2.2.23",
     "vuex": "^3.0.1"
