@@ -23,14 +23,15 @@ var addProjectMixin = {
           showFormDialog(
             'Add new project',
             (formdata) => {
-              console.log('Add project', formdata)
+              const project_data = {
+                name: formdata.name,
+                description: formdata.description || "",
+                channels: formdata.channels || false,
+                django_version: formdata.django_version,
+              };
+              console.log('Add project', project_data);
               this.$store.dispatch(
-                'addProject', {
-                  name: formdata.name,
-                  description: formdata.description || "",
-                  channels: formdata.channels || false,
-                  django_version: formdata.django_version,
-                }
+                'addProject', project_data
               ).then((newProject) => {
                 console.log('NewProject', newProject)
                 this.$router.push({ name: 'Project', params: { id: newProject.id } })
