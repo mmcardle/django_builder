@@ -12927,7 +12927,7 @@ vue-eslint-parser@^7.0.0:
     esquery "^1.0.1"
     lodash "^4.17.15"
 
-vue-highlight.js@@next:
+vue-highlight.js@^4.0.0-beta:
   version "4.0.0-beta"
   resolved "https://registry.yarnpkg.com/vue-highlight.js/-/vue-highlight.js-4.0.0-beta.tgz#388e2ed357cbecec8d689e24b6231bcf70e8d959"
   integrity sha512-yr66MAEkxTZCCdvvHaJLh/h+uhQnf/GdioikU318QTsf1LJx+dYLItA81dqZd7Bc2l7a2IrStw3g0PvjcETL1w==

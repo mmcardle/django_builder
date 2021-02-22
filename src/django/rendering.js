@@ -182,6 +182,18 @@ class Renderer {
           name: "templates/" + app.name,
           folder: true,
           children: model_templates
+        },
+        {
+          path: app.name + "/migrations/",
+          name: "migrations/",
+          folder: true,
+          children: [
+            {
+              path: app.name  + "/migrations/__init__.py",
+              name: "__init__.py",
+              render: () => "# Migrations for " + app.name,
+            }
+          ]
         }
       )
 
@@ -1184,6 +1196,10 @@ CHANNEL_LAYERS = {
       })
       tarball.append(
         project.name + '/tests/' + appData.name + '/__init__.py',
+        this.init(this.id)
+      )
+      tarball.append(
+        project.name + '/' + appData.name + '/' + 'migrations/__init__.py',
         this.init(this.id)
       )
     })
