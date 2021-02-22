@@ -185,7 +185,7 @@ class Renderer {
         },
         {
           path: app.name + "/migrations/",
-          name: "migrations/",
+          name: "migrations",
           folder: true,
           children: [
             {
