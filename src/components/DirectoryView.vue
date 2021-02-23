@@ -2,7 +2,7 @@
 <div style="display: contents;" class="order-sm-1 order-md-2">
   <v-col order=2 cols=12 class="text-center ma-0 pa-3 hidden-md-and-up">
     <div class="float-md-right">
-      <a class="body-2" @click="full_screen_code_dialog" v-if="active">
+      <a class="text-body-2" @click="full_screen_code_dialog" v-if="active">
         <v-icon small class="blue--text text--darken-4 mr-2">mdi-eye</v-icon>View {{active.name}} full screen.
       </a>
     </div>
@@ -51,7 +51,7 @@
               </span>
             </span>
             <div class="float-md-right hidden-sm-and-down">
-              <a class="body-2" @click="full_screen_code_dialog">
+              <a class="text-body-2" @click="full_screen_code_dialog">
                 <v-icon small class="blue--text text--darken-4 mr-2">mdi-eye</v-icon>Full screen
               </a>
             </div>

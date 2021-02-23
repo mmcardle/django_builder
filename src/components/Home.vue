@@ -4,8 +4,8 @@
 
     <v-row align="center" justify="center" fill-height class="text-center">
       <v-col cols="12" >
-        <div class="display-4 hidden-sm-and-down" ><django-builder-title /></div>
-        <div class="display-2 hidden-md-and-up" ><django-builder-title /></div>
+        <div class="text-h1 hidden-sm-and-down" ><django-builder-title /></div>
+        <div class="text-h3 hidden-md-and-up" ><django-builder-title /></div>
      </v-col>
     </v-row>
 
@@ -26,7 +26,7 @@
 
           <v-card-title primary-title>
             <div>
-              <div class="hljs-title display-1 font-weight-medium red--text text--darken-4 text-capitalize">
+              <div class="hljs-title text-h4 font-weight-medium red--text text--darken-4 text-capitalize">
                 <span class="grey--text text--lighten-1 font-weight-black">
                   <span class="red--text text--darken-2">{{project.name.substring(0,1)}}</span>{{project.name.substring(1)}}
                 </span>

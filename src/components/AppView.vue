@@ -36,7 +36,7 @@
         </v-row>
         <v-row v-else  ref="importing" text-center class="ma-3">
           <v-col offset="3" cols="6">
-            <h4 class="title font-weight-medium font-italics">
+            <h4 class="text-h6 font-weight-medium font-italics">
               Importing Models - {{num_imported}}/{{imported_models.length}} complete ...
             </h4>
             <v-progress-linear slot="extension" :value="importing_percent" class="ma-2">
@@ -170,7 +170,7 @@
                   <v-list-item-title class="subheading font-weight-medium">
                     <span class="red--text">{{relationshipData(relationshipid).name}}</span>
                   </v-list-item-title>
-                  <v-list-item-subtitle class="body-2">
+                  <v-list-item-subtitle class="text-body-2">
                     {{relationshipData(relationshipid).type.split('.').pop()}}
                     (
                     <span

@@ -5,6 +5,9 @@ node_modules
 .firebase
 firestore-debug.log
 .firebaserc
+firebase-debug.log
+
+screens/
 
 # env files
 .env
@@ -33,3 +36,6 @@ ui-debug.log
 
 # Coverage
 coverage/
+
+# Build if changed
+.bic_cache
