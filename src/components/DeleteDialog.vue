@@ -2,7 +2,7 @@
   <v-dialog v-model="deletedialog" max-width="600">
     <v-card>
       <v-card-title class="primary white--text">
-        <span class="white--text headline">
+        <span class="white--text text-h5">
           <v-icon class="white--text" large>mdi-delete</v-icon> {{headline}}
         </span>
       </v-card-title>

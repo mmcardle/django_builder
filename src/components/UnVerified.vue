@@ -14,7 +14,7 @@
               {{error}}
             </v-alert>
           </v-card-text>
-          <v-card-text class="text-center body-2">
+          <v-card-text class="text-center text-body-2">
             Email address has not been verified.
             Please check your email and click the link to verify your account.
           </v-card-text>

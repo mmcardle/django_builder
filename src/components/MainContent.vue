@@ -88,7 +88,7 @@
         </template>
         <template v-else>
           <v-spacer></v-spacer>
-          <v-btn text :to="{name: 'Login'}" active-class="">
+          <v-btn text id="navbar_login" :to="{name: 'Login'}" active-class="">
             <v-icon class="mr-1">mdi-login</v-icon>
             Sign In
           </v-btn>
@@ -146,7 +146,7 @@
                 <v-list-item-title>Sign Out</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item v-else :to="{name: 'Login'}" @click="dialog = false">
+            <v-list-item v-else :to="{name: 'Login', params: { id: 'main_login'}}" @click="dialog = false">
               <v-list-item-action>
                 <v-icon class="ml-1">mdi-login</v-icon>
               </v-list-item-action>
@@ -205,14 +205,14 @@
         </template>
         <template>
           <v-card dense>
-            <v-card-title class="headline grey lighten-2" primary-title>
+            <v-card-title class="text-h5 grey lighten-2" primary-title>
               Privacy Policy
               <v-btn outlined absolute right text @click="privacy_dialog = false">
                 Close
               </v-btn>
             </v-card-title>
 
-            <v-card-title class="body-2 pb-1 pt-3" primary-title>
+            <v-card-title class="text-body-2 pb-1 pt-3" primary-title>
               What data we collect and how we use it.
             </v-card-title>
 
@@ -223,7 +223,7 @@
               when logging in if you do not want to do this.
             </v-card-text>
 
-            <v-card-title class="body-2 py-1" primary-title>
+            <v-card-title class="text-body-2 py-1" primary-title>
               How we use your data
             </v-card-title>
 
@@ -232,7 +232,7 @@
               address.
             </v-card-text>
 
-            <v-card-title class="body-2 py-1" primary-title>
+            <v-card-title class="text-body-2 py-1" primary-title>
               Cookies
             </v-card-title>
 
@@ -241,7 +241,7 @@
               for the site to function.
             </v-card-text>
 
-            <v-card-text class="body-2 py-1" primary-title>
+            <v-card-text class="text-body-2 py-1" primary-title>
               Analytics Cookies
             </v-card-text>
 
@@ -251,7 +251,7 @@
               <v-switch v-model="cookie_value" color="blue" :label="cookie_label"></v-switch>
             </v-card-text>
 
-            <v-card-text class="body-2 py-1" primary-title>
+            <v-card-text class="text-body-2 py-1" primary-title>
               Contact
             </v-card-text>
 

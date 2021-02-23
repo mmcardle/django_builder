@@ -4,8 +4,8 @@
 
     <v-row align="center" justify="center" fill-height class="text-center">
       <v-col cols="12">
-        <div class="display-4 hidden-sm-and-down" ><django-builder-title /></div>
-        <div class="display-2 hidden-md-and-up" ><django-builder-title /></div>
+        <div class="text-h1 hidden-sm-and-down" ><django-builder-title /></div>
+        <div class="text-h3 hidden-md-and-up" ><django-builder-title /></div>
      </v-col>
     </v-row>
 
@@ -25,7 +25,7 @@
         <v-btn x-large color="primary" @click="showAddProjectDialog" class="ma-4" v-if="this.$store.getters.user()">
           <v-icon>add</v-icon> Create a New Project
         </v-btn>
-        <v-btn x-large color="primary" :to="{name: 'Login'}" class="ma-4" v-else>
+        <v-btn x-large id="splash_login" color="primary" :to="{name: 'Login'}" class="ma-4" v-else>
           <v-icon>mdi-login</v-icon> Sign In
         </v-btn>
         <h1 class="red--text text--darken-3">How does it work?</h1>
@@ -36,7 +36,7 @@
     <v-row  align-top justify="space-around" fill-height class="text-center mt-5 mx-0">
 
       <v-col lg="3" md="6" cols="8">
-        <h1 class="title font-weight-regular ma-2">
+        <h1 class="text-h6 font-weight-regular ma-2">
           Create a <span class="red--text font-weight-medium">Project</span>, add
           <span class="blue--text font-weight-medium">apps</span> and
           <span class="green--text font-weight-medium">models</span>
@@ -49,7 +49,7 @@
       </v-col>
 
       <v-col lg="3" md="6" cols="8">
-        <h4 class="title font-weight-regular ma-2">
+        <h4 class="text-h6 font-weight-regular ma-2">
           Or, Import from an existing
           <span class="purple--text font-weight-medium">models.py</span>
         </h4>
@@ -61,7 +61,7 @@
       </v-col>
 
       <v-col lg="3" md="7" cols="10">
-        <h4 class="xxx title font-weight-regular ma-2">
+        <h4 class="xxx text-h6 font-weight-regular ma-2">
           Add <span class="green--text font-weight-medium">Fields</span>
         </h4>
         <v-img class="mb-4" :src="field1" gradient="to bottom, rgba(250,250,250,.4), rgba(250,250,250,.6), rgba(250,250,250,.8)"></v-img>
@@ -72,7 +72,7 @@
       </v-col>
 
       <v-col lg="3" md="7" cols="10">
-        <h4 class="title font-weight-regular ma-2">
+        <h4 class="text-h6 font-weight-regular ma-2">
           Add <span class="green--text font-weight-medium">Relationships</span>
         </h4>
         <v-img class="mb-4" :src="rel1" gradient="to bottom, rgba(250,250,250,.4), rgba(250,250,250,.6), rgba(250,250,250,.8)"></v-img>
@@ -83,7 +83,7 @@
       </v-col>
 
       <v-col lg="3" md="6" cols="10">
-        <h4 class="title font-weight-regular ma-2">
+        <h4 class="text-h6 font-weight-regular ma-2">
           Inspect your new <span class="red--text font-weight-medium">application</span>
         </h4>
         <v-img class="mb-4" :src="models1" gradient="to bottom, rgba(250,250,250,.1), rgba(250,250,250,.6), rgba(250,250,250,.8)"></v-img>
@@ -97,7 +97,7 @@
 
     <v-row align-top justify="space-around" fill-height class="text-center mt-5 mx-0">
       <v-col cols="6">
-        <h4 class="title font-weight-regular">
+        <h4 class="text-h6 font-weight-regular">
           <span class="blue--text text--darken-3 font-weight-medium">Download</span> and
           <span class="green--text text--darken-3 font-weight-medium">run</span> your complete
           <span class="red--text font-weight-medium">project</span>

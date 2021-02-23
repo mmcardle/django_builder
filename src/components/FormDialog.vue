@@ -2,7 +2,7 @@
   <v-dialog v-model="formdialog" max-width="600" @keydown.enter="do_ok">
     <v-card>
       <v-card-title class="primary white--text">
-        <span class="white--text headline">
+        <span class="white--text text-h5">
           <v-icon style="font-size:1.2em" color="white">{{icon}}</v-icon> {{headline}}
         </span>
       </v-card-title>

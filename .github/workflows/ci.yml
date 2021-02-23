@@ -24,8 +24,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      #- run: yarn build --mode=development --dest=dist
-      - run: yarn build --dest=dist
+      - run: yarn build
 
       - name: Upload dist directory
         uses: actions/upload-artifact@v1
@@ -58,8 +57,6 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: dist
-      #- name: Setup tmate session
-      #  uses: mxschmitt/action-tmate@v2
       - run: export yarn ci
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}

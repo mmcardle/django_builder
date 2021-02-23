@@ -7,7 +7,7 @@
         <v-col cols="12" md=4 lg=3 v-if="isloaded">
           <!-- Desktop -->
           <div @click="showEditProjectDialog()" class="hidden-xs-only">
-            <a class="hljs-title display-3 font-weight-medium red--text text--darken-4 text-capitalize">
+            <a class="hljs-title text-h2 font-weight-medium red--text text--darken-4 text-capitalize">
               <span class="grey--text text--lighten-1 font-weight-black">
                 <span class="red--text text--darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
               </span>
@@ -15,7 +15,7 @@
           </div>
           <!-- Mobile -->
           <div class="hidden-sm-and-up mt-2">
-            <a class="hljs-title display-2 font-weight-medium red--text text--darken-4 text-capitalize"
+            <a class="hljs-title text-h3 font-weight-medium red--text text--darken-4 text-capitalize"
               @click="showEditProjectDialog()">
               <v-icon size=50 class="red--text text--darken-4 mr-3 mt-n3" >mdi-file-tree</v-icon>
               <span class="grey--text text--lighten-1 font-weight-black">
@@ -100,7 +100,7 @@
     <v-dialog v-model="error_dialog" max-width="600" persistent>
       <v-card>
         <v-card-title class="primary white--text">
-          <span class="white--text headline">
+          <span class="white--text text-h5">
             <v-icon large color="white" class="mr-2">mdi-information</v-icon>
             Sorry there has been an error loading.
           </span>
@@ -121,7 +121,7 @@
   <v-container v-else ref="loading" text-center>
     <v-row>
       <v-col cols="12">
-        <h4 class="title font-weight-medium font-italics">
+        <h4 class="text-h6 font-weight-medium font-italics">
           Loading ...
         </h4>
       </v-col>

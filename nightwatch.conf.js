@@ -115,7 +115,7 @@ module.exports = {
 function loadServices() {
   try {
     Services.seleniumServer = require('selenium-server');
-  } catch (err) {}
+  } catch (err) {/* empty */}
 
   try {
     Services.chromedriver = require('chromedriver');
@@ -126,5 +126,6 @@ function loadServices() {
 
   try {
     Services.geckodriver = require('geckodriver');
-  } catch (err) {}
+    console.log(Services.geckodriver)
+  } catch (err) {/* empty */}
 }

@@ -2,13 +2,13 @@
   <v-container fluid class="text-center">
     <v-row  align="center" justify="center" fill-height >
       <v-col cols="12" >
-        <div class="display-4 hidden-sm-and-down" ><django-builder-title /></div>
-        <div class="display-2 hidden-md-and-up" ><django-builder-title /></div>
+        <div class="text-h1 hidden-sm-and-down" ><django-builder-title /></div>
+        <div class="text-h3 hidden-md-and-up" ><django-builder-title /></div>
         <p style="color: gray">building things....</p>
         <div class="ma-3">
           <span class="label label-success">Django 2.1.X <i class="fa fa-check"></i></span>
         </div>
-        <div class="body-2">
+        <div class="text-body-2">
             <div class="ma-2">
               <v-icon class="red--text text-darken-3" >mdi-github-circle</v-icon>
               <a href="https://github.com/mmcardle/django_builder" target="_blank">

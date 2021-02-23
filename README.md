@@ -28,7 +28,7 @@ cp .env.example .env.development.local
 Edit this file with your firebase setup and run the development server.
 
 ```
-yarn run serve
+yarn serve
 ```
 
 ### Compiles and minifies for different modes
@@ -54,14 +54,19 @@ yarn build --mode=development --dest=dist_development
 firebase deploy --public=dist_development
 ```
 
-### Run your tests
+### Run unit tests
 ```
-yarn run test
+yarn test:unit
+```
+
+### Run e2e tests
+```
+yarn test:e2e
 ```
 
 ### Lints and fixes files
 ```
-yarn run lint
+yarn lint
 ```
 
 ### Firebase get indexes
