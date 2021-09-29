@@ -40,7 +40,7 @@ class Renderer {
     'list.html': {function: this.list_html},
     'detail.html': {function: this.detail_html},
     'form.html': {function: this.form_html},
-    'delete.html': {function: this.delete_html},
+    'confirm_delete.html': {function: this.confirm_delete_html},
   }
 
   _root_template_renderers = {
@@ -475,7 +475,7 @@ CHANNEL_LAYERS = {
 {% for object in object_list %}
   <div class="m-2">
     <a href="{{object.get_absolute_url}}">{{object}}</a>
-    <small class="ml-5"><a href="{% url '${appData.name}_${modelData.name}_delete' %}">(Delete)</a></small>
+    <small class="ml-5"><a href="{% url '${appData.name}_${modelData.name}_delete' object.pk %}">(Delete)</a></small>
   </div>
 {% endfor %}
 <div><a class="btn btn-primary" href="{% url '${appData.name}_${modelData.name}_create' %}">Create a new ${modelData.name}</a></div>
@@ -514,18 +514,22 @@ CHANNEL_LAYERS = {
     return detail_html
   }
 
-  delete_html (appid, modelid) {
-    const appData = store.getters.appData(appid)
+  confirm_delete_html (appid, modelid) {
     const modelData = store.getters.modelData(modelid)
 
-    var delete_html = `
+    var confirm_delete_html = `
 {% extends "base.html" %}
 {% block content %}
-<p>Are you sure you want to delete "{{ object }}"?</p>
-<div><a class="btn btn-danger" href="{% url '${appData.name}_${modelData.name}_delete' object.id %}">Delete ${modelData.name}</a></div>
+<form method="post">
+  {% csrf_token %}
+  <p>Are you sure you want to delete "{{ object }}"?</p>
+  <div>
+    <input class="btn btn-danger" value="Delete ${modelData.name}" type="submit">
+  </div>
+</form>
 {% endblock %}
 `
-    return delete_html
+    return confirm_delete_html
   }
 
   form_html (appid, modelid) {
