@@ -136,7 +136,7 @@
 <script>
 import DirectoryView from '@/components/DirectoryView'
 import AppView from '@/components/AppView'
-import firebase from 'firebase/app'
+import firebase from 'firebase/compat/app';
 import Renderer from '@/django/rendering'
 import ModelImporter from '@/django/importer'
 import { DEFAULT_DJANGO_VERSION } from '@/django'

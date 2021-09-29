@@ -191,13 +191,13 @@
       </v-dialog>
     </v-app-bar>
 
-    <v-content>
+    <v-main>
       <v-container fluid class="pa-0">
         <router-view/>
       </v-container>
-    </v-content>
+    </v-main>
 
-    <v-snackbar class="hidden-xs-only" color="white" v-model="cookie_snackbar" bottom right :timeout="0">
+    <v-snackbar class="hidden-xs-only" color="white" v-model="cookie_snackbar" bottom right timeout="-1">
       <v-switch v-model="cookie_value" color="blue" :label="cookie_label"></v-switch>
       <v-dialog v-model="privacy_dialog" width="500">
         <template v-slot:activator="{ on }">
@@ -301,7 +301,7 @@ import addProjectMixin from '@/mixins/AddProject'
 import {userVerified} from '@/firebase_utils/'
 import {showConfirmDialog, showUpgradeDialog} from '@/dialogs/'
 
-import firebase from 'firebase/app';
+import firebase from 'firebase/compat/app';
 
 const COOKIES_ON = 'Analytics Cookies On'
 const COOKIES_OFF = 'Analytics Cookies Off'

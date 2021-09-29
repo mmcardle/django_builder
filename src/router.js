@@ -12,7 +12,7 @@ import VerifyAction from '@/components/VerifyAction'
 import ResetPasswordAction from '@/components/ResetPasswordAction'
 import ResetPassword from '@/components/ResetPassword'
 import Error from '@/components/Error'
-import firebase from 'firebase/app'
+import firebase from 'firebase/compat/app';
 import {userVerified} from '@/firebase_utils'
 import VueAnalytics from 'vue-analytics'
 

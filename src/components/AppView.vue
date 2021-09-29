@@ -263,7 +263,7 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
+import firebase from 'firebase/compat/app';
 import { schemas } from "@/schemas";
 import ImportableModel from '@/components/ImportableModel'
 import ModelImporter from '@/django/importer'
