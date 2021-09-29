@@ -40,6 +40,7 @@ class Renderer {
     'list.html': {function: this.list_html},
     'detail.html': {function: this.detail_html},
     'form.html': {function: this.form_html},
+    'delete.html': {function: this.delete_html},
   }
 
   _root_template_renderers = {
@@ -472,7 +473,10 @@ CHANNEL_LAYERS = {
 {% extends "base.html" %}
 {% block content %}
 {% for object in object_list %}
-  <div class="m-2"><a href="{{object.get_absolute_url}}">{{object}}</a></div>
+  <div class="m-2">
+    <a href="{{object.get_absolute_url}}">{{object}}</a>
+    <small class="ml-5"><a href="{% url '${appData.name}_${modelData.name}_delete' %}">(Delete)</a></small>
+  </div>
 {% endfor %}
 <div><a class="btn btn-primary" href="{% url '${appData.name}_${modelData.name}_create' %}">Create a new ${modelData.name}</a></div>
 {% endblock %}
@@ -508,6 +512,20 @@ CHANNEL_LAYERS = {
     detail_html += `\n\n{% endblock %}`
 
     return detail_html
+  }
+
+  delete_html (appid, modelid) {
+    const appData = store.getters.appData(appid)
+    const modelData = store.getters.modelData(modelid)
+
+    var delete_html = `
+{% extends "base.html" %}
+{% block content %}
+<p>Are you sure you want to delete "{{ object }}"?</p>
+<div><a class="btn btn-danger" href="{% url '${appData.name}_${modelData.name}_delete' object.id %}">Delete ${modelData.name}</a></div>
+{% endblock %}
+`
+    return delete_html
   }
 
   form_html (appid, modelid) {
@@ -678,6 +696,9 @@ CHANNEL_LAYERS = {
       urls += '    path('
       urls += '"' + appData.name + '/' + model.name + '/update/' + id + '/", views.' + model.name + 'UpdateView.as_view(), '
       urls += 'name="' + appData.name + '_' + model.name + '_update"),\n'
+      urls += '    path('
+      urls += '"' + appData.name + '/' + model.name + '/delete/' + id + '/", views.' + model.name + 'DeleteView.as_view(), '
+      urls += 'name="' + appData.name + '_' + model.name + '_delete"),\n'
     })
     urls += ')\n'
 
@@ -871,7 +892,10 @@ CHANNEL_LAYERS = {
       return !modelData.abstract
     })
 
+    const appData = store.getters.appData(appid)
+
     let views = 'from django.views import generic\n'
+    views += 'from django.urls import reverse_lazy\n'
     views += 'from . import models\n'
     views += 'from . import forms\n'
 
@@ -891,6 +915,11 @@ CHANNEL_LAYERS = {
           }
         }
       })
+
+      views += '\n\n'
+      views += 'class ' + model.name + 'DeleteView(generic.DeleteView):\n'
+      views += '    model = models.' + model.name + '\n'
+      views += '    success_url = reverse_lazy("' + appData.name + '_' + model.name + '_list")\n'
     })
     return views
   }
