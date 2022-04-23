@@ -52,10 +52,6 @@ export default {
       type: Object,
       default: (() => {})
     },
-    icon: {
-      type: String,
-      default: 'add'
-    },
     ok: {
       type: Function,
       default: (() => {console.debug('FormDialog ok handler')})
@@ -71,7 +67,8 @@ export default {
   data: function() {
     return {
       form: undefined,
-      formdialog: true
+      formdialog: true,
+      icon: 'add',
     }
   },
   mounted: function () {

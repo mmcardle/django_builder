@@ -5,7 +5,7 @@ import './plugins/firebase'
 
 import store from './store'
 import router from './router'
-import firebase from 'firebase/app'
+import firebase from 'firebase/compat/app';
 
 import App from './App.vue'
 import VueHighlightJS from 'vue-highlight.js';

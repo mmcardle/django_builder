@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import firebase from 'firebase/app'
-import '@firebase/firestore'
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 import {keyByValue} from '@/utils'
 import { event } from 'vue-analytics'
 

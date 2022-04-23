@@ -1,8 +1,8 @@
 import {schemas} from '@/schemas'
 import {showFormDialog} from '@/dialogs/'
 import {showMessageDialog} from '@/dialogs/'
-import firebase from 'firebase/app'
-import '@firebase/firestore'
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 
 import {MAX_PROJECTS} from '@/constants'
 
