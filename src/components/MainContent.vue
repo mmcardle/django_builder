@@ -198,7 +198,11 @@
     </v-main>
 
     <v-snackbar class="hidden-xs-only" color="white" v-model="cookie_snackbar" bottom right timeout="-1">
-      <v-switch v-model="cookie_value" color="blue" :label="cookie_label"></v-switch>
+      <v-switch v-model="cookie_value" color="blue" :label="cookie_label">
+        <template v-slot:label>
+          <span style="color: blue">{{cookie_label}}</span>
+        </template>
+      </v-switch>
       <v-dialog v-model="privacy_dialog" width="500">
         <template v-slot:activator="{ on }">
           <v-btn class="primary" v-on="on">Privacy Policy</v-btn>
