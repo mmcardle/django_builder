@@ -870,13 +870,6 @@ CHANNEL_LAYERS = {
         models_py += '\n'
       }
 
-      if (importGIS) {
-        imports += 'from django.contrib.gis.db import models as gis_models\n'
-      }
-      if (importPostgres) {
-        imports += 'from django.contrib.postgres import fields as postgres_fields\n'
-      }
-
       // TODO - ordering
       // TODO - id field
       models_py += '    class Meta:\n'
@@ -902,6 +895,14 @@ CHANNEL_LAYERS = {
       models_py += '        return reverse("' + appData.name + '_' + model.name + '_update", args=(self.' + identifier + ',))\n'
 
     })
+
+    if (importGIS) {
+      imports += 'from django.contrib.gis.db import models as gis_models\n'
+    }
+    if (importPostgres) {
+      imports += 'from django.contrib.postgres import fields as postgres_fields\n'
+    }
+
     if (models.length === 0){
       models_py += '# No models in this app'
     }
