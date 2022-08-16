@@ -52,6 +52,15 @@ class Django {
       'django.contrib.postgres.fields.ranges.FloatRangeField': {},
       'django.contrib.postgres.fields.ranges.DateTimeRangeField': {},
       'django.contrib.postgres.fields.ranges.DateRangeField': {},
+      'django.contrib.gis.db.GeometryField': {},
+      'django.contrib.gis.db.PointField': {},
+      'django.contrib.gis.db.LineStringField': {},
+      'django.contrib.gis.db.PolygonField': {},
+      'django.contrib.gis.db.MultiPointField': {},
+      'django.contrib.gis.db.MultiLineStringField': {},
+      'django.contrib.gis.db.MultiPolygonField': {},
+      'django.contrib.gis.db.GeometryCollectionField': {},
+      'django.contrib.gis.db.RasterField': {},
     }
     this._fieldDefaults = {
       'django.db.models.TextField': '"text"',

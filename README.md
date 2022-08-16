@@ -15,6 +15,7 @@ yarn install
 #### Firebase
 ```
 npm install -g firebase-tools
+firebase login
 ```
 
 ## Setup Firebase Environment
