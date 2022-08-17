@@ -805,6 +805,9 @@ CHANNEL_LAYERS = {
     var imports = 'from django.db import models\n'
     imports += 'from django.urls import reverse\n'
 
+    let importGIS = false;
+    let importPostgres = false;
+
     var models_py = ''
     models.forEach((model) => {
 
@@ -850,7 +853,16 @@ CHANNEL_LAYERS = {
           const f = store.getters.fields()[field]
           if (f) {
             const fData = f.data()
-            models_py += '    ' + fData.name + ' = models.' + fData.type.split('.').pop() + '(' + fData.args + ')\n'
+            var model_import = "models";
+            if (fData.type.indexOf("django.contrib.gis.db") !== -1){
+              model_import = "gis_models";
+              importGIS = true;
+            }
+            if (fData.type.indexOf("django.contrib.postgres.fields") !== -1){
+              model_import = "postgres_fields";
+              importPostgres = true;
+            }
+            models_py += '    ' + fData.name + ' = ' + model_import + '.' + fData.type.split('.').pop() + '(' + fData.args + ')\n'
           } else {
             models_py += '    ' + 'UNKNOWN' + ' = models.' + 'UNKNOWN' + '(' + 'UNKNOWN'+ ')\n'
           }
@@ -883,6 +895,14 @@ CHANNEL_LAYERS = {
       models_py += '        return reverse("' + appData.name + '_' + model.name + '_update", args=(self.' + identifier + ',))\n'
 
     })
+
+    if (importGIS) {
+      imports += 'from django.contrib.gis.db import models as gis_models\n'
+    }
+    if (importPostgres) {
+      imports += 'from django.contrib.postgres import fields as postgres_fields\n'
+    }
+
     if (models.length === 0){
       models_py += '# No models in this app'
     }
