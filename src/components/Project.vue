@@ -188,11 +188,10 @@ export default {
   },
   methods: {
     downloadProject: function () {
-      this.$ga.event({
-        eventCategory: 'project',
-        eventAction: 'download-project',
-        eventLabel: this.name,
-        eventValue: 1
+      this.$gtag.event('download-project', {
+        event_category: 'project',
+        event_label: this.name,
+        value: 1
       })
       const url = renderer.as_tarball(this.id)
       const link = document.createElement("a")
@@ -269,11 +268,10 @@ export default {
       this.$firestore.collection("projects").doc(pid).delete()
     },
     deleteApp: function (appid) {
-      this.$ga.event({
-        eventCategory: 'app',
-        eventAction: 'delete-app',
-        eventLabel: appid,
-        eventValue: 1
+      this.$gtag.event('delete-app', {
+        event_category: 'app',
+        event_label: appid,
+        value: 1
       })
       this.$firestore.collection('projects').doc(this.id).update(
         {[`apps.${appid}`]: firebase.firestore.FieldValue.delete()}

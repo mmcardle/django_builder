@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import {keyByValue} from '@/utils'
-import { event } from 'vue-analytics'
+import { event } from 'vue-gtag'
 
 Vue.use(Vuex)
 
@@ -76,27 +76,24 @@ export default new Vuex.Store({
       state.user = user
 
       if (user.isAnonymous){
-        event({
-          eventCategory: 'auth',
-          eventAction: 'user-login',
-          eventLabel: 'AnonymousLogin',
-          eventValue: 1
+        event('user-login', {
+          event_category: 'auth',
+          event_label: 'AnonymousLogin',
+          value: 1
         })
       } else {
-        event({
-          eventCategory: 'auth',
-          eventAction: 'user-login',
-          eventLabel: 'UserLogin',
-          eventValue: 1
+        event('user-login', {
+          event_category: 'auth',
+          event_label: 'UserLogin',
+          value: 1
         })
       }
     },
     logout (state) {
-      event({
-        eventCategory: 'auth',
-        eventAction: 'user-logout',
-        eventLabel: 'UserLogout',
-        eventValue: 1
+      event('user-logout', {
+        event_category: 'auth',
+        event_label: 'UserLogout',
+        value: 1
       })
       state.user = undefined
       state.loaded = false
@@ -170,11 +167,10 @@ export default new Vuex.Store({
       })
     },
     addProject: function (_, payload) {
-      event({
-        eventCategory: 'project',
-        eventAction: 'add-project',
-        eventLabel: payload.name,
-        eventValue: 1
+      event('add-project', {
+        event_category: 'project',
+        event_label: payload.name,
+        value: 1
       })
       return firebase.firestore().collection('projects').add({
         owner: firebase.auth().currentUser.uid,
@@ -186,11 +182,10 @@ export default new Vuex.Store({
       })
     },
     addApp: function (_, payload) {
-      event({
-        eventCategory: 'app',
-        eventAction: 'add-app',
-        eventLabel: payload.name,
-        eventValue: 1
+      event('add-app', {
+        event_category: 'app',
+        event_label: payload.name,
+        value: 1
       })
       return firebase.firestore().collection('apps').add({
         owner: firebase.auth().currentUser.uid,
@@ -203,10 +198,9 @@ export default new Vuex.Store({
       })
     },
     addModels: function (_, payload) {
-      event({
-        eventCategory: 'model',
-        eventAction: 'add-models',
-        eventLabel: 'multiple-models',
+      event('add-models', {
+        event_category: 'model',
+        event_label: 'multiple-models',
         eventValue: payload.length
       })
       const userid = firebase.auth().currentUser.uid
@@ -254,11 +248,10 @@ export default new Vuex.Store({
       });
     },
     addModel: function ({dispatch}, payload) {
-      event({
-        eventCategory: 'model',
-        eventAction: 'add-model',
-        eventLabel: payload.name,
-        eventValue: 1
+      event('add-model', {
+        event_category: 'model',
+        event_label: payload.name,
+        value: 1
       })
       console.log('Addmodel', payload, firebase.auth().currentUser.uid)
       return firebase.firestore().collection('models').add({
@@ -302,11 +295,10 @@ export default new Vuex.Store({
       })
     },
     addField: function (_, payload) {
-      event({
-        eventCategory: 'field',
-        eventAction: 'add-field',
-        eventLabel: payload.name,
-        eventValue: 1
+      event('add-field', {
+        event_category: 'field',
+        event_label: payload.name,
+        value: 1
       })
       return firebase.firestore().collection('fields').add({
         owner: firebase.auth().currentUser.uid,
@@ -364,11 +356,10 @@ export default new Vuex.Store({
       });
     },
     addRelationship: function (_, payload) {
-      event({
-        eventCategory: 'relationship',
-        eventAction: 'add-relationship',
-        eventLabel: payload.name,
-        eventValue: 1
+      event('add-relationship', {
+        event_category: 'relationship',
+        event_label: payload.name,
+        value: 1
       })
       return firebase.firestore().collection('relationships').add({
         owner: firebase.auth().currentUser.uid,
@@ -383,11 +374,10 @@ export default new Vuex.Store({
       })
     },
     moveModelToApp: function (_, payload) {
-      event({
-        eventCategory: 'model',
-        eventAction: 'move-model',
-        eventLabel: payload.name,
-        eventValue: 1
+      event('move-model', {
+        event_category: 'model',
+        event_label: payload.name,
+        value: 1
       })
       var batch = firebase.firestore().batch();
       // Set the value of 'toApp'

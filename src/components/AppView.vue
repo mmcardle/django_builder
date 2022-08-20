@@ -646,11 +646,10 @@ export default {
         .delete();
     },
     deleteApp: function(appid) {
-      this.$ga.event({
-        eventCategory: "app",
-        eventAction: "delete-app",
-        eventLabel: appid,
-        eventValue: 1
+      this.$gtag.event("delete-app", {
+        event_category: "app",
+        event_label: appid,
+        value: 1
       });
       this.$firestore
         .collection("projects")
@@ -658,11 +657,10 @@ export default {
         .update({ [`apps.${appid}`]: firebase.firestore.FieldValue.delete() });
     },
     deleteModel: function(appid, modelid) {
-      this.$ga.event({
-        eventCategory: "model",
-        eventAction: "delete-model",
-        eventLabel: modelid,
-        eventValue: 1
+      this.$gtag.event("delete-model", {
+        event_category: "model",
+        event_label: modelid,
+        value: 1
       });
       this.$firestore
         .collection("apps")
@@ -672,11 +670,10 @@ export default {
         });
     },
     deleteRelationship: function(modelid, relationshipid) {
-      this.$ga.event({
-        eventCategory: "relationship",
-        eventAction: "delete-relationship",
-        eventLabel: relationshipid,
-        eventValue: 1
+      this.$gtag.event("delete-relationship", {
+        event_category: "relationship",
+        event_label: relationshipid,
+        value: 1
       });
       this.$firestore
         .collection("models")
@@ -686,11 +683,10 @@ export default {
         });
     },
     deleteField: function(modelid, fieldid) {
-      this.$ga.event({
-        eventCategory: "field",
-        eventAction: "delete-field",
-        eventLabel: fieldid,
-        eventValue: 1
+      this.$gtag.event("delete-field", {
+        event_category: "field",
+        event_label: fieldid,
+        value: 1
       });
       this.$firestore
         .collection("models")
