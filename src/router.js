@@ -14,7 +14,6 @@ import ResetPassword from '@/components/ResetPassword'
 import Error from '@/components/Error'
 import firebase from 'firebase/compat/app';
 import {userVerified} from '@/firebase_utils'
-import VueAnalytics from 'vue-analytics'
 
 Vue.use(Router)
 
@@ -104,17 +103,6 @@ let router = new Router({
       }
     }
   ]
-})
-
-const analytics_disabled = localStorage.cookie_value == 'false'
-
-Vue.use(VueAnalytics, {
-  id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID,
-  router,
-  disabled: analytics_disabled,
-  autoTracking: {
-    exception: true
-  }
 })
 
 router.beforeEach((to, from, next) => {
