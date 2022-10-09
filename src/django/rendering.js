@@ -986,21 +986,22 @@ CHANNEL_LAYERS = {
       return !modelData.abstract
     })
 
-    const appData = store.getters.appData(appid)
-    const app_name = appData.name;
-
     let forms = 'from django import forms'
-    forms += '\nfrom . import models'
 
     models.forEach((model) => {
       const relationships = this.get_relationships(model)
       relationships.forEach(relationship => {
-        const [rel_app, rel_model] = relationship.to.split(".")
-        if (app_name != rel_app) {
-          forms += "\nfrom " + rel_app + ".models import " + rel_model;
+        const [rel_model, ...rel_path] = relationship.to.split(".").reverse()
+        const built_in = django._builtInModels[relationship.to]
+        if (built_in) {
+          forms += "\nfrom " + rel_path.reverse().join(".") + " import " + rel_model;
+        } else {
+          forms += "\nfrom " + rel_path.reverse().join(".") + ".models import " + rel_model;
         }
       })
     })
+
+    forms += '\nfrom . import models'
 
     models.forEach((model) => {
       forms += '\n\n'
@@ -1025,12 +1026,12 @@ CHANNEL_LAYERS = {
         forms += '\n\n    def __init__(self, *args, **kwargs):\n'
         forms += '        super(Model2Form, self).__init__(*args, **kwargs)\n'
         relationships.forEach((relationship) => {
-          const [rel_app, rel_model] = relationship.to.split(".")
-          if (app_name != rel_app) {
+          const [rel_model, ] = relationship.to.split(".").reverse()
+          const built_in = django._builtInModels[relationship.to]
+          if (built_in) {
             forms += '        self.fields["' + relationship.name + '"].queryset = ' + rel_model + '.objects.all()\n'
           } else {
-            forms += '        self.fields["' + relationship.name + '"].queryset = models.' + rel_model + '.objects.all()\n'
-
+            forms += '        self.fields["' + relationship.name + '"].queryset = ' + rel_model + '.objects.all()\n'
           }
         })
       }
