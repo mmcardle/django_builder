@@ -108,7 +108,9 @@ class Django {
       'django.db.models.ForeignKey': {
         default_args: 'on_delete=models.CASCADE'
       },
-      'django.db.models.OneToOneField': {},
+      'django.db.models.OneToOneField': {
+        default_args: 'on_delete=models.CASCADE'
+      },
       'django.db.models.ManyToManyField': {}
     }
     this._relationshipMatches = [

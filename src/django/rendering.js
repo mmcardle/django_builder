@@ -507,6 +507,10 @@ CHANNEL_LAYERS = {
       detail_html += `\n    <tr><td>${field.name}</td><td>{{ object.${field.name} }}</td></tr>`
     })
 
+    this.get_relationships(modelData).forEach((relationship) => {
+      detail_html += `\n    <tr><td>${relationship.name}</td><td>{{ object.${relationship.name} }}</td></tr>`
+    })
+
     detail_html += `\n</table>`
     detail_html += `\n<a class="btn btn-primary" href="{{object.get_update_url}}">Edit</a>`
     detail_html += `\n\n{% endblock %}`
@@ -580,12 +584,19 @@ CHANNEL_LAYERS = {
       const disabled = field.args.indexOf('editable=False') !== -1
 
       detail_html += `\n  <div class="form-group row">`
-      detail_html += `\n  <label class="col-sm-2 col-form-label" for="${field.name}">${field.name}: </label>`
+      detail_html += `\n      <label class="col-sm-2 col-form-label" for="${field.name}">${field.name}: </label>`
       if (disabled) {
-        detail_html += `\n  <input class="form-control col-sm-10" id="${field.name}" type="${html_field_type}" name="${field.name}" value="{{ object.${field.name} }}" disabled>`
+        detail_html += `\n      <input class="form-control col-sm-10" id="${field.name}" type="${html_field_type}" name="${field.name}" value="{{ object.${field.name} }}" disabled>`
       } else {
-        detail_html += `\n  <input class="form-control col-sm-10" id="${field.name}" type="${html_field_type}" name="${field.name}" value="{{ object.${field.name} }}">`
+        detail_html += `\n      <input class="form-control col-sm-10" id="${field.name}" type="${html_field_type}" name="${field.name}" value="{{ object.${field.name} }}">`
       }
+      detail_html += `\n  </div>`
+    })
+
+    this.get_relationships(modelData).forEach((relationship) => {
+      detail_html += `\n  <div class="form-group row">`
+      detail_html += `\n      <label class="col-sm-2 col-form-label" for="${relationship.name}">${relationship.name}: </label>`
+      detail_html += `\n      {{ form.${relationship.name} }}`
       detail_html += `\n  </div>`
     })
 
@@ -735,9 +746,10 @@ CHANNEL_LAYERS = {
     serializers += 'from . import models\n'
 
     const models = this.get_models(appid)
-
+    
     models.forEach((model) => {
       const fields = this.get_fields(model)
+      const relationships = this.get_relationships(model)
       serializers += '\n\n'
       serializers += 'class ' + model.name + 'Serializer(serializers.ModelSerializer):\n'
       serializers += '\n'
@@ -746,6 +758,9 @@ CHANNEL_LAYERS = {
       serializers += '        fields = [\n'
       fields.forEach((field) => {
         serializers += '            "' + field.name + '",\n'
+      })
+      relationships.forEach(relationship => {
+        serializers += '            "' + relationship.name + '",\n'
       })
       serializers += '        ]'
     })
@@ -971,8 +986,21 @@ CHANNEL_LAYERS = {
       return !modelData.abstract
     })
 
+    const appData = store.getters.appData(appid)
+    const app_name = appData.name;
+
     let forms = 'from django import forms'
     forms += '\nfrom . import models'
+
+    models.forEach((model) => {
+      const relationships = this.get_relationships(model)
+      relationships.forEach(relationship => {
+        const [rel_app, rel_model] = relationship.to.split(".")
+        if (app_name != rel_app) {
+          forms += "\nfrom " + rel_app + ".models import " + rel_model;
+        }
+      })
+    })
 
     models.forEach((model) => {
       forms += '\n\n'
@@ -991,6 +1019,20 @@ CHANNEL_LAYERS = {
         forms += '        ]'
       } else {
         forms += '        fields = []\n'
+      }
+
+      if (relationships.length) {
+        forms += '\n\n    def __init__(self, *args, **kwargs):\n'
+        forms += '        super(Model2Form, self).__init__(*args, **kwargs)\n'
+        relationships.forEach((relationship) => {
+          const [rel_app, rel_model] = relationship.to.split(".")
+          if (app_name != rel_app) {
+            forms += '        self.fields["' + relationship.name + '"].queryset = ' + rel_model + '.objects.all()\n'
+          } else {
+            forms += '        self.fields["' + relationship.name + '"].queryset = models.' + rel_model + '.objects.all()\n'
+
+          }
+        })
       }
     })
 
