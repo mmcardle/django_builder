@@ -1,3 +1,6 @@
+const DEFAULT_DJANGO_VERSION = 4;
+
+export { DEFAULT_DJANGO_VERSION }
 
 class Django {
 
@@ -202,9 +205,5 @@ class Django {
   }
 
 }
-
-const DEFAULT_DJANGO_VERSION = 3;
-
-export { DEFAULT_DJANGO_VERSION }
 
 export default Django

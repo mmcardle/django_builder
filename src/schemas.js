@@ -23,8 +23,9 @@ const project = () => [
     label: "Version",
     default_value: DEFAULT_DJANGO_VERSION,
     options: [
+      {text: "Django 4", value: 4},
       {text: "Django 3", value: 3},
-      {text: "Django 2", value: 2},
+      {text: "Django 2 (deprecated)", value: 2},
     ],
     required: true,
   },

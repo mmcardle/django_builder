@@ -6,7 +6,8 @@
         <div class="text-h3 hidden-md-and-up" ><django-builder-title /></div>
         <p style="color: gray">building things....</p>
         <div class="ma-3">
-          <span class="label label-success">Django 2.1.X <i class="fa fa-check"></i></span>
+          <div class="ma-1 text-h4 label label-success">Django 4.X <v-icon large class="green--text">mdi-checkbox-marked-circle</v-icon></div>
+          <div class="ma-1 text-h5 label label-success">Django 3.X <v-icon class="green--text">mdi-checkbox-marked-circle</v-icon></div>
         </div>
         <div class="text-body-2">
             <div class="ma-2">
