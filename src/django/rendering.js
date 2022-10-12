@@ -379,11 +379,11 @@ class Renderer {
 
     let DJANGO_VERSION = 'Django>=4'
     switch (project.django_version) {
+      case 2:
+        DJANGO_VERSION = 'Django>=2,<3'
+        break
       case 3:
         DJANGO_VERSION = 'Django>=3,<4'
-        break
-      case 4:
-        DJANGO_VERSION = 'Django>=4'
         break
     }
     
@@ -416,11 +416,11 @@ class Renderer {
 
     let DJANGO_VERSION_PATCH = "4.1"
     switch (project.django_version) {
+      case 2:
+        DJANGO_VERSION_PATCH = "2.2"
+        break
       case 3:
         DJANGO_VERSION_PATCH = "3.2"
-        break
-      case 4:
-        DJANGO_VERSION_PATCH = "4.1"
         break
     }
 
