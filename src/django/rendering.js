@@ -1163,7 +1163,6 @@ CHANNEL_LAYERS = {
     tests += 'import test_helpers\n'
     tests += '\n'
     tests += 'from django.urls import reverse\n'
-    tests += 'from django.test import Client\n'
 
     // Not yet required
     // tests += 'from ' + appData.name + ' import models\n'
@@ -1181,10 +1180,9 @@ CHANNEL_LAYERS = {
       const relationships = this.get_relationships(model)
       const {identifier} = this.get_identifier(model)
 
-      tests += 'def tests_'+ model.name + '_list_view():\n'
+      tests += 'def tests_'+ model.name + '_list_view(client):\n'
       tests += '    instance1 = test_helpers.create_'+ appData.name + '_' + model.name + '()\n'
       tests += '    instance2 = test_helpers.create_'+ appData.name + '_' + model.name + '()\n'
-      tests += '    client = Client()\n'
       tests += '    url = reverse("' + appData.name + '_'+ model.name + '_list")\n'
       tests += '    response = client.get(url)\n'
       tests += '    assert response.status_code == 200\n'
@@ -1192,14 +1190,13 @@ CHANNEL_LAYERS = {
       tests += '    assert str(instance2) in response.content.decode("utf-8")\n'
       tests += '\n'
       tests += '\n'
-      tests += 'def tests_'+ model.name + '_create_view():\n'
+      tests += 'def tests_'+ model.name + '_create_view(client):\n'
       relationships.forEach((relationship) => {
         var creator = django._builtInModels[relationship.to] ?
           'create_' + relationship.to.split('.').pop():
           'create_' + relationship.to.replace(/\./g, '_')
         tests += '    ' + relationship.name + ' = test_helpers.' + creator + '()\n'
       })
-      tests += '    client = Client()\n'
       tests += '    url = reverse("' + appData.name + '_'+ model.name + '_create")\n'
       tests += '    data = {\n'
       readable_fields.forEach((field) => {
@@ -1215,8 +1212,7 @@ CHANNEL_LAYERS = {
       tests += '\n'
       tests += '\n'
 
-      tests += 'def tests_'+ model.name + '_detail_view():\n'
-      tests += '    client = Client()\n'
+      tests += 'def tests_'+ model.name + '_detail_view(client):\n'
       tests += '    instance = test_helpers.create_'+ appData.name + '_' + model.name + '()\n'
       tests += '    url = reverse("' + appData.name + '_'+ model.name + '_detail", args=[instance.' + identifier + ', ])\n'
       tests += '    response = client.get(url)\n'
@@ -1224,14 +1220,13 @@ CHANNEL_LAYERS = {
       tests += '    assert str(instance) in response.content.decode("utf-8")\n'
       tests += '\n'
       tests += '\n'
-      tests += 'def tests_'+ model.name + '_update_view():\n'
+      tests += 'def tests_'+ model.name + '_update_view(client):\n'
       relationships.forEach((relationship) => {
         var creator = django._builtInModels[relationship.to] ?
           'create_' + relationship.to.split('.').pop():
           'create_' + relationship.to.replace(/\./g, '_')
         tests += '    ' + relationship.name + ' = test_helpers.' + creator + '()\n'
       })
-      tests += '    client = Client()\n'
       tests += '    instance = test_helpers.create_'+ appData.name + '_' + model.name + '()\n'
       tests += '    url = reverse("' + appData.name + '_'+ model.name + '_update", args=[instance.' + identifier + ', ])\n'
       tests += '    data = {\n'
