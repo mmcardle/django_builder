@@ -214,6 +214,32 @@ class Renderer {
       }
     })
 
+    const test_items = [
+      {
+        path: "tests",
+        name: "tests",
+        folder: true,
+        children: keys(store.getters.projectData(projectid).apps).map((app_id) => {
+          const app = store.getters.appData(app_id)
+
+          if (app == undefined) return
+          return {
+            path: 'tests/' + app.name,
+            name: app.name,
+            folder: true,
+            children: this.test_renderers().map(render_name => {
+              console.log(render_name)
+              return {
+                path: 'tests/' + app.name + '/' + render_name,
+                name: render_name,
+                render: () => this.test_render(render_name, app_id)
+              }
+            })
+          }
+        })
+      }
+    ]
+
     const template_items = [
       {
         path: "templates",
@@ -229,7 +255,7 @@ class Renderer {
       }
     ]
 
-    return [project_item].concat(apps).concat(template_items).concat(root_items)
+    return [project_item].concat(apps).concat(template_items).concat(test_items).concat(root_items);
   }
 
   project_flat(projectid, folders=false) {
