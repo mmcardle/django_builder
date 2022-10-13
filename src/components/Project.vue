@@ -4,7 +4,7 @@
 
     <v-container ref="project_title">
       <v-row  align="center" justify="center" class="text-center">
-        <v-col cols="12" md=4 lg=3 v-if="isloaded">
+        <v-col cols="12" md=5 lg=4 v-if="isloaded">
           <!-- Desktop -->
           <div @click="showEditProjectDialog()" class="hidden-xs-only">
             <a class="hljs-title text-h2 font-weight-medium red--text text--darken-4 text-capitalize">
