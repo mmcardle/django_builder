@@ -56,8 +56,6 @@ class Renderer {
     'settings.py': {function: this.project_settings},
     'wsgi.py': {function: this.project_wsgi},
     'urls.py': {function: this.project_urls},
-    'requirements.txt': {function: this.requirements},
-    'test_requirements.txt': {function: this.test_requirements},
   }
 
   _root_renderers = {
@@ -65,6 +63,8 @@ class Renderer {
     'pytest.ini': {function: this.pytest_ini},
     'test_settings.py': {function: this.test_settings_py},
     'test_helpers.py': {function: this.test_helpers_py},
+    'requirements.txt': {function: this.requirements},
+    'test_requirements.txt': {function: this.test_requirements},    
   }
 
   _channels_renderers = {
