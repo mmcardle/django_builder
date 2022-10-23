@@ -24,7 +24,7 @@
     "jest-serializer-vue": "^2.0.2",
     "raw-loader": "^4.0.2",
     "tar-js": "^0.3.0",
-    "vue": "^2.5.21",
+    "vue": "^2.7.13",
     "vue-gtag": "1.16.1",
     "vue-highlight.js": "^4.0.0-beta",
     "vue-router": "^3.0.1",
