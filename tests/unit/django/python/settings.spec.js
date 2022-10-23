@@ -1,4 +1,6 @@
-import settings from '@/django/python/settings.py'
+
+import fs from 'fs'
+const settings = fs.readFileSync('src/django/python/settings.py', 'utf-8')
 
 describe('settings.py', () => {
 
