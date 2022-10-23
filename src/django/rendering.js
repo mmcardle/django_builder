@@ -1,30 +1,56 @@
-import store from '@/store'
-import Django from '@/django/'
-import Tarball from '@/tar/'
+import Django from '../django/'
+import Tarball from '../tar/'
 
-import settings from '@/django/python/settings.py'
-import manage from '@/django/python/manage.py'
-import wsgi from '@/django/python/wsgi.py'
-import urls from '@/django/python/urls.py'
+var fs = require('fs');
+var testIsNode = new Function("try {return this===global;}catch(e){return false;}");
 
-import asgi from '@/django/python/asgi.py'
-import routing from '@/django/python/routing.py'
-import consumers from '@/django/python/consumers.py'
-import app_consumers from '@/django/python/app_consumers.py'
+if(require.extensions) {
+  require.extensions['.py'] = function (module, filename) {
+    module.exports = fs.readFileSync(filename, 'utf8');
+  };
+  require.extensions['.txt'] = function (module, filename) {
+    module.exports = fs.readFileSync(filename, 'utf8');
+  };
+  require.extensions['.ini'] = function (module, filename) {
+    module.exports = fs.readFileSync(filename, 'utf8');
+  };
+  require.extensions['.tmpl'] = function (module, filename) {
+    module.exports = fs.readFileSync(filename, 'utf8');
+  };
+}
 
-import requirements_txt from '@/django/requirements/requirements.txt'
+const isNode = testIsNode();
+function loadIfNode (rawpath) {
+  return isNode ? require(rawpath) : undefined;
+}
 
-import test_settings from '@/django/tests/test_settings.py'
-import test_requirements_txt from '@/django/tests/test_requirements.txt'
-import _pytest_ini from '@/django/tests/pytest.ini'
+const settings = loadIfNode('../django/python/settings.py') || require('../django/python/settings.py').default;
+const manage = loadIfNode('../django/python/manage.py') || require('../django/python/manage.py').default;
+const wsgi = loadIfNode('../django/python/wsgi.py') || require('../django/python/wsgi.py').default;
+const urls = loadIfNode('../django/python/urls.py') || require('../django/python/urls.py').default;
 
-import _base_html from '@/django/templates/base.html.tmpl'
-import _channels_websocket_html from '@/django/templates/channels_websocket.html.tmpl'
+const asgi = loadIfNode('../django/python/asgi.py') || require('../django/python/asgi.py').default;
+const routing = loadIfNode('../django/python/routing.py') || require('../django/python/routing.py').default;
+const consumers = loadIfNode('../django/python/consumers.py') || require('../django/python/consumers.py').default;
+const app_consumers = loadIfNode('../django/python/app_consumers.py') || require('../django/python/app_consumers.py').default;
+
+const requirements_txt = loadIfNode('../django/requirements/requirements.txt') || require('../django/requirements/requirements.txt').default;
+
+const test_settings = loadIfNode('../django/tests/test_settings.py') || require('../django/tests/test_settings.py').default;
+const test_requirements_txt = loadIfNode('../django/tests/test_requirements.txt') || require('../django/tests/test_requirements.txt').default;
+const _pytest_ini = loadIfNode('../django/tests/pytest.ini') || require('../django/tests/pytest.ini').default;
+
+const _base_html = loadIfNode('../django/templates/base.html.tmpl') || require('../django/templates/base.html.tmpl').default;
+const _channels_websocket_html = loadIfNode('../django/templates/channels_websocket.html.tmpl') || require('../django/templates/channels_websocket.html.tmpl').default;
 
 const django = new Django()
 const keys = Object.keys
 
 class Renderer {
+
+  constructor(store) {
+    this.store = store
+  }
 
   _app_renderers = {
     'models.py': {function: this.models_py},
@@ -110,7 +136,7 @@ class Renderer {
   }
 
   project_tree(projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid)
 
     let project_children = this.project_renderers().map(render_name => {
       return {
@@ -137,10 +163,10 @@ class Renderer {
       children: project_children
     }
 
-    const apps = keys(store.getters.projectData(projectid).apps).filter(
-      app_id => store.getters.appData(app_id) !== undefined
+    const apps = keys(this.store.getters.projectData(projectid).apps).filter(
+      app_id => this.store.getters.appData(app_id) !== undefined
     ).map(app_id =>{
-      const app = store.getters.appData(app_id)
+      const app = this.store.getters.appData(app_id)
 
       if (app == undefined) return
 
@@ -219,8 +245,8 @@ class Renderer {
         path: "tests",
         name: "tests",
         folder: true,
-        children: keys(store.getters.projectData(projectid).apps).map((app_id) => {
-          const app = store.getters.appData(app_id)
+        children: keys(this.store.getters.projectData(projectid).apps).map((app_id) => {
+          const app = this.store.getters.appData(app_id)
 
           if (app == undefined) return
           return {
@@ -344,19 +370,19 @@ class Renderer {
   }
 
   get_apps(projectid) {
-    const project = store.getters.projectData(projectid)
-    return keys(project.apps).filter(app => store.getters.appData(app)).map((app) => {
-      return Object.assign(store.getters.appData(app), {id: app})
+    const project = this.store.getters.projectData(projectid)
+    return keys(project.apps).filter(app => this.store.getters.appData(app)).map((app) => {
+      return Object.assign(this.store.getters.appData(app), {id: app})
     })
   }
 
   get_models(appid) {
-    return store.getters.ordered_models(appid)
+    return this.store.getters.ordered_models(appid)
   }
 
   get_fields(model) {
     return keys(model.fields).map((field) => {
-      return store.getters.fields()[field] ? store.getters.fields()[field].data() : [];
+      return this.store.getters.fields()[field] ? this.store.getters.fields()[field].data() : [];
     })
   }
 
@@ -395,12 +421,12 @@ class Renderer {
 
   get_relationships(model) {
     return keys(model.relationships).map((relationship) => {
-      return store.getters.relationships()[relationship].data()
+      return this.store.getters.relationships()[relationship].data()
     })
   }
 
   requirements (projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid)
     let requirements = requirements_txt
 
     let DJANGO_VERSION = 'Django>=4'
@@ -427,7 +453,7 @@ class Renderer {
   }
 
   project_settings (projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid)
     const apps = this.get_apps(projectid)
     let app_names = project.channels ? "'channels',\n    " : ''
     apps.forEach((app, i) => {
@@ -478,7 +504,7 @@ CHANNEL_LAYERS = {
   }
 
   base_html (projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid)
     let html = _base_html.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
     if (project.channels === true) {
       return html.replace(/XXX__EXTRA_BODY__XXX/g, _channels_websocket_html)
@@ -507,8 +533,8 @@ CHANNEL_LAYERS = {
   }
 
   list_html (appid, modelid) {
-    const appData = store.getters.appData(appid)
-    const modelData = store.getters.modelData(modelid)
+    const appData = this.store.getters.appData(appid)
+    const modelData = this.store.getters.modelData(modelid)
 
     var list_html = `
 {% extends "base.html" %}
@@ -532,8 +558,8 @@ CHANNEL_LAYERS = {
 {% block content %}
     `
 
-    const appData = store.getters.appData(appid)
-    const modelData = store.getters.modelData(modelid)
+    const appData = this.store.getters.appData(appid)
+    const modelData = this.store.getters.modelData(modelid)
 
     detail_html += `
 <p>
@@ -560,7 +586,7 @@ CHANNEL_LAYERS = {
   }
 
   confirm_delete_html (appid, modelid) {
-    const modelData = store.getters.modelData(modelid)
+    const modelData = this.store.getters.modelData(modelid)
 
     var confirm_delete_html = `
 {% extends "base.html" %}
@@ -584,8 +610,8 @@ CHANNEL_LAYERS = {
 {% block content %}
     `
 
-    const appData = store.getters.appData(appid)
-    const modelData = store.getters.modelData(modelid)
+    const appData = this.store.getters.appData(appid)
+    const modelData = this.store.getters.modelData(modelid)
 
     detail_html += `
 <p>
@@ -599,6 +625,7 @@ CHANNEL_LAYERS = {
     detail_html += `\n  {{form.errors}}`
 
     this.get_fields(modelData).forEach((field) => {
+      console.log("RESULTS FIELD", field)
 
       var html_field_type = "text"
       switch (field.type) {
@@ -621,7 +648,6 @@ CHANNEL_LAYERS = {
           html_field_type = "file"
           break
       }
-
       const disabled = field.args.indexOf('editable=False') !== -1
 
       detail_html += `\n  <div class="form-group row">`
@@ -650,17 +676,17 @@ CHANNEL_LAYERS = {
   }
 
   channels_asgi_py (projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid)
     return asgi.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
   }
 
   consumers_py (projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid)
     return consumers.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
   }
 
   channels_routing_py (projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid)
     let consumer_imports = '# Consumer Imports\n'
     let consumers = ''
 
@@ -681,26 +707,27 @@ CHANNEL_LAYERS = {
   }
 
   project_manage (projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid);
     return manage.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
   }
 
   pytest_ini (projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid)
     return _pytest_ini.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
   }
 
   test_settings_py (projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid)
     return test_settings.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
   }
 
   project_wsgi (projectid) {
-    const project = store.getters.projectData(projectid)
+    const project = this.store.getters.projectData(projectid)
     return wsgi.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
   }
 
   project_urls (projectid) {
+    const project = this.store.getters.projectData(projectid)
     const apps = this.get_apps(projectid)
     let app_names = ''
     apps.forEach((app, i) => {
@@ -712,11 +739,11 @@ CHANNEL_LAYERS = {
         app_names += "\n"
       }
     })
-    return urls.replace("'XXX_PROJECT_URLS_XXX',", app_names)
+    return urls.replace("'XXX_PROJECT_URLS_XXX',", app_names).replace(/XXX_PROJECT_NAME_XXX/g, project.name)
   }
 
   urls_py(appid) {
-    const appData = store.getters.appData(appid)
+    const appData = this.store.getters.appData(appid)
     let urls = 'from django.urls import path, include\n'
     urls += 'from rest_framework import routers\n'
     urls += '\n'
@@ -849,13 +876,13 @@ CHANNEL_LAYERS = {
   }
 
   channels_app_consumers_py(appid) {
-    const appData = store.getters.appData(appid)
+    const appData = this.store.getters.appData(appid)
     return app_consumers
       .replace(/XXX_APP_NAME_XXX/g, appData.name)
   }
 
   models_py(appid) {
-    const appData = store.getters.appData(appid)
+    const appData = this.store.getters.appData(appid)
     const models = this.get_models(appid)
 
     var imports = 'from django.db import models\n'
@@ -872,7 +899,7 @@ CHANNEL_LAYERS = {
       if (model.parents && model.parents.length > 0) {
         const parents = model.parents.map(((parent) => {
           if (parent.type == 'user') {
-            const model = store.getters.modelData(parent.model)
+            const model = this.store.getters.modelData(parent.model)
             return model.name
           } else if (parent.type == 'django') {
             return parent.class.split(".").pop()
@@ -887,7 +914,7 @@ CHANNEL_LAYERS = {
       if (model.relationships && keys(model.relationships).length > 0) {
         models_py += '    # Relationships\n'
         for ( var relationship in model.relationships ) {
-          const rData = store.getters.relationships()[relationship].data()
+          const rData = this.store.getters.relationships()[relationship].data()
           // e.g. If a built in model, convert django.contrib.auth.models.User to auth.User else just use app.Model
           const builtIn = django.builtInModel(rData.to)
           if (builtIn !== undefined) {
@@ -906,7 +933,7 @@ CHANNEL_LAYERS = {
       if (model.fields && keys(model.fields).length > 0) {
         models_py += '    # Fields\n'
         for( var field in model.fields ) {
-          const f = store.getters.fields()[field]
+          const f = this.store.getters.fields()[field]
           if (f) {
             const fData = f.data()
             var model_import = "models";
@@ -972,7 +999,7 @@ CHANNEL_LAYERS = {
       return !modelData.abstract
     })
 
-    const appData = store.getters.appData(appid)
+    const appData = this.store.getters.appData(appid)
 
     let views = 'from django.views import generic\n'
     views += 'from django.urls import reverse_lazy\n'
@@ -1135,7 +1162,7 @@ CHANNEL_LAYERS = {
 
         model.parents.forEach((parent) => {
           if (parent.type == 'user') {
-            const model = store.getters.modelData(parent.model)
+            const model = this.store.getters.modelData(parent.model)
             parent_user_models.push(model)
           } else if (parent.type == 'django') {
             parent_django_models.push(parent.class)
@@ -1197,7 +1224,7 @@ CHANNEL_LAYERS = {
   }
 
   test_views_py(appid) {
-    const appData = store.getters.appData(appid)
+    const appData = this.store.getters.appData(appid)
 
     var tests = ''
     tests += 'import pytest\n'
@@ -1285,12 +1312,87 @@ CHANNEL_LAYERS = {
     return tests
   }
 
-  as_tarball(projectid) {
-    const tarball = new Tarball()
-    const project = store.getters.projectData(projectid)
+  as_string(projectid) {
+    let allContent = "";
+    const project = this.store.getters.projectData(projectid)
 
     keys(project.apps).forEach((app) => {
-      const appData = store.getters.appData(app)
+      const appData = this.store.getters.appData(app)
+      this.app_renderers().forEach((renderer) => {
+        const content = this.app_render(renderer, app)
+        const path = project.name + '/' + appData.name + '/' + renderer
+        allContent += "=== " + path + " ===\n";
+        allContent += content + "\n\n";
+      })
+      this.test_renderers().forEach((renderer) => {
+        const content = this.test_render(renderer, app)
+        const path = project.name + '/tests/' + appData.name + '/' + renderer
+        allContent += "=== " + path + " ===\n";
+        allContent += content + "\n\n";
+      })
+
+      if (project.channels === true) {
+        this.channels_app_renderers().forEach((renderer) => {
+          const content = this.channels_app_render(renderer, app)
+          const path = project.name + '/' + appData.name + '/' + renderer
+          allContent += "=== " + path + " ===\n";
+          allContent += content + "\n\n";
+        })
+      }
+
+      this.template_renderers().forEach((renderer) => {
+        keys(project.apps).map((app) => {
+          const appData = this.store.getters.appData(app)
+          keys(appData.models).map((modelid) => {
+            const modelData = this.store.getters.modelData(modelid)
+            const content = this.template_render(renderer, app, modelid)
+            const path = project.name + '/' + appData.name + '/templates/' + appData.name + '/' + modelData.name.toLowerCase() + '_' + renderer
+            allContent += "=== " + path + " ===\n";
+            allContent += content + "\n\n";
+          })
+        })
+      })
+    })
+
+    if (project.channels === true) {
+      this.channels_renderers().forEach((renderer) => {
+        const content = this.channels_render(renderer, projectid)
+        const path = project.name + '/' + project.name + '/' + renderer
+        allContent += "=== " + path + " ===\n";
+        allContent += content + "\n\n";
+      })
+    }
+
+    this.project_renderers().forEach((renderer) => {
+      const content = this.project_render(renderer, projectid)
+      const path = project.name + '/' + project.name + '/' + renderer
+      allContent += "=== " + path + " ===\n";
+      allContent += content + "\n\n";
+    })
+
+    this.root_template_renderers().forEach((renderer) => {
+      const content = this.root_template_render(renderer, projectid)
+      const path = project.name + '/templates/' + renderer
+      allContent += "=== " + path + " ===\n";
+      allContent += content + "\n\n";
+    })
+
+    this.root_renderers().forEach((renderer) => {
+      const content = this.root_render(renderer, projectid)
+      const path = project.name + '/' + renderer
+      allContent += "=== " + path + " ===\n";
+      allContent += content + "\n\n";
+    })
+
+    return allContent;
+  }
+
+  as_tarball(projectid) {
+    const tarball = new Tarball()
+    const project = this.store.getters.projectData(projectid)
+
+    keys(project.apps).forEach((app) => {
+      const appData = this.store.getters.appData(app)
       this.app_renderers().forEach((renderer) => {
         const content = this.app_render(renderer, app)
         const path = project.name + '/' + appData.name + '/' + renderer
@@ -1316,9 +1418,9 @@ CHANNEL_LAYERS = {
 
       this.template_renderers().forEach((renderer) => {
         keys(project.apps).map((app) => {
-          const appData = store.getters.appData(app)
+          const appData = this.store.getters.appData(app)
           keys(appData.models).map((modelid) => {
-            const modelData = store.getters.modelData(modelid)
+            const modelData = this.store.getters.modelData(modelid)
             const content = this.template_render(renderer, app, modelid)
             const path = project.name + '/' + appData.name + '/templates/' + appData.name + '/' + modelData.name.toLowerCase() + '_' + renderer
             tarball.append(path, content)

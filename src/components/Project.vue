@@ -143,8 +143,9 @@ import { DEFAULT_DJANGO_VERSION } from '@/django'
 import {schemas} from '@/schemas'
 import {showDeleteDialog, showFormDialog} from '@/dialogs/'
 import 'highlight.js/styles/a11y-light.css'
+import store from "../store";
 
-const renderer = new Renderer()
+const renderer = new Renderer(store)
 
 export default {
   props: ['id'],

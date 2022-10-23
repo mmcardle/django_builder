@@ -2,6 +2,9 @@
   "name": "djangobuilder",
   "version": "0.1.0",
   "private": true,
+  "bin": {
+    "django-builder": "bin/django-builder"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -17,6 +20,7 @@
     "ci": "start-server-and-test test:e2e_serve http://localhost:8082 test:e2e"
   },
   "dependencies": {
+    "esm": "^3.2.25",
     "firebase": "^9.1.0",
     "firebase-tools": "^9.19.0",
     "highlight.js": "^11.2.0",
@@ -79,7 +83,7 @@
       "no-console": "off",
       "no-empty-pattern": "error",
       "no-unused-vars": [
-        "error",
+        "off",
         {
           "vars": "all",
           "args": "after-used",
