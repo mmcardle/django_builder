@@ -1,3 +1,6 @@
+const DEFAULT_DJANGO_VERSION = 4;
+
+export { DEFAULT_DJANGO_VERSION }
 
 class Django {
 
@@ -40,13 +43,13 @@ class Django {
       'django.db.models.TimeField': {},
       'django.db.models.BinaryField': {},
       'django.db.models.SmallIntegerField': {},
+      'django.db.models.JSONField': {default_args: 'default=dict'},
       'django.contrib.contenttypes.fields.GenericForeignKey': {default_args: '"content_type", "object_id"'},
       'django.contrib.postgres.fields.ArrayField': {default_args: 'models.CharField(max_length=100)'},
       'django.contrib.postgres.fields.CICharField': {default_args: 'max_length=30'},
       'django.contrib.postgres.fields.CIEmailField': {},
       'django.contrib.postgres.fields.CITextField': {},
       'django.contrib.postgres.fields.HStoreField': {},
-      'django.contrib.postgres.fields.JSONField': {default_args: 'default=dict'},
       'django.contrib.postgres.fields.ranges.IntegerRangeField': {},
       'django.contrib.postgres.fields.ranges.BigIntegerRangeField': {},
       'django.contrib.postgres.fields.ranges.FloatRangeField': {},
@@ -65,13 +68,13 @@ class Django {
     this._fieldDefaults = {
       'django.db.models.TextField': '"text"',
       'django.db.models.CharField': '"text"',
+      'django.db.models.JSONField': '{}',
       'django.contrib.contenttypes.fields.GenericForeignKey': '',
       'django.contrib.postgres.fields.ArrayField': '[]',
       'django.contrib.postgres.fields.CICharField': '"text"',
       'django.contrib.postgres.fields.CIEmailField': '"user@tempurl.com"',
       'django.contrib.postgres.fields.CITextField': '"text"',
       'django.contrib.postgres.fields.HStoreField': '{}',
-      'django.contrib.postgres.fields.JSONField': '{}',
       'django.contrib.postgres.fields.ranges.IntegerRangeField': '1',
       'django.contrib.postgres.fields.ranges.BigIntegerRangeField': '1',
       'django.contrib.postgres.fields.ranges.FloatRangeField': '1.0',
@@ -108,7 +111,9 @@ class Django {
       'django.db.models.ForeignKey': {
         default_args: 'on_delete=models.CASCADE'
       },
-      'django.db.models.OneToOneField': {},
+      'django.db.models.OneToOneField': {
+        default_args: 'on_delete=models.CASCADE'
+      },
       'django.db.models.ManyToManyField': {}
     }
     this._relationshipMatches = [
@@ -200,9 +205,5 @@ class Django {
   }
 
 }
-
-const DEFAULT_DJANGO_VERSION = 3;
-
-export { DEFAULT_DJANGO_VERSION }
 
 export default Django

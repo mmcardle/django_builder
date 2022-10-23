@@ -31,7 +31,7 @@
 <script>
 import Vue from 'vue'
 import vuetify from '@/plugins/vuetify';
-import FormGenerator from '@/components/forms/FormGenerator'
+import FormGenerator from '@/components/forms/FormGenerator.vue'
 
 export default {
   name: 'formDialog',

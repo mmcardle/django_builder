@@ -2,24 +2,24 @@ import store from '@/store'
 import Django from '@/django/'
 import Tarball from '@/tar/'
 
-import settings from '@/django/python/settings.py'
-import manage from '@/django/python/manage.py'
-import wsgi from '@/django/python/wsgi.py'
-import urls from '@/django/python/urls.py'
+import settings from '@/django/python/settings.py?raw'
+import manage from '@/django/python/manage.py?raw'
+import wsgi from '@/django/python/wsgi.py?raw'
+import urls from '@/django/python/urls.py?raw'
 
-import asgi from '@/django/python/asgi.py'
-import routing from '@/django/python/routing.py'
-import consumers from '@/django/python/consumers.py'
-import app_consumers from '@/django/python/app_consumers.py'
+import asgi from '@/django/python/asgi.py?raw'
+import routing from '@/django/python/routing.py?raw'
+import consumers from '@/django/python/consumers.py?raw'
+import app_consumers from '@/django/python/app_consumers.py?raw'
 
-import requirements_txt from '@/django/requirements/requirements.txt'
+import requirements_txt from '@/django/requirements/requirements.txt?raw'
 
-import test_settings from '@/django/tests/test_settings.py'
-import test_requirements_txt from '@/django/tests/test_requirements.txt'
-import _pytest_ini from '@/django/tests/pytest.ini'
+import test_settings from '@/django/tests/test_settings.py?raw'
+import test_requirements_txt from '@/django/tests/test_requirements.txt?raw'
+import _pytest_ini from '@/django/tests/pytest.ini?raw'
 
-import _base_html from '@/django/templates/base.html.tmpl'
-import _channels_websocket_html from '@/django/templates/channels_websocket.html.tmpl'
+import _base_html from '@/django/templates/base.html.tmpl?raw'
+import _channels_websocket_html from '@/django/templates/channels_websocket.html.tmpl?raw'
 
 const django = new Django()
 const keys = Object.keys
@@ -56,8 +56,6 @@ class Renderer {
     'settings.py': {function: this.project_settings},
     'wsgi.py': {function: this.project_wsgi},
     'urls.py': {function: this.project_urls},
-    'requirements.txt': {function: this.requirements},
-    'test_requirements.txt': {function: this.test_requirements},
   }
 
   _root_renderers = {
@@ -65,6 +63,8 @@ class Renderer {
     'pytest.ini': {function: this.pytest_ini},
     'test_settings.py': {function: this.test_settings_py},
     'test_helpers.py': {function: this.test_helpers_py},
+    'requirements.txt': {function: this.requirements},
+    'test_requirements.txt': {function: this.test_requirements},    
   }
 
   _channels_renderers = {
@@ -214,6 +214,32 @@ class Renderer {
       }
     })
 
+    const test_items = [
+      {
+        path: "tests",
+        name: "tests",
+        folder: true,
+        children: keys(store.getters.projectData(projectid).apps).map((app_id) => {
+          const app = store.getters.appData(app_id)
+
+          if (app == undefined) return
+          return {
+            path: 'tests/' + app.name,
+            name: app.name,
+            folder: true,
+            children: this.test_renderers().map(render_name => {
+              console.log(render_name)
+              return {
+                path: 'tests/' + app.name + '/' + render_name,
+                name: render_name,
+                render: () => this.test_render(render_name, app_id)
+              }
+            })
+          }
+        })
+      }
+    ]
+
     const template_items = [
       {
         path: "templates",
@@ -229,7 +255,7 @@ class Renderer {
       }
     ]
 
-    return [project_item].concat(apps).concat(template_items).concat(root_items)
+    return [project_item].concat(apps).concat(template_items).concat(test_items).concat(root_items);
   }
 
   project_flat(projectid, folders=false) {
@@ -376,16 +402,19 @@ class Renderer {
   requirements (projectid) {
     const project = store.getters.projectData(projectid)
     let requirements = requirements_txt
-    const DJANGO_3 = 'Django>=3,<4';
-    const DJANGO_2 = 'Django>=2,<3';
-    if (project.django_version === 3) {
-      requirements = requirements.replace('XXX_DJANGO_VERSION_XXX', DJANGO_3)
-    } else if (project.django_version == 2) {
-      requirements = requirements.replace('XXX_DJANGO_VERSION_XXX', DJANGO_2)
-    } else {
-      console.error('Unknown Django version ' + project.django_version + ', defaulting to ' + DJANGO_3)
-      requirements = requirements.replace('XXX_DJANGO_VERSION_XXX', DJANGO_3)
+
+    let DJANGO_VERSION = 'Django>=4'
+    switch (project.django_version) {
+      case 2:
+        DJANGO_VERSION = 'Django>=2,<3'
+        break
+      case 3:
+        DJANGO_VERSION = 'Django>=3,<4'
+        break
     }
+    
+    requirements = requirements.replace('XXX_DJANGO_VERSION_XXX', DJANGO_VERSION)
+
     if (project.channels === true) {
       requirements += 'channels\n'
       requirements += 'channels_redis\n'
@@ -410,10 +439,22 @@ class Renderer {
         app_names += "\n"
       }
     })
+
+    let DJANGO_VERSION_PATCH = "4.1"
+    switch (project.django_version) {
+      case 2:
+        DJANGO_VERSION_PATCH = "2.2"
+        break
+      case 3:
+        DJANGO_VERSION_PATCH = "3.2"
+        break
+    }
+
     let _settings = settings
     _settings = settings
       .replace(/'XXX_PROJECT_APPS_XXX'/, app_names)
       .replace(/XXX_PROJECT_NAME_XXX/g, project.name)
+      .replace(/XXX_DJANGO_VERSION_PATCH_XXX/g, DJANGO_VERSION_PATCH)
 
     if (project.channels === true) {
       _settings += '\n# Django Channels\n'
@@ -507,6 +548,10 @@ CHANNEL_LAYERS = {
       detail_html += `\n    <tr><td>${field.name}</td><td>{{ object.${field.name} }}</td></tr>`
     })
 
+    this.get_relationships(modelData).forEach((relationship) => {
+      detail_html += `\n    <tr><td>${relationship.name}</td><td>{{ object.${relationship.name} }}</td></tr>`
+    })
+
     detail_html += `\n</table>`
     detail_html += `\n<a class="btn btn-primary" href="{{object.get_update_url}}">Edit</a>`
     detail_html += `\n\n{% endblock %}`
@@ -580,12 +625,19 @@ CHANNEL_LAYERS = {
       const disabled = field.args.indexOf('editable=False') !== -1
 
       detail_html += `\n  <div class="form-group row">`
-      detail_html += `\n  <label class="col-sm-2 col-form-label" for="${field.name}">${field.name}: </label>`
+      detail_html += `\n      <label class="col-sm-2 col-form-label" for="${field.name}">${field.name}: </label>`
       if (disabled) {
-        detail_html += `\n  <input class="form-control col-sm-10" id="${field.name}" type="${html_field_type}" name="${field.name}" value="{{ object.${field.name} }}" disabled>`
+        detail_html += `\n      <input class="form-control col-sm-10" id="${field.name}" type="${html_field_type}" name="${field.name}" value="{{ object.${field.name} }}" disabled>`
       } else {
-        detail_html += `\n  <input class="form-control col-sm-10" id="${field.name}" type="${html_field_type}" name="${field.name}" value="{{ object.${field.name} }}">`
+        detail_html += `\n      <input class="form-control col-sm-10" id="${field.name}" type="${html_field_type}" name="${field.name}" value="{{ object.${field.name} }}">`
       }
+      detail_html += `\n  </div>`
+    })
+
+    this.get_relationships(modelData).forEach((relationship) => {
+      detail_html += `\n  <div class="form-group row">`
+      detail_html += `\n      <label class="col-sm-2 col-form-label" for="${relationship.name}">${relationship.name}: </label>`
+      detail_html += `\n      {{ form.${relationship.name} }}`
       detail_html += `\n  </div>`
     })
 
@@ -735,9 +787,10 @@ CHANNEL_LAYERS = {
     serializers += 'from . import models\n'
 
     const models = this.get_models(appid)
-
+    
     models.forEach((model) => {
       const fields = this.get_fields(model)
+      const relationships = this.get_relationships(model)
       serializers += '\n\n'
       serializers += 'class ' + model.name + 'Serializer(serializers.ModelSerializer):\n'
       serializers += '\n'
@@ -746,6 +799,9 @@ CHANNEL_LAYERS = {
       serializers += '        fields = [\n'
       fields.forEach((field) => {
         serializers += '            "' + field.name + '",\n'
+      })
+      relationships.forEach(relationship => {
+        serializers += '            "' + relationship.name + '",\n'
       })
       serializers += '        ]'
     })
@@ -972,6 +1028,20 @@ CHANNEL_LAYERS = {
     })
 
     let forms = 'from django import forms'
+
+    models.forEach((model) => {
+      const relationships = this.get_relationships(model)
+      relationships.forEach(relationship => {
+        const [rel_model, ...rel_path] = relationship.to.split(".").reverse()
+        const built_in = django._builtInModels[relationship.to]
+        if (built_in) {
+          forms += "\nfrom " + rel_path.reverse().join(".") + " import " + rel_model;
+        } else {
+          forms += "\nfrom " + rel_path.reverse().join(".") + ".models import " + rel_model;
+        }
+      })
+    })
+
     forms += '\nfrom . import models'
 
     models.forEach((model) => {
@@ -991,6 +1061,20 @@ CHANNEL_LAYERS = {
         forms += '        ]'
       } else {
         forms += '        fields = []\n'
+      }
+
+      if (relationships.length) {
+        forms += '\n\n    def __init__(self, *args, **kwargs):\n'
+        forms += '        super(Model2Form, self).__init__(*args, **kwargs)\n'
+        relationships.forEach((relationship) => {
+          const [rel_model, ] = relationship.to.split(".").reverse()
+          const built_in = django._builtInModels[relationship.to]
+          if (built_in) {
+            forms += '        self.fields["' + relationship.name + '"].queryset = ' + rel_model + '.objects.all()\n'
+          } else {
+            forms += '        self.fields["' + relationship.name + '"].queryset = ' + rel_model + '.objects.all()\n'
+          }
+        })
       }
     })
 
@@ -1120,7 +1204,6 @@ CHANNEL_LAYERS = {
     tests += 'import test_helpers\n'
     tests += '\n'
     tests += 'from django.urls import reverse\n'
-    tests += 'from django.test import Client\n'
 
     // Not yet required
     // tests += 'from ' + appData.name + ' import models\n'
@@ -1138,10 +1221,9 @@ CHANNEL_LAYERS = {
       const relationships = this.get_relationships(model)
       const {identifier} = this.get_identifier(model)
 
-      tests += 'def tests_'+ model.name + '_list_view():\n'
+      tests += 'def tests_'+ model.name + '_list_view(client):\n'
       tests += '    instance1 = test_helpers.create_'+ appData.name + '_' + model.name + '()\n'
       tests += '    instance2 = test_helpers.create_'+ appData.name + '_' + model.name + '()\n'
-      tests += '    client = Client()\n'
       tests += '    url = reverse("' + appData.name + '_'+ model.name + '_list")\n'
       tests += '    response = client.get(url)\n'
       tests += '    assert response.status_code == 200\n'
@@ -1149,14 +1231,13 @@ CHANNEL_LAYERS = {
       tests += '    assert str(instance2) in response.content.decode("utf-8")\n'
       tests += '\n'
       tests += '\n'
-      tests += 'def tests_'+ model.name + '_create_view():\n'
+      tests += 'def tests_'+ model.name + '_create_view(client):\n'
       relationships.forEach((relationship) => {
         var creator = django._builtInModels[relationship.to] ?
           'create_' + relationship.to.split('.').pop():
           'create_' + relationship.to.replace(/\./g, '_')
         tests += '    ' + relationship.name + ' = test_helpers.' + creator + '()\n'
       })
-      tests += '    client = Client()\n'
       tests += '    url = reverse("' + appData.name + '_'+ model.name + '_create")\n'
       tests += '    data = {\n'
       readable_fields.forEach((field) => {
@@ -1172,8 +1253,7 @@ CHANNEL_LAYERS = {
       tests += '\n'
       tests += '\n'
 
-      tests += 'def tests_'+ model.name + '_detail_view():\n'
-      tests += '    client = Client()\n'
+      tests += 'def tests_'+ model.name + '_detail_view(client):\n'
       tests += '    instance = test_helpers.create_'+ appData.name + '_' + model.name + '()\n'
       tests += '    url = reverse("' + appData.name + '_'+ model.name + '_detail", args=[instance.' + identifier + ', ])\n'
       tests += '    response = client.get(url)\n'
@@ -1181,14 +1261,13 @@ CHANNEL_LAYERS = {
       tests += '    assert str(instance) in response.content.decode("utf-8")\n'
       tests += '\n'
       tests += '\n'
-      tests += 'def tests_'+ model.name + '_update_view():\n'
+      tests += 'def tests_'+ model.name + '_update_view(client):\n'
       relationships.forEach((relationship) => {
         var creator = django._builtInModels[relationship.to] ?
           'create_' + relationship.to.split('.').pop():
           'create_' + relationship.to.replace(/\./g, '_')
         tests += '    ' + relationship.name + ' = test_helpers.' + creator + '()\n'
       })
-      tests += '    client = Client()\n'
       tests += '    instance = test_helpers.create_'+ appData.name + '_' + model.name + '()\n'
       tests += '    url = reverse("' + appData.name + '_'+ model.name + '_update", args=[instance.' + identifier + ', ])\n'
       tests += '    data = {\n'

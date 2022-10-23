@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import MainContent from '@/components/MainContent'
+import MainContent from '@/components/MainContent.vue'
 
 export default {
   components: { 'main-content': MainContent },

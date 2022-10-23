@@ -265,7 +265,7 @@
 <script>
 import firebase from 'firebase/compat/app';
 import { schemas } from "@/schemas";
-import ImportableModel from '@/components/ImportableModel'
+import ImportableModel from '@/components/ImportableModel.vue'
 import ModelImporter from '@/django/importer'
 import { showDeleteDialog, showFormDialog, showMessageDialog } from "@/dialogs/";
 import { MAX_BATCH_IMPORTABLE_MODELS, MAX_MODELS } from '@/constants'
