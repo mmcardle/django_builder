@@ -15,11 +15,11 @@
 
 <script>
 // from https://codesandbox.io/s/0p9n4y5kyw
-import SelectList from "./SelectList";
-import SelectListObjects from "./SelectListObjects";
-import ButtonGroupSelect from "./ButtonGroupSelect";
-import TextInput from "./TextInput";
-import BooleanInput from "./BooleanInput";
+import SelectList from "./SelectList.vue";
+import SelectListObjects from "./SelectListObjects.vue";
+import ButtonGroupSelect from "./ButtonGroupSelect.vue";
+import TextInput from "./TextInput.vue";
+import BooleanInput from "./BooleanInput.vue";
 
 export default {
   name: "FormGenerator",

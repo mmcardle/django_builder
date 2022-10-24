@@ -134,8 +134,8 @@
 </template>
 
 <script>
-import DirectoryView from '@/components/DirectoryView'
-import AppView from '@/components/AppView'
+import DirectoryView from '@/components/DirectoryView.vue'
+import AppView from '@/components/AppView.vue'
 import firebase from 'firebase/compat/app';
 import Renderer from '@/django/rendering'
 import ModelImporter from '@/django/importer'

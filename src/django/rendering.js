@@ -2,24 +2,24 @@ import store from '@/store'
 import Django from '@/django/'
 import Tarball from '@/tar/'
 
-import settings from '@/django/python/settings.py'
-import manage from '@/django/python/manage.py'
-import wsgi from '@/django/python/wsgi.py'
-import urls from '@/django/python/urls.py'
+import settings from '@/django/python/settings.py?raw'
+import manage from '@/django/python/manage.py?raw'
+import wsgi from '@/django/python/wsgi.py?raw'
+import urls from '@/django/python/urls.py?raw'
 
-import asgi from '@/django/python/asgi.py'
-import routing from '@/django/python/routing.py'
-import consumers from '@/django/python/consumers.py'
-import app_consumers from '@/django/python/app_consumers.py'
+import asgi from '@/django/python/asgi.py?raw'
+import routing from '@/django/python/routing.py?raw'
+import consumers from '@/django/python/consumers.py?raw'
+import app_consumers from '@/django/python/app_consumers.py?raw'
 
-import requirements_txt from '@/django/requirements/requirements.txt'
+import requirements_txt from '@/django/requirements/requirements.txt?raw'
 
-import test_settings from '@/django/tests/test_settings.py'
-import test_requirements_txt from '@/django/tests/test_requirements.txt'
-import _pytest_ini from '@/django/tests/pytest.ini'
+import test_settings from '@/django/tests/test_settings.py?raw'
+import test_requirements_txt from '@/django/tests/test_requirements.txt?raw'
+import _pytest_ini from '@/django/tests/pytest.ini?raw'
 
-import _base_html from '@/django/templates/base.html.tmpl'
-import _channels_websocket_html from '@/django/templates/channels_websocket.html.tmpl'
+import _base_html from '@/django/templates/base.html.tmpl?raw'
+import _channels_websocket_html from '@/django/templates/channels_websocket.html.tmpl?raw'
 
 const django = new Django()
 const keys = Object.keys

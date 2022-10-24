@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "test:unit": "vue-cli-service test:unit",
+    "dev": "vite --port 8080",
+    "build": "vite build",
+    "serve": "vite preview",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
+    "test:unit": "vitest --run",
     "test:e2e_chrome": "nightwatch --headless -e chrome",
     "test:e2e_firefox": "nightwatch --headless -e firefox",
     "test:e2e": "yarn test:e2e_chrome && yarn test:e2e_firefox",
@@ -22,7 +23,7 @@
     "highlight.js": "^11.2.0",
     "raw-loader": "^4.0.2",
     "tar-js": "^0.3.0",
-    "vue": "^2.5.21",
+    "vue": "^2.7.13",
     "vue-gtag": "1.16.1",
     "vue-highlight.js": "^4.0.0-beta",
     "vue-router": "^3.0.1",
@@ -32,30 +33,31 @@
   "devDependencies": {
     "@mdi/font": "^6.1.95",
     "@mdi/js": "^6.1.95",
-    "@vue/cli-plugin-babel": "^4.5.13",
-    "@vue/cli-plugin-eslint": "^4.5.13",
-    "@vue/cli-plugin-unit-jest": "^4.5.13",
-    "@vue/cli-service": "^4.5.13",
-    "@vue/test-utils": "^1.0.0-beta.20",
-    "babel-core": "7.0.0-bridge.0",
-    "babel-eslint": "^10.0.1",
-    "babel-jest": "^27.2.4",
+    "@vitejs/plugin-vue2": "^1.1.2",
+    "@vitest/ui": "^0.24.3",
+    "@vue/compiler-dom": "^3.2.41",
+    "@vue/test-utils": "^1.3.0",
+    "autoprefixer": "^10.4.8",
+    "babel-core": "^6.26.3",
     "build-if-changed": "^1.5.5",
-    "chromedriver": "^94.0.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^7.18.0",
+    "chromedriver": "101",
+    "eslint": "8",
+    "eslint-plugin-vue": "8",
     "eslint-plugin-vuetify": "^1.0.0-beta.6",
     "geckodriver": "^2.0.4",
-    "jest-raw-loader": "^1.0.1",
+    "jsdom": "^20.0.1",
     "nightwatch": "^1.3.6",
-    "sass": "^1.26.3",
-    "sass-loader": "^10.1.1",
+    "sass": "^1.54.5",
     "selenium-server": "^3.141.59",
     "start-server-and-test": "^1.11.2",
     "stylus": "^0.55.0",
     "stylus-loader": "^6.1.0",
+    "unplugin-vue-components": "^0.22.4",
+    "vite": "^2.5.4",
+    "vite-plugin-vue2": "1.9.0",
+    "vitest": "^0.24.3",
     "vue-cli-plugin-vuetify": "^2.4.2",
-    "vue-template-compiler": "^2.5.21",
+    "vue-template-compiler": "^2.6.14",
     "vuetify-loader": "^1.4.3"
   },
   "bic": [
@@ -64,7 +66,7 @@
   "eslintConfig": {
     "root": true,
     "env": {
-      "node": true
+      "es2021": true
     },
     "extends": [
       "plugin:vue/essential",
@@ -87,9 +89,6 @@
           "varsIgnorePattern": "^_.*$"
         }
       ]
-    },
-    "parserOptions": {
-      "parser": "babel-eslint"
     }
   },
   "postcss": {
