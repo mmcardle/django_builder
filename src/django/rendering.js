@@ -1,10 +1,11 @@
 import Django from '../django/'
 import Tarball from '../tar/'
+import fs from "fs"
 
-var fs = require('fs');
 var testIsNode = new Function("try {return this===global;}catch(e){return false;}");
+const isNode = testIsNode();
 
-if(require.extensions) {
+if(isNode && require.extensions) {
   require.extensions['.py'] = function (module, filename) {
     module.exports = fs.readFileSync(filename, 'utf8');
   };
@@ -19,29 +20,33 @@ if(require.extensions) {
   };
 }
 
-const isNode = testIsNode();
 function loadIfNode (rawpath) {
-  return isNode ? require(rawpath) : undefined;
+  if (isNode) {
+    return require(rawpath)
+  }
 }
 
-const settings = loadIfNode('../django/python/settings.py') || require('../django/python/settings.py').default;
-const manage = loadIfNode('../django/python/manage.py') || require('../django/python/manage.py').default;
-const wsgi = loadIfNode('../django/python/wsgi.py') || require('../django/python/wsgi.py').default;
-const urls = loadIfNode('../django/python/urls.py') || require('../django/python/urls.py').default;
+console.log("isnode", isNode)
 
-const asgi = loadIfNode('../django/python/asgi.py') || require('../django/python/asgi.py').default;
-const routing = loadIfNode('../django/python/routing.py') || require('../django/python/routing.py').default;
-const consumers = loadIfNode('../django/python/consumers.py') || require('../django/python/consumers.py').default;
-const app_consumers = loadIfNode('../django/python/app_consumers.py') || require('../django/python/app_consumers.py').default;
 
-const requirements_txt = loadIfNode('../django/requirements/requirements.txt') || require('../django/requirements/requirements.txt').default;
+const settings = loadIfNode('../django/python/settings.py') || import('../django/python/settings.py?raw')
+const manage = loadIfNode('../django/python/manage.py') || import('../django/python/manage.py?raw');
+const wsgi = loadIfNode('../django/python/wsgi.py') || import('../django/python/wsgi.py?raw');
+const urls = loadIfNode('../django/python/urls.py') || import('../django/python/urls.py?raw');
 
-const test_settings = loadIfNode('../django/tests/test_settings.py') || require('../django/tests/test_settings.py').default;
-const test_requirements_txt = loadIfNode('../django/tests/test_requirements.txt') || require('../django/tests/test_requirements.txt').default;
-const _pytest_ini = loadIfNode('../django/tests/pytest.ini') || require('../django/tests/pytest.ini').default;
+const asgi = loadIfNode('../django/python/asgi.py') || import('../django/python/asgi.py?raw');
+const routing = loadIfNode('../django/python/routing.py') || import('../django/python/routing.py?raw');
+const consumers = loadIfNode('../django/python/consumers.py') || import('../django/python/consumers.py?raw');
+const app_consumers = loadIfNode('../django/python/app_consumers.py') || import('../django/python/app_consumers.py?raw');
 
-const _base_html = loadIfNode('../django/templates/base.html.tmpl') || require('../django/templates/base.html.tmpl').default;
-const _channels_websocket_html = loadIfNode('../django/templates/channels_websocket.html.tmpl') || require('../django/templates/channels_websocket.html.tmpl').default;
+const requirements_txt = loadIfNode('../django/requirements/requirements.txt') || import('../django/requirements/requirements.txt?raw');
+
+const test_settings = loadIfNode('../django/tests/test_settings.py') || import('../django/tests/test_settings.py?raw');
+const test_requirements_txt = loadIfNode('../django/tests/test_requirements.txt') || import('../django/tests/test_requirements.txt?raw');
+const _pytest_ini = loadIfNode('../django/tests/pytest.ini') || import('../django/tests/pytest.ini?raw');
+
+const _base_html = loadIfNode('../django/templates/base.html.tmpl') || import('../django/templates/base.html.tmpl?raw');
+const _channels_websocket_html = loadIfNode('../django/templates/channels_websocket.html.tmpl') || import('../django/templates/channels_websocket.html.tmpl?raw');
 
 const django = new Django()
 const keys = Object.keys
