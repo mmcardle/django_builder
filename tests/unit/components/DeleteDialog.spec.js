@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils'
 import DeleteDialog from '@/components/DeleteDialog.vue'
+import { vi } from 'vitest';
 
 describe('DeleteDialog.vue', () => {
 
@@ -25,7 +26,7 @@ describe('DeleteDialog.vue', () => {
   })
 
   it('has ok method', () => {
-    const ok = jest.fn()
+    const ok = vi.fn()
     const wrapper = shallowMount(DeleteDialog, {
       propsData: {ok: ok}
     })
@@ -37,7 +38,7 @@ describe('DeleteDialog.vue', () => {
   })
 
   it('has cancel method', () => {
-    const cancel = jest.fn()
+    const cancel = vi.fn()
     const wrapper = shallowMount(DeleteDialog, {
       propsData: {cancel: cancel}
     })

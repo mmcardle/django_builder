@@ -1,10 +1,10 @@
 import Vue from 'vue'
-import vuetify from './plugins/vuetify'
-import MessageDialog from '@/components/MessageDialog'
-import ConfirmDialog from '@/components/ConfirmDialog'
-import UpgradeDialog from '@/components/UpgradeDialog'
-import DeleteDialog from '@/components/DeleteDialog'
-import FormDialog from '@/components/FormDialog'
+import vuetify from '@/plugins/vuetify'
+import MessageDialog from '@/components/MessageDialog.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import UpgradeDialog from '@/components/UpgradeDialog.vue'
+import DeleteDialog from '@/components/DeleteDialog.vue'
+import FormDialog from '@/components/FormDialog.vue'
 
 const showMessageDialog = function (headline, text, ok) {
   var MessageDialogClass = Vue.extend(MessageDialog)

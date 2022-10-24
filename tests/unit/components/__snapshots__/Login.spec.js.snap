@@ -1,0 +1,46 @@
+// Vitest Snapshot v1
+
+exports[`mount component 1`] = `
+"<v-container data-v-47199182=\\"\\" fluid=\\"\\" fill-height=\\"\\">
+  <v-row data-v-47199182=\\"\\" align-top=\\"\\" justify=\\"center\\">
+    <v-col data-v-47199182=\\"\\" pa-2=\\"\\" cols=\\"12\\" sm=\\"8\\" md=\\"6\\" lg=\\"4\\">
+      <v-card data-v-47199182=\\"\\" height=\\"100%\\" class=\\"elevation-12\\">
+        <v-toolbar data-v-47199182=\\"\\" dark=\\"\\" color=\\"primary\\">
+          <v-toolbar-title data-v-47199182=\\"\\">Sign in</v-toolbar-title>
+        </v-toolbar>
+        <v-card-text data-v-47199182=\\"\\">
+          <!---->
+          <v-form data-v-47199182=\\"\\">
+            <v-text-field data-v-47199182=\\"\\" prepend-icon=\\"person\\" name=\\"login\\" label=\\"Login\\" type=\\"text\\"></v-text-field>
+            <v-text-field data-v-47199182=\\"\\" id=\\"password\\" prepend-icon=\\"lock\\" name=\\"password\\" label=\\"Password\\" type=\\"password\\"></v-text-field>
+          </v-form>
+        </v-card-text>
+        <v-card-actions data-v-47199182=\\"\\" class=\\"px-3\\">
+          <v-spacer data-v-47199182=\\"\\"></v-spacer>
+          <v-btn data-v-47199182=\\"\\" color=\\"primary\\">Login</v-btn>
+        </v-card-actions>
+        <v-card-text data-v-47199182=\\"\\">
+          <div data-v-47199182=\\"\\" class=\\"mb-2\\">You don't have an account ? You can <router-link data-v-47199182=\\"\\" to=\\"[object Object]\\">create one</router-link>
+          </div>
+          <div data-v-47199182=\\"\\">Have you forgotten your password ? You can <router-link data-v-47199182=\\"\\" to=\\"[object Object]\\">reset your password</router-link>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-col>
+    <v-col data-v-47199182=\\"\\" pa-2=\\"\\" cols=\\"12\\" sm=\\"8\\" md=\\"6\\" lg=\\"4\\">
+      <v-card data-v-47199182=\\"\\" height=\\"100%\\" class=\\"elevation-12\\">
+        <v-toolbar data-v-47199182=\\"\\" dark=\\"\\" color=\\"primary\\">
+          <v-toolbar-title data-v-47199182=\\"\\">Sign In Anonymously</v-toolbar-title>
+        </v-toolbar>
+        <v-card-text data-v-47199182=\\"\\" class=\\"text-center mt-3\\"> Continue without an account and stay anonymous. </v-card-text>
+        <v-card-actions data-v-47199182=\\"\\" class=\\"justify-center pa-4\\">
+          <v-btn data-v-47199182=\\"\\" width=\\"200\\" large=\\"\\">
+            <v-icon data-v-47199182=\\"\\" class=\\"mr-2\\">mdi-account-circle</v-icon> Continue
+          </v-btn>
+        </v-card-actions>
+        <v-card-text data-v-47199182=\\"\\" class=\\"text-center font-italic bold\\"> Note: You can always create a user account later. </v-card-text>
+      </v-card>
+    </v-col>
+  </v-row>
+</v-container>"
+`;

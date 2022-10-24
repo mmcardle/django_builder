@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
-import vuetify from './plugins/vuetify';
-import './plugins/firebase'
+import vuetify from '@/plugins/vuetify';
+import '@/plugins/firebase'
 
 import store from './store'
 import router from './router'
@@ -12,16 +12,16 @@ import VueHighlightJS from 'vue-highlight.js';
 import python from 'highlight.js/lib/languages/python';
 import django from 'highlight.js/lib/languages/django';
 import ini from 'highlight.js/lib/languages/ini';
-import DjangoBuilderTitle from '@/components/inc/DjangoBuilderTitle'
+import DjangoBuilderTitle from '@/components/inc/DjangoBuilderTitle.vue'
 import VueGtag from "vue-gtag";
 
 const analytics_disabled = localStorage.cookie_value == 'false'
-const VUE_APP_GOOGLE_ANALYTICS_ID = process.env.VUE_APP_GOOGLE_ANALYTICS_ID
+const VITE_GOOGLE_ANALYTICS_ID = import.meta.env.VITE_GOOGLE_ANALYTICS_ID
 
-if (VUE_APP_GOOGLE_ANALYTICS_ID) {
+if (VITE_GOOGLE_ANALYTICS_ID) {
   Vue.use(VueGtag, {
     config: {
-      id: VUE_APP_GOOGLE_ANALYTICS_ID,
+      id: VITE_GOOGLE_ANALYTICS_ID,
       enabled: !analytics_disabled
     }
   })
@@ -30,7 +30,6 @@ if (VUE_APP_GOOGLE_ANALYTICS_ID) {
 let app;
 
 Vue.use(VueHighlightJS, {languages: {python, django, ini}});
-
 
 Vue.component('django-builder-title', DjangoBuilderTitle)
 
