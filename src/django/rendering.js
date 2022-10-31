@@ -470,6 +470,10 @@ CHANNEL_LAYERS = {
 }`
     }
 
+    if(project.django_version < 4){
+      _settings += '\nUSE_L10N = True'
+    }
+
     return _settings
   }
 
