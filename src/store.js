@@ -177,6 +177,7 @@ export default new Vuex.Store({
         name: payload.name,
         description: payload.description,
         channels: payload.channels,
+        htmx: payload.htmx,
         django_version: payload.django_version,
         apps: {}
       })

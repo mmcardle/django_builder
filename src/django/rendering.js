@@ -6,11 +6,14 @@ import settings from '@/django/python/settings.py?raw'
 import manage from '@/django/python/manage.py?raw'
 import wsgi from '@/django/python/wsgi.py?raw'
 import urls from '@/django/python/urls.py?raw'
+import views  from '@/django/python/views.py?raw'
 
 import asgi from '@/django/python/asgi.py?raw'
 import routing from '@/django/python/routing.py?raw'
 import consumers from '@/django/python/consumers.py?raw'
 import app_consumers from '@/django/python/app_consumers.py?raw'
+
+import _htmx_views from '@/django/python/htmx/views.inc.py?raw'
 
 import requirements_txt from '@/django/requirements/requirements.txt?raw'
 
@@ -20,6 +23,7 @@ import _pytest_ini from '@/django/tests/pytest.ini?raw'
 
 import _base_html from '@/django/templates/base.html.tmpl?raw'
 import _channels_websocket_html from '@/django/templates/channels_websocket.html.tmpl?raw'
+import _htmx_html from '@/django/templates/htmx.html.tmpl?raw'
 
 const django = new Django()
 const keys = Object.keys
@@ -29,6 +33,7 @@ class Renderer {
   _app_renderers = {
     'models.py': {function: this.models_py},
     'views.py': {function: this.views_py},
+    'htmx_views.py': {function: this.htmx_views_py},
     'forms.py': {function: this.forms_py},
     'urls.py': {function: this.urls_py},
     'api.py': {function: this.api_py},
@@ -48,6 +53,10 @@ class Renderer {
     'base.html': {function: this.base_html},
   }
 
+  _root_template_htmx_renderers = {
+    'htmx.html': {function: this.htmx_html},
+  }
+
   _test_renderers = {
     'test_views.py': {function: this.test_views_py},
   }
@@ -56,6 +65,7 @@ class Renderer {
     'settings.py': {function: this.project_settings},
     'wsgi.py': {function: this.project_wsgi},
     'urls.py': {function: this.project_urls},
+    'views.py': {function: this.project_views},
   }
 
   _root_renderers = {
@@ -87,6 +97,10 @@ class Renderer {
 
   root_template_renderers() {
     return keys(this._root_template_renderers)
+  }
+
+  root_template_htmx_renderers() {
+    return keys(this._root_template_htmx_renderers)
   }
 
   project_renderers() {
@@ -240,18 +254,32 @@ class Renderer {
       }
     ]
 
+    let template_children = this.root_template_renderers().map(render_name => {
+      return {
+        path: 'templates/' + render_name,
+        name: render_name,
+        render: () => this.root_template_render(render_name, projectid)
+      }
+    })
+
+    if (project.htmx) {
+      template_children = template_children.concat(
+        this.root_template_htmx_renderers().map(render_name => {
+          return {
+            path: 'templates/' + render_name,
+            name: render_name,
+            render: () => this.root_template_htmx_render(render_name, projectid)
+          }
+        })
+      )
+    }
+
     const template_items = [
       {
         path: "templates",
         name: "templates",
         folder: true,
-        children: this.root_template_renderers().map(render_name => {
-          return {
-            path: 'templates/' + render_name,
-            name: render_name,
-            render: () => this.root_template_render(render_name, projectid)
-          }
-        })
+        children: template_children
       }
     ]
 
@@ -325,6 +353,14 @@ class Renderer {
       return ''
     }
     return this._root_template_renderers[render_name].function.apply(this, [projectid])
+  }
+
+  root_template_htmx_render(render_name, projectid) {
+    if (!this._root_template_htmx_renderers[render_name]) {
+      console.error('Unknown root htmx template render name', render_name)
+      return ''
+    }
+    return this._root_template_htmx_renderers[render_name].function.apply(this, [projectid])
   }
 
   root_render(render_name, projectid) {
@@ -419,6 +455,9 @@ class Renderer {
       requirements += 'channels\n'
       requirements += 'channels_redis\n'
     }
+    if (project.htmx === true) {
+      requirements += 'django-htmx\n'
+    }
     return requirements
   }
 
@@ -430,6 +469,9 @@ class Renderer {
     const project = store.getters.projectData(projectid)
     const apps = this.get_apps(projectid)
     let app_names = project.channels ? "'channels',\n    " : ''
+    if (project.htmx) {
+      app_names += "'django_htmx',\n    "
+    }
     apps.forEach((app, i) => {
       if (i !== 0){
         app_names += "    "
@@ -450,11 +492,14 @@ class Renderer {
         break
     }
 
+    const project_middleware = project.htmx ? "\n    'django_htmx.middleware.HtmxMiddleware'," : "";
+
     let _settings = settings
     _settings = settings
       .replace(/'XXX_PROJECT_APPS_XXX'/, app_names)
       .replace(/XXX_PROJECT_NAME_XXX/g, project.name)
       .replace(/XXX_DJANGO_VERSION_PATCH_XXX/g, DJANGO_VERSION_PATCH)
+      .replace(/XXX_PROJECT_MIDDLEWARE_XXX/g, project_middleware)
 
     if (project.channels === true) {
       _settings += '\n# Django Channels\n'
@@ -484,14 +529,22 @@ CHANNEL_LAYERS = {
   base_html (projectid) {
     const project = store.getters.projectData(projectid)
     let html = _base_html.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
-    if (project.channels === true) {
-      return html.replace(/XXX__EXTRA_BODY__XXX/g, _channels_websocket_html)
-    } else {
-      return html.replace(/XXX__EXTRA_BODY__XXX/g, "")
+    let extra_body = "";
+    let extra_head = "";
+    if (project.htmx === true) {
+      extra_head += "<script src=\"https://unpkg.com/htmx.org@1.8.4\"></script>";
     }
+    if (project.channels === true) {
+      extra_body += _channels_websocket_html;
+    }
+    html = html.replace(/XXX__EXTRA_HEAD__XXX/g, extra_head)
+    html = html.replace(/XXX__EXTRA_BODY__XXX/g, extra_body)
+    return html;
   }
 
   index_html (projectid) {
+
+    const project = store.getters.projectData(projectid)
 
     var output = `{% extends "base.html" %}`
     output += `\n{% block content %}`
@@ -505,9 +558,23 @@ CHANNEL_LAYERS = {
       })
     })
 
+    if (project.htmx) {
+      output += "\n<div class='container'>"
+      output += "\n<div class='card'>"
+      output += "\n<div class='card-body'>"
+      output += "\n<div><a href=\"{% url 'htmx' %}\">HTMX UI</a></div>"
+      output += "\n</div>"
+      output += "\n</div>"
+      output += "\n</div>"
+    }
+
     output += `\n{% endblock %}`
 
     return output
+  }
+
+  htmx_html (projectid) {
+    return _htmx_html
   }
 
   list_html (appid, modelid) {
@@ -694,6 +761,14 @@ CHANNEL_LAYERS = {
     return _pytest_ini.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
   }
 
+  project_views (projectid) {
+    const project = store.getters.projectData(projectid)
+    if (project.htmx) {
+      return views
+    }
+    return "X"
+  }
+
   test_settings_py (projectid) {
     const project = store.getters.projectData(projectid)
     return test_settings.replace(/XXX_PROJECT_NAME_XXX/g, project.name)
@@ -705,18 +780,26 @@ CHANNEL_LAYERS = {
   }
 
   project_urls (projectid) {
+    const project = store.getters.projectData(projectid)
     const apps = this.get_apps(projectid)
-    let app_names = ''
+    let project_urls = ''
+    let project_urls_imports = '';
+    
     apps.forEach((app, i) => {
       if (i !== 0){
-        app_names += "    "
+        project_urls += "    "
       }
-      app_names += "path('" + app.name + "/', include('" + app.name + ".urls')),"
+      project_urls += "path('" + app.name + "/', include('" + app.name + ".urls')),"
       if (i !== keys(apps).length - 1){
-        app_names += "\n"
+        project_urls += "\n"
       }
     })
-    return urls.replace("'XXX_PROJECT_URLS_XXX',", app_names)
+    if (project.htmx) {
+      project_urls_imports = "from . import views";
+      project_urls += "\n    path('htmx/', views.htmx_home, name='htmx'),"
+    }
+    return urls.replace("'XXX_PROJECT_URLS_XXX',", project_urls)
+      .replace("XXX_PROJECT_URLS_IMPORTS_XXX", project_urls_imports)
   }
 
   urls_py(appid) {
@@ -726,6 +809,7 @@ CHANNEL_LAYERS = {
     urls += '\n'
     urls += 'from . import api\n'
     urls += 'from . import views\n'
+    urls += 'from . import htmx_views\n'
     urls += '\n\n'
     urls += 'router = routers.DefaultRouter()\n'
 
@@ -740,6 +824,9 @@ CHANNEL_LAYERS = {
     urls += '    path("api/v1/", include(router.urls)),\n',
 
     models.forEach((model) => {
+      const {type, identifier} = this.get_identifier(model)
+      const id = '<' + type + ':' + identifier + '>'
+
       urls += '    path('
       urls += '"' + appData.name + '/' + model.name + '/", views.' + model.name + 'ListView.as_view(), '
       urls += 'name="' + appData.name + '_' + model.name + '_list"),\n'
@@ -747,10 +834,6 @@ CHANNEL_LAYERS = {
       urls += '"' + appData.name + '/' + model.name + '/create/", views.' + model.name + 'CreateView.as_view(), '
       urls += 'name="' + appData.name + '_' + model.name + '_create"),\n'
       urls += '    path('
-
-      const {type, identifier} = this.get_identifier(model)
-      const id = '<' + type + ':' + identifier + '>'
-
       urls += '"' + appData.name + '/' + model.name + '/detail/' + id + '/", views.' + model.name + 'DetailView.as_view(), '
       urls += 'name="' + appData.name + '_' + model.name + '_detail"),\n'
       urls += '    path('
@@ -758,6 +841,28 @@ CHANNEL_LAYERS = {
       urls += 'name="' + appData.name + '_' + model.name + '_update"),\n'
       urls += '    path('
       urls += '"' + appData.name + '/' + model.name + '/delete/' + id + '/", views.' + model.name + 'DeleteView.as_view(), '
+      urls += 'name="' + appData.name + '_' + model.name + '_delete"),\n'
+
+    })
+    urls += '\n'
+    models.forEach((model) => {
+      const {type, identifier} = this.get_identifier(model)
+      const id = '<' + type + ':' + identifier + '>'
+      urls += '    path('
+      urls += '"' + appData.name + '/htmx/' + model.name + '/", views.HTMX' + model.name + 'ListView.as_view(), '
+      urls += 'name="' + appData.name + '_' + model.name + '_list"),\n'
+      urls += '    path('
+      urls += '"' + appData.name + '/htmx/' + model.name + '/create/", views.HTMX' + model.name + 'CreateView.as_view(), '
+      urls += 'name="' + appData.name + '_' + model.name + '_create"),\n'
+      // TODO
+      //urls += '    path('
+      //urls += '"' + appData.name + '/htmx/' + model.name + '/detail/' + id + '/", views.' + model.name + 'HTMXDetailView.as_view(), '
+      //urls += 'name="' + appData.name + '_' + model.name + '_detail"),\n'
+      //urls += '    path('
+      //urls += '"' + appData.name + '/htmx/' + model.name + '/update/' + id + '/", views.' + model.name + 'HTMXUpdateView.as_view(), '
+      //urls += 'name="' + appData.name + '_' + model.name + '_update"),\n'
+      urls += '    path('
+      urls += '"' + appData.name + '/htmx/' + model.name + '/delete/' + id + '/", views.HTMX' + model.name + 'DeleteView.as_view(), '
       urls += 'name="' + appData.name + '_' + model.name + '_delete"),\n'
     })
     urls += ')\n'
@@ -954,6 +1059,17 @@ CHANNEL_LAYERS = {
       models_py += '    def get_update_url(self):\n'
       models_py += '        return reverse("' + appData.name + '_' + model.name + '_update", args=(self.' + identifier + ',))\n'
 
+      models_py += '\n'
+      
+      models_py += '    @staticmethod\n'
+      models_py += '    def get_create_url(self):\n'
+      models_py += '        return reverse("' + appData.name + '_' + model.name + '_create")\n'
+
+      models_py += '\n'
+
+      models_py += '    def get_delete_url(self):\n'
+      models_py += '        return reverse("' + appData.name + '_' + model.name + '_delete", args=(self.' + identifier + ',))\n'
+
     })
 
     if (importGIS) {
@@ -1006,6 +1122,34 @@ CHANNEL_LAYERS = {
       views += '    success_url = reverse_lazy("' + appData.name + '_' + model.name + '_list")\n'
     })
     return views
+  }
+
+  htmx_views_py (appid) {
+    const models = this.get_models(appid).filter((modelData)=> {
+      // Do not include abstract models in form views
+      return !modelData.abstract
+    })
+
+    let htmx_views = 'from django.views import generic\n'
+    htmx_views += 'from django.urls import reverse_lazy\n'
+    htmx_views += 'from django.shortcuts import HttpResponse\n'
+    htmx_views += 'from django.views import generic\n'
+    htmx_views += 'from django.template import Template, RequestContext\n'
+    htmx_views += 'from django.template.response import TemplateResponse\n'
+    htmx_views += '\n'
+    htmx_views += 'from . import models\n'
+    htmx_views += 'from . import forms\n'
+    htmx_views += '\n'
+    htmx_views += '\n'
+    htmx_views += 'def get_csrf_token(request):\n'
+    htmx_views += '    template = Template("{{ csrf_token }}")\n'
+    htmx_views += '    context = RequestContext(request)\n'
+    htmx_views += '    return template.render(context)\n'
+
+    models.forEach((model) => {
+      htmx_views += _htmx_views.replaceAll('XXX__MODEL_NAME__XXX', model.name)
+    })
+    return htmx_views
   }
 
   readable_fields(fields) {
@@ -1364,14 +1508,17 @@ CHANNEL_LAYERS = {
       tarball.append(path, content)
     })
 
-    Object.entries(this._root_renderers).forEach(([render_name, render_details]) => {
-      const content = this.root_render(render_name, projectid)
-      const path = project.name + '/' + render_name
-      if (render_details.mode) {
-        tarball.append(path, content, render_details.mode)
-      } else {
-        tarball.append(path, content)
-      }
+    if (project.htmx === true) {
+      this.root_template_htmx_renderers().forEach((renderer) => {
+        const content = this.root_template_htmx_render(renderer, projectid)
+        tarball.append(project.name + '/templates/' + renderer, content)
+      })
+    }
+
+    this.root_renderers().forEach((renderer) => {
+      const content = this.root_render(renderer, projectid)
+      const path = project.name + '/' + renderer
+      tarball.append(path, content)
     })
 
     return tarball.get_url()
