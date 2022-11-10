@@ -6,14 +6,11 @@ class HTMXXXX__MODEL_NAME__XXXListView(generic.ListView):
     
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
-        return TemplateResponse(
-            request,
-            f'{self.model._meta.app_label}/htmx/list.html',
-            {
-                "model_id": self.model._meta.verbose_name_raw,
-                "objects": self.get_queryset()
-            }
-        )
+        context = {
+            "model_id": self.model._meta.verbose_name_raw,
+            "objects": self.get_queryset()
+        }
+        return TemplateResponse(request,'htmx/list.html', context)
 
 
 class HTMXXXX__MODEL_NAME__XXXCreateView(generic.CreateView):
@@ -26,23 +23,16 @@ class HTMXXXX__MODEL_NAME__XXXCreateView(generic.CreateView):
             "create_url": self.model.get_htmx_create_url(),
             "form": self.get_form()
         }
-        return TemplateResponse(
-            request,
-            f'{self.model._meta.app_label}/htmx/form.html',
-            context
-        )
+        return TemplateResponse(request, 'htmx/form.html', context)
 
     def form_valid(self, form):
         super().form_valid(form)
-        return TemplateResponse(
-            self.request,
-            f'{self.model._meta.app_label}/htmx/create.html',
-            {
-                "model_id": self.model._meta.verbose_name_raw,
-                "object": self.object,
-                "form": form
-            }
-        )
+        context = {
+            "model_id": self.model._meta.verbose_name_raw,
+            "object": self.object,
+            "form": form
+        }
+        return TemplateResponse(self.request, 'htmx/create.html', context)
 
     def form_invalid(self, form):
         super().form_invalid(form)
@@ -50,11 +40,7 @@ class HTMXXXX__MODEL_NAME__XXXCreateView(generic.CreateView):
             "create_url": self.model.get_htmx_create_url(),
             "form": self.get_form()
         }
-        return TemplateResponse(
-            self.request,
-            f'{self.model._meta.app_label}/htmx/form.html',
-            context
-        )
+        return TemplateResponse(self.request, 'htmx/form.html', context)
 
 
 class HTMXXXX__MODEL_NAME__XXXDeleteView(generic.DeleteView):

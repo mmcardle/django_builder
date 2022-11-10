@@ -53,20 +53,14 @@ class Renderer {
     'confirm_delete.html': {function: this.confirm_delete_html},
   }
 
-  _htmx_template_renderers = {
-    'create.html': {function: this.htmx_list_html},
-    'delete_button.html': {function: this.htmx_detail_html},
-    'form.html': {function: this.htmx_form_html},
-    'list.html': {function: this.htmx_confirm_delete_html},
-  }
-
   _root_template_renderers = {
     'index.html': {function: this.index_html},
     'base.html': {function: this.base_html},
-  }
-
-  _root_template_htmx_renderers = {
-    'htmx.html': {function: this.htmx_html},
+    'create.html': {function: () => htmx_create, htmx: true},
+    'delete_button.html': {function: () => htmx_delete_button, htmx: true},
+    'form.html': {function: () => htmx_form, htmx: true},
+    'list.html': {function: () => htmx_list, htmx: true},
+    'htmx.html': {function: this.htmx_html, htmx: true}
   }
 
   _test_renderers = {
@@ -107,16 +101,12 @@ class Renderer {
     return keys(this._template_renderers)
   }
 
-  htmx_template_renderers() {
-    return keys(this._htmx_template_renderers)
-  }
-
   root_template_renderers() {
-    return keys(this._root_template_renderers)
+    return Object.entries(this._root_template_renderers).filter(([n, render_details]) => !render_details.htmx)
   }
 
-  root_template_htmx_renderers() {
-    return keys(this._root_template_htmx_renderers)
+  root_htmx_template_renderers() {
+    return Object.entries(this._root_template_renderers).filter(([n, render_details]) => render_details.htmx)
   }
 
   project_renderers() {
@@ -231,27 +221,6 @@ class Renderer {
         }
       )
 
-      if (project.htmx) {
-        let htmx_templates = this.htmx_template_renderers().map(render_name => {
-          const fileName = render_name;
-          return {
-            path: app.name  + "/templates/" + "/htmx/" + app.name + "/" + fileName,
-            name: fileName,
-            render: () => this.htmx_template_render(render_name)
-          }
-        })
-        model_children.splice(
-          -1, 0,
-          {
-            path: app.name + "/templates/" + app.name + "/htmx/",
-            name: "templates/" + app.name + "/htmx/",
-            folder: true,
-            children: htmx_templates
-          },
-        )
-      }
-
-
       return {
         path: app.name,
         name: app.name,
@@ -282,7 +251,6 @@ class Renderer {
             name: app.name,
             folder: true,
             children: this.test_renderers().map(render_name => {
-              console.log(render_name)
               return {
                 path: 'tests/' + app.name + '/' + render_name,
                 name: render_name,
@@ -293,24 +261,35 @@ class Renderer {
         })
       }
     ]
-
-    let template_children = this.root_template_renderers().map(render_name => {
+    
+    let template_children = this.root_template_renderers().map(renderer => {
+      const [name, render_details] = renderer;
+      const path = 'templates/' + name;
       return {
-        path: 'templates/' + render_name,
-        name: render_name,
-        render: () => this.root_template_render(render_name, projectid)
+        path,
+        name,
+        render: () => render_details.function.apply(this, [projectid])
       }
     })
 
     if (project.htmx) {
-      template_children = template_children.concat(
-        this.root_template_htmx_renderers().map(render_name => {
-          return {
-            path: 'templates/' + render_name,
-            name: render_name,
-            render: () => this.root_template_htmx_render(render_name, projectid)
-          }
-        })
+      let htmx_children = this.root_htmx_template_renderers().map(renderer => {
+        const [name, render_details] = renderer;
+        const path = 'templates/htmx/' + name;
+        return {
+          path,
+          name,
+          render: () => render_details.function.apply(this, [projectid])
+        }
+      })
+
+      template_children.push(
+        {
+          path: "htmx",
+          name: "htmx",
+          folder: true,
+          children: htmx_children
+        }
       )
     }
 
@@ -385,41 +364,6 @@ class Renderer {
       return ''
     }
     return this._template_renderers[render_name].function.apply(this, [appid, modelid])
-  }
-
-  htmx_template_render(render_name) {
-    if (!this._htmx_template_renderers[render_name]) {
-      console.error('Unknown HTMX template render name', render_name)
-      return ''
-    }
-    if (render_name == "create.html") {
-      return htmx_create
-    }
-    if (render_name == "delete_button.html") {
-      return htmx_delete_button
-    }
-    if (render_name == "list.html") {
-      return htmx_list
-    }
-    if (render_name == "form.html") {
-      return htmx_form
-    }
-  }
-
-  root_template_render(render_name, projectid) {
-    if (!this._root_template_renderers[render_name]) {
-      console.error('Unknown root template render name', render_name)
-      return ''
-    }
-    return this._root_template_renderers[render_name].function.apply(this, [projectid])
-  }
-
-  root_template_htmx_render(render_name, projectid) {
-    if (!this._root_template_htmx_renderers[render_name]) {
-      console.error('Unknown root htmx template render name', render_name)
-      return ''
-    }
-    return this._root_template_htmx_renderers[render_name].function.apply(this, [projectid])
   }
 
   root_render(render_name, projectid) {
@@ -1210,12 +1154,6 @@ CHANNEL_LAYERS = {
     htmx_views += '\n'
     htmx_views += 'from . import models\n'
     htmx_views += 'from . import forms\n'
-    htmx_views += '\n'
-    htmx_views += '\n'
-    htmx_views += 'def get_csrf_token(request):\n'
-    htmx_views += '    template = Template("{{ csrf_token }}")\n'
-    htmx_views += '    context = RequestContext(request)\n'
-    htmx_views += '    return template.render(context)\n'
 
     models.forEach((model) => {
       htmx_views += _htmx_views.replaceAll('XXX__MODEL_NAME__XXX', model.name) + '\n'
@@ -1574,15 +1512,16 @@ CHANNEL_LAYERS = {
     )
 
     this.root_template_renderers().forEach((renderer) => {
-      const content = this.root_template_render(renderer, projectid)
-      const path = project.name + '/templates/' + renderer
-      tarball.append(path, content)
+      const [name, render_details] = renderer;
+      const content = render_details.function.apply(this, [projectid])
+      tarball.append(project.name + '/templates/' + name, content)
     })
 
     if (project.htmx === true) {
-      this.root_template_htmx_renderers().forEach((renderer) => {
-        const content = this.root_template_htmx_render(renderer, projectid)
-        tarball.append(project.name + '/templates/' + renderer, content)
+      this.root_htmx_template_renderers().forEach((renderer) => {
+        const [name, render_details] = renderer;
+        const content = render_details.function.apply(this, [projectid])
+        tarball.append(project.name + '/templates/htmx/' + name, content)
       })
     }
 
