@@ -12,8 +12,7 @@ import asgi from '@/django/python/asgi.py?raw'
 import routing from '@/django/python/routing.py?raw'
 import consumers from '@/django/python/consumers.py?raw'
 import app_consumers from '@/django/python/app_consumers.py?raw'
-
-import _htmx_views from '@/django/python/htmx_views.py?raw'
+import htmx from '@/django/python/htmx.py?raw'
 
 import requirements_txt from '@/django/requirements/requirements.txt?raw'
 
@@ -98,15 +97,15 @@ class Renderer {
   }
 
   template_renderers() {
-    return keys(this._template_renderers)
+    return Object.entries(this._template_renderers)
   }
 
   root_template_renderers() {
-    return Object.entries(this._root_template_renderers).filter(([n, render_details]) => !render_details.htmx)
+    return Object.entries(this._root_template_renderers).filter(([_, render_details]) => !render_details.htmx)
   }
 
   root_htmx_template_renderers() {
-    return Object.entries(this._root_template_renderers).filter(([n, render_details]) => render_details.htmx)
+    return Object.entries(this._root_template_renderers).filter(([_, render_details]) => render_details.htmx)
   }
 
   project_renderers() {
@@ -169,12 +168,12 @@ class Renderer {
       let model_templates = []
 
       models.forEach((model) => {
-        model_templates.push(...this.template_renderers().map(render_name => {
+        model_templates.push(...this.template_renderers().map(([render_name, render_details]) => {
           const fileName = model.name.toLowerCase()  + '_' + render_name;
           return {
             path: app.name  + "/templates/" + app.name + '/' + fileName,
             name: fileName,
-            render: () => this.template_render(render_name, app_id, model.id)
+            render: () => render_details.function.apply(render_name, app_id, model.id)
           }
         }))
       })
@@ -1156,7 +1155,7 @@ CHANNEL_LAYERS = {
     htmx_views += 'from . import forms\n'
 
     models.forEach((model) => {
-      htmx_views += _htmx_views.replaceAll('XXX__MODEL_NAME__XXX', model.name) + '\n'
+      htmx_views += htmx.replaceAll('XXX__MODEL_NAME__XXX', model.name) + '\n'
     })
     return htmx_views
   }
