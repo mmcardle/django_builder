@@ -59,7 +59,7 @@ class Renderer {
   }
 
   _root_renderers = {
-    'manage.py': {function: this.project_manage},
+    'manage.py': {function: this.project_manage, mode:'755'},
     'pytest.ini': {function: this.pytest_ini},
     'test_settings.py': {function: this.test_settings_py},
     'test_helpers.py': {function: this.test_helpers_py},
@@ -1364,10 +1364,14 @@ CHANNEL_LAYERS = {
       tarball.append(path, content)
     })
 
-    this.root_renderers().forEach((renderer) => {
-      const content = this.root_render(renderer, projectid)
-      const path = project.name + '/' + renderer
-      tarball.append(path, content)
+    Object.entries(this._root_renderers).forEach(([render_name, render_details]) => {
+      const content = this.root_render(render_name, projectid)
+      const path = project.name + '/' + render_name
+      if (render_details.mode) {
+        tarball.append(path, content, render_details.mode)
+      } else {
+        tarball.append(path, content)
+      }
     })
 
     return tarball.get_url()
