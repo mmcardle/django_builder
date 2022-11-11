@@ -173,7 +173,7 @@ class Renderer {
           return {
             path: app.name  + "/templates/" + app.name + '/' + fileName,
             name: fileName,
-            render: () => render_details.function.apply(render_name, app_id, model.id)
+            render: () => render_details.function.apply(this, [app_id, model.id])
           }
         }))
       })
@@ -601,10 +601,19 @@ CHANNEL_LAYERS = {
 {% for object in object_list %}
   <div class="m-2">
     <a href="{{object.get_absolute_url}}">{{object}}</a>
-    <small class="ml-5"><a href="{% url '${appData.name}_${modelData.name}_delete' object.pk %}">(Delete)</a></small>
+    <small class="ml-5">
+      <a href="{% url '${appData.name}_${modelData.name}_delete' object.pk %}">
+        (Delete)
+      </a>
+    </small>
   </div>
 {% endfor %}
-<div><a class="btn btn-primary" href="{% url '${appData.name}_${modelData.name}_create' %}">Create a new ${modelData.name}</a></div>
+<div>
+  <a class="btn btn-primary"
+    href="{% url '${appData.name}_${modelData.name}_create' %}">
+  Create a new ${modelData.name}
+  </a>
+</div>
 {% endblock %}
 `
     return list_html
@@ -668,7 +677,6 @@ CHANNEL_LAYERS = {
 {% load static %}
 {% block content %}
     `
-
     const appData = store.getters.appData(appid)
     const modelData = store.getters.modelData(modelid)
 
@@ -712,9 +720,13 @@ CHANNEL_LAYERS = {
       detail_html += `\n  <div class="form-group row">`
       detail_html += `\n      <label class="col-sm-2 col-form-label" for="${field.name}">${field.name}: </label>`
       if (disabled) {
-        detail_html += `\n      <input class="form-control col-sm-10" id="${field.name}" type="${html_field_type}" name="${field.name}" value="{{ object.${field.name} }}" disabled>`
+        detail_html += `\n      <input class="form-control col-sm-10"`
+        detail_html += `\n         id="${field.name}" type="${html_field_type}"`
+        detail_html += `\n         name="${field.name}" value="{{ object.${field.name} }}" disabled>`
       } else {
-        detail_html += `\n      <input class="form-control col-sm-10" id="${field.name}" type="${html_field_type}" name="${field.name}" value="{{ object.${field.name} }}">`
+        detail_html += `\n      <input class="form-control col-sm-10"'`
+        detail_html += `\n         id="${field.name}" type="${html_field_type}"`
+        detail_html += `\n         name="${field.name}" value="{{ object.${field.name} }}">`
       }
       detail_html += `\n  </div>`
     })
