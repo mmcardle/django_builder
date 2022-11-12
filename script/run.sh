@@ -14,5 +14,11 @@ python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver &
 ID=$!
-curl http://127.0.0.1:8080
+curl --connect-timeout 5 \
+    --retry-connrefused \
+    --max-time 5 \
+    --retry 5 \
+    --retry-delay 2 \
+    --retry-max-time 60 \
+    'http://127.0.0.1:8000'
 kill ${ID}

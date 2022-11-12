@@ -1367,8 +1367,6 @@ CHANNEL_LAYERS = {
         const parent_user_models = []
         const parent_django_models = []
 
-        console.log("renderer model", model)
-
         model.parents.forEach((parent) => {
           if (parent.type == 'user') {
             const model = this.store.getters.modelData(parent.model)
