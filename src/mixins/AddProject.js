@@ -27,6 +27,7 @@ var addProjectMixin = {
                 name: formdata.name,
                 description: formdata.description || "",
                 channels: formdata.channels || false,
+                htmx: formdata.htmx || false,
                 django_version: formdata.django_version,
               };
               console.log('Add project', project_data);

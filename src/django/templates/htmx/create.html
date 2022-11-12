@@ -1,0 +1,11 @@
+<tbody hx-swap-oob="beforeend:#{{ model_id }}-table">
+  <tr>
+      <td>{{ object }}</td>
+      <td>
+        {% include "./delete_button.html" with object=object %}
+      </td>
+  </tr>
+</tbody>
+
+{{ form.as_div }}
+<button type="submit">Add</button>

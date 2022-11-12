@@ -14,8 +14,11 @@ class Tarball {
     return out
   }
 
-  append (file_name, content) {
-    this.tarfile.append(file_name, content)
+  append (file_name, content, mode='644') {
+    const opts = {
+      mode: parseInt(mode, 8) & 0xfff
+    }
+    this.tarfile.append(file_name, content, opts)
   }
 
   get_url () {

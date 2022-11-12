@@ -4,17 +4,21 @@
     <title>Django Builder - XXX_PROJECT_NAME_XXX</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    XXX__EXTRA_HEAD__XXX
+    {% block extrahead %}{% endblock %}
   </head>
   <body>
+    {% block allcontent %}
     <div id="content" class="container">
       <h2>Home: <a href="{% url 'index' %}">XXX_PROJECT_NAME_XXX</a></h2>
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">Your Apps</h5>
+          
           <p class="card-text">{% block content %}{% endblock %}</p>
         </div>
       </div>
     </div>
-  XXX__EXTRA_BODY__XXX
+    XXX__EXTRA_BODY__XXX
+    {% endblock %}
   </body>
 </html>

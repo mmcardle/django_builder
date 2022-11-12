@@ -36,6 +36,14 @@
               Django Channels <v-icon class="gray--text" >mdi-toggle-switch-off</v-icon>
             </span>
           </a>
+          <a class="d-block orange--text" @click="showEditProjectDialog()">
+            <span v-if="htmx">
+              HTMX <v-icon class="green--text" >mdi-toggle-switch</v-icon>
+            </span>
+            <span v-else class="grey--text">
+              HTMX <v-icon class="gray--text" >mdi-toggle-switch-off</v-icon>
+            </span>
+          </a>
         </v-col>
         <template v-if="Object.keys(this.apps).length > 0">
           <v-col cols=12 sm=4 md=2 lg=2>
@@ -177,6 +185,10 @@ export default {
     channels: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return false
       return this.$store.getters.projectData(this.id).channels
+    },
+    htmx: function () {
+      if (this.$store.getters.projectData(this.id) === undefined) return false
+      return this.$store.getters.projectData(this.id).htmx
     },
     django_version: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return '?'

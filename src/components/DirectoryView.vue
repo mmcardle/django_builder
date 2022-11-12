@@ -146,7 +146,7 @@ const renderer = new Renderer(store)
         const a = {
           path: app.name + "/models.py",
           name: "models.py",
-          render: () => renderer.app_render("models.py", app.id)
+          render: () => renderer.app_render("models.py", this.id, app.id)
         }
         this.active = a
         this.active_nodes = [a]
