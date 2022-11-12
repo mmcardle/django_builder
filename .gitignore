@@ -41,3 +41,5 @@ coverage/
 .bic_cache
 
 **/.venv
+DjangoProject/
+output.tar
