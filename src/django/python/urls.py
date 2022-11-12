@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
+XXX_PROJECT_URLS_IMPORTS_XXX
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html'), name='index'),

@@ -33,6 +33,11 @@ const project = () => [
     fieldType: "BooleanInput",
     label: "Include Django Channels in this project.",
     name: "channels",
+  },
+  {
+    fieldType: "BooleanInput",
+    label: "Include HTMX in this project.",
+    name: "htmx",
   }
 ]
 
