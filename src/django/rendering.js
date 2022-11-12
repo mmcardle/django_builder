@@ -182,7 +182,7 @@ class Renderer {
         return {
           path: app.name + '/' + render_name,
           name: render_name,
-          render: () => this.app_render(render_name, app_id)
+          render: () => this.app_render(render_name, projectid, app_id)
         }
       })
 
@@ -195,8 +195,6 @@ class Renderer {
           }
         }))
       }
-
-
 
       model_children = model_children.concat(
         {
@@ -325,12 +323,12 @@ class Renderer {
     })
   }
 
-  app_render(render_name, appid) {
+  app_render(render_name, projectid, appid) {
     if (!this._app_renderers[render_name]) {
       console.error('Unknown app render name', render_name)
       return ''
     }
-    return this._app_renderers[render_name].function.apply(this, [appid])
+    return this._app_renderers[render_name].function.apply(this, [projectid, appid])
   }
 
   channels_app_render(render_name, appid) {
@@ -828,14 +826,18 @@ CHANNEL_LAYERS = {
       .replace("XXX_PROJECT_URLS_IMPORTS_XXX", project_urls_imports)
   }
 
-  urls_py(appid) {
+  urls_py(projectid, appid) {
+    const project = store.getters.projectData(projectid)
     const appData = store.getters.appData(appid)
+    console.log(appData)
     let urls = 'from django.urls import path, include\n'
     urls += 'from rest_framework import routers\n'
     urls += '\n'
     urls += 'from . import api\n'
     urls += 'from . import views\n'
-    urls += 'from . import htmx\n'
+    if (project.htmx) {
+      urls += 'from . import htmx\n'
+    }
     urls += '\n\n'
     urls += 'router = routers.DefaultRouter()\n'
 
@@ -871,32 +873,27 @@ CHANNEL_LAYERS = {
 
     })
     urls += '\n'
-    models.forEach((model) => {
-      const {type, identifier} = this.get_identifier(model)
-      const id = '<' + type + ':' + identifier + '>'
-      urls += '    path('
-      urls += '"' + appData.name + '/htmx/' + model.name + '/", htmx.HTMX' + model.name + 'ListView.as_view(), '
-      urls += 'name="' + appData.name + '_' + model.name + '_htmx_list"),\n'
-      urls += '    path('
-      urls += '"' + appData.name + '/htmx/' + model.name + '/create/", htmx.HTMX' + model.name + 'CreateView.as_view(), '
-      urls += 'name="' + appData.name + '_' + model.name + '_htmx_create"),\n'
-      // TODO
-      //urls += '    path('
-      //urls += '"' + appData.name + '/htmx/' + model.name + '/detail/' + id + '/", views.' + model.name + 'HTMXDetailView.as_view(), '
-      //urls += 'name="' + appData.name + '_' + model.name + '_detail"),\n'
-      //urls += '    path('
-      //urls += '"' + appData.name + '/htmx/' + model.name + '/update/' + id + '/", views.' + model.name + 'HTMXUpdateView.as_view(), '
-      //urls += 'name="' + appData.name + '_' + model.name + '_update"),\n'
-      urls += '    path('
-      urls += '"' + appData.name + '/htmx/' + model.name + '/delete/' + id + '/", htmx.HTMX' + model.name + 'DeleteView.as_view(), '
-      urls += 'name="' + appData.name + '_' + model.name + '_htmx_delete"),\n'
-    })
+    if (project.htmx) {
+      models.forEach((model) => {
+        const {type, identifier} = this.get_identifier(model)
+        const id = '<' + type + ':' + identifier + '>'
+        urls += '    path('
+        urls += '"' + appData.name + '/htmx/' + model.name + '/", htmx.HTMX' + model.name + 'ListView.as_view(), '
+        urls += 'name="' + appData.name + '_' + model.name + '_htmx_list"),\n'
+        urls += '    path('
+        urls += '"' + appData.name + '/htmx/' + model.name + '/create/", htmx.HTMX' + model.name + 'CreateView.as_view(), '
+        urls += 'name="' + appData.name + '_' + model.name + '_htmx_create"),\n'
+        urls += '    path('
+        urls += '"' + appData.name + '/htmx/' + model.name + '/delete/' + id + '/", htmx.HTMX' + model.name + 'DeleteView.as_view(), '
+        urls += 'name="' + appData.name + '_' + model.name + '_htmx_delete"),\n'
+      })
+    }
     urls += ')\n'
 
     return urls
   }
 
-  api_py(appid) {
+  api_py(projectid, appid) {
     let api = 'from rest_framework import viewsets, permissions\n'
     api += '\n'
     api += 'from . import serializers\n'
@@ -916,7 +913,7 @@ CHANNEL_LAYERS = {
     return api
   }
 
-  serializers_py(appid) {
+  serializers_py(projectid, appid) {
     let serializers = 'from rest_framework import serializers\n'
     serializers += '\n'
     serializers += 'from . import models\n'
@@ -944,7 +941,7 @@ CHANNEL_LAYERS = {
     return serializers
   }
 
-  admin_py(appid) {
+  admin_py(projectid, appid) {
     let admin = 'from django.contrib import admin\n'
     admin += 'from django import forms\n'
     admin += '\n'
@@ -989,7 +986,7 @@ CHANNEL_LAYERS = {
       .replace(/XXX_APP_NAME_XXX/g, appData.name)
   }
 
-  models_py(appid) {
+  models_py(projectid, appid) {
     const appData = store.getters.appData(appid)
     const models = this.get_models(appid)
 
@@ -1112,7 +1109,7 @@ CHANNEL_LAYERS = {
     return imports + models_py
   }
 
-  views_py(appid) {
+  views_py(projectid, appid) {
     const models = this.get_models(appid).filter((modelData)=> {
       // Do not include abstract models in form views
       return !modelData.abstract
@@ -1150,7 +1147,7 @@ CHANNEL_LAYERS = {
     return views
   }
 
-  htmx_py (appid) {
+  htmx_py (projectid, appid) {
     const models = this.get_models(appid).filter((modelData)=> {
       // Do not include abstract models in form views
       return !modelData.abstract
@@ -1189,7 +1186,7 @@ CHANNEL_LAYERS = {
     return readable_field_names.concat(rels)
   }
 
-  forms_py(appid) {
+  forms_py(projectid, appid) {
     const models = this.get_models(appid).filter((modelData)=> {
       // Do not include abstract models in forms
       return !modelData.abstract
@@ -1460,7 +1457,7 @@ CHANNEL_LAYERS = {
     keys(project.apps).forEach((app) => {
       const appData = store.getters.appData(app)
       this.app_renderers().forEach((renderer) => {
-        const content = this.app_render(renderer, app)
+        const content = this.app_render(renderer, projectid, app)
         const path = project.name + '/' + appData.name + '/' + renderer
         tarball.append(path, content)
       })
