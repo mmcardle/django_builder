@@ -41,6 +41,14 @@ jobs:
       - run: yarn
       - run: yarn test:unit
  
+  cli_tests:
+    name: CLI Tests
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: script/run.sh
+
   e2e_tests:
     name: E2E Tests
     needs: [build]
