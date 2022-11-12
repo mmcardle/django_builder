@@ -21,6 +21,10 @@ class Tarball {
     this.tarfile.append(file_name, content, opts)
   }
 
+  get_content () {
+    return this.tarfile.out;
+  }
+
   get_url () {
     var base64 = btoa(this.uInt8ToString(this.tarfile.out));
     return "data:application/tar;base64," + base64;

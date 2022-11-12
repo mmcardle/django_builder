@@ -52,7 +52,7 @@ if (isNode) {
   _pytest_ini = readSrcFile('django/tests/pytest.ini');
   _base_html = readSrcFile('django/templates/base.html.tmpl');
   _channels_websocket_html = readSrcFile('django/templates/channels_websocket.html.tmpl');
-  _htmx_html = readSrcFile('django/templates/htmx/htmx.html.tmpl')
+  _htmx_html = readSrcFile('django/templates/htmx.html.tmpl')
   htmx_create = readSrcFile('django/templates/htmx/create.html')
   htmx_delete_button = readSrcFile('django/templates/htmx/delete_button.html')
   htmx_form = readSrcFile('django/templates/htmx/form.html')
@@ -394,6 +394,14 @@ class Renderer {
       return ''
     }
     return this._channels_app_renderers[render_name].function.apply(this, [appid])
+  }
+
+  root_template_render(render_name, projectid) {
+    if (!this._root_template_renderers[render_name]) {
+      console.error('Unknown root template render name', render_name)
+      return ''
+    }
+    return this._root_template_renderers[render_name].function.apply(this, [projectid])
   }
 
   project_render(render_name, projectid) {
@@ -748,8 +756,6 @@ CHANNEL_LAYERS = {
     detail_html += `\n  {{form.errors}}`
 
     this.get_fields(modelData).forEach((field) => {
-      console.log("RESULTS FIELD", field)
-
       var html_field_type = "text"
       switch (field.type) {
         case 'django.db.models.DateTimeField':
@@ -864,6 +870,7 @@ CHANNEL_LAYERS = {
   project_urls (projectid) {
     const project = this.store.getters.projectData(projectid)
     const apps = this.get_apps(projectid)
+    let app_names = '';
     let project_urls = ''
     let project_urls_imports = '';
     
@@ -871,6 +878,7 @@ CHANNEL_LAYERS = {
       if (i !== 0){
         project_urls += "    "
       }
+      app_names += "path('" + app.name + "/', include('" + app.name + ".urls')),"
       project_urls += "path('" + app.name + "/', include('" + app.name + ".urls')),"
       if (i !== keys(apps).length - 1){
         project_urls += "\n"
@@ -888,7 +896,6 @@ CHANNEL_LAYERS = {
   urls_py(projectid, appid) {
     const project = this.store.getters.projectData(projectid)
     const appData = this.store.getters.appData(appid)
-    console.log(appData)
     let urls = 'from django.urls import path, include\n'
     urls += 'from rest_framework import routers\n'
     urls += '\n'
@@ -1046,7 +1053,8 @@ CHANNEL_LAYERS = {
   }
 
   models_py(projectid, appid) {
-    const appData = this.store.getters.appData(appid)
+    const project = this.store.getters.projectData(projectid)
+    const appData = this.store.getters.appData(appid);
     const models = this.get_models(appid)
 
     var imports = 'from django.db import models\n'
@@ -1143,14 +1151,16 @@ CHANNEL_LAYERS = {
 
       models_py += '\n'
       
-      models_py += '    @staticmethod\n'
-      models_py += '    def get_htmx_create_url():\n'
-      models_py += '        return reverse("' + appData.name + '_' + model.name + '_htmx_create")\n'
-
-      models_py += '\n'
-
-      models_py += '    def get_htmx_delete_url(self):\n'
-      models_py += '        return reverse("' + appData.name + '_' + model.name + '_htmx_delete", args=(self.' + identifier + ',))\n'
+      if (project.htmx) {
+        models_py += '    @staticmethod\n'
+        models_py += '    def get_htmx_create_url():\n'
+        models_py += '        return reverse("' + appData.name + '_' + model.name + '_htmx_create")\n'
+        
+        models_py += '\n'
+        
+        models_py += '    def get_htmx_delete_url(self):\n'
+        models_py += '        return reverse("' + appData.name + '_' + model.name + '_htmx_delete", args=(self.' + identifier + ',))\n'
+      }
 
     })
 
@@ -1357,6 +1367,8 @@ CHANNEL_LAYERS = {
         const parent_user_models = []
         const parent_django_models = []
 
+        console.log("renderer model", model)
+
         model.parents.forEach((parent) => {
           if (parent.type == 'user') {
             const model = this.store.getters.modelData(parent.model)
@@ -1512,11 +1524,10 @@ CHANNEL_LAYERS = {
   as_string(projectid) {
     let allContent = "";
     const project = this.store.getters.projectData(projectid)
-
     keys(project.apps).forEach((app) => {
       const appData = this.store.getters.appData(app)
       this.app_renderers().forEach((renderer) => {
-        const content = this.app_render(renderer, app)
+        const content = this.app_render(renderer, projectid, app)
         const path = project.name + '/' + appData.name + '/' + renderer
         allContent += "=== " + path + " ===\n";
         allContent += content + "\n\n";
@@ -1567,7 +1578,7 @@ CHANNEL_LAYERS = {
       allContent += content + "\n\n";
     })
 
-    this.root_template_renderers().forEach((renderer) => {
+    this.root_template_renderers().forEach(([renderer, _]) => {
       const content = this.root_template_render(renderer, projectid)
       const path = project.name + '/templates/' + renderer
       allContent += "=== " + path + " ===\n";
@@ -1613,7 +1624,7 @@ CHANNEL_LAYERS = {
         })
       }
 
-      this.template_renderers().forEach((renderer) => {
+      this.template_renderers().forEach(([renderer, render_details]) => {
         keys(project.apps).map((app) => {
           const appData = this.store.getters.appData(app)
           keys(appData.models).map((modelid) => {
@@ -1673,8 +1684,17 @@ CHANNEL_LAYERS = {
       tarball.append(path, content)
     })
 
-    return tarball.get_url()
+    return tarball;
   }
+
+  tarball_url(projectid) {
+    return this.as_tarball(projectid).get_url();
+  }
+
+  tarball_content(projectid) {
+    return this.as_tarball(projectid).get_content();
+  }
+
 }
 
 export default Renderer

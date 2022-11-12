@@ -206,7 +206,7 @@ export default {
         event_label: this.name,
         value: 1
       })
-      const url = renderer.as_tarball(this.id)
+      const url = renderer.tarball_url(this.id)
       const link = document.createElement("a")
       link.download = this.name + '.tar'
       link.href = url
