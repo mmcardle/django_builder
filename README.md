@@ -12,6 +12,28 @@ http://mmcardle.github.io/django_builder/
 yarn install
 ```
 
+### CLI interface
+
+You can create and run a basic Django project from the command line
+
+See [example-project.json](example-project.json)
+
+```
+./bin/django-builder example-project.json DjangoProject.tar
+
+tar -xvf DjangoProject.tar
+
+cd DjangoProject
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+```
+
+Head to http://127.0.0.1:8000
+
 #### Firebase
 ```
 npm install -g firebase-tools
