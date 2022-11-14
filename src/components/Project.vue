@@ -151,8 +151,9 @@ import { DEFAULT_DJANGO_VERSION } from '@/django'
 import {schemas} from '@/schemas'
 import {showDeleteDialog, showFormDialog} from '@/dialogs/'
 import 'highlight.js/styles/a11y-light.css'
+import store from "../store";
 
-const renderer = new Renderer()
+const renderer = new Renderer(store)
 
 export default {
   props: ['id'],
@@ -205,7 +206,7 @@ export default {
         event_label: this.name,
         value: 1
       })
-      const url = renderer.as_tarball(this.id)
+      const url = renderer.tarball_url(this.id)
       const link = document.createElement("a")
       link.download = this.name + '.tar'
       link.href = url

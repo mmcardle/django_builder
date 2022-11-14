@@ -97,10 +97,10 @@
 </template>
 
 <script>
+import store from "../store";
+import Renderer from '@/django/rendering';
 
-import Renderer from '@/django/rendering'
-
-const renderer = new Renderer()
+const renderer = new Renderer(store)
 
   export default {
     props: ['id'],

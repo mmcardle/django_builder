@@ -1,0 +1,35 @@
+{
+  "name": "DjangoProject",
+  "description": "A Django Project with great potential",
+  "htmx": false,
+  "apps": [
+    {
+      "name": "DjangoApp1",
+      "models": [
+        {
+          "name":"DjangoModel1",
+          "fields": [
+            {
+              "name": "field1",
+              "type": "CharField",
+              "args": "max_length=30"
+            },
+            {
+              "name": "field2",
+              "type": "TextField",
+              "args": "max_length=100"
+            }
+          ],
+          "relationships": [
+            {
+              "name": "relationship1",
+              "type": "django.db.models.ForeignKey",
+              "to": "django.contrib.auth.models.User",
+              "args": "on_delete=models.CASCADE"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
