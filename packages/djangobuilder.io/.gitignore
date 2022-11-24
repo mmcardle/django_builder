@@ -2,8 +2,6 @@
 node_modules
 /dist
 /dist_*
-/lib/djangobuilder-core/dist
-/packages/*/dist
 .firebase
 firestore-debug.log
 .firebaserc
