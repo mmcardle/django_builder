@@ -1,4 +1,3 @@
-
 export const template = `
 {{{{raw}}}}
 <tbody hx-swap-oob="beforeend:#{{ model_id }}-table">

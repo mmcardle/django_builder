@@ -1,11 +1,34 @@
-<div class="container mt-3">
-    <div class="card">
-    <div class="card-body">
-        <h5 class="card-title">WebSocket Messages</h5>
-        <p class="card-text"><code id="messages"></code></p>
+export const template = `
+{% load static %}
+<html>
+  <head>
+    <title>Django Builder - {{project.name}}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    
+    {% block extrahead %}{% endblock %}
+  </head>
+  <body>
+    {% block allcontent %}
+    <div id="content" class="container">
+      <h2>Home: <a href="{% url 'index' %}">{{project.name}}</a></h2>
+      <div class="card">
+        <div class="card-body">
+          <p class="card-text">{% block content %}{% endblock %}</p>
+        </div>
+      </div>
     </div>
+    {{#project.channels}}
+    <div class="container mt-3">
+      <div class="card">
+      <div class="card-body">
+          <h5 class="card-title">WebSocket Messages</h5>
+          <p class="card-text"><code id="messages"></code></p>
+      </div>
     </div>
+    {{/project.channels}}
 </div>
+{{#project.channels}}
 <script>
     var wsprotocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://'
     var ws = wsprotocol + window.location.hostname + ':' + window.location.port + '/ws/'
@@ -36,3 +59,8 @@
       }
     };
   </script>
+  {{/project.channels}}
+  {% endblock %}
+  </body>
+</html>
+`

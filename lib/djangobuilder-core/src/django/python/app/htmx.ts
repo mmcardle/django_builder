@@ -1,6 +1,13 @@
 export const template = `
-{{#app.models}}
+from django.views import generic
+from django.shortcuts import HttpResponse
+from django.template.response import TemplateResponse
+from django.urls import reverse_lazy
 
+from . import models
+from . import forms
+
+{{#app.models}}
 
 class HTMX{{name}}ListView(generic.ListView):
     model = models.{{name}}
@@ -9,7 +16,7 @@ class HTMX{{name}}ListView(generic.ListView):
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
         context = {
-            "model_id": self.model._meta.verbose_name_raw,
+            "model_id": self.model._meta.model_name,
             "objects": self.get_queryset()
         }
         return TemplateResponse(request,'htmx/list.html', context)
@@ -30,7 +37,7 @@ class HTMX{{name}}CreateView(generic.CreateView):
     def form_valid(self, form):
         super().form_valid(form)
         context = {
-            "model_id": self.model._meta.verbose_name_raw,
+            "model_id": self.model._meta.model_name,
             "object": self.object,
             "form": form
         }
@@ -47,7 +54,7 @@ class HTMX{{name}}CreateView(generic.CreateView):
 
 class HTMX{{name}}DeleteView(generic.DeleteView):
     model = models.{{name}}
-    success_url = reverse_lazy("app_{{name}}_htmx_list")
+    success_url = reverse_lazy("{{app.name}}_{{name}}_htmx_list")
     
     def form_valid(self, form):
         super().form_valid(form)

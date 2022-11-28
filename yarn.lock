@@ -1193,6 +1193,11 @@
   resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.13.tgz#da4bfd73f49bd541d28920ab0e2bf0ee80f71c91"
   integrity sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==
 
+"@types/tar-js@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@types/tar-js/-/tar-js-0.3.2.tgz#23d3c7c8ce22bec6ed8355c2169dd3fd6ebe2583"
+  integrity sha512-0ySOBNP+/Ey67EZ0QaCOgkt6zSAeayTwsoln02ztlyB5lF4NQD0sl5C7E5eKS+QUb7xgTEPdPo9LUjYOHUJVqQ==
+
 "@types/yauzl@^2.9.1":
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/@types/yauzl/-/yauzl-2.10.0.tgz#b3248295276cf8c6f153ebe6a9aba0c988cb2599"

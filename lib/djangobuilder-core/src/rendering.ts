@@ -4,35 +4,161 @@ import { template as projectViews } from "./django/python/views";
 import { template as projectWsgi } from "./django/python/wsgi";
 import { template as projectAsgi } from "./django/python/asgi";
 import { template as projectManage } from "./django/python/manage";
-import { template as appHTMX } from "./django/python/htmx";
-import { template as testHelpers } from "./django/python/test_helpers";
 import { template as projectConsumers } from "./django/python/consumers";
-import { template as appConsumers } from "./django/python/app_consumers";
-import { template as requirements } from "./django/requirements/requirements";
-import { template as requirements_dev } from "./django/requirements/requirements_dev";
-import { template as htmx_html } from "./django/templates/htmx/htmx.html";
-import { template as htmx_list_html } from "./django/templates/htmx/list.html";
-import { template as htmx_form_html } from "./django/templates/htmx/form.html";
-import { template as htmx_create_html } from "./django/templates/htmx/create.html";
-import { template as htmx_delete_button_html } from "./django/templates/htmx/delete_button.html";
 
+import { template as rootTestHelpers } from "./django/python/test_helpers";
+import { template as rootRequirements } from "./django/requirements/requirements";
+import { template as rootRequirementsDev } from "./django/requirements/requirements_dev";
+import { template as rootPytestIni } from "./django/tests/pytest.ini";
+import { template as rootTestRequirements } from "./django/tests/test_requirements_txt";
+import { template as rootTestSettings } from "./django/tests/test_settings";
 
+import { template as baseHtml } from "./django/templates/base.html";
+import { template as indexHtml } from "./django/templates/index.html";
+
+import { template as appListHtml } from "./django/templates/app/list.html";
+import { template as appFormHtml } from "./django/templates/app/form.html";
+import { template as appDetailHtml } from "./django/templates/app/detail.html";
+import { template as appConfirmDeleteHtml } from "./django/templates/app/confirm_delete.html";
+
+import { template as htmxHtml } from "./django/templates/htmx/htmx.html";
+import { template as htmxListHtml } from "./django/templates/htmx/list.html";
+import { template as htmxFormHtml } from "./django/templates/htmx/form.html";
+import { template as htmxCreateHtml } from "./django/templates/htmx/create.html";
+
+import { template as htmxDeleteButtonHtml } from "./django/templates/htmx/delete_button.html";
+import { template as appModels } from "./django/python/app/models";
+import { template as appUrls } from "./django/python/app/urls";
+import { template as appHTMX } from "./django/python/app/htmx";
+import { template as appConsumers } from "./django/python/app/consumers";
+import { template as appForms } from "./django/python/app/forms";
+import { template as appViews } from "./django/python/app/views";
+import { template as appApi } from "./django/python/app/api";
+import { template as appSerializers } from "./django/python/app/serializers";
+import { template as appAdmin } from "./django/python/app/admin";
+import { template as init } from "./django/python/init";
+
+import Tarball from './tar'
 import Handlebars from "handlebars"
-import DjangoProject, { DjangoApp } from './api';
+import DjangoProject, { DjangoApp, DjangoModel } from './api';
 
 Handlebars.registerHelper("raw", function(options) {
   return options.fn();
 });
 
-type DjangoContext = Record<string, DjangoProject | DjangoApp>;
+Handlebars.registerHelper("object", function(xxx) {
+  return "{{ object." + xxx + " }}";
+});
+
+Handlebars.registerHelper("open", function() {
+  return "{{"
+});
+
+Handlebars.registerHelper("close", function() {
+  return "}}"
+});
+
+type DjangoContext = Record<string, DjangoProject | DjangoApp| DjangoModel>;
+
+
+const PYTEST_INI = "pytest.ini";
+const TEST_HELPERS = "test_helpers.py";
+const TEST_SETTINGS = "test_settings.py";
+const REQUIREMENTS_TXT = "requirements.txt";
+const REQUIREMENTS_DEV_TXT = "requirements-dev.txt";
+
+const SETTINGS = "settings.py";
+const WSGI = "wsgi.py";
+const MANAGE = "manage.py";
+const ASGI = "asgi.py";
+const __INIT__ = "__init__.py";
+
+const MODELS = "models.py";
+const VIEWS = "views.py";
+const HTMX = "htmx.py";
+const FORMS = "forms.py";
+const URLS = "urls.py";
+const API = "api.py";
+const SERIALIZERS = "serializers.py";
+const ADMIN = "admin.py";
+const CONSUMERS = "consumers.py";
+
+const BASE_HTML = "base.html"
+const INDEX_HTML = "index.html"
+
+const HTMX_HTML = "htmx.html"
+const LIST = "list.html"
+const FORM = "form.html"
+const DETAIL = "detail.html"
+const CREATE = "create.html"
+const CONFIRM_DELETE = "confirm_delete.html"
+const DELETE_BUTTON = "delete_button.html"
+
+const TEST_REQUIREMENTS_TXT = "test_requirements.txt"
+const TEST_SETTINGS_PY = "test_settings.py"
+
 
 export default class Renderer {
 
-  compiledProjectSettings: HandlebarsTemplateDelegate<any>
+  rootFiles = {
+    [`${MANAGE}`]: projectManage,
+    [`${PYTEST_INI}`]: rootPytestIni,
+    [`${TEST_HELPERS}`]: rootTestHelpers,
+    [`${TEST_SETTINGS}`]: rootTestSettings,
+    [`${REQUIREMENTS_TXT}`]: rootRequirements,
+    [`${REQUIREMENTS_DEV_TXT}`]: rootRequirementsDev,
+    [`${TEST_REQUIREMENTS_TXT}`] : rootTestRequirements,
+    [`${TEST_SETTINGS_PY}`] : rootTestSettings,
+  }
 
+  projectFiles = {
+    [`${SETTINGS}`]: projectSettings,
+    [`${URLS}`]: projectURLs,
+    [`${VIEWS}`]: projectViews,
+    [`${WSGI}`]: projectWsgi,
+    [`${CONSUMERS}`]: projectConsumers,
+    [`${ASGI}`]: projectAsgi,
+    [`${__INIT__}`]: init,
+  }
+
+  projectTemplateFiles = {
+    [`${BASE_HTML}`]: baseHtml,
+    [`${INDEX_HTML}`]: indexHtml,
+  }
+
+  projectHTMXTemplateFiles = {
+    [`${HTMX_HTML}`]: htmxHtml,
+    [`${LIST}`]: htmxListHtml,
+    [`${FORM}`]: htmxFormHtml,
+    [`${CREATE}`]: htmxCreateHtml,
+    [`${DELETE_BUTTON}`]: htmxDeleteButtonHtml,
+  }
+
+  appFiles = {
+    [`${MODELS}`]: appModels,
+    [`${VIEWS}`]: appViews,
+    [`${HTMX}`]: appHTMX,
+    [`${FORMS}`]: appForms,
+    [`${URLS}`]: appUrls,
+    [`${API}`]: appApi,
+    [`${SERIALIZERS}`]: appSerializers,
+    [`${ADMIN}`]: appAdmin,
+    [`${CONSUMERS}`]: appConsumers,
+    [`${__INIT__}`]: init,
+  }
+
+  modelTemplateFiles = {
+    [`${LIST}`]: appListHtml,
+    [`${FORM}`]: appFormHtml,
+    [`${DETAIL}`]: appDetailHtml,
+    [`${CONFIRM_DELETE}`]: appConfirmDeleteHtml,
+  }
+  
+  // compiledProjectSettings: HandlebarsTemplateDelegate<string>
+  
   constructor() {
     // TODO - compile first
-    this.compiledProjectSettings = Handlebars.compile(projectSettings)
+    // this.compiledProjectSettings = Handlebars.compile(projectSettings)
   }
 
   baseContext() {
@@ -47,39 +173,95 @@ export default class Renderer {
   }
 
   renderProjectFile(file: string, project: DjangoProject) {
-    let template;
-    switch (file) {
-      case "settings.py": template = projectSettings; break;
-      case "urls.py": template = projectURLs; break;
-      case "views.py": template = projectViews; break;
-      case "wsgi.py": template = projectWsgi; break;
-      case "manage.py": template = projectManage; break;
-      case "consumers.py": template = projectConsumers; break;
-      case "asgi.py": template = projectAsgi; break;
-      case "test_helpers.py": template = testHelpers; break;
-      case "requirements.txt": template = requirements; break;
-      case "requirements-dev.txt": template = requirements_dev; break;
-      case "htmx.html": template = htmx_html; break;
-      case "list.html": template = htmx_list_html; break;
-      case "form.html": template = htmx_form_html; break;
-      case "create.html": template = htmx_create_html; break;
-      case "delete_button.html": template = htmx_delete_button_html; break;
-      default:
-        throw Error(`No project template for ${file}`)
+    const template = this.projectFiles[file] || this.projectTemplateFiles[file] || this.rootFiles[file] || this.projectHTMXTemplateFiles[file];
+    if (template) {
+      console.log("Render ==>", file)
+      return this.renderTemplate(template, {project})
+    } else {
+      throw Error(`No project template for ${file}`)
     }
-    console.log("Rendered ==>", file)
-    return this.renderTemplate(template, {project})
+  }
+
+  renderModelFile(file: string, model: DjangoModel) {
+    const template = this.modelTemplateFiles[file];
+    if (template) {
+      console.log("Render ==>", file)
+      return this.renderTemplate(template, {model})
+    } else {
+      throw Error(`No model template for ${file}`)
+    }
   }
 
   renderAppFile(file: string, app: DjangoApp) {
-    let template;
-    switch (file) {
-      case "htmx.py": template = appHTMX; break;
-      case "consumers.py": template = appConsumers; break;
-      default:
-        throw Error(`No app template for ${file}`)
+    const template = this.appFiles[file];
+    if (template) {
+      console.log("Render ==>", file)
+      return this.renderTemplate(template, {app})
+    } else {
+      throw Error(`No app template for ${file}`)
     }
-    return this.renderTemplate(template, {app})
+  }
+
+  addProjectFileToTarball(tarball: Tarball, project: DjangoProject, filename: string, filepath?: string) {
+    const content = this.renderProjectFile(filename, project);
+    const tarpath = filepath ? filepath : `${project.name}/${project.name}/${filename}`;
+    tarball.append(tarpath, content);
+  }
+
+  addRootFileToTarball(tarball: Tarball, project: DjangoProject, filename: string) {
+    const content = this.renderProjectFile(filename, project);
+    tarball.append(`${project.name}/${filename}`, content);
+  }
+
+  addAppFileToTarball(tarball: Tarball, app: DjangoApp, filename: string, filepath?: string) {
+    const content = this.renderAppFile(filename, app);
+    const tarpath = filepath ? filepath : `${app.project.name}/${app.name}/${filename}`;
+    tarball.append(tarpath, content);
+  }
+
+  addModelFileToTarball(tarball: Tarball, model: DjangoModel, filename: string, filepath?: string) {
+    const content = this.renderModelFile(filename, model);
+    const tarpath = filepath ? filepath : `${model.app.project.name}/${model.app.name}/${filename}`;
+    tarball.append(tarpath, content);
+  }
+
+  asTarball(project: DjangoProject) {
+    const tarball = new Tarball();
+
+    Object.keys(this.projectFiles).forEach(projectFile => {
+      this.addProjectFileToTarball(tarball, project, projectFile);
+    })
+
+    Object.keys(this.projectTemplateFiles).forEach(projectTemplateFile => {
+      this.addProjectFileToTarball(tarball, project, projectTemplateFile, `${project.name}/templates/${projectTemplateFile}`);
+    })
+
+    Object.keys(this.projectHTMXTemplateFiles).forEach(projectHTMXTemplateFile => {
+      this.addProjectFileToTarball(tarball, project, projectHTMXTemplateFile, `${project.name}/templates/htmx/${projectHTMXTemplateFile}`);
+    })
+
+    Object.keys(this.rootFiles).forEach(rootFile => {
+      this.addRootFileToTarball(tarball, project, rootFile);
+    })
+    
+    project.apps.forEach(app => {
+      Object.keys(this.appFiles).forEach(appFile => {
+        this.addAppFileToTarball(tarball, app, appFile);
+        app.models.forEach((model) => {
+          Object.keys(this.modelTemplateFiles).forEach(modelFile => {
+            this.addModelFileToTarball(
+              tarball,
+              model,
+              modelFile,
+              `${app.project.name}/${app.name}/templates/${app.name}/${model.name.toLowerCase()}_${modelFile}`);
+          })
+        })
+        
+      })
+      this.addAppFileToTarball(tarball, app, "__init__.py", `${app.project.name}/${app.name}/migrations/__init__.py`);
+    })
+
+    return tarball.get_content();
   }
 
 }

@@ -11,6 +11,7 @@
     "@tsconfig/node16": "^1.0.3",
     "@types/handlebars": "^4.1.0",
     "@types/node": "^18.11.9",
+    "@types/tar-js": "^0.3.2",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.43.0",
     "eslint": "^8.28.0",

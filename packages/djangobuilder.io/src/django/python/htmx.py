@@ -7,7 +7,7 @@ class HTMXXXX__MODEL_NAME__XXXListView(generic.ListView):
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
         context = {
-            "model_id": self.model._meta.verbose_name_raw,
+            "model_id": self.model._meta.model_name,
             "objects": self.get_queryset()
         }
         return TemplateResponse(request,'htmx/list.html', context)
@@ -28,7 +28,7 @@ class HTMXXXX__MODEL_NAME__XXXCreateView(generic.CreateView):
     def form_valid(self, form):
         super().form_valid(form)
         context = {
-            "model_id": self.model._meta.verbose_name_raw,
+            "model_id": self.model._meta.model_name,
             "object": self.object,
             "form": form
         }

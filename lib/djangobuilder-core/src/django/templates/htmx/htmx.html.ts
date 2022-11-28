@@ -15,9 +15,9 @@ export const template = `
     {{#models}}
     <div class="col col-lg-6">
       <h5>Add A {{name}}</h5>
-      <div hx-get="{% url '{{../name}}_{{name}}_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <div hx-get="{% url '{{app.name}}_{{name}}_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
       <h4>{{name}} List</h4>
-      <div hx-get="{% url '{{../name}}_{{name}}_htmx_list' %}" hx-trigger="load">
+      <div hx-get="{% url '{{app.name}}_{{name}}_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     {{/models}}

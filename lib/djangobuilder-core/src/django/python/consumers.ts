@@ -1,6 +1,5 @@
 export const template = `
 from channels.generic.websocket import WebsocketConsumer
-from channels.consumer import SyncConsumer
 
 
 class {{project.name}}WebSocketConsumer(WebsocketConsumer):

@@ -64,10 +64,10 @@ def create_ContentType(**kwargs):
 {{#project.apps}}
 {{#models}}
 
-def create_{{../name}}_{{name}}(**kwargs):
+def create_{{app.name}}_{{name}}(**kwargs):
     defaults = {}
     defaults.update(**kwargs)
-    return {{../name}}_models.{{name}}.objects.create(**defaults)
+    return {{app.name}}_models.{{name}}.objects.create(**defaults)
 
 {{/models}}
 {{/project.apps}}
