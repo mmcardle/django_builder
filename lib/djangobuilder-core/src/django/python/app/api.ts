@@ -5,6 +5,7 @@ from . import serializers
 
 
 {{#app.models}}
+{{^abstract}}
 class {{name}}ViewSet(viewsets.ModelViewSet):
     """ViewSet for the {{name}} class"""
 
@@ -12,5 +13,6 @@ class {{name}}ViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.{{name}}Serializer
     permission_classes = [permissions.IsAuthenticated]
 
+{{/abstract}}
 {{/app.models}}
 `

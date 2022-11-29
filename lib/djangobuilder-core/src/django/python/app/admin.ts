@@ -6,6 +6,7 @@ from . import models
 
 
 {{#app.models}}
+{{^abstract}}
 class {{name}}AdminForm(forms.ModelForm):
 
     class Meta:
@@ -31,11 +32,14 @@ class {{name}}Admin(admin.ModelAdmin):
         '{{name}}',
         {{/relationships}}
     ]
+{{/abstract}}
 {{/app.models}}
 
 
 {{#app.models}}
+{{^abstract}}
 admin.site.register(models.{{name}}, {{name}}Admin)
+{{/abstract}}
 {{/app.models}}
 
 `

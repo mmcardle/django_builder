@@ -14,8 +14,9 @@ class {{name}}(models.Model):
     {{/fields}}
 
     class Meta:
-        pass
+        {{#abstract}}abstract = True{{/abstract}}{{^abstract}}pass{{/abstract}}
 
+    {{^abstract}}
     def __str__(self):
         return str(self.{{primaryKey}})
 
@@ -40,6 +41,7 @@ class {{name}}(models.Model):
     def get_htmx_delete_url(self):
         return reverse("{{app.name}}_{{name}}_htmx_delete", args=(self.{{primaryKey}},))
     {{/app.project.htmx}}
+    {{/abstract}}
 
 {{/app.models}}
 

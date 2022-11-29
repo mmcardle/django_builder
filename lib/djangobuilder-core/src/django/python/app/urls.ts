@@ -11,12 +11,15 @@ from . import htmx
 
 router = routers.DefaultRouter()
 {{#app.models}}
+{{^abstract}}
 router.register("{{name}}", api.{{name}}ViewSet)
+{{/abstract}}
 {{/app.models}}
 
 urlpatterns = (
     path("api/v1/", include(router.urls)),
     {{#app.models}}
+    {{^abstract}}
     path("{{app.name}}/{{name}}/", views.{{name}}ListView.as_view(), name="{{app.name}}_{{name}}_list"),
     path("{{app.name}}/{{name}}/create/", views.{{name}}CreateView.as_view(), name="{{app.name}}_{{name}}_create"),
     path("{{app.name}}/{{name}}/detail/<int:pk>/", views.{{name}}DetailView.as_view(), name="{{app.name}}_{{name}}_detail"),
@@ -27,6 +30,7 @@ urlpatterns = (
     path("{{app.name}}/htmx/{{name}}/create/", htmx.HTMX{{name}}CreateView.as_view(), name="{{app.name}}_{{name}}_htmx_create"),
     path("{{app.name}}/htmx/{{name}}/delete/<int:pk>/", htmx.HTMX{{name}}DeleteView.as_view(), name="{{app.name}}_{{name}}_htmx_delete"),
     {{/app.project.htmx}}
+    {{/abstract}}
     {{/app.models}}
 )
 `

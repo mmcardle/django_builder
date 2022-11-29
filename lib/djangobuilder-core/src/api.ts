@@ -27,14 +27,14 @@ export const AuthUser: IBuiltInModel = {
 }
 
 export class DjangoRelationship implements IDjangoRelationship {
-  model: DjangoModel;
+  model: IDjangoModel;
   name: string;
   type: string;
   to: string;
   args: string;
 
   constructor(
-    model: DjangoModel,
+    model: IDjangoModel,
     name: string,
     type: string,
     to: string,
@@ -49,13 +49,13 @@ export class DjangoRelationship implements IDjangoRelationship {
 }
 
 export class DjangoField implements IDjangoField {
-  model: DjangoModel;
+  model: IDjangoModel;
   name: string;
   type: string;
   args: string;
 
   constructor(
-    model: DjangoModel,
+    model: IDjangoModel,
     name: string,
     type: string,
     args: string,
@@ -68,23 +68,29 @@ export class DjangoField implements IDjangoField {
 }
 
 export class DjangoModel implements IDjangoModel {
-  app: DjangoApp;
+  app: IDjangoApp;
   name: string;
   fields: IDjangoField[] = [];
   relationships: IDjangoRelationship[] = [];
-
+  
+  abstract = false;
+  
   primaryKey = "pk";
   relatedName: string
 
   constructor(
-    app: DjangoApp,
+    app: IDjangoApp,
     name: string,
+    abstract?: boolean,
     fields?: IDjangoField[],
     relationships?: IDjangoRelationship[],
   ) {
     this.app = app;
     this.name = name;
     this.relatedName = name;
+    if (abstract !== undefined) {
+      this.abstract = abstract;
+    }
     if (fields) {
       this.fields = fields;
     }
@@ -111,12 +117,12 @@ export class DjangoModel implements IDjangoModel {
 }
 
 export class DjangoApp implements IDjangoApp {
-  project: DjangoProject;
+  project: IDjangoProject;
   name: string;
   models: DjangoModel[] = [];
 
   constructor(
-    project: DjangoProject,
+    project: IDjangoProject,
     name: string,
     models?: DjangoModel[]
   ) {
@@ -127,14 +133,14 @@ export class DjangoApp implements IDjangoApp {
     }
   }
 
-  get nameCamelCase() {
-    return this.name.slice(0, 1).toUpperCase() + this.name.slice(1)
-  }
-
-  addModel(name: string): DjangoModel {
-    const model = new DjangoModel(this, name);
+  addModel(name: string, abstract: boolean | undefined = false): DjangoModel {
+    const model = new DjangoModel(this, name, abstract);
     this.models.push(model);
     return model;
+  }
+
+  get concreteModels(): IDjangoModel[] {
+    return this.models.filter(model => !model.abstract)
   }
 }
 
@@ -144,7 +150,7 @@ class DjangoProject implements IDjangoProject {
   description: string;
   channels: boolean;
   htmx: boolean;
-  apps: Array<DjangoApp> = [];
+  apps: Array<IDjangoApp> = [];
   middlewares: Array<string> = [];
   
   constructor(

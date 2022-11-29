@@ -10,9 +10,11 @@ export const template = `
         <h4>{{name}}</h4>
       </div>
       {{#models}}
+      {{^abstract}}
       <div class="m-2">
-        <a class="btn btn-light" href="{% url '{{app.name}}_{{name}}_list' %}">{{name}} Listing</a>
+      <a class="btn btn-light" href="{% url '{{app.name}}_{{name}}_list' %}">{{name}} Listing</a>
       </div>
+      {{/abstract}}
       {{/models}}
       {{/project.apps}}
     </div>

@@ -42,23 +42,16 @@ import Tarball from './tar'
 import Handlebars from "handlebars"
 import DjangoProject, { DjangoApp, DjangoModel } from './api';
 
-Handlebars.registerHelper("raw", function(options) {
-  return options.fn();
-});
+Handlebars.registerHelper("raw", (options) => options.fn());
+Handlebars.registerHelper("object", (str: string) => "{{ object." + str + " }}");
+Handlebars.registerHelper("open", () => "{{");
+Handlebars.registerHelper("close", () =>  "}}");
+Handlebars.registerHelper("camelCase", (str: string) => str.slice(0, 1).toUpperCase() + str.slice(1));
 
-Handlebars.registerHelper("object", function(xxx) {
-  return "{{ object." + xxx + " }}";
-});
-
-Handlebars.registerHelper("open", function() {
-  return "{{"
-});
-
-Handlebars.registerHelper("close", function() {
-  return "}}"
-});
-
-type DjangoContext = Record<string, DjangoProject | DjangoApp| DjangoModel>;
+type DjangoContext = Record<
+  string,
+  DjangoProject | DjangoModel | DjangoApp
+>;
 
 
 const PYTEST_INI = "pytest.ini";
@@ -168,7 +161,7 @@ export default class Renderer {
 
   renderTemplate(template: string, context: DjangoContext): string {
     return Handlebars.compile(template)(
-      {...context, ...this.baseContext()},
+      {...context, ...this.baseContext()}
     );
   }
 

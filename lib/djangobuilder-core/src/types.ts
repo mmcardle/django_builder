@@ -21,15 +21,23 @@ interface IDjangoRelationship {
 }
 
 interface IDjangoModel {
+  app: IDjangoApp;
   name: string;
+  abstract: boolean;
+  primaryKey: string;
+  relatedName: string
   fields: Array<IDjangoField>;
   relationships: Array<IDjangoRelationship>;
+  addField(name: string, type: string, args: string): IDjangoField;
+  addRelationship(name: string, type: string, to: IDjangoModel | IBuiltInModel, args: string): IDjangoRelationship;
 }
 
 interface IDjangoApp {
   project: IDjangoProject;
   name: string;
   models: Array<IDjangoModel>;
+  addModel(name: string, abstract?: boolean): IDjangoModel;
+  get concreteModels(): IDjangoModel[];
 }
 
 enum DjangoVersion {
@@ -45,6 +53,7 @@ interface IDjangoProject {
   htmx: boolean;
   apps: Array<IDjangoApp>;
   middlewares: Array<string>;
+  addApp(name: string): IDjangoApp;
 }
 
 

@@ -3,6 +3,7 @@ import fs from 'fs';
 import Renderer from "./rendering";
 import { DjangoVersion } from "./types";
 import DjangoProject, { DjangoApp, DjangoModel, AuthUser } from "./api";
+import { exit } from 'process';
 
 const zooProject = new DjangoProject(
   "ThePetZoo",
@@ -15,12 +16,14 @@ const mammalsApp: DjangoApp = zooProject.addApp("mammals");
 const birdsApp: DjangoApp = zooProject.addApp("birds");
 
 const badgerModel: DjangoModel = mammalsApp.addModel("Badger");
+
+const abstractBlackAndWhiteModel: DjangoModel = birdsApp.addModel("BlackAndWhite", true);
+abstractBlackAndWhiteModel.addField("spotted", "BooleanField", "max_length=50");
+
 const flyingCowModel: DjangoModel = birdsApp.addModel("FlyingCow");
 
 badgerModel.addField("name", "CharField", "max_length=50");
 flyingCowModel.addField("name", "CharField", "max_length=50");
-
-
 flyingCowModel.addRelationship("owner", "ForeignKey", AuthUser, "on_delete=models.CASCADE");
 flyingCowModel.addRelationship("parent", "ForeignKey", badgerModel, "null=True,on_delete=models.CASCADE");
 
