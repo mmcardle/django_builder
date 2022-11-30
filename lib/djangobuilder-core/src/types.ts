@@ -25,11 +25,14 @@ interface IDjangoModel {
   name: string;
   abstract: boolean;
   primaryKey: string;
-  relatedName: string
+  nameField: string;
+  relatedName: string;
+  parents: Array<IDjangoModel>;
   fields: Array<IDjangoField>;
   relationships: Array<IDjangoRelationship>;
   addField(name: string, type: string, args: string): IDjangoField;
   addRelationship(name: string, type: string, to: IDjangoModel | IBuiltInModel, args: string): IDjangoRelationship;
+  setNameField(fieldName: string): void;
 }
 
 interface IDjangoApp {

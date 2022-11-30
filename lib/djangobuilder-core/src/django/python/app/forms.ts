@@ -8,6 +8,7 @@ from . import models
 {{/app.models}}
 
 {{#app.models}}
+{{^abstract}}
 class {{name}}Form(forms.ModelForm):
     class Meta:
         model = models.{{name}}
@@ -18,6 +19,11 @@ class {{name}}Form(forms.ModelForm):
             {{#relationships}}
             '{{name}}',
             {{/relationships}}
+            {{#parents}}
+            {{#fields}}
+            '{{name}}',
+            {{/fields}}
+            {{/parents}}
         ]
 
     def __init__(self, *args, **kwargs):
@@ -25,5 +31,6 @@ class {{name}}Form(forms.ModelForm):
         {{#relationships}}
         #self.fields["{{name}}"].queryset = {{to}}.objects.all()
         {{/relationships}}
+{{/abstract}}
 {{/app.models}}
 `

@@ -239,19 +239,19 @@ export default class Renderer {
     
     project.apps.forEach(app => {
       Object.keys(this.appFiles).forEach(appFile => {
-        this.addAppFileToTarball(tarball, app, appFile);
+        this.addAppFileToTarball(tarball, app as DjangoApp, appFile);
         app.models.forEach((model) => {
           Object.keys(this.modelTemplateFiles).forEach(modelFile => {
             this.addModelFileToTarball(
               tarball,
-              model,
+              model as DjangoModel,
               modelFile,
               `${app.project.name}/${app.name}/templates/${app.name}/${model.name.toLowerCase()}_${modelFile}`);
           })
         })
         
       })
-      this.addAppFileToTarball(tarball, app, "__init__.py", `${app.project.name}/${app.name}/migrations/__init__.py`);
+      this.addAppFileToTarball(tarball, app as DjangoApp, "__init__.py", `${app.project.name}/${app.name}/migrations/__init__.py`);
     })
 
     return tarball.get_content();

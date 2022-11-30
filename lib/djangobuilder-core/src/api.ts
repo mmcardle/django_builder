@@ -73,9 +73,11 @@ export class DjangoModel implements IDjangoModel {
   fields: IDjangoField[] = [];
   relationships: IDjangoRelationship[] = [];
   
+  parents: IDjangoModel[] = [];
   abstract = false;
   
   primaryKey = "pk";
+  nameField = "pk";
   relatedName: string
 
   constructor(
@@ -84,6 +86,7 @@ export class DjangoModel implements IDjangoModel {
     abstract?: boolean,
     fields?: IDjangoField[],
     relationships?: IDjangoRelationship[],
+    parents?: IDjangoModel[],
   ) {
     this.app = app;
     this.name = name;
@@ -97,6 +100,17 @@ export class DjangoModel implements IDjangoModel {
     if (relationships) {
       this.relationships = relationships;
     }
+    if (parents) {
+      this.parents = parents;
+    }
+  }
+
+  setNameField(fieldName: string) {
+    const nameField = this.fields.find(f => f.name == fieldName);
+    if (nameField === undefined){
+      throw new Error(`${fieldName} is not a field on the Model ${this.name}`)
+    }
+    this.nameField = fieldName;
   }
 
   addField(name: string, type: string, args: string): DjangoField {
@@ -106,9 +120,7 @@ export class DjangoModel implements IDjangoModel {
   }
 
   addRelationship(name: string, type: string, to: IDjangoModel | IBuiltInModel, args: string): DjangoRelationship {
-    
     const relatedTo = to instanceof DjangoModel ? to.app.name + "." + to.name : to.name;
-
     const relationship = new DjangoRelationship(this, name, type, relatedTo, args);
     this.relationships.push(relationship)
     return relationship;

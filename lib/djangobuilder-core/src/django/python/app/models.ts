@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 {{#app.models}}
 
-class {{name}}(models.Model):
+class {{name}}({{#each parents}}{{name}}{{else}}models.Model{{/each}}):
 
     {{#relationships}}
     {{name}} = models.{{type}}("{{to}}", {{{args}}})
@@ -18,7 +18,7 @@ class {{name}}(models.Model):
 
     {{^abstract}}
     def __str__(self):
-        return str(self.{{primaryKey}})
+        return str(self.{{nameField}})
 
     @staticmethod
     def get_create_url():

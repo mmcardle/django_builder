@@ -8,7 +8,7 @@ from . import models
 from . import forms
 
 {{#app.models}}
-
+{{^abstract}}
 class HTMX{{name}}ListView(generic.ListView):
     model = models.{{name}}
     form_class = forms.{{name}}Form
@@ -59,6 +59,7 @@ class HTMX{{name}}DeleteView(generic.DeleteView):
     def form_valid(self, form):
         super().form_valid(form)
         return HttpResponse()
+{{/abstract}}
 {{/app.models}}
 
 `

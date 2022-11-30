@@ -6,6 +6,7 @@ from . import models
 from . import forms
 
 {{#app.models}}
+{{^abstract}}
 
 class {{name}}ListView(generic.ListView):
     model = models.{{name}}
@@ -31,5 +32,7 @@ class {{name}}UpdateView(generic.UpdateView):
 class {{name}}DeleteView(generic.DeleteView):
     model = models.{{name}}
     success_url = reverse_lazy("{{app.name}}_{{name}}_list")
+
+{{/abstract}}
 {{/app.models}}
 `
