@@ -59,6 +59,7 @@ interface IDjangoProject {
   addApp(name: string): IDjangoApp;
 }
 
+const X =3;
 
 export {
   IDjangoProject,
@@ -68,5 +69,6 @@ export {
   IDjangoRelationship,
   DjangoVersion,
   IRelatedField,
-  IBuiltInModel
+  IBuiltInModel,
+  X
 }

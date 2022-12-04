@@ -169,10 +169,8 @@ class DjangoProject implements IDjangoProject {
     name: string,
     description = "",
     version: DjangoVersion = DjangoVersion.DJANGO4,
-    {
-      channels=true,
-      htmx=true,
-    }
+    channels=true,
+    htmx=true,
   ) {
     this.name = name;
     this.description = description;

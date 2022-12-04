@@ -2,6 +2,8 @@ export const template = `
 """
 Django settings for {{project.name}} project.
 
+{{project.description}}
+
 For more information on this file, see
 https://docs.djangoproject.com/
 

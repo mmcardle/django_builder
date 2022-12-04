@@ -8,7 +8,8 @@ const zooProject = new DjangoProject(
   "ThePetZoo",
   "A Project for maintaining Pets",
   DjangoVersion.DJANGO4,
-  { channels: true, htmx: true }
+  true,
+  true
 );
 
 const mammalsApp: DjangoApp = zooProject.addApp("mammals");

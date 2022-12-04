@@ -41,6 +41,7 @@ import { template as init } from "./django/python/init";
 import Tarball from './tar'
 import Handlebars from "handlebars"
 import DjangoProject, { DjangoApp, DjangoModel } from './api';
+import { IDjangoModel } from "./types";
 
 Handlebars.registerHelper("raw", (options) => options.fn());
 Handlebars.registerHelper("object", (str: string) => "{{ object." + str + " }}");
@@ -91,62 +92,63 @@ const TEST_REQUIREMENTS_TXT = "test_requirements.txt"
 const TEST_SETTINGS_PY = "test_settings.py"
 
 
+export const ROOT_FILES = {
+  [`${MANAGE}`]: projectManage,
+  [`${PYTEST_INI}`]: rootPytestIni,
+  [`${TEST_HELPERS}`]: rootTestHelpers,
+  [`${TEST_SETTINGS}`]: rootTestSettings,
+  [`${REQUIREMENTS_TXT}`]: rootRequirements,
+  [`${REQUIREMENTS_DEV_TXT}`]: rootRequirementsDev,
+  [`${TEST_REQUIREMENTS_TXT}`] : rootTestRequirements,
+  [`${TEST_SETTINGS_PY}`] : rootTestSettings,
+}
+
+export const PROJECT_FILES = {
+  [`${SETTINGS}`]: projectSettings,
+  [`${URLS}`]: projectURLs,
+  [`${VIEWS}`]: projectViews,
+  [`${WSGI}`]: projectWsgi,
+  [`${CONSUMERS}`]: projectConsumers,
+  [`${ASGI}`]: projectAsgi,
+  [`${__INIT__}`]: init,
+}
+
+export const PROJECT_TEMPLATE_FILES = {
+  [`${BASE_HTML}`]: baseHtml,
+  [`${INDEX_HTML}`]: indexHtml,
+}
+
+export const PROJECT_HTMX_TEMPLATE_FILES = {
+  [`${HTMX_HTML}`]: htmxHtml,
+  [`${LIST}`]: htmxListHtml,
+  [`${FORM}`]: htmxFormHtml,
+  [`${CREATE}`]: htmxCreateHtml,
+  [`${DELETE_BUTTON}`]: htmxDeleteButtonHtml,
+}
+
+export const APP_FILES = {
+  [`${MODELS}`]: appModels,
+  [`${VIEWS}`]: appViews,
+  [`${HTMX}`]: appHTMX,
+  [`${FORMS}`]: appForms,
+  [`${URLS}`]: appUrls,
+  [`${API}`]: appApi,
+  [`${SERIALIZERS}`]: appSerializers,
+  [`${ADMIN}`]: appAdmin,
+  [`${CONSUMERS}`]: appConsumers,
+  [`${__INIT__}`]: init,
+}
+
+export const MODEL_TEMPLATE_FILES = {
+  [`${LIST}`]: appListHtml,
+  [`${FORM}`]: appFormHtml,
+  [`${DETAIL}`]: appDetailHtml,
+  [`${CONFIRM_DELETE}`]: appConfirmDeleteHtml,
+}
+
+
 export default class Renderer {
 
-  rootFiles = {
-    [`${MANAGE}`]: projectManage,
-    [`${PYTEST_INI}`]: rootPytestIni,
-    [`${TEST_HELPERS}`]: rootTestHelpers,
-    [`${TEST_SETTINGS}`]: rootTestSettings,
-    [`${REQUIREMENTS_TXT}`]: rootRequirements,
-    [`${REQUIREMENTS_DEV_TXT}`]: rootRequirementsDev,
-    [`${TEST_REQUIREMENTS_TXT}`] : rootTestRequirements,
-    [`${TEST_SETTINGS_PY}`] : rootTestSettings,
-  }
-
-  projectFiles = {
-    [`${SETTINGS}`]: projectSettings,
-    [`${URLS}`]: projectURLs,
-    [`${VIEWS}`]: projectViews,
-    [`${WSGI}`]: projectWsgi,
-    [`${CONSUMERS}`]: projectConsumers,
-    [`${ASGI}`]: projectAsgi,
-    [`${__INIT__}`]: init,
-  }
-
-  projectTemplateFiles = {
-    [`${BASE_HTML}`]: baseHtml,
-    [`${INDEX_HTML}`]: indexHtml,
-  }
-
-  projectHTMXTemplateFiles = {
-    [`${HTMX_HTML}`]: htmxHtml,
-    [`${LIST}`]: htmxListHtml,
-    [`${FORM}`]: htmxFormHtml,
-    [`${CREATE}`]: htmxCreateHtml,
-    [`${DELETE_BUTTON}`]: htmxDeleteButtonHtml,
-  }
-
-  appFiles = {
-    [`${MODELS}`]: appModels,
-    [`${VIEWS}`]: appViews,
-    [`${HTMX}`]: appHTMX,
-    [`${FORMS}`]: appForms,
-    [`${URLS}`]: appUrls,
-    [`${API}`]: appApi,
-    [`${SERIALIZERS}`]: appSerializers,
-    [`${ADMIN}`]: appAdmin,
-    [`${CONSUMERS}`]: appConsumers,
-    [`${__INIT__}`]: init,
-  }
-
-  modelTemplateFiles = {
-    [`${LIST}`]: appListHtml,
-    [`${FORM}`]: appFormHtml,
-    [`${DETAIL}`]: appDetailHtml,
-    [`${CONFIRM_DELETE}`]: appConfirmDeleteHtml,
-  }
-  
   // compiledProjectSettings: HandlebarsTemplateDelegate<string>
   
   constructor() {
@@ -166,9 +168,8 @@ export default class Renderer {
   }
 
   renderProjectFile(file: string, project: DjangoProject) {
-    const template = this.projectFiles[file] || this.projectTemplateFiles[file] || this.rootFiles[file] || this.projectHTMXTemplateFiles[file];
+    const template = PROJECT_FILES[file] || PROJECT_TEMPLATE_FILES[file] || ROOT_FILES[file] || PROJECT_HTMX_TEMPLATE_FILES[file];
     if (template) {
-      console.log("Render ==>", file)
       return this.renderTemplate(template, {project})
     } else {
       throw Error(`No project template for ${file}`)
@@ -176,9 +177,8 @@ export default class Renderer {
   }
 
   renderModelFile(file: string, model: DjangoModel) {
-    const template = this.modelTemplateFiles[file];
+    const template = MODEL_TEMPLATE_FILES[file];
     if (template) {
-      console.log("Render ==>", file)
       return this.renderTemplate(template, {model})
     } else {
       throw Error(`No model template for ${file}`)
@@ -186,9 +186,8 @@ export default class Renderer {
   }
 
   renderAppFile(file: string, app: DjangoApp) {
-    const template = this.appFiles[file];
+    const template = APP_FILES[file];
     if (template) {
-      console.log("Render ==>", file)
       return this.renderTemplate(template, {app})
     } else {
       throw Error(`No app template for ${file}`)
@@ -221,27 +220,27 @@ export default class Renderer {
   asTarball(project: DjangoProject) {
     const tarball = new Tarball();
 
-    Object.keys(this.projectFiles).forEach(projectFile => {
+    Object.keys(PROJECT_FILES).forEach(projectFile => {
       this.addProjectFileToTarball(tarball, project, projectFile);
     })
 
-    Object.keys(this.projectTemplateFiles).forEach(projectTemplateFile => {
+    Object.keys(PROJECT_TEMPLATE_FILES).forEach(projectTemplateFile => {
       this.addProjectFileToTarball(tarball, project, projectTemplateFile, `${project.name}/templates/${projectTemplateFile}`);
     })
 
-    Object.keys(this.projectHTMXTemplateFiles).forEach(projectHTMXTemplateFile => {
+    Object.keys(PROJECT_HTMX_TEMPLATE_FILES).forEach(projectHTMXTemplateFile => {
       this.addProjectFileToTarball(tarball, project, projectHTMXTemplateFile, `${project.name}/templates/htmx/${projectHTMXTemplateFile}`);
     })
 
-    Object.keys(this.rootFiles).forEach(rootFile => {
+    Object.keys(ROOT_FILES).forEach(rootFile => {
       this.addRootFileToTarball(tarball, project, rootFile);
     })
     
     project.apps.forEach(app => {
-      Object.keys(this.appFiles).forEach(appFile => {
+      Object.keys(APP_FILES).forEach(appFile => {
         this.addAppFileToTarball(tarball, app as DjangoApp, appFile);
-        app.models.forEach((model) => {
-          Object.keys(this.modelTemplateFiles).forEach(modelFile => {
+        app.models.forEach((model: IDjangoModel) => {
+          Object.keys(MODEL_TEMPLATE_FILES).forEach(modelFile => {
             this.addModelFileToTarball(
               tarball,
               model as DjangoModel,
