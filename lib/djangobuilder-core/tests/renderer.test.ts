@@ -22,20 +22,23 @@ beforeEach(() => {
   renderer = new Renderer();
 })
 
-describe("Render Root File", () => {
+test.each([1, 2])(
+  '%s',
+  describe("Render Root File", () => {
 
-  const project_files = Object.keys(ROOT_FILES)
-    .concat(Object.keys(PROJECT_FILES))
-    .concat(Object.keys(PROJECT_TEMPLATE_FILES))
-    .concat(Object.keys(PROJECT_HTMX_TEMPLATE_FILES));
+    const project_files = Object.keys(ROOT_FILES)
+      .concat(Object.keys(PROJECT_FILES))
+      .concat(Object.keys(PROJECT_TEMPLATE_FILES))
+      .concat(Object.keys(PROJECT_HTMX_TEMPLATE_FILES));
 
-  test.each(project_files)(
-    '%s',
-    (file) => {
-      expect(renderer.renderProjectFile(file, project)).toMatchSnapshot()
-    },
-  );
-})
+    test.each(project_files)(
+      '%s',
+      (file) => {
+        expect(renderer.renderProjectFile(file, project)).toMatchSnapshot()
+      },
+    );
+  })
+)
 
 describe("Render App Files", () => {
 
