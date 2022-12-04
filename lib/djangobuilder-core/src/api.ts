@@ -156,6 +156,11 @@ export class DjangoApp implements IDjangoApp {
   }
 }
 
+interface DjangoProjectParams {
+  channels?: boolean,
+  htmx?: boolean
+}
+
 class DjangoProject implements IDjangoProject {
   name: string;
   version: DjangoVersion;
@@ -169,14 +174,13 @@ class DjangoProject implements IDjangoProject {
     name: string,
     description = "",
     version: DjangoVersion = DjangoVersion.DJANGO4,
-    channels=true,
-    htmx=true,
+    options: DjangoProjectParams = {htmx: true, channels: true}
   ) {
     this.name = name;
     this.description = description;
     this.version = version;
-    this.channels = channels;
-    this.htmx = htmx;
+    this.channels = options.channels == true || options.channels == undefined;
+    this.htmx = options.htmx == true || options.htmx == undefined;
     this.apps = [];
     this.middlewares = DEFAULT_MIDDLEWARES
     if (this.htmx) {
