@@ -1,5 +1,1661 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'delete_button.html'
+} 1`] = `
+"
+<button hx-post="{{ object.get_htmx_delete_url }}"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-swap='outerHTML'
+        hx-target="closest tr"
+        type="submit"
+  >Delete
+</button>
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'delete_button.html'
+} 2`] = `
+"
+<button hx-post="{{ object.get_htmx_delete_url }}"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-swap='outerHTML'
+        hx-target="closest tr"
+        type="submit"
+  >Delete
+</button>
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'delete_button.html'
+} 3`] = `
+"
+<button hx-post="{{ object.get_htmx_delete_url }}"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-swap='outerHTML'
+        hx-target="closest tr"
+        type="submit"
+  >Delete
+</button>
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'requirements.txt'
+} 1`] = `
+"
+Django==4.1
+django-extensions
+djangorestframework
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'requirements.txt'
+} 2`] = `
+"
+Django==4.1
+django-extensions
+djangorestframework
+django-htmx
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'requirements.txt'
+} 3`] = `
+"
+Django==4.1
+django-extensions
+djangorestframework
+channels
+channels_redis
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'requirements-dev.txt'
+} 1`] = `
+"
+pytest
+pytest-django
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'requirements-dev.txt'
+} 2`] = `
+"
+pytest
+pytest-django
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'requirements-dev.txt'
+} 3`] = `
+"
+pytest
+pytest-django
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'test_helpers.py'
+} 1`] = `
+"
+import random
+import string
+
+from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
+from datetime import datetime
+
+from testapp1 import models as testapp1_models
+
+
+def random_string(length=10):
+    # Create a random string of length length
+    letters = string.ascii_lowercase
+    return "".join(random.choice(letters) for i in range(length))
+
+
+def create_User(**kwargs):
+    defaults = {
+        "username": "%s_username" % random_string(5),
+        "email": "%s_username@tempurl.com" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return User.objects.create(**defaults)
+
+
+def create_AbstractUser(**kwargs):
+    defaults = {
+        "username": "%s_username" % random_string(5),
+        "email": "%s_username@tempurl.com" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return AbstractUser.objects.create(**defaults)
+
+
+def create_AbstractBaseUser(**kwargs):
+    defaults = {
+        "username": "%s_username" % random_string(5),
+        "email": "%s_username@tempurl.com" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return AbstractBaseUser.objects.create(**defaults)
+
+
+def create_Group(**kwargs):
+    defaults = {
+        "name": "%s_group" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return Group.objects.create(**defaults)
+
+
+def create_ContentType(**kwargs):
+    defaults = {
+    }
+    defaults.update(**kwargs)
+    return ContentType.objects.create(**defaults)
+
+
+def create_testapp1_TestModel1(**kwargs):
+    defaults = {}
+    defaults.update(**kwargs)
+    return testapp1_models.TestModel1.objects.create(**defaults)
+
+  
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'test_helpers.py'
+} 2`] = `
+"
+import random
+import string
+
+from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
+from datetime import datetime
+
+from testapp2 import models as testapp2_models
+
+
+def random_string(length=10):
+    # Create a random string of length length
+    letters = string.ascii_lowercase
+    return "".join(random.choice(letters) for i in range(length))
+
+
+def create_User(**kwargs):
+    defaults = {
+        "username": "%s_username" % random_string(5),
+        "email": "%s_username@tempurl.com" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return User.objects.create(**defaults)
+
+
+def create_AbstractUser(**kwargs):
+    defaults = {
+        "username": "%s_username" % random_string(5),
+        "email": "%s_username@tempurl.com" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return AbstractUser.objects.create(**defaults)
+
+
+def create_AbstractBaseUser(**kwargs):
+    defaults = {
+        "username": "%s_username" % random_string(5),
+        "email": "%s_username@tempurl.com" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return AbstractBaseUser.objects.create(**defaults)
+
+
+def create_Group(**kwargs):
+    defaults = {
+        "name": "%s_group" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return Group.objects.create(**defaults)
+
+
+def create_ContentType(**kwargs):
+    defaults = {
+    }
+    defaults.update(**kwargs)
+    return ContentType.objects.create(**defaults)
+
+
+def create_testapp2_TestModel2(**kwargs):
+    defaults = {}
+    defaults.update(**kwargs)
+    return testapp2_models.TestModel2.objects.create(**defaults)
+
+  
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'test_helpers.py'
+} 3`] = `
+"
+import random
+import string
+
+from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
+from datetime import datetime
+
+from testapp3 import models as testapp3_models
+
+
+def random_string(length=10):
+    # Create a random string of length length
+    letters = string.ascii_lowercase
+    return "".join(random.choice(letters) for i in range(length))
+
+
+def create_User(**kwargs):
+    defaults = {
+        "username": "%s_username" % random_string(5),
+        "email": "%s_username@tempurl.com" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return User.objects.create(**defaults)
+
+
+def create_AbstractUser(**kwargs):
+    defaults = {
+        "username": "%s_username" % random_string(5),
+        "email": "%s_username@tempurl.com" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return AbstractUser.objects.create(**defaults)
+
+
+def create_AbstractBaseUser(**kwargs):
+    defaults = {
+        "username": "%s_username" % random_string(5),
+        "email": "%s_username@tempurl.com" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return AbstractBaseUser.objects.create(**defaults)
+
+
+def create_Group(**kwargs):
+    defaults = {
+        "name": "%s_group" % random_string(5),
+    }
+    defaults.update(**kwargs)
+    return Group.objects.create(**defaults)
+
+
+def create_ContentType(**kwargs):
+    defaults = {
+    }
+    defaults.update(**kwargs)
+    return ContentType.objects.create(**defaults)
+
+
+def create_testapp3_TestModel4(**kwargs):
+    defaults = {}
+    defaults.update(**kwargs)
+    return testapp3_models.TestModel4.objects.create(**defaults)
+
+  
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'test_requirements.txt'
+} 1`] = `
+"
+pytest
+pytest-django
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'test_requirements.txt'
+} 2`] = `
+"
+pytest
+pytest-django
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'test_requirements.txt'
+} 3`] = `
+"
+pytest
+pytest-django
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'test_settings.py'
+} 1`] = `
+"
+from TestProject.settings import *  # noqa
+
+# Override any settings required for tests here
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'test_settings.py'
+} 2`] = `
+"
+from TestProject.settings import *  # noqa
+
+# Override any settings required for tests here
+"
+`;
+
+exports[`Project file tests DjangoTestCase {
+  project: [DjangoProject],
+  filename: 'test_settings.py'
+} 3`] = `
+"
+from TestProject.settings import *  # noqa
+
+# Override any settings required for tests here
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: '__init__.py' } 1`] = `
+"
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: '__init__.py' } 2`] = `
+"
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: '__init__.py' } 3`] = `
+"
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'asgi.py' } 1`] = `
+"
+"""
+ASGI entrypoint for TestProject. Configures Django and then runs the application
+defined in the ASGI_APPLICATION setting.
+"""
+
+import os
+import django
+from channels.routing import get_default_application
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TestProject.settings")
+django.setup()
+application = get_default_application()
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'asgi.py' } 2`] = `
+"
+"""
+ASGI entrypoint for TestProject. Configures Django and then runs the application
+defined in the ASGI_APPLICATION setting.
+"""
+
+import os
+import django
+from channels.routing import get_default_application
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TestProject.settings")
+django.setup()
+application = get_default_application()
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'asgi.py' } 3`] = `
+"
+"""
+ASGI entrypoint for TestProject. Configures Django and then runs the application
+defined in the ASGI_APPLICATION setting.
+"""
+
+import os
+import django
+from channels.routing import get_default_application
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TestProject.settings")
+django.setup()
+application = get_default_application()
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'base.html' } 1`] = `
+"
+{% load static %}
+<html>
+  <head>
+    <title>Django Builder - TestProject</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    
+    {% block extrahead %}{% endblock %}
+  </head>
+  <body>
+    {% block allcontent %}
+    <div id="content" class="container">
+      <h2>Home: <a href="{% url 'index' %}">TestProject</a></h2>
+      <div class="card">
+        <div class="card-body">
+          <p class="card-text">{% block content %}{% endblock %}</p>
+        </div>
+      </div>
+    </div>
+</div>
+  {% endblock %}
+  </body>
+</html>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'base.html' } 2`] = `
+"
+{% load static %}
+<html>
+  <head>
+    <title>Django Builder - TestProject</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    
+    {% block extrahead %}{% endblock %}
+  </head>
+  <body>
+    {% block allcontent %}
+    <div id="content" class="container">
+      <h2>Home: <a href="{% url 'index' %}">TestProject</a></h2>
+      <div class="card">
+        <div class="card-body">
+          <p class="card-text">{% block content %}{% endblock %}</p>
+        </div>
+      </div>
+    </div>
+</div>
+  {% endblock %}
+  </body>
+</html>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'base.html' } 3`] = `
+"
+{% load static %}
+<html>
+  <head>
+    <title>Django Builder - TestProject</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    
+    {% block extrahead %}{% endblock %}
+  </head>
+  <body>
+    {% block allcontent %}
+    <div id="content" class="container">
+      <h2>Home: <a href="{% url 'index' %}">TestProject</a></h2>
+      <div class="card">
+        <div class="card-body">
+          <p class="card-text">{% block content %}{% endblock %}</p>
+        </div>
+      </div>
+    </div>
+    <div class="container mt-3">
+      <div class="card">
+      <div class="card-body">
+          <h5 class="card-title">WebSocket Messages</h5>
+          <p class="card-text"><code id="messages"></code></p>
+      </div>
+    </div>
+</div>
+<script>
+    var wsprotocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://'
+    var ws = wsprotocol + window.location.hostname + ':' + window.location.port + '/ws/'
+    var socket = new WebSocket(ws);
+
+    socket.onopen = function() {
+      // Web Socket is connected, send some text
+      socket.send("Text from Javascript");
+      // Send some binary data
+      socket.send(new Blob(["Bytes from Javascript"]));
+    };
+
+    socket.onmessage = function (evt) { 
+      console.log(evt)
+      var received_msg = evt.data;
+      console.log("Message received...", received_msg);
+      var node = document.createElement("div");
+      if (received_msg instanceof Blob) {
+        received_msg.text().then(function (received_text) {
+          var textnode = document.createTextNode("> " + received_text);
+          node.appendChild(textnode);
+          document.getElementById("messages").appendChild(node);
+        })
+      } else {
+        var textnode = document.createTextNode("> " + received_msg);
+        node.appendChild(textnode);
+        document.getElementById("messages").appendChild(node);
+      }
+    };
+  </script>
+  {% endblock %}
+  </body>
+</html>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'consumers.py' } 1`] = `
+"
+from channels.generic.websocket import WebsocketConsumer
+
+
+class TestProjectWebSocketConsumer(WebsocketConsumer):
+
+    def connect(self):
+        self.accept()
+
+    def receive(self, text_data=None, bytes_data=None):
+        if text_data:
+            print(f"Received text={text_data}")
+            self.send(text_data="Hello from TestProject WebSocketConsumer!")
+        if bytes_data:
+            print(f"Received bytes={bytes_data}")
+            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer!")
+
+    def disconnect(self, message):
+        # Called when disconnected
+        pass
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'consumers.py' } 2`] = `
+"
+from channels.generic.websocket import WebsocketConsumer
+
+
+class TestProjectWebSocketConsumer(WebsocketConsumer):
+
+    def connect(self):
+        self.accept()
+
+    def receive(self, text_data=None, bytes_data=None):
+        if text_data:
+            print(f"Received text={text_data}")
+            self.send(text_data="Hello from TestProject WebSocketConsumer!")
+        if bytes_data:
+            print(f"Received bytes={bytes_data}")
+            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer!")
+
+    def disconnect(self, message):
+        # Called when disconnected
+        pass
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'consumers.py' } 3`] = `
+"
+from channels.generic.websocket import WebsocketConsumer
+
+
+class TestProjectWebSocketConsumer(WebsocketConsumer):
+
+    def connect(self):
+        self.accept()
+
+    def receive(self, text_data=None, bytes_data=None):
+        if text_data:
+            print(f"Received text={text_data}")
+            self.send(text_data="Hello from TestProject WebSocketConsumer!")
+        if bytes_data:
+            print(f"Received bytes={bytes_data}")
+            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer!")
+
+    def disconnect(self, message):
+        # Called when disconnected
+        pass
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'create.html' } 1`] = `
+"
+<tbody hx-swap-oob="beforeend:#{{ model_id }}-table">
+  <tr>
+      <td>{{ object }}</td>
+      <td>
+      <button hx-post="{{ object.get_htmx_delete_url }}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-swap='outerHTML'
+          hx-target="closest tr"
+          type="submit"
+        >Delete
+      </button>
+      </td>
+  </tr>
+</tbody>
+
+{{ form.as_div }}
+<button type="submit">Add</button>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'create.html' } 2`] = `
+"
+<tbody hx-swap-oob="beforeend:#{{ model_id }}-table">
+  <tr>
+      <td>{{ object }}</td>
+      <td>
+      <button hx-post="{{ object.get_htmx_delete_url }}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-swap='outerHTML'
+          hx-target="closest tr"
+          type="submit"
+        >Delete
+      </button>
+      </td>
+  </tr>
+</tbody>
+
+{{ form.as_div }}
+<button type="submit">Add</button>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'create.html' } 3`] = `
+"
+<tbody hx-swap-oob="beforeend:#{{ model_id }}-table">
+  <tr>
+      <td>{{ object }}</td>
+      <td>
+      <button hx-post="{{ object.get_htmx_delete_url }}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-swap='outerHTML'
+          hx-target="closest tr"
+          type="submit"
+        >Delete
+      </button>
+      </td>
+  </tr>
+</tbody>
+
+{{ form.as_div }}
+<button type="submit">Add</button>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'form.html' } 1`] = `
+"
+<form hx-post="{{ create_url }}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  {{ form.as_div }}
+  <button type="submit">Add</button>
+</form>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'form.html' } 2`] = `
+"
+<form hx-post="{{ create_url }}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  {{ form.as_div }}
+  <button type="submit">Add</button>
+</form>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'form.html' } 3`] = `
+"
+<form hx-post="{{ create_url }}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  {{ form.as_div }}
+  <button type="submit">Add</button>
+</form>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'htmx.html' } 1`] = `
+"
+{% extends "base.html" %}
+{% block extrahead %}
+<script src="https://unpkg.com/htmx.org@1.8.4"></script>
+<script>
+  htmx.config.useTemplateFragments = true;
+</script>
+{% endblock %}
+{% block allcontent %}
+<div id="content" class="container">
+  <h2>Home: <a href="{% url 'index' %}">TestProject</a></h2>
+  <div class="container">
+    <div class="row">
+    <div class="col col-lg-6">
+      <h5>Add A TestModel1</h5>
+      <div hx-get="{% url 'testapp1_TestModel1_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <h4>TestModel1 List</h4>
+      <div hx-get="{% url 'testapp1_TestModel1_htmx_list' %}" hx-trigger="load">
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'htmx.html' } 2`] = `
+"
+{% extends "base.html" %}
+{% block extrahead %}
+<script src="https://unpkg.com/htmx.org@1.8.4"></script>
+<script>
+  htmx.config.useTemplateFragments = true;
+</script>
+{% endblock %}
+{% block allcontent %}
+<div id="content" class="container">
+  <h2>Home: <a href="{% url 'index' %}">TestProject</a></h2>
+  <div class="container">
+    <div class="row">
+    <div class="col col-lg-6">
+      <h5>Add A TestModel2</h5>
+      <div hx-get="{% url 'testapp2_TestModel2_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <h4>TestModel2 List</h4>
+      <div hx-get="{% url 'testapp2_TestModel2_htmx_list' %}" hx-trigger="load">
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'htmx.html' } 3`] = `
+"
+{% extends "base.html" %}
+{% block extrahead %}
+<script src="https://unpkg.com/htmx.org@1.8.4"></script>
+<script>
+  htmx.config.useTemplateFragments = true;
+</script>
+{% endblock %}
+{% block allcontent %}
+<div id="content" class="container">
+  <h2>Home: <a href="{% url 'index' %}">TestProject</a></h2>
+  <div class="container">
+    <div class="row">
+    <div class="col col-lg-6">
+      <h5>Add A TestModel4</h5>
+      <div hx-get="{% url 'testapp3_TestModel4_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <h4>TestModel4 List</h4>
+      <div hx-get="{% url 'testapp3_TestModel4_htmx_list' %}" hx-trigger="load">
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'index.html' } 1`] = `
+"
+{% extends "base.html" %}
+{% block content %}
+
+<div class='container'>
+  <div class='card'>
+    <div class='card-body'>
+      <div class="m-2">
+        <h4>testapp1</h4>
+      </div>
+      <div class="m-2">
+      <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">TestModel1 Listing</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class='container'>
+  <div class='card'>
+    <div class='card-body'>
+      <div>
+        <a href="{% url 'htmx' %}">HTMX UI</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'index.html' } 2`] = `
+"
+{% extends "base.html" %}
+{% block content %}
+
+<div class='container'>
+  <div class='card'>
+    <div class='card-body'>
+      <div class="m-2">
+        <h4>testapp2</h4>
+      </div>
+      <div class="m-2">
+      <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">TestModel2 Listing</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class='container'>
+  <div class='card'>
+    <div class='card-body'>
+      <div>
+        <a href="{% url 'htmx' %}">HTMX UI</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'index.html' } 3`] = `
+"
+{% extends "base.html" %}
+{% block content %}
+
+<div class='container'>
+  <div class='card'>
+    <div class='card-body'>
+      <div class="m-2">
+        <h4>testapp3</h4>
+      </div>
+      <div class="m-2">
+      <a class="btn btn-light" href="{% url 'testapp3_TestModel4_list' %}">TestModel4 Listing</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class='container'>
+  <div class='card'>
+    <div class='card-body'>
+      <div>
+        <a href="{% url 'htmx' %}">HTMX UI</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'list.html' } 1`] = `
+"
+<table class="table">
+  <thead>
+      <tr>
+          <th>Name</th>
+          <th>Actions</th>
+      </tr>
+  </thead>
+  <tbody id="{{ model_id }}-table">
+    {% for object in objects %}
+    <tr>
+      <td>{{ object }}</td>
+      <td>
+        {% include "./delete_button.html" with object=object %}
+      </td>
+    <tr>
+     {% endfor %}
+  </tbody>
+</table>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'list.html' } 2`] = `
+"
+<table class="table">
+  <thead>
+      <tr>
+          <th>Name</th>
+          <th>Actions</th>
+      </tr>
+  </thead>
+  <tbody id="{{ model_id }}-table">
+    {% for object in objects %}
+    <tr>
+      <td>{{ object }}</td>
+      <td>
+        {% include "./delete_button.html" with object=object %}
+      </td>
+    <tr>
+     {% endfor %}
+  </tbody>
+</table>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'list.html' } 3`] = `
+"
+<table class="table">
+  <thead>
+      <tr>
+          <th>Name</th>
+          <th>Actions</th>
+      </tr>
+  </thead>
+  <tbody id="{{ model_id }}-table">
+    {% for object in objects %}
+    <tr>
+      <td>{{ object }}</td>
+      <td>
+        {% include "./delete_button.html" with object=object %}
+      </td>
+    <tr>
+     {% endfor %}
+  </tbody>
+</table>
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'manage.py' } 1`] = `
+"
+#!/usr/bin/env python
+import os
+import sys
+
+if __name__ == '__main__':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TestProject.settings')
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError as exc:
+        raise ImportError(
+            "Couldn't import Django. Are you sure it's installed and "
+            "available on your PYTHONPATH environment variable? Did you "
+            "forget to activate a virtual environment?"
+        ) from exc
+    execute_from_command_line(sys.argv)
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'manage.py' } 2`] = `
+"
+#!/usr/bin/env python
+import os
+import sys
+
+if __name__ == '__main__':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TestProject.settings')
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError as exc:
+        raise ImportError(
+            "Couldn't import Django. Are you sure it's installed and "
+            "available on your PYTHONPATH environment variable? Did you "
+            "forget to activate a virtual environment?"
+        ) from exc
+    execute_from_command_line(sys.argv)
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'manage.py' } 3`] = `
+"
+#!/usr/bin/env python
+import os
+import sys
+
+if __name__ == '__main__':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TestProject.settings')
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError as exc:
+        raise ImportError(
+            "Couldn't import Django. Are you sure it's installed and "
+            "available on your PYTHONPATH environment variable? Did you "
+            "forget to activate a virtual environment?"
+        ) from exc
+    execute_from_command_line(sys.argv)
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'pytest.ini' } 1`] = `
+"
+[pytest]
+DJANGO_SETTINGS_MODULE = test_settings
+addopts=-v -ra
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'pytest.ini' } 2`] = `
+"
+[pytest]
+DJANGO_SETTINGS_MODULE = test_settings
+addopts=-v -ra
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'pytest.ini' } 3`] = `
+"
+[pytest]
+DJANGO_SETTINGS_MODULE = test_settings
+addopts=-v -ra
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'settings.py' } 1`] = `
+"
+"""
+Django settings for TestProject project.
+
+TestProject Description
+
+For more information on this file, see
+https://docs.djangoproject.com/
+
+"""
+
+from pathlib import Path
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = '^l)7d*%h&db4uft@dk%h-w&nup#pu%)a!d)c7jwgoixo5_hm0$'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = []
+
+# Application definition
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    
+    
+    'testapp1',
+]
+
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
+]
+
+ROOT_URLCONF = 'TestProject.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': ['templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'TestProject.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+
+# Password validation
+# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/4.1/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.1/howto/static-files/
+
+STATIC_URL = '/static/'
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'settings.py' } 2`] = `
+"
+"""
+Django settings for TestProject project.
+
+TestProject Description
+
+For more information on this file, see
+https://docs.djangoproject.com/
+
+"""
+
+from pathlib import Path
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = '^l)7d*%h&db4uft@dk%h-w&nup#pu%)a!d)c7jwgoixo5_hm0$'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = []
+
+# Application definition
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    
+    'django_htmx',
+    'testapp2',
+]
+
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
+]
+
+ROOT_URLCONF = 'TestProject.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': ['templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'TestProject.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+
+# Password validation
+# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/4.1/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.1/howto/static-files/
+
+STATIC_URL = '/static/'
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'settings.py' } 3`] = `
+"
+"""
+Django settings for TestProject project.
+
+TestProject Description
+
+For more information on this file, see
+https://docs.djangoproject.com/
+
+"""
+
+from pathlib import Path
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = '^l)7d*%h&db4uft@dk%h-w&nup#pu%)a!d)c7jwgoixo5_hm0$'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = []
+
+# Application definition
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'channels',
+    
+    'testapp3',
+]
+
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
+]
+
+ROOT_URLCONF = 'TestProject.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': ['templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'TestProject.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+
+# Password validation
+# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/4.1/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.1/howto/static-files/
+
+STATIC_URL = '/static/'
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'urls.py' } 1`] = `
+"
+"""
+TestProject URL Configuration
+
+The 'urlpatterns' list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/4.1/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, include
+from django.views.generic import TemplateView
+
+from . import views
+
+urlpatterns = [
+    path('', TemplateView.as_view(template_name='index.html'), name='index'),
+    path('testapp1/', include('testapp1.urls')),
+    path('admin/', admin.site.urls),
+]
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'urls.py' } 2`] = `
+"
+"""
+TestProject URL Configuration
+
+The 'urlpatterns' list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/4.1/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, include
+from django.views.generic import TemplateView
+
+from . import views
+
+urlpatterns = [
+    path('', TemplateView.as_view(template_name='index.html'), name='index'),
+    path('testapp2/', include('testapp2.urls')),
+    path('htmx/', views.htmx_home, name='htmx'),
+    path('admin/', admin.site.urls),
+]
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'urls.py' } 3`] = `
+"
+"""
+TestProject URL Configuration
+
+The 'urlpatterns' list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/4.1/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, include
+from django.views.generic import TemplateView
+
+from . import views
+
+urlpatterns = [
+    path('', TemplateView.as_view(template_name='index.html'), name='index'),
+    path('testapp3/', include('testapp3.urls')),
+    path('admin/', admin.site.urls),
+]
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'views.py' } 1`] = `
+"
+# No project views
+
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'views.py' } 2`] = `
+"
+from django.shortcuts import render
+
+
+def htmx_home(request):
+    return render(request, 'htmx/htmx.html')
+
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'views.py' } 3`] = `
+"
+# No project views
+
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'wsgi.py' } 1`] = `
+"
+"""
+WSGI config for TestProject.
+
+It exposes the WSGI callable as a module-level variable named 'application'.
+
+For more information on this file, see
+https://docs.djangoproject.com/
+"""
+
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TestProject.settings')
+
+application = get_wsgi_application()
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'wsgi.py' } 2`] = `
+"
+"""
+WSGI config for TestProject.
+
+It exposes the WSGI callable as a module-level variable named 'application'.
+
+For more information on this file, see
+https://docs.djangoproject.com/
+"""
+
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TestProject.settings')
+
+application = get_wsgi_application()
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'wsgi.py' } 3`] = `
+"
+"""
+WSGI config for TestProject.
+
+It exposes the WSGI callable as a module-level variable named 'application'.
+
+For more information on this file, see
+https://docs.djangoproject.com/
+"""
+
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TestProject.settings')
+
+application = get_wsgi_application()
+"
+`;
+
 exports[`Render Basic Project App Files __init__.py 1`] = `
 "
 "
@@ -13,22 +1669,22 @@ from django import forms
 from . import models
 
 
-class TestModel2AdminForm(forms.ModelForm):
+class TestModel1AdminForm(forms.ModelForm):
 
     class Meta:
-        model = models.TestModel2
+        model = models.TestModel1
         fields = "__all__"
 
 
-class TestModel2Admin(admin.ModelAdmin):
-    form = TestModel2AdminForm
+class TestModel1Admin(admin.ModelAdmin):
+    form = TestModel1AdminForm
     list_display = [
     ]
     readonly_fields = [
     ]
 
 
-admin.site.register(models.TestModel2, TestModel2Admin)
+admin.site.register(models.TestModel1, TestModel1Admin)
 
 "
 `;
@@ -40,11 +1696,11 @@ from . import models
 from . import serializers
 
 
-class TestModel2ViewSet(viewsets.ModelViewSet):
-    """ViewSet for the TestModel2 class"""
+class TestModel1ViewSet(viewsets.ModelViewSet):
+    """ViewSet for the TestModel1 class"""
 
-    queryset = models.TestModel2.objects.all()
-    serializer_class = serializers.TestModel2Serializer
+    queryset = models.TestModel1.objects.all()
+    serializer_class = serializers.TestModel1Serializer
     permission_classes = [permissions.IsAuthenticated]
 
 "
@@ -55,7 +1711,7 @@ exports[`Render Basic Project App Files consumers.py 1`] = `
 from channels.consumer import SyncConsumer
 
 
-class Testapp2Consumer(SyncConsumer):
+class Testapp1Consumer(SyncConsumer):
 
     def app1_message(self, message):
         # do something with message
@@ -68,14 +1724,14 @@ exports[`Render Basic Project App Files forms.py 1`] = `
 from django import forms
 from . import models
 
-class TestModel2Form(forms.ModelForm):
+class TestModel1Form(forms.ModelForm):
     class Meta:
-        model = models.TestModel2
+        model = models.TestModel1
         fields = [
         ]
 
     def __init__(self, *args, **kwargs):
-        super(TestModel2Form, self).__init__(*args, **kwargs)
+        super(TestModel1Form, self).__init__(*args, **kwargs)
 "
 `;
 
@@ -89,9 +1745,9 @@ from django.urls import reverse_lazy
 from . import models
 from . import forms
 
-class HTMXTestModel2ListView(generic.ListView):
-    model = models.TestModel2
-    form_class = forms.TestModel2Form
+class HTMXTestModel1ListView(generic.ListView):
+    model = models.TestModel1
+    form_class = forms.TestModel1Form
     
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
@@ -102,9 +1758,9 @@ class HTMXTestModel2ListView(generic.ListView):
         return TemplateResponse(request,'htmx/list.html', context)
 
 
-class HTMXTestModel2CreateView(generic.CreateView):
-    model = models.TestModel2
-    form_class = forms.TestModel2Form
+class HTMXTestModel1CreateView(generic.CreateView):
+    model = models.TestModel1
+    form_class = forms.TestModel1Form
     
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
@@ -132,9 +1788,9 @@ class HTMXTestModel2CreateView(generic.CreateView):
         return TemplateResponse(self.request, 'htmx/form.html', context)
 
 
-class HTMXTestModel2DeleteView(generic.DeleteView):
-    model = models.TestModel2
-    success_url = reverse_lazy("testapp2_TestModel2_htmx_list")
+class HTMXTestModel1DeleteView(generic.DeleteView):
+    model = models.TestModel1
+    success_url = reverse_lazy("testapp1_TestModel1_htmx_list")
     
     def form_valid(self, form):
         super().form_valid(form)
@@ -148,7 +1804,7 @@ exports[`Render Basic Project App Files models.py 1`] = `
 from django.db import models
 from django.urls import reverse
 
-class TestModel2(models.Model):
+class TestModel1(models.Model):
 
 
 
@@ -160,16 +1816,16 @@ class TestModel2(models.Model):
 
     @staticmethod
     def get_create_url():
-        return reverse("testapp2_TestModel2_create")
+        return reverse("testapp1_TestModel1_create")
 
     def get_absolute_url(self):
-        return reverse("testapp2_TestModel2_detail", args=(self.pk,))
+        return reverse("testapp1_TestModel1_detail", args=(self.pk,))
 
     def get_update_url(self):
-        return reverse("testapp2_TestModel2_update", args=(self.pk,))
+        return reverse("testapp1_TestModel1_update", args=(self.pk,))
 
     def get_delete_url(self):
-        return reverse("testapp2_TestModel2_delete", args=(self.pk,))
+        return reverse("testapp1_TestModel1_delete", args=(self.pk,))
 
 
 
@@ -182,10 +1838,10 @@ from rest_framework import serializers
 from . import models
 
 
-class TestModel2Serializer(serializers.ModelSerializer):
+class TestModel1Serializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.TestModel2
+        model = models.TestModel1
         fields = [
         ]
 "
@@ -201,15 +1857,15 @@ from . import views
 
 
 router = routers.DefaultRouter()
-router.register("TestModel2", api.TestModel2ViewSet)
+router.register("TestModel1", api.TestModel1ViewSet)
 
 urlpatterns = (
     path("api/v1/", include(router.urls)),
-    path("testapp2/TestModel2/", views.TestModel2ListView.as_view(), name="testapp2_TestModel2_list"),
-    path("testapp2/TestModel2/create/", views.TestModel2CreateView.as_view(), name="testapp2_TestModel2_create"),
-    path("testapp2/TestModel2/detail/<int:pk>/", views.TestModel2DetailView.as_view(), name="testapp2_TestModel2_detail"),
-    path("testapp2/TestModel2/update/<int:pk>/", views.TestModel2UpdateView.as_view(), name="testapp2_TestModel2_update"),
-    path("testapp2/TestModel2/delete/<int:pk>/", views.TestModel2DeleteView.as_view(), name="testapp2_TestModel2_delete"),
+    path("testapp1/TestModel1/", views.TestModel1ListView.as_view(), name="testapp1_TestModel1_list"),
+    path("testapp1/TestModel1/create/", views.TestModel1CreateView.as_view(), name="testapp1_TestModel1_create"),
+    path("testapp1/TestModel1/detail/<int:pk>/", views.TestModel1DetailView.as_view(), name="testapp1_TestModel1_detail"),
+    path("testapp1/TestModel1/update/<int:pk>/", views.TestModel1UpdateView.as_view(), name="testapp1_TestModel1_update"),
+    path("testapp1/TestModel1/delete/<int:pk>/", views.TestModel1DeleteView.as_view(), name="testapp1_TestModel1_delete"),
 )
 "
 `;
@@ -223,30 +1879,30 @@ from . import models
 from . import forms
 
 
-class TestModel2ListView(generic.ListView):
-    model = models.TestModel2
-    form_class = forms.TestModel2Form
+class TestModel1ListView(generic.ListView):
+    model = models.TestModel1
+    form_class = forms.TestModel1Form
 
 
-class TestModel2CreateView(generic.CreateView):
-    model = models.TestModel2
-    form_class = forms.TestModel2Form
+class TestModel1CreateView(generic.CreateView):
+    model = models.TestModel1
+    form_class = forms.TestModel1Form
 
 
-class TestModel2DetailView(generic.DetailView):
-    model = models.TestModel2
-    form_class = forms.TestModel2Form
+class TestModel1DetailView(generic.DetailView):
+    model = models.TestModel1
+    form_class = forms.TestModel1Form
 
 
-class TestModel2UpdateView(generic.UpdateView):
-    model = models.TestModel2
-    form_class = forms.TestModel2Form
+class TestModel1UpdateView(generic.UpdateView):
+    model = models.TestModel1
+    form_class = forms.TestModel1Form
     pk_url_kwarg = "pk"
 
 
-class TestModel2DeleteView(generic.DeleteView):
-    model = models.TestModel2
-    success_url = reverse_lazy("testapp2_TestModel2_list")
+class TestModel1DeleteView(generic.DeleteView):
+    model = models.TestModel1
+    success_url = reverse_lazy("testapp1_TestModel1_list")
 
 "
 `;
@@ -273,7 +1929,7 @@ exports[`Render Basic Project Model Files detail.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">
      Listing
     </a>
 </p>
@@ -295,7 +1951,7 @@ exports[`Render Basic Project Model Files form.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">
      Listing
     </a>
 </p>
@@ -324,8 +1980,8 @@ exports[`Render Basic Project Model Files list.html 1`] = `
   </div>
 {% endfor %}
 <div>
-  <a class="btn btn-primary" href="{% url 'testapp2_TestModel2_create' %}">
-  Create a new TestModel2
+  <a class="btn btn-primary" href="{% url 'testapp1_TestModel1_create' %}">
+  Create a new TestModel1
   </a>
 </div>
 {% endblock %}
@@ -464,10 +2120,10 @@ exports[`Render Basic Project Root Files htmx.html 1`] = `
   <div class="container">
     <div class="row">
     <div class="col col-lg-6">
-      <h5>Add A TestModel2</h5>
-      <div hx-get="{% url 'testapp2_TestModel2_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
-      <h4>TestModel2 List</h4>
-      <div hx-get="{% url 'testapp2_TestModel2_htmx_list' %}" hx-trigger="load">
+      <h5>Add A TestModel1</h5>
+      <div hx-get="{% url 'testapp1_TestModel1_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <h4>TestModel1 List</h4>
+      <div hx-get="{% url 'testapp1_TestModel1_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     </div>
@@ -486,10 +2142,10 @@ exports[`Render Basic Project Root Files index.html 1`] = `
   <div class='card'>
     <div class='card-body'>
       <div class="m-2">
-        <h4>testapp2</h4>
+        <h4>testapp1</h4>
       </div>
       <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">TestModel2 Listing</a>
+      <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">TestModel1 Listing</a>
       </div>
     </div>
   </div>
@@ -614,7 +2270,7 @@ INSTALLED_APPS = [
     'rest_framework',
     
     
-    'testapp2',
+    'testapp1',
 ]
 
 
@@ -626,13 +2282,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
 ]
 
@@ -723,7 +2372,7 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
 
-from testapp2 import models as testapp2_models
+from testapp1 import models as testapp1_models
 
 
 def random_string(length=10):
@@ -774,10 +2423,10 @@ def create_ContentType(**kwargs):
     return ContentType.objects.create(**defaults)
 
 
-def create_testapp2_TestModel2(**kwargs):
+def create_testapp1_TestModel1(**kwargs):
     defaults = {}
     defaults.update(**kwargs)
-    return testapp2_models.TestModel2.objects.create(**defaults)
+    return testapp1_models.TestModel1.objects.create(**defaults)
 
   
 "
@@ -824,7 +2473,7 @@ from . import views
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html'), name='index'),
-    path('testapp2/', include('testapp2.urls')),
+    path('testapp1/', include('testapp1.urls')),
     path('admin/', admin.site.urls),
 ]
 "
@@ -871,8 +2520,22 @@ from django import forms
 from . import models
 
 
+class TestModel4AdminForm(forms.ModelForm):
+
+    class Meta:
+        model = models.TestModel4
+        fields = "__all__"
 
 
+class TestModel4Admin(admin.ModelAdmin):
+    form = TestModel4AdminForm
+    list_display = [
+    ]
+    readonly_fields = [
+    ]
+
+
+admin.site.register(models.TestModel4, TestModel4Admin)
 
 "
 `;
@@ -884,6 +2547,13 @@ from . import models
 from . import serializers
 
 
+class TestModel4ViewSet(viewsets.ModelViewSet):
+    """ViewSet for the TestModel4 class"""
+
+    queryset = models.TestModel4.objects.all()
+    serializer_class = serializers.TestModel4Serializer
+    permission_classes = [permissions.IsAuthenticated]
+
 "
 `;
 
@@ -892,7 +2562,7 @@ exports[`Render Channels Project App Files consumers.py 1`] = `
 from channels.consumer import SyncConsumer
 
 
-class Testapp1Consumer(SyncConsumer):
+class Testapp3Consumer(SyncConsumer):
 
     def app1_message(self, message):
         # do something with message
@@ -905,6 +2575,14 @@ exports[`Render Channels Project App Files forms.py 1`] = `
 from django import forms
 from . import models
 
+class TestModel4Form(forms.ModelForm):
+    class Meta:
+        model = models.TestModel4
+        fields = [
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(TestModel4Form, self).__init__(*args, **kwargs)
 "
 `;
 
@@ -918,6 +2596,56 @@ from django.urls import reverse_lazy
 from . import models
 from . import forms
 
+class HTMXTestModel4ListView(generic.ListView):
+    model = models.TestModel4
+    form_class = forms.TestModel4Form
+    
+    def get(self, request, *args, **kwargs):
+        super().get(request, *args, **kwargs)
+        context = {
+            "model_id": self.model._meta.model_name,
+            "objects": self.get_queryset()
+        }
+        return TemplateResponse(request,'htmx/list.html', context)
+
+
+class HTMXTestModel4CreateView(generic.CreateView):
+    model = models.TestModel4
+    form_class = forms.TestModel4Form
+    
+    def get(self, request, *args, **kwargs):
+        super().get(request, *args, **kwargs)
+        context = {
+            "create_url": self.model.get_htmx_create_url(),
+            "form": self.get_form()
+        }
+        return TemplateResponse(request, 'htmx/form.html', context)
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        context = {
+            "model_id": self.model._meta.model_name,
+            "object": self.object,
+            "form": form
+        }
+        return TemplateResponse(self.request, 'htmx/create.html', context)
+
+    def form_invalid(self, form):
+        super().form_invalid(form)
+        context = {
+            "create_url": self.model.get_htmx_create_url(),
+            "form": self.get_form()
+        }
+        return TemplateResponse(self.request, 'htmx/form.html', context)
+
+
+class HTMXTestModel4DeleteView(generic.DeleteView):
+    model = models.TestModel4
+    success_url = reverse_lazy("testapp3_TestModel4_htmx_list")
+    
+    def form_valid(self, form):
+        super().form_valid(form)
+        return HttpResponse()
 
 "
 `;
@@ -926,6 +2654,31 @@ exports[`Render Channels Project App Files models.py 1`] = `
 "
 from django.db import models
 from django.urls import reverse
+
+class TestModel4(models.Model):
+
+
+
+    class Meta:
+        pass
+
+    def __str__(self):
+        return str(self.pk)
+
+    @staticmethod
+    def get_create_url():
+        return reverse("testapp3_TestModel4_create")
+
+    def get_absolute_url(self):
+        return reverse("testapp3_TestModel4_detail", args=(self.pk,))
+
+    def get_update_url(self):
+        return reverse("testapp3_TestModel4_update", args=(self.pk,))
+
+    def get_delete_url(self):
+        return reverse("testapp3_TestModel4_delete", args=(self.pk,))
+
+
 
 "
 `;
@@ -936,6 +2689,12 @@ from rest_framework import serializers
 from . import models
 
 
+class TestModel4Serializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.TestModel4
+        fields = [
+        ]
 "
 `;
 
@@ -946,13 +2705,18 @@ from rest_framework import routers
 
 from . import api
 from . import views
-from . import htmx
 
 
 router = routers.DefaultRouter()
+router.register("TestModel4", api.TestModel4ViewSet)
 
 urlpatterns = (
     path("api/v1/", include(router.urls)),
+    path("testapp3/TestModel4/", views.TestModel4ListView.as_view(), name="testapp3_TestModel4_list"),
+    path("testapp3/TestModel4/create/", views.TestModel4CreateView.as_view(), name="testapp3_TestModel4_create"),
+    path("testapp3/TestModel4/detail/<int:pk>/", views.TestModel4DetailView.as_view(), name="testapp3_TestModel4_detail"),
+    path("testapp3/TestModel4/update/<int:pk>/", views.TestModel4UpdateView.as_view(), name="testapp3_TestModel4_update"),
+    path("testapp3/TestModel4/delete/<int:pk>/", views.TestModel4DeleteView.as_view(), name="testapp3_TestModel4_delete"),
 )
 "
 `;
@@ -964,6 +2728,32 @@ from django.urls import reverse_lazy
 
 from . import models
 from . import forms
+
+
+class TestModel4ListView(generic.ListView):
+    model = models.TestModel4
+    form_class = forms.TestModel4Form
+
+
+class TestModel4CreateView(generic.CreateView):
+    model = models.TestModel4
+    form_class = forms.TestModel4Form
+
+
+class TestModel4DetailView(generic.DetailView):
+    model = models.TestModel4
+    form_class = forms.TestModel4Form
+
+
+class TestModel4UpdateView(generic.UpdateView):
+    model = models.TestModel4
+    form_class = forms.TestModel4Form
+    pk_url_kwarg = "pk"
+
+
+class TestModel4DeleteView(generic.DeleteView):
+    model = models.TestModel4
+    success_url = reverse_lazy("testapp3_TestModel4_list")
 
 "
 `;
@@ -990,7 +2780,7 @@ exports[`Render Channels Project Model Files detail.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp3_TestModel4_list' %}">
      Listing
     </a>
 </p>
@@ -1012,7 +2802,7 @@ exports[`Render Channels Project Model Files form.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp3_TestModel4_list' %}">
      Listing
     </a>
 </p>
@@ -1041,8 +2831,8 @@ exports[`Render Channels Project Model Files list.html 1`] = `
   </div>
 {% endfor %}
 <div>
-  <a class="btn btn-primary" href="{% url 'testapp1_TestModel1_create' %}">
-  Create a new TestModel1
+  <a class="btn btn-primary" href="{% url 'testapp3_TestModel4_create' %}">
+  Create a new TestModel4
   </a>
 </div>
 {% endblock %}
@@ -1217,6 +3007,13 @@ exports[`Render Channels Project Root Files htmx.html 1`] = `
   <h2>Home: <a href="{% url 'index' %}">TestProject</a></h2>
   <div class="container">
     <div class="row">
+    <div class="col col-lg-6">
+      <h5>Add A TestModel4</h5>
+      <div hx-get="{% url 'testapp3_TestModel4_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <h4>TestModel4 List</h4>
+      <div hx-get="{% url 'testapp3_TestModel4_htmx_list' %}" hx-trigger="load">
+      </div>
+    </div>
     </div>
   </div>
 </div>
@@ -1232,6 +3029,12 @@ exports[`Render Channels Project Root Files index.html 1`] = `
 <div class='container'>
   <div class='card'>
     <div class='card-body'>
+      <div class="m-2">
+        <h4>testapp3</h4>
+      </div>
+      <div class="m-2">
+      <a class="btn btn-light" href="{% url 'testapp3_TestModel4_list' %}">TestModel4 Listing</a>
+      </div>
     </div>
   </div>
 </div>
@@ -1357,6 +3160,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     
+    'testapp3',
 ]
 
 
@@ -1368,83 +3172,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
 ]
 
@@ -1535,6 +3262,7 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
 
+from testapp3 import models as testapp3_models
 
 
 def random_string(length=10):
@@ -1584,6 +3312,12 @@ def create_ContentType(**kwargs):
     defaults.update(**kwargs)
     return ContentType.objects.create(**defaults)
 
+
+def create_testapp3_TestModel4(**kwargs):
+    defaults = {}
+    defaults.update(**kwargs)
+    return testapp3_models.TestModel4.objects.create(**defaults)
+
   
 "
 `;
@@ -1629,6 +3363,7 @@ from . import views
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html'), name='index'),
+    path('testapp3/', include('testapp3.urls')),
     path('admin/', admin.site.urls),
 ]
 "
@@ -1794,17 +3529,10 @@ exports[`Render HTMX Project Root Files htmx.html 1`] = `
   <div class="container">
     <div class="row">
     <div class="col col-lg-6">
-      <h5>Add A TestModel1</h5>
-      <div hx-get="{% url 'testapp1_TestModel1_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
-      <h4>TestModel1 List</h4>
-      <div hx-get="{% url 'testapp1_TestModel1_htmx_list' %}" hx-trigger="load">
-      </div>
-    </div>
-    <div class="col col-lg-6">
-      <h5>Add A TestModel1</h5>
-      <div hx-get="{% url 'testapp1_TestModel1_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
-      <h4>TestModel1 List</h4>
-      <div hx-get="{% url 'testapp1_TestModel1_htmx_list' %}" hx-trigger="load">
+      <h5>Add A TestModel2</h5>
+      <div hx-get="{% url 'testapp2_TestModel2_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <h4>TestModel2 List</h4>
+      <div hx-get="{% url 'testapp2_TestModel2_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     </div>
@@ -1823,16 +3551,10 @@ exports[`Render HTMX Project Root Files index.html 1`] = `
   <div class='card'>
     <div class='card-body'>
       <div class="m-2">
-        <h4>testapp1</h4>
+        <h4>testapp2</h4>
       </div>
       <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">TestModel1 Listing</a>
-      </div>
-      <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">TestModel1 Listing</a>
-      </div>
-      <div class="m-2">
-        <h4>testapp1</h4>
+      <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">TestModel2 Listing</a>
       </div>
     </div>
   </div>
@@ -1958,8 +3680,7 @@ INSTALLED_APPS = [
     'rest_framework',
     
     'django_htmx',
-    'testapp1',
-    'testapp1',
+    'testapp2',
 ]
 
 
@@ -1971,48 +3692,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
 ]
 
@@ -2103,8 +3782,7 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
 
-from testapp1 import models as testapp1_models
-from testapp1 import models as testapp1_models
+from testapp2 import models as testapp2_models
 
 
 def random_string(length=10):
@@ -2155,16 +3833,10 @@ def create_ContentType(**kwargs):
     return ContentType.objects.create(**defaults)
 
 
-def create_testapp1_TestModel1(**kwargs):
+def create_testapp2_TestModel2(**kwargs):
     defaults = {}
     defaults.update(**kwargs)
-    return testapp1_models.TestModel1.objects.create(**defaults)
-
-
-def create_testapp1_TestModel1(**kwargs):
-    defaults = {}
-    defaults.update(**kwargs)
-    return testapp1_models.TestModel1.objects.create(**defaults)
+    return testapp2_models.TestModel2.objects.create(**defaults)
 
   
 "
@@ -2211,8 +3883,7 @@ from . import views
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html'), name='index'),
-    path('testapp1/', include('testapp1.urls')),
-    path('testapp1/', include('testapp1.urls')),
+    path('testapp2/', include('testapp2.urls')),
     path('htmx/', views.htmx_home, name='htmx'),
     path('admin/', admin.site.urls),
 ]
@@ -2264,36 +3935,22 @@ from django import forms
 from . import models
 
 
-class TestModel1AdminForm(forms.ModelForm):
+class TestModel2AdminForm(forms.ModelForm):
 
     class Meta:
-        model = models.TestModel1
+        model = models.TestModel2
         fields = "__all__"
 
 
-class TestModel1Admin(admin.ModelAdmin):
-    form = TestModel1AdminForm
-    list_display = [
-    ]
-    readonly_fields = [
-    ]
-class TestModel1AdminForm(forms.ModelForm):
-
-    class Meta:
-        model = models.TestModel1
-        fields = "__all__"
-
-
-class TestModel1Admin(admin.ModelAdmin):
-    form = TestModel1AdminForm
+class TestModel2Admin(admin.ModelAdmin):
+    form = TestModel2AdminForm
     list_display = [
     ]
     readonly_fields = [
     ]
 
 
-admin.site.register(models.TestModel1, TestModel1Admin)
-admin.site.register(models.TestModel1, TestModel1Admin)
+admin.site.register(models.TestModel2, TestModel2Admin)
 
 "
 `;
@@ -2305,18 +3962,11 @@ from . import models
 from . import serializers
 
 
-class TestModel1ViewSet(viewsets.ModelViewSet):
-    """ViewSet for the TestModel1 class"""
+class TestModel2ViewSet(viewsets.ModelViewSet):
+    """ViewSet for the TestModel2 class"""
 
-    queryset = models.TestModel1.objects.all()
-    serializer_class = serializers.TestModel1Serializer
-    permission_classes = [permissions.IsAuthenticated]
-
-class TestModel1ViewSet(viewsets.ModelViewSet):
-    """ViewSet for the TestModel1 class"""
-
-    queryset = models.TestModel1.objects.all()
-    serializer_class = serializers.TestModel1Serializer
+    queryset = models.TestModel2.objects.all()
+    serializer_class = serializers.TestModel2Serializer
     permission_classes = [permissions.IsAuthenticated]
 
 "
@@ -2327,7 +3977,7 @@ exports[`Render HTMX ProjectApp Files consumers.py 1`] = `
 from channels.consumer import SyncConsumer
 
 
-class Testapp1Consumer(SyncConsumer):
+class Testapp2Consumer(SyncConsumer):
 
     def app1_message(self, message):
         # do something with message
@@ -2340,22 +3990,14 @@ exports[`Render HTMX ProjectApp Files forms.py 1`] = `
 from django import forms
 from . import models
 
-class TestModel1Form(forms.ModelForm):
+class TestModel2Form(forms.ModelForm):
     class Meta:
-        model = models.TestModel1
+        model = models.TestModel2
         fields = [
         ]
 
     def __init__(self, *args, **kwargs):
-        super(TestModel1Form, self).__init__(*args, **kwargs)
-class TestModel1Form(forms.ModelForm):
-    class Meta:
-        model = models.TestModel1
-        fields = [
-        ]
-
-    def __init__(self, *args, **kwargs):
-        super(TestModel1Form, self).__init__(*args, **kwargs)
+        super(TestModel2Form, self).__init__(*args, **kwargs)
 "
 `;
 
@@ -2369,9 +4011,9 @@ from django.urls import reverse_lazy
 from . import models
 from . import forms
 
-class HTMXTestModel1ListView(generic.ListView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
+class HTMXTestModel2ListView(generic.ListView):
+    model = models.TestModel2
+    form_class = forms.TestModel2Form
     
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
@@ -2382,9 +4024,9 @@ class HTMXTestModel1ListView(generic.ListView):
         return TemplateResponse(request,'htmx/list.html', context)
 
 
-class HTMXTestModel1CreateView(generic.CreateView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
+class HTMXTestModel2CreateView(generic.CreateView):
+    model = models.TestModel2
+    form_class = forms.TestModel2Form
     
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
@@ -2412,59 +4054,9 @@ class HTMXTestModel1CreateView(generic.CreateView):
         return TemplateResponse(self.request, 'htmx/form.html', context)
 
 
-class HTMXTestModel1DeleteView(generic.DeleteView):
-    model = models.TestModel1
-    success_url = reverse_lazy("testapp1_TestModel1_htmx_list")
-    
-    def form_valid(self, form):
-        super().form_valid(form)
-        return HttpResponse()
-class HTMXTestModel1ListView(generic.ListView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
-    
-    def get(self, request, *args, **kwargs):
-        super().get(request, *args, **kwargs)
-        context = {
-            "model_id": self.model._meta.model_name,
-            "objects": self.get_queryset()
-        }
-        return TemplateResponse(request,'htmx/list.html', context)
-
-
-class HTMXTestModel1CreateView(generic.CreateView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
-    
-    def get(self, request, *args, **kwargs):
-        super().get(request, *args, **kwargs)
-        context = {
-            "create_url": self.model.get_htmx_create_url(),
-            "form": self.get_form()
-        }
-        return TemplateResponse(request, 'htmx/form.html', context)
-
-    def form_valid(self, form):
-        super().form_valid(form)
-        context = {
-            "model_id": self.model._meta.model_name,
-            "object": self.object,
-            "form": form
-        }
-        return TemplateResponse(self.request, 'htmx/create.html', context)
-
-    def form_invalid(self, form):
-        super().form_invalid(form)
-        context = {
-            "create_url": self.model.get_htmx_create_url(),
-            "form": self.get_form()
-        }
-        return TemplateResponse(self.request, 'htmx/form.html', context)
-
-
-class HTMXTestModel1DeleteView(generic.DeleteView):
-    model = models.TestModel1
-    success_url = reverse_lazy("testapp1_TestModel1_htmx_list")
+class HTMXTestModel2DeleteView(generic.DeleteView):
+    model = models.TestModel2
+    success_url = reverse_lazy("testapp2_TestModel2_htmx_list")
     
     def form_valid(self, form):
         super().form_valid(form)
@@ -2478,7 +4070,7 @@ exports[`Render HTMX ProjectApp Files models.py 1`] = `
 from django.db import models
 from django.urls import reverse
 
-class TestModel1(models.Model):
+class TestModel2(models.Model):
 
 
 
@@ -2490,54 +4082,23 @@ class TestModel1(models.Model):
 
     @staticmethod
     def get_create_url():
-        return reverse("testapp1_TestModel1_create")
+        return reverse("testapp2_TestModel2_create")
 
     def get_absolute_url(self):
-        return reverse("testapp1_TestModel1_detail", args=(self.pk,))
+        return reverse("testapp2_TestModel2_detail", args=(self.pk,))
 
     def get_update_url(self):
-        return reverse("testapp1_TestModel1_update", args=(self.pk,))
+        return reverse("testapp2_TestModel2_update", args=(self.pk,))
 
     def get_delete_url(self):
-        return reverse("testapp1_TestModel1_delete", args=(self.pk,))
+        return reverse("testapp2_TestModel2_delete", args=(self.pk,))
 
     @staticmethod
     def get_htmx_create_url():
-        return reverse("testapp1_TestModel1_htmx_create")
+        return reverse("testapp2_TestModel2_htmx_create")
 
     def get_htmx_delete_url(self):
-        return reverse("testapp1_TestModel1_htmx_delete", args=(self.pk,))
-
-
-class TestModel1(models.Model):
-
-
-
-    class Meta:
-        pass
-
-    def __str__(self):
-        return str(self.pk)
-
-    @staticmethod
-    def get_create_url():
-        return reverse("testapp1_TestModel1_create")
-
-    def get_absolute_url(self):
-        return reverse("testapp1_TestModel1_detail", args=(self.pk,))
-
-    def get_update_url(self):
-        return reverse("testapp1_TestModel1_update", args=(self.pk,))
-
-    def get_delete_url(self):
-        return reverse("testapp1_TestModel1_delete", args=(self.pk,))
-
-    @staticmethod
-    def get_htmx_create_url():
-        return reverse("testapp1_TestModel1_htmx_create")
-
-    def get_htmx_delete_url(self):
-        return reverse("testapp1_TestModel1_htmx_delete", args=(self.pk,))
+        return reverse("testapp2_TestModel2_htmx_delete", args=(self.pk,))
 
 
 "
@@ -2549,16 +4110,10 @@ from rest_framework import serializers
 from . import models
 
 
-class TestModel1Serializer(serializers.ModelSerializer):
+class TestModel2Serializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.TestModel1
-        fields = [
-        ]
-class TestModel1Serializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.TestModel1
+        model = models.TestModel2
         fields = [
         ]
 "
@@ -2575,27 +4130,18 @@ from . import htmx
 
 
 router = routers.DefaultRouter()
-router.register("TestModel1", api.TestModel1ViewSet)
-router.register("TestModel1", api.TestModel1ViewSet)
+router.register("TestModel2", api.TestModel2ViewSet)
 
 urlpatterns = (
     path("api/v1/", include(router.urls)),
-    path("testapp1/TestModel1/", views.TestModel1ListView.as_view(), name="testapp1_TestModel1_list"),
-    path("testapp1/TestModel1/create/", views.TestModel1CreateView.as_view(), name="testapp1_TestModel1_create"),
-    path("testapp1/TestModel1/detail/<int:pk>/", views.TestModel1DetailView.as_view(), name="testapp1_TestModel1_detail"),
-    path("testapp1/TestModel1/update/<int:pk>/", views.TestModel1UpdateView.as_view(), name="testapp1_TestModel1_update"),
-    path("testapp1/TestModel1/delete/<int:pk>/", views.TestModel1DeleteView.as_view(), name="testapp1_TestModel1_delete"),
-    path("testapp1/htmx/TestModel1/", htmx.HTMXTestModel1ListView.as_view(), name="testapp1_TestModel1_htmx_list"),
-    path("testapp1/htmx/TestModel1/create/", htmx.HTMXTestModel1CreateView.as_view(), name="testapp1_TestModel1_htmx_create"),
-    path("testapp1/htmx/TestModel1/delete/<int:pk>/", htmx.HTMXTestModel1DeleteView.as_view(), name="testapp1_TestModel1_htmx_delete"),
-    path("testapp1/TestModel1/", views.TestModel1ListView.as_view(), name="testapp1_TestModel1_list"),
-    path("testapp1/TestModel1/create/", views.TestModel1CreateView.as_view(), name="testapp1_TestModel1_create"),
-    path("testapp1/TestModel1/detail/<int:pk>/", views.TestModel1DetailView.as_view(), name="testapp1_TestModel1_detail"),
-    path("testapp1/TestModel1/update/<int:pk>/", views.TestModel1UpdateView.as_view(), name="testapp1_TestModel1_update"),
-    path("testapp1/TestModel1/delete/<int:pk>/", views.TestModel1DeleteView.as_view(), name="testapp1_TestModel1_delete"),
-    path("testapp1/htmx/TestModel1/", htmx.HTMXTestModel1ListView.as_view(), name="testapp1_TestModel1_htmx_list"),
-    path("testapp1/htmx/TestModel1/create/", htmx.HTMXTestModel1CreateView.as_view(), name="testapp1_TestModel1_htmx_create"),
-    path("testapp1/htmx/TestModel1/delete/<int:pk>/", htmx.HTMXTestModel1DeleteView.as_view(), name="testapp1_TestModel1_htmx_delete"),
+    path("testapp2/TestModel2/", views.TestModel2ListView.as_view(), name="testapp2_TestModel2_list"),
+    path("testapp2/TestModel2/create/", views.TestModel2CreateView.as_view(), name="testapp2_TestModel2_create"),
+    path("testapp2/TestModel2/detail/<int:pk>/", views.TestModel2DetailView.as_view(), name="testapp2_TestModel2_detail"),
+    path("testapp2/TestModel2/update/<int:pk>/", views.TestModel2UpdateView.as_view(), name="testapp2_TestModel2_update"),
+    path("testapp2/TestModel2/delete/<int:pk>/", views.TestModel2DeleteView.as_view(), name="testapp2_TestModel2_delete"),
+    path("testapp2/htmx/TestModel2/", htmx.HTMXTestModel2ListView.as_view(), name="testapp2_TestModel2_htmx_list"),
+    path("testapp2/htmx/TestModel2/create/", htmx.HTMXTestModel2CreateView.as_view(), name="testapp2_TestModel2_htmx_create"),
+    path("testapp2/htmx/TestModel2/delete/<int:pk>/", htmx.HTMXTestModel2DeleteView.as_view(), name="testapp2_TestModel2_htmx_delete"),
 )
 "
 `;
@@ -2609,56 +4155,30 @@ from . import models
 from . import forms
 
 
-class TestModel1ListView(generic.ListView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
+class TestModel2ListView(generic.ListView):
+    model = models.TestModel2
+    form_class = forms.TestModel2Form
 
 
-class TestModel1CreateView(generic.CreateView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
+class TestModel2CreateView(generic.CreateView):
+    model = models.TestModel2
+    form_class = forms.TestModel2Form
 
 
-class TestModel1DetailView(generic.DetailView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
+class TestModel2DetailView(generic.DetailView):
+    model = models.TestModel2
+    form_class = forms.TestModel2Form
 
 
-class TestModel1UpdateView(generic.UpdateView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
+class TestModel2UpdateView(generic.UpdateView):
+    model = models.TestModel2
+    form_class = forms.TestModel2Form
     pk_url_kwarg = "pk"
 
 
-class TestModel1DeleteView(generic.DeleteView):
-    model = models.TestModel1
-    success_url = reverse_lazy("testapp1_TestModel1_list")
-
-
-class TestModel1ListView(generic.ListView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
-
-
-class TestModel1CreateView(generic.CreateView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
-
-
-class TestModel1DetailView(generic.DetailView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
-
-
-class TestModel1UpdateView(generic.UpdateView):
-    model = models.TestModel1
-    form_class = forms.TestModel1Form
-    pk_url_kwarg = "pk"
-
-
-class TestModel1DeleteView(generic.DeleteView):
-    model = models.TestModel1
-    success_url = reverse_lazy("testapp1_TestModel1_list")
+class TestModel2DeleteView(generic.DeleteView):
+    model = models.TestModel2
+    success_url = reverse_lazy("testapp2_TestModel2_list")
 
 "
 `;
@@ -2685,7 +4205,7 @@ exports[`Render HTMX ProjectModel Files detail.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">
      Listing
     </a>
 </p>
@@ -2707,7 +4227,7 @@ exports[`Render HTMX ProjectModel Files form.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">
      Listing
     </a>
 </p>
@@ -2736,8 +4256,8 @@ exports[`Render HTMX ProjectModel Files list.html 1`] = `
   </div>
 {% endfor %}
 <div>
-  <a class="btn btn-primary" href="{% url 'testapp1_TestModel1_create' %}">
-  Create a new TestModel1
+  <a class="btn btn-primary" href="{% url 'testapp2_TestModel2_create' %}">
+  Create a new TestModel2
   </a>
 </div>
 {% endblock %}

@@ -9,40 +9,54 @@ import Renderer, {
 } from "../src/rendering";
 import DjangoProject, { DjangoApp, DjangoModel } from "../src/api";
 
-let renderer: Renderer;
-
-let basicProject: DjangoProject;
-let basicApp: DjangoApp;
-let basicModel: DjangoModel;
-
-let htmxProject: DjangoProject;
-let htmxApp: DjangoApp;
-let htmxModel: DjangoModel;
-
-let channelsProject: DjangoProject;
-let channelsApp: DjangoApp;
-let channelsModel: DjangoModel;
+const renderer = new Renderer();
 
 const project_files = Object.keys(ROOT_FILES)
   .concat(Object.keys(PROJECT_FILES))
   .concat(Object.keys(PROJECT_TEMPLATE_FILES))
   .concat(Object.keys(PROJECT_HTMX_TEMPLATE_FILES));
 
-beforeEach(() => {
-  renderer = new Renderer();
-  
-  basicProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: false, channels: false});
-  basicApp = basicProject.addApp("testapp2");
-  basicModel = basicApp.addModel("TestModel2");
+const basicProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: false, channels: false});
+const basicApp = basicProject.addApp("testapp1");
+const basicModel = basicApp.addModel("TestModel1");
 
-  htmxProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: true, channels: false});
-  htmxApp = htmxProject.addApp("testapp1");
-  htmxModel = htmxApp.addModel("TestModel1");
+const htmxProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: true, channels: false});
+const htmxApp = htmxProject.addApp("testapp2");
+const htmxModel = htmxApp.addModel("TestModel2");
 
-  channelsProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: false, channels: true});
-  channelsApp = htmxProject.addApp("testapp1");
-  channelsModel = htmxApp.addModel("TestModel1");
+const channelsProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: false, channels: true});
+const channelsApp = channelsProject.addApp("testapp3");
+const channelsModel = channelsApp.addModel("TestModel4");
 
+const projects = [basicProject, htmxProject, channelsProject];
+const filenames = project_files;
+
+class DjangoTestCase {
+  project: DjangoProject
+  filename: string
+
+  constructor(
+    project: DjangoProject,
+    filename: string,
+  ) {
+    this.project = project;
+    this.filename = filename;
+  }
+}
+
+const test_cases: Array<DjangoTestCase> = projects.flatMap(
+  project => filenames.map(
+    filename => new DjangoTestCase(project, filename)
+  )
+)
+
+describe('Project file tests', () => {
+  test.each(test_cases)(
+    '%s',
+    (test_case: DjangoTestCase) => {
+      expect(renderer.renderProjectFile(test_case.filename, test_case.project)).toMatchSnapshot()
+    },
+  );
 })
 
 describe(`Render Basic Project Root Files`, () => {
