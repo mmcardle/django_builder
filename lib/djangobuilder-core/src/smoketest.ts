@@ -3,13 +3,16 @@ import fs from 'fs';
 import Renderer from "./rendering";
 import { DjangoVersion } from "./types";
 import DjangoProject, { DjangoApp, DjangoModel, AuthUser } from "./api";
+import { exit } from 'process';
 
 const zooProject = new DjangoProject(
   "ThePetZoo",
   "A Project for maintaining Pets",
   DjangoVersion.DJANGO4,
-  true,
-  true
+  {
+    channels: true,
+    htmx: true
+  }
 );
 
 const mammalsApp: DjangoApp = zooProject.addApp("mammals");
@@ -55,6 +58,7 @@ console.log(renderer.renderModelFile("list.html", badgerModel));
 console.log(renderer.renderProjectFile("pytest.ini", zooProject));
 console.log(renderer.renderProjectFile("test_requirements.txt", zooProject));
 console.log(renderer.renderProjectFile("test_settings.py", zooProject));
+console.log(renderer.renderProjectFile("test_helpers.py", zooProject));
 console.log(renderer.renderProjectFile("__init__.py", zooProject));
 
 console.log(renderer.renderAppFile("htmx.py", mammalsApp));
@@ -67,6 +71,8 @@ console.log(renderer.renderAppFile("models.py", mammalsApp));
 console.log(renderer.renderAppFile("urls.py", birdsApp));
 console.log(renderer.renderAppFile("models.py", birdsApp));
 console.log(renderer.renderAppFile("forms.py", birdsApp));
+console.log(renderer.renderAppFile("test_views.py", birdsApp));
+
 
 const tarballContent = renderer.asTarball(zooProject);
 const outputFile = `${zooProject.name}.tar`;

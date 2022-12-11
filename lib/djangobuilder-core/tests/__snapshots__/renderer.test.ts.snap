@@ -178,7 +178,10 @@ def create_ContentType(**kwargs):
 
 
 def create_testapp1_TestModel1(**kwargs):
-    defaults = {}
+    defaults = {
+        "TestField1": "text",
+        "TestField1": create_User(),
+    }
     defaults.update(**kwargs)
     return testapp1_models.TestModel1.objects.create(**defaults)
 
@@ -253,7 +256,12 @@ def create_ContentType(**kwargs):
 
 
 def create_testapp2_TestModel2(**kwargs):
-    defaults = {}
+    defaults = {
+        "TestField2": "text",
+        "TestField3": "text",
+        "TestField2": create_User(),
+        "TestField3": create_User(),
+    }
     defaults.update(**kwargs)
     return testapp2_models.TestModel2.objects.create(**defaults)
 
@@ -327,10 +335,11 @@ def create_ContentType(**kwargs):
     return ContentType.objects.create(**defaults)
 
 
-def create_testapp3_TestModel4(**kwargs):
-    defaults = {}
+def create_testapp3_TestModel3(**kwargs):
+    defaults = {
+    }
     defaults.update(**kwargs)
-    return testapp3_models.TestModel4.objects.create(**defaults)
+    return testapp3_models.TestModel3.objects.create(**defaults)
 
   
 "
@@ -822,10 +831,10 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
   <div class="container">
     <div class="row">
     <div class="col col-lg-6">
-      <h5>Add A TestModel4</h5>
-      <div hx-get="{% url 'testapp3_TestModel4_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
-      <h4>TestModel4 List</h4>
-      <div hx-get="{% url 'testapp3_TestModel4_htmx_list' %}" hx-trigger="load">
+      <h5>Add A TestModel3</h5>
+      <div hx-get="{% url 'testapp3_TestModel3_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <h4>TestModel3 List</h4>
+      <div hx-get="{% url 'testapp3_TestModel3_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     </div>
@@ -909,7 +918,7 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
         <h4>testapp3</h4>
       </div>
       <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp3_TestModel4_list' %}">TestModel4 Listing</a>
+      <a class="btn btn-light" href="{% url 'testapp3_TestModel3_list' %}">TestModel3 Listing</a>
       </div>
     </div>
   </div>
@@ -1078,6 +1087,84 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
 [pytest]
 DJANGO_SETTINGS_MODULE = test_settings
 addopts=-v -ra
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'routing.py' } 1`] = `
+"
+from django.conf.urls import url
+
+from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+
+from TestProject.consumers import TestProject_WebSocketConsumer
+
+from testapp1.consumers import Testapp1Consumer
+
+application = ProtocolTypeRouter({
+
+    # WebSocket handler
+    "websocket": AuthMiddlewareStack(
+        URLRouter([
+            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
+        ])
+    ),
+    "channel": ChannelNameRouter({
+        "testapp1": Testapp1Consumer,
+    })
+})
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'routing.py' } 2`] = `
+"
+from django.conf.urls import url
+
+from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+
+from TestProject.consumers import TestProject_WebSocketConsumer
+
+from testapp2.consumers import Testapp2Consumer
+
+application = ProtocolTypeRouter({
+
+    # WebSocket handler
+    "websocket": AuthMiddlewareStack(
+        URLRouter([
+            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
+        ])
+    ),
+    "channel": ChannelNameRouter({
+        "testapp2": Testapp2Consumer,
+    })
+})
+"
+`;
+
+exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'routing.py' } 3`] = `
+"
+from django.conf.urls import url
+
+from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+
+from TestProject.consumers import TestProject_WebSocketConsumer
+
+from testapp3.consumers import Testapp3Consumer
+
+application = ProtocolTypeRouter({
+
+    # WebSocket handler
+    "websocket": AuthMiddlewareStack(
+        URLRouter([
+            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
+        ])
+    ),
+    "channel": ChannelNameRouter({
+        "testapp3": Testapp3Consumer,
+    })
+})
 "
 `;
 
@@ -1661,6 +1748,11 @@ exports[`Render Basic Project App Files __init__.py 1`] = `
 "
 `;
 
+exports[`Render Basic Project App Files __init__.py 2`] = `
+"
+"
+`;
+
 exports[`Render Basic Project App Files admin.py 1`] = `
 "
 from django.contrib import admin
@@ -1679,8 +1771,12 @@ class TestModel1AdminForm(forms.ModelForm):
 class TestModel1Admin(admin.ModelAdmin):
     form = TestModel1AdminForm
     list_display = [
+        'TestField1',
+        'TestField1',
     ]
     readonly_fields = [
+        'TestField1',
+        'TestField1',
     ]
 
 
@@ -1723,15 +1819,19 @@ exports[`Render Basic Project App Files forms.py 1`] = `
 "
 from django import forms
 from . import models
+#from  import 
 
 class TestModel1Form(forms.ModelForm):
     class Meta:
         model = models.TestModel1
         fields = [
+            'TestField1',
+            'TestField1',
         ]
 
     def __init__(self, *args, **kwargs):
         super(TestModel1Form, self).__init__(*args, **kwargs)
+        #self.fields["TestField1"].queryset = auth.User.objects.all()
 "
 `;
 
@@ -1806,7 +1906,9 @@ from django.urls import reverse
 
 class TestModel1(models.Model):
 
+    TestField1 = models.ForeignKey("auth.User", )
 
+    TestField1 = models.CharField()
 
     class Meta:
         pass
@@ -1843,7 +1945,62 @@ class TestModel1Serializer(serializers.ModelSerializer):
     class Meta:
         model = models.TestModel1
         fields = [
+            'TestField1',
+            'TestField1',
         ]
+
+"
+`;
+
+exports[`Render Basic Project App Files test_views.py 1`] = `
+"
+import pytest
+import test_helpers
+
+from django.urls import reverse
+
+
+pytestmark = [pytest.mark.django_db]
+
+
+
+def tests_TestModel1_list_view(client):
+    instance1 = test_helpers.create_testapp1_TestModel1()
+    instance2 = test_helpers.create_testapp1_TestModel1()
+    url = reverse("testapp1_TestModel1_list")
+    response = client.get(url)
+    assert response.status_code == 200
+    assert str(instance1) in response.content.decode("utf-8")
+    assert str(instance2) in response.content.decode("utf-8")
+
+
+def tests_TestModel1_create_view(client):
+    url = reverse("testapp1_TestModel1_create")
+    data = {
+      "TestField1": "text",
+      "TestField1": test_helpers.create_User().pk,
+    }
+    response = client.post(url, data)
+    assert response.status_code == 302
+
+
+def tests_TestModel1_detail_view(client):
+    instance = test_helpers.create_testapp1_TestModel1()
+    url = reverse("testapp1_TestModel1_detail", args=[instance.pk, ])
+    response = client.get(url)
+    assert response.status_code == 200
+    assert str(instance) in response.content.decode("utf-8")
+
+    
+def tests_TestModel1_update_view(client):
+    instance = test_helpers.create_testapp1_TestModel1()
+    url = reverse("testapp1_TestModel1_update", args=[instance.pk, ])
+    data = {
+      "TestField1": "text",
+      "TestField1": test_helpers.create_User().pk,
+    }
+    response = client.post(url, data)
+    assert response.status_code == 302
 "
 `;
 
@@ -1936,6 +2093,12 @@ exports[`Render Basic Project Model Files detail.html 1`] = `
     
 <table class="table">
     <tr><td>Detail</td><td>{{ object }}</td></tr>
+    <tr>
+        <td>TestField1</td>
+        <td>
+            {{ object.TestField1 }}
+        </td>
+    </tr>
 
 </table>
 <a class="btn btn-primary" href="{{object.get_update_url}}">Edit</a>
@@ -2230,6 +2393,32 @@ pytest-django
 "
 `;
 
+exports[`Render Basic Project Root Files routing.py 1`] = `
+"
+from django.conf.urls import url
+
+from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+
+from TestProject.consumers import TestProject_WebSocketConsumer
+
+from testapp1.consumers import Testapp1Consumer
+
+application = ProtocolTypeRouter({
+
+    # WebSocket handler
+    "websocket": AuthMiddlewareStack(
+        URLRouter([
+            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
+        ])
+    ),
+    "channel": ChannelNameRouter({
+        "testapp1": Testapp1Consumer,
+    })
+})
+"
+`;
+
 exports[`Render Basic Project Root Files settings.py 1`] = `
 "
 """
@@ -2424,7 +2613,10 @@ def create_ContentType(**kwargs):
 
 
 def create_testapp1_TestModel1(**kwargs):
-    defaults = {}
+    defaults = {
+        "TestField1": "text",
+        "TestField1": create_User(),
+    }
     defaults.update(**kwargs)
     return testapp1_models.TestModel1.objects.create(**defaults)
 
@@ -2512,6 +2704,11 @@ exports[`Render Channels Project App Files __init__.py 1`] = `
 "
 `;
 
+exports[`Render Channels Project App Files __init__.py 2`] = `
+"
+"
+`;
+
 exports[`Render Channels Project App Files admin.py 1`] = `
 "
 from django.contrib import admin
@@ -2520,22 +2717,22 @@ from django import forms
 from . import models
 
 
-class TestModel4AdminForm(forms.ModelForm):
+class TestModel3AdminForm(forms.ModelForm):
 
     class Meta:
-        model = models.TestModel4
+        model = models.TestModel3
         fields = "__all__"
 
 
-class TestModel4Admin(admin.ModelAdmin):
-    form = TestModel4AdminForm
+class TestModel3Admin(admin.ModelAdmin):
+    form = TestModel3AdminForm
     list_display = [
     ]
     readonly_fields = [
     ]
 
 
-admin.site.register(models.TestModel4, TestModel4Admin)
+admin.site.register(models.TestModel3, TestModel3Admin)
 
 "
 `;
@@ -2547,11 +2744,11 @@ from . import models
 from . import serializers
 
 
-class TestModel4ViewSet(viewsets.ModelViewSet):
-    """ViewSet for the TestModel4 class"""
+class TestModel3ViewSet(viewsets.ModelViewSet):
+    """ViewSet for the TestModel3 class"""
 
-    queryset = models.TestModel4.objects.all()
-    serializer_class = serializers.TestModel4Serializer
+    queryset = models.TestModel3.objects.all()
+    serializer_class = serializers.TestModel3Serializer
     permission_classes = [permissions.IsAuthenticated]
 
 "
@@ -2575,14 +2772,14 @@ exports[`Render Channels Project App Files forms.py 1`] = `
 from django import forms
 from . import models
 
-class TestModel4Form(forms.ModelForm):
+class TestModel3Form(forms.ModelForm):
     class Meta:
-        model = models.TestModel4
+        model = models.TestModel3
         fields = [
         ]
 
     def __init__(self, *args, **kwargs):
-        super(TestModel4Form, self).__init__(*args, **kwargs)
+        super(TestModel3Form, self).__init__(*args, **kwargs)
 "
 `;
 
@@ -2596,9 +2793,9 @@ from django.urls import reverse_lazy
 from . import models
 from . import forms
 
-class HTMXTestModel4ListView(generic.ListView):
-    model = models.TestModel4
-    form_class = forms.TestModel4Form
+class HTMXTestModel3ListView(generic.ListView):
+    model = models.TestModel3
+    form_class = forms.TestModel3Form
     
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
@@ -2609,9 +2806,9 @@ class HTMXTestModel4ListView(generic.ListView):
         return TemplateResponse(request,'htmx/list.html', context)
 
 
-class HTMXTestModel4CreateView(generic.CreateView):
-    model = models.TestModel4
-    form_class = forms.TestModel4Form
+class HTMXTestModel3CreateView(generic.CreateView):
+    model = models.TestModel3
+    form_class = forms.TestModel3Form
     
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
@@ -2639,9 +2836,9 @@ class HTMXTestModel4CreateView(generic.CreateView):
         return TemplateResponse(self.request, 'htmx/form.html', context)
 
 
-class HTMXTestModel4DeleteView(generic.DeleteView):
-    model = models.TestModel4
-    success_url = reverse_lazy("testapp3_TestModel4_htmx_list")
+class HTMXTestModel3DeleteView(generic.DeleteView):
+    model = models.TestModel3
+    success_url = reverse_lazy("testapp3_TestModel3_htmx_list")
     
     def form_valid(self, form):
         super().form_valid(form)
@@ -2655,7 +2852,7 @@ exports[`Render Channels Project App Files models.py 1`] = `
 from django.db import models
 from django.urls import reverse
 
-class TestModel4(models.Model):
+class TestModel3(models.Model):
 
 
 
@@ -2667,16 +2864,16 @@ class TestModel4(models.Model):
 
     @staticmethod
     def get_create_url():
-        return reverse("testapp3_TestModel4_create")
+        return reverse("testapp3_TestModel3_create")
 
     def get_absolute_url(self):
-        return reverse("testapp3_TestModel4_detail", args=(self.pk,))
+        return reverse("testapp3_TestModel3_detail", args=(self.pk,))
 
     def get_update_url(self):
-        return reverse("testapp3_TestModel4_update", args=(self.pk,))
+        return reverse("testapp3_TestModel3_update", args=(self.pk,))
 
     def get_delete_url(self):
-        return reverse("testapp3_TestModel4_delete", args=(self.pk,))
+        return reverse("testapp3_TestModel3_delete", args=(self.pk,))
 
 
 
@@ -2689,12 +2886,61 @@ from rest_framework import serializers
 from . import models
 
 
-class TestModel4Serializer(serializers.ModelSerializer):
+class TestModel3Serializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.TestModel4
+        model = models.TestModel3
         fields = [
         ]
+
+"
+`;
+
+exports[`Render Channels Project App Files test_views.py 1`] = `
+"
+import pytest
+import test_helpers
+
+from django.urls import reverse
+
+
+pytestmark = [pytest.mark.django_db]
+
+
+
+def tests_TestModel3_list_view(client):
+    instance1 = test_helpers.create_testapp3_TestModel3()
+    instance2 = test_helpers.create_testapp3_TestModel3()
+    url = reverse("testapp3_TestModel3_list")
+    response = client.get(url)
+    assert response.status_code == 200
+    assert str(instance1) in response.content.decode("utf-8")
+    assert str(instance2) in response.content.decode("utf-8")
+
+
+def tests_TestModel3_create_view(client):
+    url = reverse("testapp3_TestModel3_create")
+    data = {
+    }
+    response = client.post(url, data)
+    assert response.status_code == 302
+
+
+def tests_TestModel3_detail_view(client):
+    instance = test_helpers.create_testapp3_TestModel3()
+    url = reverse("testapp3_TestModel3_detail", args=[instance.pk, ])
+    response = client.get(url)
+    assert response.status_code == 200
+    assert str(instance) in response.content.decode("utf-8")
+
+    
+def tests_TestModel3_update_view(client):
+    instance = test_helpers.create_testapp3_TestModel3()
+    url = reverse("testapp3_TestModel3_update", args=[instance.pk, ])
+    data = {
+    }
+    response = client.post(url, data)
+    assert response.status_code == 302
 "
 `;
 
@@ -2708,15 +2954,15 @@ from . import views
 
 
 router = routers.DefaultRouter()
-router.register("TestModel4", api.TestModel4ViewSet)
+router.register("TestModel3", api.TestModel3ViewSet)
 
 urlpatterns = (
     path("api/v1/", include(router.urls)),
-    path("testapp3/TestModel4/", views.TestModel4ListView.as_view(), name="testapp3_TestModel4_list"),
-    path("testapp3/TestModel4/create/", views.TestModel4CreateView.as_view(), name="testapp3_TestModel4_create"),
-    path("testapp3/TestModel4/detail/<int:pk>/", views.TestModel4DetailView.as_view(), name="testapp3_TestModel4_detail"),
-    path("testapp3/TestModel4/update/<int:pk>/", views.TestModel4UpdateView.as_view(), name="testapp3_TestModel4_update"),
-    path("testapp3/TestModel4/delete/<int:pk>/", views.TestModel4DeleteView.as_view(), name="testapp3_TestModel4_delete"),
+    path("testapp3/TestModel3/", views.TestModel3ListView.as_view(), name="testapp3_TestModel3_list"),
+    path("testapp3/TestModel3/create/", views.TestModel3CreateView.as_view(), name="testapp3_TestModel3_create"),
+    path("testapp3/TestModel3/detail/<int:pk>/", views.TestModel3DetailView.as_view(), name="testapp3_TestModel3_detail"),
+    path("testapp3/TestModel3/update/<int:pk>/", views.TestModel3UpdateView.as_view(), name="testapp3_TestModel3_update"),
+    path("testapp3/TestModel3/delete/<int:pk>/", views.TestModel3DeleteView.as_view(), name="testapp3_TestModel3_delete"),
 )
 "
 `;
@@ -2730,30 +2976,30 @@ from . import models
 from . import forms
 
 
-class TestModel4ListView(generic.ListView):
-    model = models.TestModel4
-    form_class = forms.TestModel4Form
+class TestModel3ListView(generic.ListView):
+    model = models.TestModel3
+    form_class = forms.TestModel3Form
 
 
-class TestModel4CreateView(generic.CreateView):
-    model = models.TestModel4
-    form_class = forms.TestModel4Form
+class TestModel3CreateView(generic.CreateView):
+    model = models.TestModel3
+    form_class = forms.TestModel3Form
 
 
-class TestModel4DetailView(generic.DetailView):
-    model = models.TestModel4
-    form_class = forms.TestModel4Form
+class TestModel3DetailView(generic.DetailView):
+    model = models.TestModel3
+    form_class = forms.TestModel3Form
 
 
-class TestModel4UpdateView(generic.UpdateView):
-    model = models.TestModel4
-    form_class = forms.TestModel4Form
+class TestModel3UpdateView(generic.UpdateView):
+    model = models.TestModel3
+    form_class = forms.TestModel3Form
     pk_url_kwarg = "pk"
 
 
-class TestModel4DeleteView(generic.DeleteView):
-    model = models.TestModel4
-    success_url = reverse_lazy("testapp3_TestModel4_list")
+class TestModel3DeleteView(generic.DeleteView):
+    model = models.TestModel3
+    success_url = reverse_lazy("testapp3_TestModel3_list")
 
 "
 `;
@@ -2780,7 +3026,7 @@ exports[`Render Channels Project Model Files detail.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp3_TestModel4_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp3_TestModel3_list' %}">
      Listing
     </a>
 </p>
@@ -2802,7 +3048,7 @@ exports[`Render Channels Project Model Files form.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp3_TestModel4_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp3_TestModel3_list' %}">
      Listing
     </a>
 </p>
@@ -2831,8 +3077,8 @@ exports[`Render Channels Project Model Files list.html 1`] = `
   </div>
 {% endfor %}
 <div>
-  <a class="btn btn-primary" href="{% url 'testapp3_TestModel4_create' %}">
-  Create a new TestModel4
+  <a class="btn btn-primary" href="{% url 'testapp3_TestModel3_create' %}">
+  Create a new TestModel3
   </a>
 </div>
 {% endblock %}
@@ -3008,10 +3254,10 @@ exports[`Render Channels Project Root Files htmx.html 1`] = `
   <div class="container">
     <div class="row">
     <div class="col col-lg-6">
-      <h5>Add A TestModel4</h5>
-      <div hx-get="{% url 'testapp3_TestModel4_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
-      <h4>TestModel4 List</h4>
-      <div hx-get="{% url 'testapp3_TestModel4_htmx_list' %}" hx-trigger="load">
+      <h5>Add A TestModel3</h5>
+      <div hx-get="{% url 'testapp3_TestModel3_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <h4>TestModel3 List</h4>
+      <div hx-get="{% url 'testapp3_TestModel3_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     </div>
@@ -3033,7 +3279,7 @@ exports[`Render Channels Project Root Files index.html 1`] = `
         <h4>testapp3</h4>
       </div>
       <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp3_TestModel4_list' %}">TestModel4 Listing</a>
+      <a class="btn btn-light" href="{% url 'testapp3_TestModel3_list' %}">TestModel3 Listing</a>
       </div>
     </div>
   </div>
@@ -3117,6 +3363,32 @@ exports[`Render Channels Project Root Files requirements-dev.txt 1`] = `
 "
 pytest
 pytest-django
+"
+`;
+
+exports[`Render Channels Project Root Files routing.py 1`] = `
+"
+from django.conf.urls import url
+
+from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+
+from TestProject.consumers import TestProject_WebSocketConsumer
+
+from testapp3.consumers import Testapp3Consumer
+
+application = ProtocolTypeRouter({
+
+    # WebSocket handler
+    "websocket": AuthMiddlewareStack(
+        URLRouter([
+            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
+        ])
+    ),
+    "channel": ChannelNameRouter({
+        "testapp3": Testapp3Consumer,
+    })
+})
 "
 `;
 
@@ -3313,10 +3585,11 @@ def create_ContentType(**kwargs):
     return ContentType.objects.create(**defaults)
 
 
-def create_testapp3_TestModel4(**kwargs):
-    defaults = {}
+def create_testapp3_TestModel3(**kwargs):
+    defaults = {
+    }
     defaults.update(**kwargs)
-    return testapp3_models.TestModel4.objects.create(**defaults)
+    return testapp3_models.TestModel3.objects.create(**defaults)
 
   
 "
@@ -3640,6 +3913,32 @@ pytest-django
 "
 `;
 
+exports[`Render HTMX Project Root Files routing.py 1`] = `
+"
+from django.conf.urls import url
+
+from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+
+from TestProject.consumers import TestProject_WebSocketConsumer
+
+from testapp2.consumers import Testapp2Consumer
+
+application = ProtocolTypeRouter({
+
+    # WebSocket handler
+    "websocket": AuthMiddlewareStack(
+        URLRouter([
+            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
+        ])
+    ),
+    "channel": ChannelNameRouter({
+        "testapp2": Testapp2Consumer,
+    })
+})
+"
+`;
+
 exports[`Render HTMX Project Root Files settings.py 1`] = `
 "
 """
@@ -3834,7 +4133,12 @@ def create_ContentType(**kwargs):
 
 
 def create_testapp2_TestModel2(**kwargs):
-    defaults = {}
+    defaults = {
+        "TestField2": "text",
+        "TestField3": "text",
+        "TestField2": create_User(),
+        "TestField3": create_User(),
+    }
     defaults.update(**kwargs)
     return testapp2_models.TestModel2.objects.create(**defaults)
 
@@ -3927,6 +4231,11 @@ exports[`Render HTMX ProjectApp Files __init__.py 1`] = `
 "
 `;
 
+exports[`Render HTMX ProjectApp Files __init__.py 2`] = `
+"
+"
+`;
+
 exports[`Render HTMX ProjectApp Files admin.py 1`] = `
 "
 from django.contrib import admin
@@ -3945,8 +4254,16 @@ class TestModel2AdminForm(forms.ModelForm):
 class TestModel2Admin(admin.ModelAdmin):
     form = TestModel2AdminForm
     list_display = [
+        'TestField2',
+        'TestField3',
+        'TestField2',
+        'TestField3',
     ]
     readonly_fields = [
+        'TestField2',
+        'TestField3',
+        'TestField2',
+        'TestField3',
     ]
 
 
@@ -3989,15 +4306,23 @@ exports[`Render HTMX ProjectApp Files forms.py 1`] = `
 "
 from django import forms
 from . import models
+#from  import 
+#from  import 
 
 class TestModel2Form(forms.ModelForm):
     class Meta:
         model = models.TestModel2
         fields = [
+            'TestField2',
+            'TestField3',
+            'TestField2',
+            'TestField3',
         ]
 
     def __init__(self, *args, **kwargs):
         super(TestModel2Form, self).__init__(*args, **kwargs)
+        #self.fields["TestField2"].queryset = auth.User.objects.all()
+        #self.fields["TestField3"].queryset = auth.User.objects.all()
 "
 `;
 
@@ -4072,7 +4397,11 @@ from django.urls import reverse
 
 class TestModel2(models.Model):
 
+    TestField2 = models.ForeignKey("auth.User", )
+    TestField3 = models.ForeignKey("auth.User", )
 
+    TestField2 = models.CharField()
+    TestField3 = models.CharField()
 
     class Meta:
         pass
@@ -4115,7 +4444,68 @@ class TestModel2Serializer(serializers.ModelSerializer):
     class Meta:
         model = models.TestModel2
         fields = [
+            'TestField2',
+            'TestField3',
+            'TestField2',
+            'TestField3',
         ]
+
+"
+`;
+
+exports[`Render HTMX ProjectApp Files test_views.py 1`] = `
+"
+import pytest
+import test_helpers
+
+from django.urls import reverse
+
+
+pytestmark = [pytest.mark.django_db]
+
+
+
+def tests_TestModel2_list_view(client):
+    instance1 = test_helpers.create_testapp2_TestModel2()
+    instance2 = test_helpers.create_testapp2_TestModel2()
+    url = reverse("testapp2_TestModel2_list")
+    response = client.get(url)
+    assert response.status_code == 200
+    assert str(instance1) in response.content.decode("utf-8")
+    assert str(instance2) in response.content.decode("utf-8")
+
+
+def tests_TestModel2_create_view(client):
+    url = reverse("testapp2_TestModel2_create")
+    data = {
+      "TestField2": "text",
+      "TestField3": "text",
+      "TestField2": test_helpers.create_User().pk,
+      "TestField3": test_helpers.create_User().pk,
+    }
+    response = client.post(url, data)
+    assert response.status_code == 302
+
+
+def tests_TestModel2_detail_view(client):
+    instance = test_helpers.create_testapp2_TestModel2()
+    url = reverse("testapp2_TestModel2_detail", args=[instance.pk, ])
+    response = client.get(url)
+    assert response.status_code == 200
+    assert str(instance) in response.content.decode("utf-8")
+
+    
+def tests_TestModel2_update_view(client):
+    instance = test_helpers.create_testapp2_TestModel2()
+    url = reverse("testapp2_TestModel2_update", args=[instance.pk, ])
+    data = {
+      "TestField2": "text",
+      "TestField3": "text",
+      "TestField2": test_helpers.create_User().pk,
+      "TestField3": test_helpers.create_User().pk,
+    }
+    response = client.post(url, data)
+    assert response.status_code == 302
 "
 `;
 
@@ -4212,6 +4602,18 @@ exports[`Render HTMX ProjectModel Files detail.html 1`] = `
     
 <table class="table">
     <tr><td>Detail</td><td>{{ object }}</td></tr>
+    <tr>
+        <td>TestField2</td>
+        <td>
+            {{ object.TestField2 }}
+        </td>
+    </tr>
+    <tr>
+        <td>TestField3</td>
+        <td>
+            {{ object.TestField3 }}
+        </td>
+    </tr>
 
 </table>
 <a class="btn btn-primary" href="{{object.get_update_url}}">Edit</a>

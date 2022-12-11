@@ -65,7 +65,14 @@ def create_ContentType(**kwargs):
 {{#models}}
 
 def create_{{app.name}}_{{name}}(**kwargs):
-    defaults = {}
+    defaults = {
+        {{#fields}}
+        "{{name}}": {{{ testHelperCreateDefaultField . }}},
+        {{/fields}}
+        {{#relationships}}
+        "{{name}}": create_{{{ testHelperCreateDefaultRelationship . }}},
+        {{/relationships}}
+    }
     defaults.update(**kwargs)
     return {{app.name}}_models.{{name}}.objects.create(**defaults)
 

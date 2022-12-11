@@ -4,9 +4,11 @@ from django.conf.urls import url
 from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 
-from XXX_PROJECT_NAME_XXX.consumers import XXX_PROJECT_NAME_XXX_WebSocketConsumer
+from {{project.name}}.consumers import {{project.name}}_WebSocketConsumer
 
-XXX_CONSUMER_IMPORTS_XXX
+{{#project.apps}}
+from {{name}}.consumers import {{ camelCase name }}Consumer
+{{/project.apps}}
 
 application = ProtocolTypeRouter({
 
@@ -17,7 +19,9 @@ application = ProtocolTypeRouter({
         ])
     ),
     "channel": ChannelNameRouter({
-    XXX_CONSUMERS_XXX
+    {{#project.apps}}
+        "{{name}}": {{ camelCase name }}Consumer,
+    {{/project.apps}}
     })
 })
 `

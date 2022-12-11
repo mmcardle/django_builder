@@ -21,23 +21,34 @@ const DEFAULT_MIDDLEWARES = [
 
 const HTMX_MIDDLEWARE = 'django_htmx.middleware.HtmxMiddleware'
 
+export class BuiltInModel implements IBuiltInModel {
+  name: string;
+  model: string;
 
-export const AuthUser: IBuiltInModel = {
-  name: "auth.User",
+  constructor(
+    name: string,
+    model: string,
+  ) {
+    this.name = name;
+    this.model = model;
+  }
 }
+
+export const AuthUser = new BuiltInModel("auth.User", "User")
+export const AbstractUser = new BuiltInModel("auth.AbstractUser", "AbstractUser")
 
 export class DjangoRelationship implements IDjangoRelationship {
   model: IDjangoModel;
   name: string;
   type: string;
-  to: string;
+  to: IDjangoModel | IBuiltInModel;
   args: string;
 
   constructor(
     model: IDjangoModel,
     name: string,
     type: string,
-    to: string,
+    to: IDjangoModel | IBuiltInModel,
     args: string,
   ) {
     this.model = model;
@@ -45,6 +56,10 @@ export class DjangoRelationship implements IDjangoRelationship {
     this.type = type;
     this.to = to;
     this.args = args;
+  }
+
+  relatedTo() {
+    return this.to instanceof DjangoModel ? this.to.app.name + "." + this.to.name : this.to.name;
   }
 }
 
@@ -120,8 +135,7 @@ export class DjangoModel implements IDjangoModel {
   }
 
   addRelationship(name: string, type: string, to: IDjangoModel | IBuiltInModel, args: string): DjangoRelationship {
-    const relatedTo = to instanceof DjangoModel ? to.app.name + "." + to.name : to.name;
-    const relationship = new DjangoRelationship(this, name, type, relatedTo, args);
+    const relationship = new DjangoRelationship(this, name, type, to, args);
     this.relationships.push(relationship)
     return relationship;
   }

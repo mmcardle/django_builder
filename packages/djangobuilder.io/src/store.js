@@ -4,6 +4,8 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import {keyByValue} from './utils'
 import { event } from 'vue-gtag'
+import { DjangoProject, DjangoApp, DjangoModel, DjangoVersion } from "@djangobuilder/core";
+import { DjangoField, DjangoRelationship } from '@djangobuilder/core/src/api';
 
 Vue.use(Vuex)
 
@@ -29,6 +31,43 @@ export default new Vuex.Store({
       })
     },
     projectData: (state) => (id) => state.projects[id].data(),
+    toCoreProject: (state) => (id) => {
+      const projectData = state.projects[id].data();
+      console.log("Firebase Data", projectData);
+
+      const coreVersion = projectData.django_version == 4 ? DjangoVersion.DJANGO4 :
+        projectData.django_version == 3 ? DjangoVersion.DJANGO3 : DjangoVersion.DJANGO2;
+
+      const coreProject = new DjangoProject(
+        projectData.name, projectData.description, coreVersion, {htmx: projectData.htmx, channels: projectData.channels}
+      );
+
+      Object.keys(projectData.apps).forEach(appId => {
+        const appData = state.apps[appId].data();
+        console.log("APP", appId, appData);
+        const coreApp = new DjangoApp(coreProject, appData.name);
+        coreProject.apps.push(coreApp)
+
+        Object.keys(appData.models).forEach(modelId => {
+          const modelData = state.models[modelId].data();
+          const coreModel = new DjangoModel(coreApp, modelData.name, modelData.abstract);
+          coreApp.models.push(coreModel);
+
+          Object.keys(modelData.fields).forEach(fieldId => {
+            const fieldData = state.fields[fieldId].data();
+            const coreField = new DjangoField(coreModel, fieldData.name, fieldData.type, fieldData.args)
+            coreModel.fields.push(coreField);
+          });
+
+          Object.keys(modelData.relationships).forEach(relationshipId => {
+            const relationshipData = state.relationships[relationshipId].data();
+            const coreRelationship = new DjangoRelationship(coreModel, relationshipData.name, relationshipData.type, relationshipData.to, relationshipData.args)
+            coreModel.relationships.push(coreRelationship);
+          });
+        })
+      })
+      return coreProject
+    },
     apps: (state) => () => state.apps,
     appData: (state) => (id) => state.apps[id] ? state.apps[id].data() : undefined,
     models: (state) => () => state.models,

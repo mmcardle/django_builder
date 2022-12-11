@@ -2,8 +2,8 @@ export const template = `
 from rest_framework import serializers
 from . import models
 
-
 {{#app.models}}
+
 class {{name}}Serializer(serializers.ModelSerializer):
 
     class Meta:
@@ -17,4 +17,5 @@ class {{name}}Serializer(serializers.ModelSerializer):
             {{/relationships}}
         ]
 {{/app.models}}
+
 `

@@ -1,6 +1,7 @@
 
 interface IBuiltInModel {
   name: string;
+  model: string;
 }
 
 type IRelatedField = IDjangoModel | IBuiltInModel;
@@ -16,7 +17,7 @@ interface IDjangoRelationship {
   model: IDjangoModel;
   name: string;
   type: string;
-  to: string;
+  to: IDjangoModel | IBuiltInModel;
   args: string;
 }
 
@@ -44,6 +45,7 @@ interface IDjangoApp {
 }
 
 enum DjangoVersion {
+  DJANGO2 = 2.2,
   DJANGO3 = 3.2,
   DJANGO4 = 4.1,
 }
@@ -59,8 +61,6 @@ interface IDjangoProject {
   addApp(name: string): IDjangoApp;
 }
 
-const X =3;
-
 export {
   IDjangoProject,
   IDjangoApp,
@@ -70,5 +70,4 @@ export {
   DjangoVersion,
   IRelatedField,
   IBuiltInModel,
-  X
 }

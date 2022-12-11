@@ -1,8 +1,10 @@
 import Renderer from "./rendering";
+import DjangoProject, { DjangoApp, DjangoModel } from './api';
+import { DjangoVersion } from "./types";
 
 const DEFAULT_DJANGO_VERSION = 4;
 
-export { DEFAULT_DJANGO_VERSION }
+export { DEFAULT_DJANGO_VERSION, DjangoProject,  DjangoApp, DjangoModel, DjangoVersion }
 
 type ModelType = {
   type: string;
@@ -25,7 +27,7 @@ class Django {
   relationshipMatches: Array<string>;
   parentModelTypes: Record<string, ModelType>;
   builtInModels: Record<string, BuiltInModelType>;
-  
+
   constructor() {
     this.slugType = 'django.db.models.SlugField'
     this.autoTypes = [
@@ -148,57 +150,55 @@ class Django {
       'django.contrib.gis.db.RasterField': {},
     }
     this.fieldDefaults = {
-      'django.db.models.TextField': '"text"',
-      'django.db.models.CharField': '"text"',
-      'django.db.models.JSONField': '{}',
-      'django.contrib.contenttypes.fields.GenericForeignKey': '',
-      'django.contrib.postgres.fields.ArrayField': '[]',
-      'django.contrib.postgres.fields.CICharField': '"text"',
-      'django.contrib.postgres.fields.CIEmailField': '"user@tempurl.com"',
-      'django.contrib.postgres.fields.CITextField': '"text"',
-      'django.contrib.postgres.fields.HStoreField': '{}',
-      'django.contrib.postgres.fields.ranges.IntegerRangeField': '1',
-      'django.contrib.postgres.fields.ranges.BigIntegerRangeField': '1',
-      'django.contrib.postgres.fields.ranges.FloatRangeField': '1.0',
-      'django.contrib.postgres.fields.ranges.DateTimeRangeField': '0',
-      'django.contrib.postgres.fields.ranges.DateRangeField': '0',
-      'django.db.models.CommaSeparatedIntegerField': '1,2,3',
-      'django.db.models.BigAutoField': '"sometext"',
-      'django.db.models.BigIntegerField': '1',
-      'django.db.models.BooleanField': 'true',
-      'django.db.models.DateField': 'datetime.now()',
-      'django.db.models.DateTimeField': 'datetime.now()',
-      'django.db.models.DecimalField': '1.0',
-      'django.db.models.DurationField': '1.0',
-      'django.db.models.FileField': '"aFile"',
-      'django.db.models.ImageField': '"anImage"',
-      'django.db.models.FilePathField': '"aFile"',
-      'django.db.models.FloatField': '1.0f',
-      'django.db.models.IntegerField': '1',
-      'django.db.models.PositiveIntegerField': '1',
-      'django.db.models.PositiveSmallIntegerField': '1',
-      'django.db.models.SlugField': '"slug"',
-      'django.db.models.IPAddressField': '"127.0.0.1"',
-      'django.db.models.GenericIPAddressField': '"127.0.0.1"',
-      'django.db.models.NullBooleanField': 'true',
-      'django.db.models.TimeField': '100',
-      'django.db.models.BinaryField': "b'bytes'",
-      'django.db.models.AutoField': '"auto"',
-      'django.db.models.SmallIntegerField': '1',
-      'django.db.models.URLField': 'http://127.0.0.1',
-      'django.db.models.UUIDField': '"b297a243-b621-4907-8581-e9b3ac146a07"',
-      'django.db.models.EmailField': '"user@tempurl.com"'
+      'TextField': '"text"',
+      'CharField': '"text"',
+      'JSONField': '{}',
+      'GenericForeignKey': '',
+      'ArrayField': '[]',
+      'CICharField': '"text"',
+      'CIEmailField': '"user@tempurl.com"',
+      'CITextField': '"text"',
+      'HStoreField': '{}',
+      'IntegerRangeField': '1',
+      'BigIntegerRangeField': '1',
+      'FloatRangeField': '1.0',
+      'DateTimeRangeField': '0',
+      'DateRangeField': '0',
+      'CommaSeparatedIntegerField': '1,2,3',
+      'BigAutoField': '"sometext"',
+      'BigIntegerField': '1',
+      'BooleanField': 'True',
+      'DateField': 'datetime.now()',
+      'DateTimeField': 'datetime.now()',
+      'DecimalField': '1.0',
+      'DurationField': '1.0',
+      'FileField': '"aFile"',
+      'ImageField': '"anImage"',
+      'FilePathField': '"aFile"',
+      'FloatField': '1.0f',
+      'IntegerField': '1',
+      'PositiveIntegerField': '1',
+      'PositiveSmallIntegerField': '1',
+      'SlugField': '"slug"',
+      'IPAddressField': '"127.0.0.1"',
+      'GenericIPAddressField': '"127.0.0.1"',
+      'NullBooleanField': 'True',
+      'TimeField': '100',
+      'BinaryField': "b'bytes'",
+      'AutoField': '"auto"',
+      'SmallIntegerField': '1',
+      'URLField': 'http://127.0.0.1',
+      'UUIDField': '"b297a243-b621-4907-8581-e9b3ac146a07"',
+      'EmailField': '"user@tempurl.com"'
     }
   }
 
-
-
-  fieldDefault(typ: string) {
-    return this.fieldDefaults[typ]
+  fieldDefault(type: string) {
+    return this.fieldDefaults[type]
   }
 
-  builtInModel(kls: string) {
-    return this.builtInModels[kls]
+  builtInModel(klass: string) {
+    return this.builtInModels[klass]
   }
 
 }

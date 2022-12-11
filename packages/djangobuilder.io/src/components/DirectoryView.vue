@@ -59,7 +59,7 @@
           <v-card class="ma-2" elevation="2">
             <v-card-text class="ma-0 pt-1">
               <!-- Important this the next line is all one line! -->
-              <highlight-code :lang="lang(active.name)" style="min-height: 783px; max-height:800px; overflow-y:auto">{{active.render()}}</highlight-code>
+              <highlight-code :lang="lang(active.name)" style="min-height: 783px; max-height:800px; overflow-y:auto">{{render(active)}}</highlight-code>
             </v-card-text>
           </v-card>
 
@@ -84,7 +84,7 @@
               </v-toolbar>
 
               <div class="pa-1">
-                <highlight-code :lang="lang(active.name)" style="min-height: 800px; max-height:800px; overflow-y:auto">{{active.render()}}</highlight-code>
+                <highlight-code :lang="lang(active.name)" style="min-height: 800px; max-height:800px; overflow-y:auto">{{render(active)}}</highlight-code>
               </div>
 
             </v-card>
@@ -99,6 +99,11 @@
 <script>
 import store from "../store";
 import Renderer from '@/django/rendering';
+import { Renderer as DBCoreRenderer} from "@djangobuilder/core"
+import { DjangoProject, DjangoApp, DjangoModel } from "@djangobuilder/core";
+import DjangoVersion from "@djangobuilder/core";
+
+const coreRenderer = new DBCoreRenderer(store)
 
 const renderer = new Renderer(store)
 
@@ -112,7 +117,6 @@ const renderer = new Renderer(store)
       code_dialog: undefined,
     }),
     computed: {
-      sourcecode: () => "from django.db import models",
       renderer: () => renderer,
       isloaded: function () {
         return this.$store.getters.loaded()
@@ -144,6 +148,7 @@ const renderer = new Renderer(store)
       if (apps.length > 0 && this.$store.getters.appData(apps[0].id) !== undefined ) {
         const app = apps[0]
         const a = {
+          type: "app",
           path: app.name + "/models.py",
           name: "models.py",
           render: () => renderer.app_render("models.py", this.id, app.id)
@@ -152,6 +157,7 @@ const renderer = new Renderer(store)
         this.active_nodes = [a]
       } else {
         const a = {
+          type: "project",
           path: project.name + "/settings.py",
           name: "settings.py",
           render: () => renderer.project_render("settings.py", this.id)
@@ -177,6 +183,22 @@ const renderer = new Renderer(store)
       }
     },
     methods: {
+      render(active) {
+        const djangoCoreProject = this.$store.getters.toCoreProject(this.id)
+        if (active.type == "project") {
+          return coreRenderer.renderProjectFile(active.name, djangoCoreProject)
+        } else if (active.type == "app") {
+          const [ appName,  ] = active.path.split("/");
+          const djangoCoreApp = djangoCoreProject.apps.find((app) => app.name == appName)
+          return coreRenderer.renderAppFile(active.name, djangoCoreApp)
+        } else if (active.type == "model") {
+          const djangoCoreApp = djangoCoreProject.apps.find((app) => app.name == active.appName)
+          const djangoCoreModel = djangoCoreApp.models.find((model) => model.name == active.modelName)
+          const modelFile = active.name.split("_").slice(1).join("_");
+          return coreRenderer.renderModelFile(modelFile, djangoCoreModel)
+        }
+        throw new Error(`No renderer for ${active.type} ${active.name}`)
+      },
       full_screen_code_dialog() {
         this.code_dialog = true
       },

@@ -5,6 +5,7 @@ import { template as projectWsgi } from "./django/python/wsgi";
 import { template as projectAsgi } from "./django/python/asgi";
 import { template as projectManage } from "./django/python/manage";
 import { template as projectConsumers } from "./django/python/consumers";
+import { template as projectRouting } from "./django/python/routing";
 
 import { template as rootTestHelpers } from "./django/python/test_helpers";
 import { template as rootRequirements } from "./django/requirements/requirements";
@@ -36,18 +37,40 @@ import { template as appViews } from "./django/python/app/views";
 import { template as appApi } from "./django/python/app/api";
 import { template as appSerializers } from "./django/python/app/serializers";
 import { template as appAdmin } from "./django/python/app/admin";
+
+import { template as appTestViews } from "./django/python/app/tests/test_views";
+
 import { template as init } from "./django/python/init";
 
 import Tarball from './tar'
 import Handlebars from "handlebars"
-import DjangoProject, { DjangoApp, DjangoModel } from './api';
+import DjangoProject, { BuiltInModel, DjangoApp, DjangoField, DjangoModel, DjangoRelationship } from './api';
+import Django from ".";
 import { IDjangoModel } from "./types";
+
+const django = new Django()
 
 Handlebars.registerHelper("raw", (options) => options.fn());
 Handlebars.registerHelper("object", (str: string) => "{{ object." + str + " }}");
 Handlebars.registerHelper("open", () => "{{");
 Handlebars.registerHelper("close", () =>  "}}");
 Handlebars.registerHelper("camelCase", (str: string) => str.slice(0, 1).toUpperCase() + str.slice(1));
+Handlebars.registerHelper("relatedTo", (relationship: DjangoRelationship) => relationship.relatedTo());
+
+Handlebars.registerHelper("testHelperCreateDefaultField", (field: DjangoField) => {
+  // TODO - non django core fields 
+  return django.fieldDefault(field.type)
+});
+
+Handlebars.registerHelper("testHelperCreateDefaultRelationship", (relationship: DjangoRelationship) => {
+  if (relationship.to instanceof BuiltInModel) {
+    return `${relationship.to.model}()`
+  }
+  if (relationship.to instanceof DjangoModel) {
+    return `${relationship.to.app.name}_${relationship.to.name}()`
+  }
+  throw Error(`Could not create test helper for ${relationship.name} ${relationship.type} ${relationship.to.name}`)
+});
 
 type DjangoContext = Record<
   string,
@@ -74,22 +97,25 @@ const FORMS = "forms.py";
 const URLS = "urls.py";
 const API = "api.py";
 const SERIALIZERS = "serializers.py";
+const ROUTING = "routing.py";
 const ADMIN = "admin.py";
 const CONSUMERS = "consumers.py";
 
-const BASE_HTML = "base.html"
-const INDEX_HTML = "index.html"
+const BASE_HTML = "base.html";
+const INDEX_HTML = "index.html";
 
-const HTMX_HTML = "htmx.html"
-const LIST = "list.html"
-const FORM = "form.html"
-const DETAIL = "detail.html"
-const CREATE = "create.html"
-const CONFIRM_DELETE = "confirm_delete.html"
-const DELETE_BUTTON = "delete_button.html"
+const HTMX_HTML = "htmx.html";
+const LIST = "list.html";
+const FORM = "form.html";
+const DETAIL = "detail.html";
+const CREATE = "create.html";
+const CONFIRM_DELETE = "confirm_delete.html";
+const DELETE_BUTTON = "delete_button.html";
 
-const TEST_REQUIREMENTS_TXT = "test_requirements.txt"
-const TEST_SETTINGS_PY = "test_settings.py"
+const TEST_REQUIREMENTS_TXT = "test_requirements.txt";
+const TEST_SETTINGS_PY = "test_settings.py";
+
+const TEST_VIEWS = "test_views.py";
 
 
 export const ROOT_FILES = {
@@ -109,6 +135,7 @@ export const PROJECT_FILES = {
   [`${VIEWS}`]: projectViews,
   [`${WSGI}`]: projectWsgi,
   [`${CONSUMERS}`]: projectConsumers,
+  [`${ROUTING}`]: projectRouting,
   [`${ASGI}`]: projectAsgi,
   [`${__INIT__}`]: init,
 }
@@ -136,6 +163,11 @@ export const APP_FILES = {
   [`${SERIALIZERS}`]: appSerializers,
   [`${ADMIN}`]: appAdmin,
   [`${CONSUMERS}`]: appConsumers,
+  [`${__INIT__}`]: init,
+}
+
+export const APP_TEST_FILES = {
+  [`${TEST_VIEWS}`]: appTestViews,
   [`${__INIT__}`]: init,
 }
 
@@ -186,7 +218,7 @@ export default class Renderer {
   }
 
   renderAppFile(file: string, app: DjangoApp) {
-    const template = APP_FILES[file];
+    const template = APP_FILES[file] || APP_TEST_FILES[file];
     if (template) {
       return this.renderTemplate(template, {app})
     } else {
@@ -239,16 +271,18 @@ export default class Renderer {
     project.apps.forEach(app => {
       Object.keys(APP_FILES).forEach(appFile => {
         this.addAppFileToTarball(tarball, app as DjangoApp, appFile);
-        app.models.forEach((model: IDjangoModel) => {
-          Object.keys(MODEL_TEMPLATE_FILES).forEach(modelFile => {
-            this.addModelFileToTarball(
-              tarball,
-              model as DjangoModel,
-              modelFile,
-              `${app.project.name}/${app.name}/templates/${app.name}/${model.name.toLowerCase()}_${modelFile}`);
-          })
+      })
+      Object.keys(APP_TEST_FILES).forEach(appFile => {
+        this.addAppFileToTarball(tarball, app as DjangoApp, appFile, `${project.name}/tests/${appFile}` );
+      })
+      app.models.forEach((model: IDjangoModel) => {
+        Object.keys(MODEL_TEMPLATE_FILES).forEach(modelFile => {
+          this.addModelFileToTarball(
+            tarball,
+            model as DjangoModel,
+            modelFile,
+            `${app.project.name}/${app.name}/templates/${app.name}/${model.name.toLowerCase()}_${modelFile}`);
         })
-        
       })
       this.addAppFileToTarball(tarball, app as DjangoApp, "__init__.py", `${app.project.name}/${app.name}/migrations/__init__.py`);
     })

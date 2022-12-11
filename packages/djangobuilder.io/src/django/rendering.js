@@ -190,6 +190,7 @@ class Renderer {
 
     let project_children = this.project_renderers().map(render_name => {
       return {
+        type: "project",
         path: project.name + '/' + render_name,
         name: render_name,
         render: () => this.project_render(render_name, projectid)
@@ -199,6 +200,7 @@ class Renderer {
     if (project.channels) {
       project_children.push(...this.channels_renderers().map(render_name => {
         return {
+          type: "project",
           path: project.name + '/' + render_name,
           name: render_name,
           render: () => this.channels_render(render_name, projectid)
@@ -207,6 +209,7 @@ class Renderer {
     }
 
     const project_item = {
+      type: "folder",
       path: project.name,
       name: project.name,
       folder: true,
@@ -228,6 +231,9 @@ class Renderer {
         model_templates.push(...this.template_renderers().map(([render_name, render_details]) => {
           const fileName = model.name.toLowerCase()  + '_' + render_name;
           return {
+            type: "model",
+            appName: app.name,
+            modelName: model.name,
             path: app.name  + "/templates/" + app.name + '/' + fileName,
             name: fileName,
             render: () => render_details.function.apply(this, [app_id, model.id])
@@ -237,6 +243,7 @@ class Renderer {
 
       let model_children = this.app_renderers().map(render_name => {
         return {
+          type: "app",
           path: app.name + '/' + render_name,
           name: render_name,
           render: () => this.app_render(render_name, projectid, app_id)
@@ -246,6 +253,7 @@ class Renderer {
       if (project.channels) {
         model_children.push(...this.channels_app_renderers().map(render_name => {
           return {
+            type: "app",
             path: app.name + '/' + render_name,
             name: render_name,
             render: () => this.channels_app_render(render_name, app_id)
@@ -255,6 +263,7 @@ class Renderer {
 
       model_children = model_children.concat(
         {
+          type: "folder",
           path: app.name + "/templates/" + app.name,
           name: "templates/" + app.name,
           folder: true,
@@ -262,11 +271,13 @@ class Renderer {
         },
         
         {
+          type: "folder",
           path: app.name + "/migrations/",
           name: "migrations",
           folder: true,
           children: [
             {
+              type: "app",
               path: app.name  + "/migrations/__init__.py",
               name: "__init__.py",
               render: () => "# Migrations for " + app.name,
@@ -276,6 +287,7 @@ class Renderer {
       )
 
       return {
+        type: "folder",
         path: app.name,
         name: app.name,
         folder: true,
@@ -285,6 +297,7 @@ class Renderer {
 
     const root_items = this.root_renderers().map(render_name => {
       return {
+        type: "project",
         path: render_name,
         name: render_name,
         render: () => this.root_render(render_name, projectid)
@@ -293,6 +306,7 @@ class Renderer {
 
     const test_items = [
       {
+        type: "folder",
         path: "tests",
         name: "tests",
         folder: true,
@@ -301,6 +315,7 @@ class Renderer {
 
           if (app == undefined) return
           return {
+            type: "app",
             path: 'tests/' + app.name,
             name: app.name,
             folder: true,
@@ -320,6 +335,7 @@ class Renderer {
       const [name, render_details] = renderer;
       const path = 'templates/' + name;
       return {
+        type: "project",
         path,
         name,
         render: () => render_details.function.apply(this, [projectid])
@@ -331,6 +347,7 @@ class Renderer {
         const [name, render_details] = renderer;
         const path = 'templates/htmx/' + name;
         return {
+          type: "project",
           path,
           name,
           render: () => render_details.function.apply(this, [projectid])
@@ -339,6 +356,7 @@ class Renderer {
 
       template_children.push(
         {
+          type: "folder",
           path: "htmx",
           name: "htmx",
           folder: true,

@@ -6,7 +6,7 @@ from django.urls import reverse
 class {{name}}({{#each parents}}{{name}}{{else}}models.Model{{/each}}):
 
     {{#relationships}}
-    {{name}} = models.{{type}}("{{to}}", {{{args}}})
+    {{name}} = models.{{type}}("{{ relatedTo .}}", {{{args}}})
     {{/relationships}}
 
     {{#fields}}
