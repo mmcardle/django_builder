@@ -44,11 +44,8 @@ import { template as init } from "./django/python/init";
 
 import Tarball from './tar'
 import Handlebars from "handlebars"
-import DjangoProject, { BuiltInModel, DjangoApp, DjangoField, DjangoModel, DjangoRelationship } from './api';
-import Django from ".";
+import DjangoProject, { BuiltInModel, DjangoApp, DjangoField, DjangoModel, DjangoRelationship, ManyToManyRelationship } from './api';
 import { IDjangoModel } from "./types";
-
-const django = new Django()
 
 Handlebars.registerHelper("raw", (options) => options.fn());
 Handlebars.registerHelper("object", (str: string) => "{{ object." + str + " }}");
@@ -57,9 +54,30 @@ Handlebars.registerHelper("close", () =>  "}}");
 Handlebars.registerHelper("camelCase", (str: string) => str.slice(0, 1).toUpperCase() + str.slice(1));
 Handlebars.registerHelper("relatedTo", (relationship: DjangoRelationship) => relationship.relatedTo());
 
+Handlebars.registerHelper("importModule", (field: DjangoField) => field.importModule());
+
+Handlebars.registerHelper("isManyToMany", (relationship: DjangoRelationship, options) => {
+  if (relationship.type === ManyToManyRelationship) {
+    return options.fn(relationship);
+  }
+});
+Handlebars.registerHelper("isNotManyToMany", (relationship: DjangoRelationship, options) => {
+  if (relationship.type !== ManyToManyRelationship) {
+    return options.fn(relationship);
+  }
+});
+
+Handlebars.registerHelper("testViewsCreateDefaultField", (field: DjangoField) => {
+  if (field.type.testDefault instanceof Array<string | number>) {
+    return (field.type.testDefault as Array<string | number>).map(
+      (fieldDefault, i) => `'${field.name}_${i}': ${fieldDefault},`
+    ).join("\n      ")
+  }
+  return `'${field.name}': ${field.type.testDefault},`
+});
+
 Handlebars.registerHelper("testHelperCreateDefaultField", (field: DjangoField) => {
-  // TODO - non django core fields 
-  return django.fieldDefault(field.type)
+  return `'${field.name}': ${field.type.viewDefault || field.type.testDefault},`
 });
 
 Handlebars.registerHelper("testHelperCreateDefaultRelationship", (relationship: DjangoRelationship) => {
@@ -72,7 +90,7 @@ Handlebars.registerHelper("testHelperCreateDefaultRelationship", (relationship: 
   throw Error(`Could not create test helper for ${relationship.name} ${relationship.type} ${relationship.to.name}`)
 });
 
-type DjangoContext = Record<
+type DjangoRenderingContext = Record<
   string,
   DjangoProject | DjangoModel | DjangoApp
 >;
@@ -193,7 +211,7 @@ export default class Renderer {
     return context;
   }
 
-  renderTemplate(template: string, context: DjangoContext): string {
+  renderTemplate(template: string, context: DjangoRenderingContext): string {
     return Handlebars.compile(template)(
       {...context, ...this.baseContext()}
     );
@@ -273,9 +291,9 @@ export default class Renderer {
         this.addAppFileToTarball(tarball, app as DjangoApp, appFile);
       })
       Object.keys(APP_TEST_FILES).forEach(appFile => {
-        this.addAppFileToTarball(tarball, app as DjangoApp, appFile, `${project.name}/tests/${appFile}` );
+        this.addAppFileToTarball(tarball, app as DjangoApp, appFile, `${project.name}/tests/${app.name}/${appFile}` );
       })
-      app.models.forEach((model: IDjangoModel) => {
+      app.models.filter(model => !model.abstract).forEach((model: IDjangoModel) => {
         Object.keys(MODEL_TEMPLATE_FILES).forEach(modelFile => {
           this.addModelFileToTarball(
             tarball,

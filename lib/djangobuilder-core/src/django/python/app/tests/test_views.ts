@@ -1,7 +1,9 @@
 export const template = `
+import uuid
 import pytest
 import test_helpers
-
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
+from datetime import timedelta, time
 from django.urls import reverse
 
 
@@ -25,7 +27,7 @@ def tests_{{name}}_create_view(client):
     url = reverse("{{app.name}}_{{name}}_create")
     data = {
       {{#fields}}
-      "{{name}}": {{{ testHelperCreateDefaultField . }}},
+      {{{ testViewsCreateDefaultField . }}}
       {{/fields}}
       {{#relationships}}
       "{{name}}": test_helpers.create_{{{ testHelperCreateDefaultRelationship . }}}.pk,
@@ -48,7 +50,7 @@ def tests_{{name}}_update_view(client):
     url = reverse("{{app.name}}_{{name}}_update", args=[instance.pk, ])
     data = {
       {{#fields}}
-      "{{name}}": {{{ testHelperCreateDefaultField . }}},
+      {{{ testViewsCreateDefaultField . }}}
       {{/fields}}
       {{#relationships}}
       "{{name}}": test_helpers.create_{{{ testHelperCreateDefaultRelationship . }}}.pk,

@@ -1,16 +1,23 @@
 export const template = `
+import time
+import uuid
+from datetime import timedelta, datetime, time
+
 from django.db import models
 from django.urls import reverse
+from django.contrib.postgres import fields as postgres_fields
+from django.contrib.postgres.fields import ranges as postgres_range_fields
+
 {{#app.models}}
 
 class {{name}}({{#each parents}}{{name}}{{else}}models.Model{{/each}}):
 
     {{#relationships}}
-    {{name}} = models.{{type}}("{{ relatedTo .}}", {{{args}}})
+    {{name}} = models.{{type.name}}("{{ relatedTo .}}", {{{args}}})
     {{/relationships}}
 
     {{#fields}}
-    {{name}} = models.{{type}}({{{args}}})
+    {{name}} = {{ importModule . }}.{{type.name}}({{{args}}})
     {{/fields}}
 
     class Meta:

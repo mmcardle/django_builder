@@ -53,6 +53,8 @@ exports[`Project file tests DjangoTestCase {
 Django==4.1
 django-extensions
 djangorestframework
+psycopg2-binary
+Pillow
 "
 `;
 
@@ -65,6 +67,8 @@ Django==4.1
 django-extensions
 djangorestframework
 django-htmx
+psycopg2-binary
+Pillow
 "
 `;
 
@@ -78,6 +82,8 @@ django-extensions
 djangorestframework
 channels
 channels_redis
+psycopg2-binary
+Pillow
 "
 `;
 
@@ -118,13 +124,16 @@ exports[`Project file tests DjangoTestCase {
 "
 import random
 import string
+import uuid
 
+from datetime import timedelta, time
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 
 from testapp1 import models as testapp1_models
 
@@ -179,11 +188,12 @@ def create_ContentType(**kwargs):
 
 def create_testapp1_TestModel1(**kwargs):
     defaults = {
-        "TestField1": "text",
+        'TestField1': 'text',
         "TestField1": create_User(),
     }
     defaults.update(**kwargs)
-    return testapp1_models.TestModel1.objects.create(**defaults)
+    result = testapp1_models.TestModel1.objects.create(**defaults)
+    return result
 
   
 "
@@ -196,13 +206,16 @@ exports[`Project file tests DjangoTestCase {
 "
 import random
 import string
+import uuid
 
+from datetime import timedelta, time
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 
 from testapp2 import models as testapp2_models
 
@@ -257,13 +270,14 @@ def create_ContentType(**kwargs):
 
 def create_testapp2_TestModel2(**kwargs):
     defaults = {
-        "TestField2": "text",
-        "TestField3": "text",
+        'TestField2': 'text',
+        'TestField3': 'text',
         "TestField2": create_User(),
         "TestField3": create_User(),
     }
     defaults.update(**kwargs)
-    return testapp2_models.TestModel2.objects.create(**defaults)
+    result = testapp2_models.TestModel2.objects.create(**defaults)
+    return result
 
   
 "
@@ -276,13 +290,16 @@ exports[`Project file tests DjangoTestCase {
 "
 import random
 import string
+import uuid
 
+from datetime import timedelta, time
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 
 from testapp3 import models as testapp3_models
 
@@ -339,7 +356,8 @@ def create_testapp3_TestModel3(**kwargs):
     defaults = {
     }
     defaults.update(**kwargs)
-    return testapp3_models.TestModel3.objects.create(**defaults)
+    result = testapp3_models.TestModel3.objects.create(**defaults)
+    return result
 
   
 "
@@ -1249,8 +1267,12 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'mysecretpassword',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -1379,8 +1401,12 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'mysecretpassword',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -1509,8 +1535,12 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'mysecretpassword',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -1819,7 +1849,7 @@ exports[`Render Basic Project App Files forms.py 1`] = `
 "
 from django import forms
 from . import models
-#from  import 
+#from  import auth.User
 
 class TestModel1Form(forms.ModelForm):
     class Meta:
@@ -1831,7 +1861,7 @@ class TestModel1Form(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TestModel1Form, self).__init__(*args, **kwargs)
-        #self.fields["TestField1"].queryset = auth.User.objects.all()
+        #self.fields["TestField1"].queryset = [object Object].objects.all()
 "
 `;
 
@@ -1901,8 +1931,15 @@ class HTMXTestModel1DeleteView(generic.DeleteView):
 
 exports[`Render Basic Project App Files models.py 1`] = `
 "
+import time
+import uuid
+from datetime import timedelta, time
+
 from django.db import models
 from django.urls import reverse
+from django.contrib.postgres import fields as postgres_fields
+from django.contrib.postgres.fields import ranges as postgres_range_fields
+
 
 class TestModel1(models.Model):
 
@@ -1954,9 +1991,11 @@ class TestModel1Serializer(serializers.ModelSerializer):
 
 exports[`Render Basic Project App Files test_views.py 1`] = `
 "
+import uuid
 import pytest
 import test_helpers
-
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
+from datetime import timedelta, time
 from django.urls import reverse
 
 
@@ -1977,7 +2016,7 @@ def tests_TestModel1_list_view(client):
 def tests_TestModel1_create_view(client):
     url = reverse("testapp1_TestModel1_create")
     data = {
-      "TestField1": "text",
+      'TestField1': 'text',
       "TestField1": test_helpers.create_User().pk,
     }
     response = client.post(url, data)
@@ -1996,7 +2035,7 @@ def tests_TestModel1_update_view(client):
     instance = test_helpers.create_testapp1_TestModel1()
     url = reverse("testapp1_TestModel1_update", args=[instance.pk, ])
     data = {
-      "TestField1": "text",
+      'TestField1': 'text',
       "TestField1": test_helpers.create_User().pk,
     }
     response = client.post(url, data)
@@ -2383,6 +2422,8 @@ exports[`Render Basic Project Root Files requirements.txt 1`] = `
 Django==4.1
 django-extensions
 djangorestframework
+psycopg2-binary
+Pillow
 "
 `;
 
@@ -2500,8 +2541,12 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'mysecretpassword',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -2553,13 +2598,16 @@ exports[`Render Basic Project Root Files test_helpers.py 1`] = `
 "
 import random
 import string
+import uuid
 
+from datetime import timedelta, time
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 
 from testapp1 import models as testapp1_models
 
@@ -2614,11 +2662,12 @@ def create_ContentType(**kwargs):
 
 def create_testapp1_TestModel1(**kwargs):
     defaults = {
-        "TestField1": "text",
+        'TestField1': 'text',
         "TestField1": create_User(),
     }
     defaults.update(**kwargs)
-    return testapp1_models.TestModel1.objects.create(**defaults)
+    result = testapp1_models.TestModel1.objects.create(**defaults)
+    return result
 
   
 "
@@ -2849,8 +2898,15 @@ class HTMXTestModel3DeleteView(generic.DeleteView):
 
 exports[`Render Channels Project App Files models.py 1`] = `
 "
+import time
+import uuid
+from datetime import timedelta, time
+
 from django.db import models
 from django.urls import reverse
+from django.contrib.postgres import fields as postgres_fields
+from django.contrib.postgres.fields import ranges as postgres_range_fields
+
 
 class TestModel3(models.Model):
 
@@ -2898,9 +2954,11 @@ class TestModel3Serializer(serializers.ModelSerializer):
 
 exports[`Render Channels Project App Files test_views.py 1`] = `
 "
+import uuid
 import pytest
 import test_helpers
-
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
+from datetime import timedelta, time
 from django.urls import reverse
 
 
@@ -3356,6 +3414,8 @@ django-extensions
 djangorestframework
 channels
 channels_redis
+psycopg2-binary
+Pillow
 "
 `;
 
@@ -3473,8 +3533,12 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'mysecretpassword',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -3526,13 +3590,16 @@ exports[`Render Channels Project Root Files test_helpers.py 1`] = `
 "
 import random
 import string
+import uuid
 
+from datetime import timedelta, time
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 
 from testapp3 import models as testapp3_models
 
@@ -3589,7 +3656,8 @@ def create_testapp3_TestModel3(**kwargs):
     defaults = {
     }
     defaults.update(**kwargs)
-    return testapp3_models.TestModel3.objects.create(**defaults)
+    result = testapp3_models.TestModel3.objects.create(**defaults)
+    return result
 
   
 "
@@ -3903,6 +3971,8 @@ Django==4.1
 django-extensions
 djangorestframework
 django-htmx
+psycopg2-binary
+Pillow
 "
 `;
 
@@ -4020,8 +4090,12 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'mysecretpassword',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -4073,13 +4147,16 @@ exports[`Render HTMX Project Root Files test_helpers.py 1`] = `
 "
 import random
 import string
+import uuid
 
+from datetime import timedelta, time
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 
 from testapp2 import models as testapp2_models
 
@@ -4134,13 +4211,14 @@ def create_ContentType(**kwargs):
 
 def create_testapp2_TestModel2(**kwargs):
     defaults = {
-        "TestField2": "text",
-        "TestField3": "text",
+        'TestField2': 'text',
+        'TestField3': 'text',
         "TestField2": create_User(),
         "TestField3": create_User(),
     }
     defaults.update(**kwargs)
-    return testapp2_models.TestModel2.objects.create(**defaults)
+    result = testapp2_models.TestModel2.objects.create(**defaults)
+    return result
 
   
 "
@@ -4306,8 +4384,8 @@ exports[`Render HTMX ProjectApp Files forms.py 1`] = `
 "
 from django import forms
 from . import models
-#from  import 
-#from  import 
+#from  import auth.User
+#from  import auth.User
 
 class TestModel2Form(forms.ModelForm):
     class Meta:
@@ -4321,8 +4399,8 @@ class TestModel2Form(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TestModel2Form, self).__init__(*args, **kwargs)
-        #self.fields["TestField2"].queryset = auth.User.objects.all()
-        #self.fields["TestField3"].queryset = auth.User.objects.all()
+        #self.fields["TestField2"].queryset = [object Object].objects.all()
+        #self.fields["TestField3"].queryset = [object Object].objects.all()
 "
 `;
 
@@ -4392,8 +4470,15 @@ class HTMXTestModel2DeleteView(generic.DeleteView):
 
 exports[`Render HTMX ProjectApp Files models.py 1`] = `
 "
+import time
+import uuid
+from datetime import timedelta, time
+
 from django.db import models
 from django.urls import reverse
+from django.contrib.postgres import fields as postgres_fields
+from django.contrib.postgres.fields import ranges as postgres_range_fields
+
 
 class TestModel2(models.Model):
 
@@ -4455,9 +4540,11 @@ class TestModel2Serializer(serializers.ModelSerializer):
 
 exports[`Render HTMX ProjectApp Files test_views.py 1`] = `
 "
+import uuid
 import pytest
 import test_helpers
-
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
+from datetime import timedelta, time
 from django.urls import reverse
 
 
@@ -4478,8 +4565,8 @@ def tests_TestModel2_list_view(client):
 def tests_TestModel2_create_view(client):
     url = reverse("testapp2_TestModel2_create")
     data = {
-      "TestField2": "text",
-      "TestField3": "text",
+      'TestField2': 'text',
+      'TestField3': 'text',
       "TestField2": test_helpers.create_User().pk,
       "TestField3": test_helpers.create_User().pk,
     }
@@ -4499,8 +4586,8 @@ def tests_TestModel2_update_view(client):
     instance = test_helpers.create_testapp2_TestModel2()
     url = reverse("testapp2_TestModel2_update", args=[instance.pk, ])
     data = {
-      "TestField2": "text",
-      "TestField3": "text",
+      'TestField2': 'text',
+      'TestField3': 'text',
       "TestField2": test_helpers.create_User().pk,
       "TestField3": test_helpers.create_User().pk,
     }

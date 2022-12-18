@@ -1,4 +1,3 @@
-
 interface IBuiltInModel {
   name: string;
   model: string;
@@ -6,17 +5,29 @@ interface IBuiltInModel {
 
 type IRelatedField = IDjangoModel | IBuiltInModel;
 
+interface IFieldType {
+  name: string
+  is_postgres: boolean
+  is_postgres_range: boolean
+}
+
+interface IRelationshipType {
+  name: string
+}
+
+type IFieldTestDefault = Array<number| string> | number | string;
+
 interface IDjangoField {
   model: IDjangoModel;
   name: string;
-  type: string;
+  type: IFieldType;
   args: string;
 }
 
 interface IDjangoRelationship {
   model: IDjangoModel;
   name: string;
-  type: string;
+  type: IRelationshipType;
   to: IDjangoModel | IBuiltInModel;
   args: string;
 }
@@ -31,8 +42,8 @@ interface IDjangoModel {
   parents: Array<IDjangoModel>;
   fields: Array<IDjangoField>;
   relationships: Array<IDjangoRelationship>;
-  addField(name: string, type: string, args: string): IDjangoField;
-  addRelationship(name: string, type: string, to: IDjangoModel | IBuiltInModel, args: string): IDjangoRelationship;
+  addField(name: string, type: IFieldType, args: string, editable: boolean ): IDjangoField;
+  addRelationship(name: string, type: IDjangoRelationship, to: IDjangoModel | IBuiltInModel, args: string): IDjangoRelationship;
   setNameField(fieldName: string): void;
 }
 
@@ -56,6 +67,7 @@ interface IDjangoProject {
   version: DjangoVersion;
   channels: boolean;
   htmx: boolean;
+  postgres: boolean;
   apps: Array<IDjangoApp>;
   middlewares: Array<string>;
   addApp(name: string): IDjangoApp;
@@ -70,4 +82,7 @@ export {
   DjangoVersion,
   IRelatedField,
   IBuiltInModel,
+  IFieldType,
+  IFieldTestDefault,
+  IRelationshipType
 }

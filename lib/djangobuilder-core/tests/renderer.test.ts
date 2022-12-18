@@ -8,7 +8,7 @@ import Renderer, {
   PROJECT_HTMX_TEMPLATE_FILES,
   MODEL_TEMPLATE_FILES
 } from "../src/rendering";
-import DjangoProject, { AuthUser } from "../src/api";
+import DjangoProject, { AuthUser, CharField, ForeignKey } from "../src/api";
 
 const renderer = new Renderer();
 
@@ -23,20 +23,20 @@ const app_files = Object.keys(APP_FILES)
 const basicProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: false, channels: false});
 const basicApp = basicProject.addApp("testapp1");
 const basicModel = basicApp.addModel("TestModel1");
-basicModel.addField("TestField1", "CharField", "");
-basicModel.addRelationship("TestField1", "ForeignKey", AuthUser, "");
+basicModel.addField("TestField1", CharField, "");
+basicModel.addRelationship("TestField1", ForeignKey, AuthUser, "");
 
 const htmxProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: true, channels: false});
 const htmxApp = htmxProject.addApp("testapp2");
 const htmxModel = htmxApp.addModel("TestModel2");
-htmxModel.addField("TestField2", "CharField", "");
-htmxModel.addRelationship("TestField2", "ForeignKey", AuthUser, "");
+htmxModel.addField("TestField2", CharField, "");
+htmxModel.addRelationship("TestField2", ForeignKey, AuthUser, "");
 
 const channelsProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: false, channels: true});
 const channelsApp = channelsProject.addApp("testapp3");
 const channelsModel = channelsApp.addModel("TestModel3");
-htmxModel.addField("TestField3", "CharField", "");
-htmxModel.addRelationship("TestField3", "ForeignKey", AuthUser, "");
+htmxModel.addField("TestField3", CharField, "");
+htmxModel.addRelationship("TestField3", ForeignKey, AuthUser, "");
 
 const projects = [basicProject, htmxProject, channelsProject];
 const filenames = project_files;

@@ -1,13 +1,16 @@
 export const template = `
 import random
 import string
+import uuid
 
+from datetime import timedelta, time
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 
 {{#project.apps}}
 from {{name}} import models as {{name}}_models
@@ -67,14 +70,22 @@ def create_ContentType(**kwargs):
 def create_{{app.name}}_{{name}}(**kwargs):
     defaults = {
         {{#fields}}
-        "{{name}}": {{{ testHelperCreateDefaultField . }}},
+        {{{ testHelperCreateDefaultField . 0 }}}
         {{/fields}}
         {{#relationships}}
+        {{#isNotManyToMany .}}
         "{{name}}": create_{{{ testHelperCreateDefaultRelationship . }}},
+        {{/isNotManyToMany}}
         {{/relationships}}
     }
     defaults.update(**kwargs)
-    return {{app.name}}_models.{{name}}.objects.create(**defaults)
+    result = {{app.name}}_models.{{name}}.objects.create(**defaults)
+    {{#relationships}}
+    {{#isManyToMany .}}
+    result.{{name}}.add(create_{{{ testHelperCreateDefaultRelationship . }}})
+    {{/isManyToMany}}
+    {{/relationships}}
+    return result
 
 {{/models}}
 {{/project.apps}}

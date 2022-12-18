@@ -9,4 +9,10 @@ channels_redis
 {{#project.htmx}}
 django-htmx
 {{/project.htmx}}
+{{#project.postgres}}
+psycopg2-binary
+{{/project.postgres}}
+{{#project.pillow}}
+Pillow
+{{/project.pillow}}
 `

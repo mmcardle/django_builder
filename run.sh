@@ -9,10 +9,13 @@ cd ThePetZoo
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt -r requirements-dev.txt
-python manage.py makemigrations
-python manage.py migrate
 
-#python manage.py test
+docker-compose up postgres -d
+while ! echo exit | nc localhost 5432; do sleep 1; done
+
+python manage.py makemigrations
+python manage.py migrate auth
+python manage.py migrate
 
 pytest tests/ -vv --pdb
 # for x in response.content.split(b"\n"): print(x)

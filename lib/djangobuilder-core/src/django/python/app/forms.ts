@@ -14,7 +14,9 @@ class {{name}}Form(forms.ModelForm):
         model = models.{{name}}
         fields = [
             {{#fields}}
+            {{#is_editable_field}}
             '{{name}}',
+            {{/is_editable_field}}
             {{/fields}}
             {{#relationships}}
             '{{name}}',

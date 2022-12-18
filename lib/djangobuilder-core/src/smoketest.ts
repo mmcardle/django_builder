@@ -2,7 +2,21 @@ import fs from 'fs';
 
 import Renderer from "./rendering";
 import { DjangoVersion } from "./types";
-import DjangoProject, { DjangoApp, DjangoModel, AuthUser } from "./api";
+import DjangoProject, {
+  DjangoApp, DjangoModel, AuthUser, CharField, BigIntegerField,
+  BooleanField, DecimalField, DurationField, EmailField, FileField,
+  FloatField, GenericIPAddressField, IntegerField, JSONField,
+  PositiveIntegerField, PositiveSmallIntegerField, SlugField, SmallIntegerField,
+  TextField, URLField, UUIDField, TimeField, ArrayField,
+  ImageField, CICharField, CIEmailField, CITextField, IntegerRangeField,
+  HStoreField, BigIntegerRangeField, DateTimeRangeField,
+  DateRangeField,
+  ForeignKey,
+  OneToOneRelationship,
+  ManyToManyRelationship,
+  DateField,
+  DateTimeField
+} from "./api";
 import { exit } from 'process';
 
 const zooProject = new DjangoProject(
@@ -21,17 +35,62 @@ const birdsApp: DjangoApp = zooProject.addApp("birds");
 const badgerModel: DjangoModel = mammalsApp.addModel("Badger");
 
 const abstractBlackAndWhiteModel: DjangoModel = birdsApp.addModel("BlackAndWhite", true);
-abstractBlackAndWhiteModel.addField("spotted", "BooleanField", "max_length=50,default=True");
+abstractBlackAndWhiteModel.addField("spotted", BooleanField, "max_length=50,default=True");
 
 const flyingCowModel: DjangoModel = birdsApp.addModel("FlyingCow");
 flyingCowModel.parents = [abstractBlackAndWhiteModel]
 
-badgerModel.addField("name", "CharField", "max_length=50");
+badgerModel.addField("name", CharField, "max_length=50");
 badgerModel.setNameField("name");
 
-flyingCowModel.addField("name", "CharField", "max_length=50");
-flyingCowModel.addRelationship("owner", "ForeignKey", AuthUser, "on_delete=models.CASCADE");
-flyingCowModel.addRelationship("parent", "ForeignKey", badgerModel, "null=True,on_delete=models.CASCADE");
+flyingCowModel.addField("name", CharField, "max_length=50, default='chars'");
+flyingCowModel.addField('text', TextField, "default='sometext'")
+flyingCowModel.addField('json', JSONField, "default=dict")
+
+flyingCowModel.addField('bigint', BigIntegerField, "default=100")
+flyingCowModel.addField('bool', BooleanField, "default=True")
+flyingCowModel.addField('decimal', DecimalField, "default=1.5, max_digits=10, decimal_places=2")
+flyingCowModel.addField('duration', DurationField, "default=timedelta(days=1)")
+flyingCowModel.addField('file', FileField, "upload_to='upload/files/', default='/tmp'")
+flyingCowModel.addField('float', FloatField, "default=1.1")
+flyingCowModel.addField('integer', IntegerField, "default=-1")
+flyingCowModel.addField('positive_integer', PositiveIntegerField, "default=1")
+flyingCowModel.addField('positive_small_integer', PositiveSmallIntegerField, "default=1")
+flyingCowModel.addField('slug', SlugField, "default='slug', max_length=50")
+flyingCowModel.addField('generic_ipaddress', GenericIPAddressField, "default='127.0.0.1'")
+flyingCowModel.addField('time', TimeField, "default=time()")
+flyingCowModel.addField('small_integer', SmallIntegerField, "default=-1")
+flyingCowModel.addField('url', URLField, "default='http://example.com'")
+flyingCowModel.addField('uuid', UUIDField, "default=uuid.uuid4")
+flyingCowModel.addField('email', EmailField, "default='none@tempurl.com'")
+flyingCowModel.addRelationship("owner", ForeignKey, AuthUser, "on_delete=models.CASCADE");
+flyingCowModel.addRelationship("parent", ForeignKey, badgerModel, "null=True,on_delete=models.CASCADE,related_name='children'");
+flyingCowModel.addRelationship("gaurdian", OneToOneRelationship, badgerModel, "null=True,on_delete=models.CASCADE,related_name='guardians'");
+flyingCowModel.addRelationship("siblings", ManyToManyRelationship, badgerModel, "");
+flyingCowModel.addField('date', DateField, "auto_now_add=True", false)
+flyingCowModel.addField('date_updated', DateField, "auto_now=True", false)
+flyingCowModel.addField('datetime', DateTimeField, "auto_now_add=True", false)
+flyingCowModel.addField('datetime_updated', DateTimeField, "auto_now=True", false)
+flyingCowModel.addField('image', ImageField, "null=True, blank=True")
+flyingCowModel.addField('array', ArrayField, "models.CharField(max_length=100), default=list")
+
+// Imports
+//flyingCowModel.addField('GenericForeignKey', 'GenericForeignKey', "")
+
+// Require Postgres extensions
+//flyingCowModel.addField('chchar', CICharField, "max_length=100")
+//flyingCowModel.addField('ciemail', CIEmailField, "max_length=100")
+//flyingCowModel.addField('citext', CITextField, "")
+//flyingCowModel.addField('hstore', HStoreField, "")
+flyingCowModel.addField('integer_range', IntegerRangeField, "default='[10, 20)'")
+flyingCowModel.addField('big_integer_range', BigIntegerRangeField, "default='[0, 1000]'")
+flyingCowModel.addField('datetime_range', DateTimeRangeField, "")
+flyingCowModel.addField('date_range', DateRangeField, "")
+
+// Need better handling
+//flyingCowModel.addField('file_path', 'FilePathField', "")
+//flyingCowModel.addField('binary', 'BinaryField', "")
+
 flyingCowModel.setNameField("name");
 
 const renderer = new Renderer();

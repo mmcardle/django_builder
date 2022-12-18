@@ -21,7 +21,9 @@ class {{name}}Admin(admin.ModelAdmin):
         '{{name}}',
         {{/fields}}
         {{#relationships}}
+        {{#isNotManyToMany .}}
         '{{name}}',
+        {{/isNotManyToMany}}
         {{/relationships}}
     ]
     readonly_fields = [
