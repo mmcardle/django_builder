@@ -13,7 +13,7 @@
     <v-card-text v-if="relationships.length + fields.length > 0">
       <div v-for="(relationship, j) in relationships" class="px-2" v-bind:key="j + '_' + relationship.name" >
         <span class="primary--text">{{relationship.name}} = </span>
-        {{relationship.type.split('.').pop()}}
+        {{relationship.type.name}}
         (<span class="hidden-xs-only">{{relationship.opts}}</span>)
       </div>
       
@@ -22,7 +22,7 @@
       </div-->
       <div v-for="(field, i) in fields" class="px-2" v-bind:key="i + '_' + field.name">
         <span class="primary--text">{{field.name}} = </span>
-        {{field.type.split('.').pop()}}
+        {{field.type.name}}
         <span class="hidden-xs-only">({{field.args}})</span>
       </div>
     </v-card-text>

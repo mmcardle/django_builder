@@ -7,17 +7,24 @@ import DjangoProject, {
   BooleanField, DecimalField, DurationField, EmailField, FileField,
   FloatField, GenericIPAddressField, IntegerField, JSONField,
   PositiveIntegerField, PositiveSmallIntegerField, SlugField, SmallIntegerField,
-  TextField, URLField, UUIDField, TimeField, ArrayField,
-  ImageField, CICharField, CIEmailField, CITextField, IntegerRangeField,
-  HStoreField, BigIntegerRangeField, DateTimeRangeField,
-  DateRangeField,
-  ForeignKey,
-  OneToOneRelationship,
-  ManyToManyRelationship,
-  DateField,
-  DateTimeField
+  IntegerRangeField, TextField, URLField, UUIDField, TimeField, ArrayField,
+  ImageField, BigIntegerRangeField, DateTimeRangeField,
+  DateRangeField, ForeignKey, OneToOneRelationship, ManyToManyRelationship,
+  DateField, DateTimeField, BinaryField,
 } from "./api";
-import { exit } from 'process';
+
+import ModelImporter from "./importer"
+
+//import { exit } from 'process';
+
+const importer = new ModelImporter();
+
+const modelsfile = fs.readFileSync("../../ThePetZoo/birds/models.py", "utf-8")
+
+const modelsDescriptions = importer.import_models([modelsfile.toString()])
+
+//console.log(modelsDescriptions)
+//exit()
 
 const zooProject = new DjangoProject(
   "ThePetZoo",
@@ -73,6 +80,7 @@ flyingCowModel.addField('datetime', DateTimeField, "auto_now_add=True", false)
 flyingCowModel.addField('datetime_updated', DateTimeField, "auto_now=True", false)
 flyingCowModel.addField('image', ImageField, "null=True, blank=True")
 flyingCowModel.addField('array', ArrayField, "models.CharField(max_length=100), default=list")
+flyingCowModel.addField('binary', BinaryField, "", false)
 
 // Imports
 //flyingCowModel.addField('GenericForeignKey', 'GenericForeignKey', "")
@@ -88,8 +96,7 @@ flyingCowModel.addField('datetime_range', DateTimeRangeField, "")
 flyingCowModel.addField('date_range', DateRangeField, "")
 
 // Need better handling
-//flyingCowModel.addField('file_path', 'FilePathField', "")
-//flyingCowModel.addField('binary', 'BinaryField', "")
+// flyingCowModel.addField('file_path', FilePathField, "path='/tmp/'")
 
 flyingCowModel.setNameField("name");
 
@@ -132,8 +139,10 @@ console.log(renderer.renderAppFile("models.py", birdsApp));
 console.log(renderer.renderAppFile("forms.py", birdsApp));
 console.log(renderer.renderAppFile("test_views.py", birdsApp));
 
+const projectTree = renderer.asTree(zooProject);
+console.log("ProjectTree", JSON.stringify(projectTree, null, 2))
 
-const tarballContent = renderer.asTarball(zooProject);
+const tarballContent = renderer.tarballContent(zooProject);
 const outputFile = `${zooProject.name}.tar`;
 
 try {
@@ -142,3 +151,4 @@ try {
 } catch (err) {
   console.error(err);
 }
+

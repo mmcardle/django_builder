@@ -1,6 +1,8 @@
-import Django from '@/django/'
-import { DEFAULT_DJANGO_VERSION } from '@/django/'
-const django = new Django()
+import {
+  DEFAULT_DJANGO_VERSION, ParentModelTypes, FieldTypes, RelationshipTypes, BuiltInModelTypes,
+  DjangoVersion
+} from "@djangobuilder/core"
+
 
 const project = () => [
   {
@@ -23,9 +25,9 @@ const project = () => [
     label: "Version",
     default_value: DEFAULT_DJANGO_VERSION,
     options: [
-      {text: "Django 4", value: 4},
-      {text: "Django 3", value: 3},
-      {text: "Django 2", value: 2},
+      {text: "Django 4", value: DjangoVersion.DJANGO4},
+      {text: "Django 3", value: DjangoVersion.DJANGO3},
+      {text: "Django 2", value: DjangoVersion.DJANGO2},
     ],
     required: true,
   },
@@ -66,7 +68,7 @@ const model = () => [
     name: "parents",
     multi: true,
     label: "Parent Models",
-    options: django.parentModelTypes
+    options: ParentModelTypes
   },
   {
     fieldType: "BooleanInput",
@@ -89,11 +91,11 @@ const field = () => [
     name: "type",
     multi: false,
     label: "Field Type",
-    options: django.fieldTypes,
+    options: FieldTypes,
     required: true,
     updated: (form, field, value) => {
       if (field === "type") {
-        const default_val = django.fieldTypes[value].default_args
+        const default_val = FieldTypes[value].default_args
         form['args'][0].default_value = default_val
         return {field: "args", value: default_val}
       }
@@ -121,20 +123,20 @@ const relationship = () => [
     fieldType: "SelectList",
     name: "to",
     multi: false,
-    label: "Relatonship To",
-    options: django.builtInModels,
+    label: "Relationship To",
+    options: BuiltInModelTypes,
     required: true
   },
   {
     fieldType: "SelectList",
     name: "type",
     multi: false,
-    label: "Relatonship Type",
-    options: django.relationshipTypes,
+    label: "Relationship Type",
+    options: RelationshipTypes,
     required: true,
     updated: (form, field, value) => {
       if (field === "type") {
-        const default_val = django.relationshipTypes[value].default_args
+        const default_val = RelationshipTypes[value].default_args
         form['args'][0].default_value = default_val
         return {field: "args", value: default_val}
       }

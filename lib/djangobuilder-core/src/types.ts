@@ -28,8 +28,9 @@ interface IDjangoRelationship {
   model: IDjangoModel;
   name: string;
   type: IRelationshipType;
-  to: IDjangoModel | IBuiltInModel;
+  to: IRelatedField;
   args: string;
+  relatedTo(): string;
 }
 
 interface IDjangoModel {
@@ -39,11 +40,11 @@ interface IDjangoModel {
   primaryKey: string;
   nameField: string;
   relatedName: string;
-  parents: Array<IDjangoModel>;
+  parents: Array<IDjangoModel|IBuiltInModel>;
   fields: Array<IDjangoField>;
   relationships: Array<IDjangoRelationship>;
   addField(name: string, type: IFieldType, args: string, editable: boolean ): IDjangoField;
-  addRelationship(name: string, type: IDjangoRelationship, to: IDjangoModel | IBuiltInModel, args: string): IDjangoRelationship;
+  addRelationship(name: string, type: IRelationshipType, to: IRelatedField, args: string): IDjangoRelationship;
   setNameField(fieldName: string): void;
 }
 

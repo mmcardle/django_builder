@@ -39,8 +39,6 @@
         </v-card>
       </v-col>
       <v-col cols=6 md=8 lg=9 class="pl-1">
-        <!--div>active_nodes:{{active_nodes}}</div>
-        <div>active:{{active}}</div-->
         <template v-if="active">
           <h2 class="blue--text text--darken-4 mx-2">
             <v-icon class="blue--text text--darken-4 mr-2">{{icon(active.name)}}</v-icon>
@@ -98,26 +96,19 @@
 
 <script>
 import store from "../store";
-import Renderer from '@/django/rendering';
-import { Renderer as DBCoreRenderer} from "@djangobuilder/core"
-import { DjangoProject, DjangoApp, DjangoModel } from "@djangobuilder/core";
-import DjangoVersion from "@djangobuilder/core";
+import { Renderer as DBCoreRenderer } from "@djangobuilder/core"
 
-const coreRenderer = new DBCoreRenderer(store)
+const coreRenderer = new DBCoreRenderer();
 
-const renderer = new Renderer(store)
-
-  export default {
+export default {
     props: ['id'],
     data: () => ({
       overlay: false,
-      active_nodes: [],
       active: undefined,
       open: [],
       code_dialog: undefined,
     }),
     computed: {
-      renderer: () => renderer,
       isloaded: function () {
         return this.$store.getters.loaded()
       },
@@ -133,41 +124,34 @@ const renderer = new Renderer(store)
         return this.active.path.split('/')
       },
       items: function () {
-        return renderer.project_tree(this.id)
+        const djangoCoreProject = this.$store.getters.projectData(this.id)
+        return coreRenderer.asTree(djangoCoreProject);
       }
     },
     mounted: function () {
       const project = this.$store.getters.projectData(this.id)
-      const apps = Object.keys(project.apps).map((app) => {
-        if (this.$store.getters.appData(app)) {
-          return Object.assign(this.$store.getters.appData(app), {id: app})
-        } else {
-          return {}
+      const tree = coreRenderer.asTree(project);
+      if (project.apps.length > 0) {
+        const appNode = tree.find(node => node.name == project.apps[0].name)
+        if (appNode) {
+          const modelsNode = appNode.children.find(node => node.name === "models.py")
+          this.active = modelsNode
+          return
         }
-      })
-      if (apps.length > 0 && this.$store.getters.appData(apps[0].id) !== undefined ) {
-        const app = apps[0]
-        const a = {
-          type: "app",
-          path: app.name + "/models.py",
-          name: "models.py",
-          render: () => renderer.app_render("models.py", this.id, app.id)
+      }
+      const projectNode = tree.find(node => node.name == project.name)
+      if (projectNode) {
+        const settingsNode = projectNode.children.find(node => node.name === "settings.py")
+        if (settingsNode) {
+          this.active = settingsNode
         }
-        this.active = a
-        this.active_nodes = [a]
-      } else {
-        const a = {
-          type: "project",
-          path: project.name + "/settings.py",
-          name: "settings.py",
-          render: () => renderer.project_render("settings.py", this.id)
-        }
-        this.active = a
-        this.active_nodes = [a]
       }
     },
     created: function () {
-      const project = this.$store.getters.projectData(this.id)
+      const project = this.$store.getters.projectData(this.id);
+      const appIdMap = this.$store.getters.appIdMap();
+      console.log("CREATED", project, this.id)
+      console.log("CREATED", appIdMap[project.apps[0]])
       const apps = Object.keys(project.apps).map((app) => {
         if (this.$store.getters.appData(app)) {
           return Object.assign(this.$store.getters.appData(app), {id: app})
@@ -184,7 +168,7 @@ const renderer = new Renderer(store)
     },
     methods: {
       render(active) {
-        const djangoCoreProject = this.$store.getters.toCoreProject(this.id)
+        const djangoCoreProject = this.$store.getters.projectData(this.id)
         if (active.type == "project") {
           return coreRenderer.renderProjectFile(active.name, djangoCoreProject)
         } else if (active.type == "app") {
@@ -197,13 +181,13 @@ const renderer = new Renderer(store)
           const modelFile = active.name.split("_").slice(1).join("_");
           return coreRenderer.renderModelFile(modelFile, djangoCoreModel)
         }
-        throw new Error(`No renderer for ${active.type} ${active.name}`)
+        throw new Error(`No renderer for ${active.type} ${active.path}`)
       },
       full_screen_code_dialog() {
         this.code_dialog = true
       },
       click(item) {
-        if (item.render) {
+        if (item.type !== "folder") {
           this.active = item
         }
       },

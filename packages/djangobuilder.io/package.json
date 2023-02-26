@@ -9,7 +9,7 @@
     "dev": "vite --port 8080",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
+    "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore --fix src",
     "test:unit": "vitest --run",
     "test:e2e_chrome": "nightwatch --headless -e chrome",
     "test:e2e_firefox": "nightwatch --headless -e firefox",
@@ -38,6 +38,8 @@
   "devDependencies": {
     "@mdi/font": "^6.1.95",
     "@mdi/js": "^6.1.95",
+    "@typescript-eslint/eslint-plugin": "^5.53.0",
+    "@typescript-eslint/parser": "^5.53.0",
     "@vitejs/plugin-vue2": "^1.1.2",
     "@vitest/ui": "^0.24.3",
     "@vue/compiler-dom": "^3.2.41",
@@ -75,6 +77,7 @@
     },
     "extends": [
       "plugin:vue/essential",
+      "plugin:@typescript-eslint/recommended",
       "eslint:recommended"
     ],
     "plugins": [

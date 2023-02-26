@@ -1933,7 +1933,7 @@ exports[`Render Basic Project App Files models.py 1`] = `
 "
 import time
 import uuid
-from datetime import timedelta, time
+from datetime import timedelta, datetime, time
 
 from django.db import models
 from django.urls import reverse
@@ -2900,7 +2900,7 @@ exports[`Render Channels Project App Files models.py 1`] = `
 "
 import time
 import uuid
-from datetime import timedelta, time
+from datetime import timedelta, datetime, time
 
 from django.db import models
 from django.urls import reverse
@@ -4472,7 +4472,7 @@ exports[`Render HTMX ProjectApp Files models.py 1`] = `
 "
 import time
 import uuid
-from datetime import timedelta, time
+from datetime import timedelta, datetime, time
 
 from django.db import models
 from django.urls import reverse

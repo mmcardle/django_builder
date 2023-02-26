@@ -4,8 +4,9 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import {keyByValue} from './utils'
 import { event } from 'vue-gtag'
-import { DjangoProject, DjangoApp, DjangoModel, DjangoVersion } from "@djangobuilder/core";
-import { DjangoField, DjangoRelationship } from '@djangobuilder/core/src/api';
+import {
+  DjangoProject, DjangoApp, DjangoModel, DjangoField, DjangoRelationship, DjangoVersion, FieldTypes, BuiltInModelTypes
+} from "@djangobuilder/core";
 
 Vue.use(Vuex)
 
@@ -19,21 +20,22 @@ export default new Vuex.Store({
     models: {},
     fields: {},
     relationships: {},
+    appIdMap: {}
   },
   getters: {
     user: (state) => () => state.user,
     loaded: (state) => () => state.loaded,
     error: (state) => () => state.error,
     projects: (state) => () => state.projects,
+    appIdMap: (state) => () => state.appIdMap,
     projectsData: (state) => () => {
       return Object.keys(state.projects).map((pid) => {
         return Object.assign(state.projects[pid].data(), {id: pid})
       })
     },
-    projectData: (state) => (id) => state.projects[id].data(),
-    toCoreProject: (state) => (id) => {
-      const projectData = state.projects[id].data();
-      console.log("Firebase Data", projectData);
+    projectData: (state) => (id) => state.projects[id],
+    toCoreProject: (state) => (projectData) => {
+      //const projectData = state.projects[id].data();
 
       const coreVersion = projectData.django_version == 4 ? DjangoVersion.DJANGO4 :
         projectData.django_version == 3 ? DjangoVersion.DJANGO3 : DjangoVersion.DJANGO2;
@@ -42,20 +44,37 @@ export default new Vuex.Store({
         projectData.name, projectData.description, coreVersion, {htmx: projectData.htmx, channels: projectData.channels}
       );
 
+      console.log("state", state.appIdMap[coreProject])
+
       Object.keys(projectData.apps).forEach(appId => {
         const appData = state.apps[appId].data();
-        console.log("APP", appId, appData);
         const coreApp = new DjangoApp(coreProject, appData.name);
         coreProject.apps.push(coreApp)
 
+        state.appIdMap[coreApp.name] = appId;
+
         Object.keys(appData.models).forEach(modelId => {
           const modelData = state.models[modelId].data();
-          const coreModel = new DjangoModel(coreApp, modelData.name, modelData.abstract);
+
+          let parents = [];
+          modelData.parents.forEach((parent) => {
+            if (BuiltInModelTypes[parent]) {
+              parents.push(BuiltInModelTypes[parent])
+            }
+          });
+
+          const coreModel = new DjangoModel(coreApp, modelData.name, modelData.abstract,[] , [], parents);
           coreApp.models.push(coreModel);
 
           Object.keys(modelData.fields).forEach(fieldId => {
             const fieldData = state.fields[fieldId].data();
-            const coreField = new DjangoField(coreModel, fieldData.name, fieldData.type, fieldData.args)
+            let fieldType = FieldTypes[fieldData.type]
+            if (!fieldType) {
+              const xs = fieldData.type.split(".")
+              const x = xs[xs.length -1]
+              fieldType = FieldTypes[x]
+            }
+            const coreField = new DjangoField(coreModel, fieldData.name, fieldType, fieldData.args)
             coreModel.fields.push(coreField);
           });
 
@@ -160,8 +179,8 @@ export default new Vuex.Store({
         firestore.collection('projects').where(
           "owner", "==", userid
         ).orderBy("name").onSnapshot((projectData) => {
-          commit('set_state', {key: 'projects', values: keyByValue(projectData.docs, "id")})
-          resolve()
+          //commit('set_state', {key: 'projects', values: keyByValue(projectData.docs, "id")})
+          resolve(projectData)
         }, snapShotErrorHandler)
       })
       const appPromise = new Promise((resolve) => {
@@ -201,7 +220,13 @@ export default new Vuex.Store({
       })
 
       const promises = [projectPromise, appPromise, modelsPromise, fieldsPromise, relationshipPromise]
-      return Promise.all(promises).then(() => {
+      return Promise.all(promises).then(async () => {
+        const projectData = await projectPromise
+        const projects = projectData.docs.reduce((acc, doc) => {
+          acc[doc.id] = this.getters.toCoreProject(doc.data())
+          return acc
+        }, {})
+        commit('set_state', {key: 'projects', values: projects})
         commit('set_user', firebase.auth().currentUser)
       })
     },

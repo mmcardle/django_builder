@@ -1,5 +1,4 @@
 
-import { type } from "os";
 import {
   IDjangoApp,
   IDjangoProject,
@@ -11,6 +10,7 @@ import {
   IFieldType,
   IFieldTestDefault,
   IRelationshipType,
+  IRelatedField,
 } from "./types";
 
 
@@ -187,19 +187,35 @@ export class BuiltInModel implements IBuiltInModel {
 
 export const AuthUser = new BuiltInModel("auth.User", "User")
 export const AbstractUser = new BuiltInModel("auth.AbstractUser", "AbstractUser")
+export const AbstractBaseUser = new BuiltInModel("auth.AbstractBaseUser", "AbstractBaseUser")
+export const AuthGroup = new BuiltInModel("auth.Group", "Group")
+
+export const ParentModelTypes = {
+  [`${AuthUser.name}`]: AuthUser,
+  [`${AbstractUser.name}`]: AbstractUser,
+}
+
+// TODO - typing 
+export const BuiltInModelTypes = {
+  [`${AuthUser.name}`]: AuthUser,
+  [`${AbstractUser.name}`]: AbstractUser,
+  [`${AbstractBaseUser.name}`]: AbstractBaseUser,
+  [`${AuthGroup.name}`]: AuthGroup,
+}
+
 
 export class DjangoRelationship implements IDjangoRelationship {
   model: IDjangoModel;
   name: string;
   type: IRelationshipType;
-  to: IDjangoModel | IBuiltInModel;
+  to: IRelatedField;
   args: string;
 
   constructor(
     model: IDjangoModel,
     name: string,
     type: IRelationshipType,
-    to: IDjangoModel | IBuiltInModel,
+    to: IRelatedField,
     args: string,
   ) {
     this.model = model;
@@ -209,7 +225,7 @@ export class DjangoRelationship implements IDjangoRelationship {
     this.args = args;
   }
 
-  relatedTo() {
+  relatedTo(): string {
     return this.to instanceof DjangoModel ? this.to.app.name + "." + this.to.name : this.to.name;
   }
 }
@@ -234,7 +250,7 @@ export const CharField = new FieldType("CharField", "'text'")
 export const TextField = new FieldType("TextField", "'some\\ntext'");
 export const JSONField = new FieldType("JSONField", '\'{"value": "key"}\'');
 export const DateField = new FieldType("DateField", "'2022-01-01'");
-export const DateTimeField = new FieldType("DateField", "'2022-01-01:09:00:00'");
+export const DateTimeField = new FieldType("DateTimeField", "'2022-01-01:09:00:00'");
 export const BigIntegerField = new FieldType("BigIntegerField", '1000');
 export const BooleanField = new FieldType("BooleanField", "True");
 export const DecimalField = new FieldType("DecimalField", "1.0");
@@ -253,14 +269,52 @@ export const UUIDField = new FieldType("UUIDField", "uuid.uuid4()");
 export const EmailField = new FieldType("EmailField", "'user@tempurl.com'");
 export const ImageField = new FieldType("ImageField", "'anImage'");
 export const ArrayField = new FieldType("ArrayField", "[1, 2, 3]", true);
-export const CICharField = new FieldType("CICharField", "'text'");
-export const CIEmailField = new FieldType("CIEmailField", "'user@tempurl.com'");
-export const CITextField = new FieldType("CITextField", "'some\\ntext'");
-export const HStoreField = new FieldType("HStoreField", "{}");
+export const CICharField = new FieldType("CICharField", "'text'", true);
+export const CIEmailField = new FieldType("CIEmailField", "'user@tempurl.com'", true);
+export const CITextField = new FieldType("CITextField", "'some\\ntext'", true);
+export const HStoreField = new FieldType("HStoreField", "{}", true);
 export const IntegerRangeField = new FieldType("IntegerRangeField", [0, 10], true, true, "NumericRange(0, 10)");
 export const BigIntegerRangeField = new FieldType("BigIntegerRangeField", [0, 1000], true, true, "NumericRange(0, 1000)");
 export const DateTimeRangeField = new FieldType("DateTimeRangeField", ["'2022-01-01:09:00:00'", "'2022-02-02:09:00:00'"], true, true, "DateTimeTZRange()");
 export const DateRangeField = new FieldType("DateRangeField", ["'2022-01-01'", "'2022-02-02'"], true, true, "DateRange()");
+export const BinaryField = new FieldType("BinaryField", "b''", )
+export const FilePathField = new FieldType("FilePathField", "''", )
+
+export const FieldTypes = {
+  [`${CharField.name}`]: CharField,
+  [`${TextField.name}`]: TextField,
+  [`${JSONField.name}`]: JSONField,
+  [`${DateField.name}`]: DateField,
+  [`${DateTimeField.name}`]: DateTimeField,
+  [`${BigIntegerField.name}`]: BigIntegerField,
+  [`${BooleanField.name}`]: BooleanField,
+  [`${DecimalField.name}`]: DecimalField,
+  [`${DurationField.name}`]: DurationField,
+  [`${FileField.name}`]: FileField,
+  [`${FloatField.name}`]: FloatField,
+  [`${IntegerField.name}`]: IntegerField,
+  [`${PositiveIntegerField.name}`]: PositiveIntegerField,
+  [`${PositiveSmallIntegerField.name}`]: PositiveSmallIntegerField,
+  [`${SlugField.name}`] : SlugField,
+  [`${GenericIPAddressField.name}`]: GenericIPAddressField,
+  [`${TimeField.name}`]: TimeField,
+  [`${SmallIntegerField.name}`]: SmallIntegerField,
+  [`${URLField.name}`]: URLField,
+  [`${UUIDField.name}`]: UUIDField,
+  [`${EmailField.name}`]: EmailField,
+  [`${ImageField.name}`]: ImageField,
+  [`${ArrayField.name}`]: ArrayField,
+  [`${CICharField.name}`]: CICharField,
+  [`${CIEmailField.name}`]: CIEmailField,
+  [`${CITextField.name}`]: CITextField,
+  [`${HStoreField.name}`]: HStoreField,
+  [`${IntegerRangeField.name}`]: IntegerRangeField,
+  [`${BigIntegerRangeField.name}`]: BigIntegerRangeField,
+  [`${DateTimeRangeField.name}`]: DateTimeRangeField,
+  [`${DateRangeField.name}`]: DateRangeField,
+  [`${BinaryField.name}`]: BinaryField,
+  [`${FilePathField.name}`]: FilePathField,
+}
 
 export class RelationshipType implements IRelationshipType {
   name: string;
@@ -273,6 +327,12 @@ export class RelationshipType implements IRelationshipType {
 export const ForeignKey = new RelationshipType("ForeignKey");
 export const OneToOneRelationship = new RelationshipType("OneToOneField");
 export const ManyToManyRelationship = new RelationshipType("ManyToManyField");
+
+export const RelationshipTypes = {
+  [`${ForeignKey.name}`]: ForeignKey,
+  [`${OneToOneRelationship.name}`]: OneToOneRelationship,
+  [`${ManyToManyRelationship.name}`]: ManyToManyRelationship,
+}
 
 export class DjangoField implements IDjangoField {
   model: IDjangoModel;
@@ -316,7 +376,7 @@ export class DjangoModel implements IDjangoModel {
   fields: IDjangoField[] = [];
   relationships: IDjangoRelationship[] = [];
   
-  parents: IDjangoModel[] = [];
+  parents: IDjangoModel[] | IBuiltInModel[] = [];
   abstract = false;
   
   primaryKey = "pk";
@@ -329,7 +389,7 @@ export class DjangoModel implements IDjangoModel {
     abstract?: boolean,
     fields?: IDjangoField[],
     relationships?: IDjangoRelationship[],
-    parents?: IDjangoModel[],
+    parents?: IDjangoModel[] | IBuiltInModel[],
   ) {
     this.app = app;
     this.name = name;
@@ -362,7 +422,7 @@ export class DjangoModel implements IDjangoModel {
     return field;
   }
 
-  addRelationship(name: string, type: RelationshipType, to: IDjangoModel | IBuiltInModel, args: string): DjangoRelationship {
+  addRelationship(name: string, type: RelationshipType, to: IRelatedField, args: string): DjangoRelationship {
     const relationship = new DjangoRelationship(this, name, type, to, args);
     this.relationships.push(relationship)
     return relationship;
@@ -387,7 +447,7 @@ export class DjangoApp implements IDjangoApp {
     }
   }
 
-  addModel(name: string, abstract: boolean | undefined = false): DjangoModel {
+  addModel(name: string, abstract: boolean | undefined = false): IDjangoModel {
     const model = new DjangoModel(this, name, abstract);
     this.models.push(model);
     return model;
@@ -398,7 +458,7 @@ export class DjangoApp implements IDjangoApp {
   }
 }
 
-interface DjangoProjectParams {
+export interface DjangoProjectParams {
   channels?: boolean,
   htmx?: boolean,
   postgres? : boolean,

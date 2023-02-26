@@ -45,4 +45,5 @@ coverage/
 
 **/.venv
 DjangoProject/
+lib/djangobuilder-core/*.tar
 output.tar

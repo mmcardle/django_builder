@@ -11,8 +11,10 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "yarn --cwd packages/djangobuilder.io dev",
-    "build": "yarn --cwd packages/djangobuilder.io build",
+    "dev": "yarn --cwd packages/djangobuilder4 dev",
+    "build": "yarn --cwd packages/djangobuilder4 build",
+    "devio": "yarn --cwd packages/djangobuilder.io dev",
+    "buildio": "yarn --cwd packages/djangobuilder.io build",
     "smoketest": "yarn --cwd lib/djangobuilder-core run smoketest",
     "coretest": "yarn --cwd lib/djangobuilder-core run test"
   }

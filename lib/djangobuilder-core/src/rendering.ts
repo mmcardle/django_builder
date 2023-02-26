@@ -42,59 +42,94 @@ import { template as appTestViews } from "./django/python/app/tests/test_views";
 
 import { template as init } from "./django/python/init";
 
-import Tarball from './tar'
-import Handlebars from "handlebars"
-import DjangoProject, { BuiltInModel, DjangoApp, DjangoField, DjangoModel, DjangoRelationship, ManyToManyRelationship } from './api';
+import Tarball from "./tar";
+import Handlebars from "handlebars";
+import DjangoProject, {
+  BuiltInModel,
+  DjangoApp,
+  DjangoField,
+  DjangoModel,
+  DjangoRelationship,
+  ManyToManyRelationship,
+} from "./api";
 import { IDjangoModel } from "./types";
 
 Handlebars.registerHelper("raw", (options) => options.fn());
-Handlebars.registerHelper("object", (str: string) => "{{ object." + str + " }}");
+Handlebars.registerHelper(
+  "object",
+  (str: string) => "{{ object." + str + " }}"
+);
 Handlebars.registerHelper("open", () => "{{");
-Handlebars.registerHelper("close", () =>  "}}");
-Handlebars.registerHelper("camelCase", (str: string) => str.slice(0, 1).toUpperCase() + str.slice(1));
-Handlebars.registerHelper("relatedTo", (relationship: DjangoRelationship) => relationship.relatedTo());
+Handlebars.registerHelper("close", () => "}}");
+Handlebars.registerHelper(
+  "camelCase",
+  (str: string) => str.slice(0, 1).toUpperCase() + str.slice(1)
+);
+Handlebars.registerHelper("relatedTo", (relationship: DjangoRelationship) =>
+  relationship.relatedTo()
+);
 
-Handlebars.registerHelper("importModule", (field: DjangoField) => field.importModule());
+Handlebars.registerHelper("importModule", (field: DjangoField) =>
+  field.importModule()
+);
 
-Handlebars.registerHelper("isManyToMany", (relationship: DjangoRelationship, options) => {
-  if (relationship.type === ManyToManyRelationship) {
-    return options.fn(relationship);
+Handlebars.registerHelper(
+  "isManyToMany",
+  (relationship: DjangoRelationship, options) => {
+    if (relationship.type === ManyToManyRelationship) {
+      return options.fn(relationship);
+    }
   }
-});
-Handlebars.registerHelper("isNotManyToMany", (relationship: DjangoRelationship, options) => {
-  if (relationship.type !== ManyToManyRelationship) {
-    return options.fn(relationship);
+);
+Handlebars.registerHelper(
+  "isNotManyToMany",
+  (relationship: DjangoRelationship, options) => {
+    if (relationship.type !== ManyToManyRelationship) {
+      return options.fn(relationship);
+    }
   }
-});
+);
 
-Handlebars.registerHelper("testViewsCreateDefaultField", (field: DjangoField) => {
-  if (field.type.testDefault instanceof Array<string | number>) {
-    return (field.type.testDefault as Array<string | number>).map(
-      (fieldDefault, i) => `'${field.name}_${i}': ${fieldDefault},`
-    ).join("\n      ")
+Handlebars.registerHelper(
+  "testViewsCreateDefaultField",
+  (field: DjangoField) => {
+    if (field.type.testDefault instanceof Array<string | number>) {
+      return (field.type.testDefault as Array<string | number>)
+        .map((fieldDefault, i) => `'${field.name}_${i}': ${fieldDefault},`)
+        .join("\n      ");
+    }
+    return `'${field.name}': ${field.type.testDefault},`;
   }
-  return `'${field.name}': ${field.type.testDefault},`
-});
+);
 
-Handlebars.registerHelper("testHelperCreateDefaultField", (field: DjangoField) => {
-  return `'${field.name}': ${field.type.viewDefault || field.type.testDefault},`
-});
+Handlebars.registerHelper(
+  "testHelperCreateDefaultField",
+  (field: DjangoField) => {
+    return `'${field.name}': ${
+      field.type.viewDefault || field.type.testDefault
+    },`;
+  }
+);
 
-Handlebars.registerHelper("testHelperCreateDefaultRelationship", (relationship: DjangoRelationship) => {
-  if (relationship.to instanceof BuiltInModel) {
-    return `${relationship.to.model}()`
+Handlebars.registerHelper(
+  "testHelperCreateDefaultRelationship",
+  (relationship: DjangoRelationship) => {
+    if (relationship.to instanceof BuiltInModel) {
+      return `${relationship.to.model}()`;
+    }
+    if (relationship.to instanceof DjangoModel) {
+      return `${relationship.to.app.name}_${relationship.to.name}()`;
+    }
+    throw Error(
+      `Could not create test helper for ${relationship.name} ${relationship.type} ${relationship.to.name}`
+    );
   }
-  if (relationship.to instanceof DjangoModel) {
-    return `${relationship.to.app.name}_${relationship.to.name}()`
-  }
-  throw Error(`Could not create test helper for ${relationship.name} ${relationship.type} ${relationship.to.name}`)
-});
+);
 
 type DjangoRenderingContext = Record<
   string,
   DjangoProject | DjangoModel | DjangoApp
 >;
-
 
 const PYTEST_INI = "pytest.ini";
 const TEST_HELPERS = "test_helpers.py";
@@ -135,6 +170,29 @@ const TEST_SETTINGS_PY = "test_settings.py";
 
 const TEST_VIEWS = "test_views.py";
 
+export enum DjangoProjectFileResource {
+  FOLDER,
+  PROJECT_FILE,
+  APP_FILE,
+  MODEL_FILE,
+}
+
+type DjangoEntity =
+  | DjangoProject
+  | DjangoApp
+  | DjangoModel
+  | DjangoField
+  | DjangoRelationship;
+
+export type DjangoProjectFile = {
+  resource: DjangoEntity;
+  type: DjangoProjectFileResource;
+  path: string;
+  name: string;
+  folder: boolean;
+  modelName?: string | null;
+  children?: Array<DjangoProjectFile> | null;
+};
 
 export const ROOT_FILES = {
   [`${MANAGE}`]: projectManage,
@@ -143,9 +201,9 @@ export const ROOT_FILES = {
   [`${TEST_SETTINGS}`]: rootTestSettings,
   [`${REQUIREMENTS_TXT}`]: rootRequirements,
   [`${REQUIREMENTS_DEV_TXT}`]: rootRequirementsDev,
-  [`${TEST_REQUIREMENTS_TXT}`] : rootTestRequirements,
-  [`${TEST_SETTINGS_PY}`] : rootTestSettings,
-}
+  [`${TEST_REQUIREMENTS_TXT}`]: rootTestRequirements,
+  [`${TEST_SETTINGS_PY}`]: rootTestSettings,
+};
 
 export const PROJECT_FILES = {
   [`${SETTINGS}`]: projectSettings,
@@ -156,12 +214,12 @@ export const PROJECT_FILES = {
   [`${ROUTING}`]: projectRouting,
   [`${ASGI}`]: projectAsgi,
   [`${__INIT__}`]: init,
-}
+};
 
 export const PROJECT_TEMPLATE_FILES = {
   [`${BASE_HTML}`]: baseHtml,
   [`${INDEX_HTML}`]: indexHtml,
-}
+};
 
 export const PROJECT_HTMX_TEMPLATE_FILES = {
   [`${HTMX_HTML}`]: htmxHtml,
@@ -169,7 +227,7 @@ export const PROJECT_HTMX_TEMPLATE_FILES = {
   [`${FORM}`]: htmxFormHtml,
   [`${CREATE}`]: htmxCreateHtml,
   [`${DELETE_BUTTON}`]: htmxDeleteButtonHtml,
-}
+};
 
 export const APP_FILES = {
   [`${MODELS}`]: appModels,
@@ -182,130 +240,355 @@ export const APP_FILES = {
   [`${ADMIN}`]: appAdmin,
   [`${CONSUMERS}`]: appConsumers,
   [`${__INIT__}`]: init,
-}
+};
 
 export const APP_TEST_FILES = {
   [`${TEST_VIEWS}`]: appTestViews,
   [`${__INIT__}`]: init,
-}
+};
 
 export const MODEL_TEMPLATE_FILES = {
   [`${LIST}`]: appListHtml,
   [`${FORM}`]: appFormHtml,
   [`${DETAIL}`]: appDetailHtml,
   [`${CONFIRM_DELETE}`]: appConfirmDeleteHtml,
-}
-
+};
 
 export default class Renderer {
-
   // compiledProjectSettings: HandlebarsTemplateDelegate<string>
-  
+
   constructor() {
     // TODO - compile first
     // this.compiledProjectSettings = Handlebars.compile(projectSettings)
   }
 
   baseContext() {
-    const context: Record<string, string> = {}
+    const context: Record<string, string> = {};
     return context;
   }
 
   renderTemplate(template: string, context: DjangoRenderingContext): string {
-    return Handlebars.compile(template)(
-      {...context, ...this.baseContext()}
-    );
+    return Handlebars.compile(template)({ ...context, ...this.baseContext() });
   }
 
   renderProjectFile(file: string, project: DjangoProject) {
-    const template = PROJECT_FILES[file] || PROJECT_TEMPLATE_FILES[file] || ROOT_FILES[file] || PROJECT_HTMX_TEMPLATE_FILES[file];
+    const template =
+      PROJECT_FILES[file] ||
+      PROJECT_TEMPLATE_FILES[file] ||
+      ROOT_FILES[file] ||
+      PROJECT_HTMX_TEMPLATE_FILES[file];
     if (template) {
-      return this.renderTemplate(template, {project})
+      return this.renderTemplate(template, { project });
     } else {
-      throw Error(`No project template for ${file}`)
+      throw Error(`No project template for ${file}`);
     }
   }
 
   renderModelFile(file: string, model: DjangoModel) {
-    const template = MODEL_TEMPLATE_FILES[file];
-    if (template) {
-      return this.renderTemplate(template, {model})
+    const foundtemplate = Object.keys(MODEL_TEMPLATE_FILES).find((template_file) =>
+      file.endsWith(template_file)
+    );
+    if (foundtemplate) {
+      return this.renderTemplate(MODEL_TEMPLATE_FILES[foundtemplate], { model });
     } else {
-      throw Error(`No model template for ${file}`)
+      throw Error(`No model template for ${file}`);
     }
   }
 
   renderAppFile(file: string, app: DjangoApp) {
     const template = APP_FILES[file] || APP_TEST_FILES[file];
     if (template) {
-      return this.renderTemplate(template, {app})
+      return this.renderTemplate(template, { app });
     } else {
-      throw Error(`No app template for ${file}`)
+      throw Error(`No app template for ${file}`);
     }
   }
 
-  addProjectFileToTarball(tarball: Tarball, project: DjangoProject, filename: string, filepath?: string) {
+  addProjectFileToTarball(
+    tarball: Tarball,
+    project: DjangoProject,
+    filename: string,
+    filepath?: string
+  ) {
     const content = this.renderProjectFile(filename, project);
-    const tarpath = filepath ? filepath : `${project.name}/${project.name}/${filename}`;
+    const tarpath = filepath
+      ? filepath
+      : `${project.name}/${project.name}/${filename}`;
     tarball.append(tarpath, content);
   }
 
-  addRootFileToTarball(tarball: Tarball, project: DjangoProject, filename: string) {
+  addRootFileToTarball(
+    tarball: Tarball,
+    project: DjangoProject,
+    filename: string
+  ) {
     const content = this.renderProjectFile(filename, project);
     tarball.append(`${project.name}/${filename}`, content);
   }
 
-  addAppFileToTarball(tarball: Tarball, app: DjangoApp, filename: string, filepath?: string) {
+  addAppFileToTarball(
+    tarball: Tarball,
+    app: DjangoApp,
+    filename: string,
+    filepath?: string
+  ) {
     const content = this.renderAppFile(filename, app);
-    const tarpath = filepath ? filepath : `${app.project.name}/${app.name}/${filename}`;
+    const tarpath = filepath
+      ? filepath
+      : `${app.project.name}/${app.name}/${filename}`;
     tarball.append(tarpath, content);
   }
 
-  addModelFileToTarball(tarball: Tarball, model: DjangoModel, filename: string, filepath?: string) {
+  addModelFileToTarball(
+    tarball: Tarball,
+    model: DjangoModel,
+    filename: string,
+    filepath?: string
+  ) {
     const content = this.renderModelFile(filename, model);
-    const tarpath = filepath ? filepath : `${model.app.project.name}/${model.app.name}/${filename}`;
+    const tarpath = filepath
+      ? filepath
+      : `${model.app.project.name}/${model.app.name}/${filename}`;
     tarball.append(tarpath, content);
   }
 
-  asTarball(project: DjangoProject) {
+  asTree(project: DjangoProject): DjangoProjectFile[] {
+    const project_children: DjangoProjectFile[] = Object.keys(
+      PROJECT_FILES
+    ).map((render_name) => {
+      return {
+        resource: project,
+        type: DjangoProjectFileResource.PROJECT_FILE,
+        path: project.name + "/" + render_name,
+        name: render_name,
+        folder: false,
+      };
+    });
+
+    const project_item = {
+      resource: project,
+      type: DjangoProjectFileResource.FOLDER,
+      path: project.name,
+      name: project.name,
+      folder: true,
+      children: project_children,
+    };
+
+    const apps = project.apps.map((app) => {
+      const model_templates: DjangoProjectFile[] = [];
+
+      app.models.forEach((model) => {
+        model_templates.push(
+          ...Object.keys(MODEL_TEMPLATE_FILES).map((render_name) => {
+            const fileName = model.name.toLowerCase() + "_" + render_name;
+            return {
+              resource: model as DjangoModel,
+              type: DjangoProjectFileResource.MODEL_FILE,
+              appName: app.name,
+              modelName: model.name,
+              path: app.name + "/templates/" + app.name + "/" + fileName,
+              folder: false,
+              name: fileName,
+            };
+          })
+        );
+      });
+
+      let model_children: DjangoProjectFile[] = Object.keys(APP_FILES).map(
+        (render_name) => {
+          return {
+            resource: app,
+            type: DjangoProjectFileResource.APP_FILE,
+            path: app.name + "/" + render_name,
+            name: render_name,
+            folder: false,
+          };
+        }
+      );
+
+      model_children = model_children.concat(
+        {
+          resource: app,
+          type: DjangoProjectFileResource.FOLDER,
+          path: app.name + "/templates/" + app.name,
+          name: "templates/" + app.name,
+          folder: true,
+          children: model_templates,
+        },
+        {
+          resource: app,
+          type: DjangoProjectFileResource.FOLDER,
+          path: app.name + "/migrations/",
+          name: "migrations",
+          folder: true,
+          children: [
+            {
+              resource: app,
+              type: DjangoProjectFileResource.APP_FILE,
+              path: app.name + "/migrations/__init__.py",
+              name: "__init__.py",
+              folder: false,
+            },
+          ],
+        }
+      );
+
+      return {
+        resource: app,
+        type: DjangoProjectFileResource.FOLDER,
+        path: app.name,
+        name: app.name,
+        folder: true,
+        children: model_children,
+      };
+    });
+
+    const root_items: DjangoProjectFile[] = Object.keys(ROOT_FILES).map(
+      (render_name) => {
+        return {
+          resource: project,
+          type: DjangoProjectFileResource.PROJECT_FILE,
+          path: render_name,
+          name: render_name,
+          folder: false,
+        };
+      }
+    );
+
+    const test_items: DjangoProjectFile[] = [
+      {
+        resource: project,
+        type: DjangoProjectFileResource.FOLDER,
+        path: "tests",
+        name: "tests",
+        folder: true,
+        children: project.apps.map((app) => {
+          return {
+            resource: app,
+            type: DjangoProjectFileResource.APP_FILE,
+            path: "tests/" + app.name,
+            name: app.name,
+            folder: true,
+            children: Object.keys(APP_TEST_FILES).map((render_name) => {
+              return {
+                resource: app,
+                type: DjangoProjectFileResource.APP_FILE,
+                path: "tests/" + app.name + "/" + render_name,
+                name: render_name,
+                folder: false,
+              };
+            }),
+          };
+        }),
+      },
+    ];
+
+    const template_children: DjangoProjectFile[] = Object.keys(
+      PROJECT_TEMPLATE_FILES
+    ).map((name) => {
+      const path = "templates/" + name;
+      return {
+        resource: project,
+        type: DjangoProjectFileResource.PROJECT_FILE,
+        path,
+        name,
+        folder: false,
+      };
+    });
+
+    const template_items: DjangoProjectFile[] = [
+      {
+        resource: project,
+        type: DjangoProjectFileResource.FOLDER,
+        path: "templates",
+        name: "templates",
+        folder: true,
+        children: template_children,
+      },
+    ];
+
+    return [
+      project_item,
+      ...apps,
+      ...template_items,
+      ...test_items,
+      ...root_items,
+    ];
+  }
+
+  tarball(project: DjangoProject): Tarball {
     const tarball = new Tarball();
 
-    Object.keys(PROJECT_FILES).forEach(projectFile => {
+    Object.keys(PROJECT_FILES).forEach((projectFile) => {
       this.addProjectFileToTarball(tarball, project, projectFile);
-    })
+    });
 
-    Object.keys(PROJECT_TEMPLATE_FILES).forEach(projectTemplateFile => {
-      this.addProjectFileToTarball(tarball, project, projectTemplateFile, `${project.name}/templates/${projectTemplateFile}`);
-    })
+    Object.keys(PROJECT_TEMPLATE_FILES).forEach((projectTemplateFile) => {
+      this.addProjectFileToTarball(
+        tarball,
+        project,
+        projectTemplateFile,
+        `${project.name}/templates/${projectTemplateFile}`
+      );
+    });
 
-    Object.keys(PROJECT_HTMX_TEMPLATE_FILES).forEach(projectHTMXTemplateFile => {
-      this.addProjectFileToTarball(tarball, project, projectHTMXTemplateFile, `${project.name}/templates/htmx/${projectHTMXTemplateFile}`);
-    })
+    Object.keys(PROJECT_HTMX_TEMPLATE_FILES).forEach(
+      (projectHTMXTemplateFile) => {
+        this.addProjectFileToTarball(
+          tarball,
+          project,
+          projectHTMXTemplateFile,
+          `${project.name}/templates/htmx/${projectHTMXTemplateFile}`
+        );
+      }
+    );
 
-    Object.keys(ROOT_FILES).forEach(rootFile => {
+    Object.keys(ROOT_FILES).forEach((rootFile) => {
       this.addRootFileToTarball(tarball, project, rootFile);
-    })
-    
-    project.apps.forEach(app => {
-      Object.keys(APP_FILES).forEach(appFile => {
-        this.addAppFileToTarball(tarball, app as DjangoApp, appFile);
-      })
-      Object.keys(APP_TEST_FILES).forEach(appFile => {
-        this.addAppFileToTarball(tarball, app as DjangoApp, appFile, `${project.name}/tests/${app.name}/${appFile}` );
-      })
-      app.models.filter(model => !model.abstract).forEach((model: IDjangoModel) => {
-        Object.keys(MODEL_TEMPLATE_FILES).forEach(modelFile => {
-          this.addModelFileToTarball(
-            tarball,
-            model as DjangoModel,
-            modelFile,
-            `${app.project.name}/${app.name}/templates/${app.name}/${model.name.toLowerCase()}_${modelFile}`);
-        })
-      })
-      this.addAppFileToTarball(tarball, app as DjangoApp, "__init__.py", `${app.project.name}/${app.name}/migrations/__init__.py`);
-    })
+    });
 
-    return tarball.get_content();
+    project.apps.forEach((app) => {
+      Object.keys(APP_FILES).forEach((appFile) => {
+        this.addAppFileToTarball(tarball, app as DjangoApp, appFile);
+      });
+      Object.keys(APP_TEST_FILES).forEach((appFile) => {
+        this.addAppFileToTarball(
+          tarball,
+          app as DjangoApp,
+          appFile,
+          `${project.name}/tests/${app.name}/${appFile}`
+        );
+      });
+      app.models
+        .filter((model) => !model.abstract)
+        .forEach((model: IDjangoModel) => {
+          Object.keys(MODEL_TEMPLATE_FILES).forEach((modelFile) => {
+            this.addModelFileToTarball(
+              tarball,
+              model as DjangoModel,
+              modelFile,
+              `${app.project.name}/${app.name}/templates/${
+                app.name
+              }/${model.name.toLowerCase()}_${modelFile}`
+            );
+          });
+        });
+      this.addAppFileToTarball(
+        tarball,
+        app as DjangoApp,
+        "__init__.py",
+        `${app.project.name}/${app.name}/migrations/__init__.py`
+      );
+    });
+
+    return tarball;
   }
 
+  tarballContent(project: DjangoProject): Uint8Array {
+    return this.tarball(project).get_content();
+  }
+
+  tarballURL(project: DjangoProject): string {
+    return this.tarball(project).get_url();
+  }
 }
