@@ -491,7 +491,7 @@ class DjangoProject implements IDjangoProject {
     this.postgres = options.postgres == true || options.postgres == undefined;
     this.apps = [];
     this.middlewares = DEFAULT_MIDDLEWARES
-    if (this.htmx) {
+    if (this.htmx && this.middlewares.indexOf(HTMX_MIDDLEWARE) === -1 ) {
       this.middlewares.push(HTMX_MIDDLEWARE)
     }
   }
