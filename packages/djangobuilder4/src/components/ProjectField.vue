@@ -6,7 +6,6 @@ import type { DjangoField } from "@djangobuilder/core";
 defineProps<{
   field: DjangoField;
 }>();
-
 </script>
 
 <template>

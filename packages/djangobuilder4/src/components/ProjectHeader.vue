@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import {
-  DjangoApp,
-  DjangoVersion,
-  type DjangoProject,
-} from "@djangobuilder/core";
+import { DjangoVersion, type DjangoProject } from "@djangobuilder/core";
 import { useUserStore } from "../stores/user";
 import { storeToRefs } from "pinia";
 import { updateProject } from "@/api";
 import EditableText from "@/widgets/EditableText.vue";
 import EditableBoolean from "@/widgets/EditableBoolean.vue";
 import EditableChoice from "@/widgets/EditableChoice.vue";
-import { deleteApp } from "@/firebase";
+import { deleteResources } from "@/firebase";
 import ConfirmableButton from "@/widgets/ConfirmableButton.vue";
 
 const props = defineProps<{
@@ -24,14 +20,14 @@ const DjangoVersionChoices = {
 };
 
 const userStore = useUserStore();
-const { getProjectId, getAppId } = storeToRefs(userStore);
+const { getProjectId, getAllProjectSubIds } = storeToRefs(userStore);
 const projectid = getProjectId.value(props.project);
 
-function handleDeleteApp(app: DjangoApp) {
-  const projectid = getProjectId.value(props.project);
-  const appid = getAppId.value(app);
-  if (projectid && appid) {
-    deleteApp(projectid, appid);
+function handleDeleteProject() {
+  const { appids, modelids, fieldids, relationshipids } =
+    getAllProjectSubIds.value(props.project);
+  if (projectid) {
+    deleteResources([projectid], appids, modelids, fieldids, relationshipids);
   }
 }
 </script>
@@ -49,8 +45,8 @@ function handleDeleteApp(app: DjangoApp) {
           <EditableText
             :value="props.project.description"
             v-on:update="
-              (description: string) => updateProject(props.project, { description })
-            "
+            (description: string) => updateProject(props.project, { description })
+          "
           >
             {{ props.project.description }}
           </EditableText>
@@ -100,6 +96,13 @@ function handleDeleteApp(app: DjangoApp) {
         </td>
       </tr-->
     </table>
+    <div class="delete-project-button">
+      <ConfirmableButton
+        :message="`Are you sure you wish to delete Project '${props.project.name}'?`"
+        :icon="'&#128465;'"
+        @confirm="handleDeleteProject()"
+      />
+    </div>
   </div>
 </template>
 
@@ -116,6 +119,8 @@ a {
   padding: 10px;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  position: relative;
 }
 table {
   table-layout: fixed;
@@ -131,5 +136,13 @@ td {
   margin: 0;
   padding: 0 4px;
   color: red;
+}
+
+.delete-project-button {
+  margin: 0;
+  position: absolute;
+  bottom: 20px;
+  right: 0;
+  margin: 4px;
 }
 </style>

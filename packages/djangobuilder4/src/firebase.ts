@@ -12,7 +12,6 @@ import {
   onSnapshot,
   Query,
   QueryConstraint,
-  setDoc,
   updateDoc,
   writeBatch,
   type DocumentChange,
@@ -130,6 +129,24 @@ async function addApp(user: User, projectid: string, name: string) {
   await updateDoc(projectRef, { [`apps.${appRef.id}`]: true });
 }
 
+async function deleteResources(
+  projectids: Array<string>,
+  appids: Array<string>,
+  modelids: Array<string>,
+  fieldids: Array<string>,
+  relationshipids: Array<string>
+) {
+  const batch = writeBatch(db);
+  projectids.map((projectid) => batch.delete(doc(db, "projects", projectid)));
+  appids.map((appid) => batch.delete(doc(db, "apps", appid)));
+  modelids.map((modelid) => batch.delete(doc(db, "models", modelid)));
+  fieldids.map((fieldid) => batch.delete(doc(db, "fields", fieldid)));
+  relationshipids.map((relationshipid) =>
+    batch.delete(doc(db, "relationship", relationshipid))
+  );
+  batch.commit().catch((err) => console.error("Failed!", err));
+}
+
 async function deleteApp(projectid: string, appid: string) {
   console.log("Remove app ", appid, "from ", projectid);
   const projectRef = doc(db, "projects", projectid);
@@ -154,7 +171,7 @@ async function createProject(
     django_version,
     htmx,
     channels,
-    apps: []
+    apps: [],
   });
   console.log("Document written with ID: ", docRef.id);
 }
@@ -169,5 +186,6 @@ export {
   fetchRelationships,
   createProject,
   addApp,
+  deleteResources,
   deleteApp,
 };

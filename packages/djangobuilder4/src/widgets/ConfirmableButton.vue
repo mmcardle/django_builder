@@ -4,10 +4,12 @@ import PopUp from "./PopUp.vue";
 
 export interface Props {
   message?: string;
+  icon?: string;
 }
 
 withDefaults(defineProps<Props>(), {
   message: "Confirm",
+  icon: "&#10539;",
 });
 
 const emit = defineEmits<{
@@ -34,9 +36,11 @@ function handleAbortConfirm(): void {
 
 <template>
   <span class="buttons">
-    <button class="button" @click="handleConfirm()">&#10539;</button>
+    <button class="button" @click="handleConfirm()">{{ icon }}</button>
     <PopUp v-if="confirming">
-      {{ message }}
+      <div>
+        {{ message }}
+      </div>
       <button class="cancel-button" @click="handleAbortConfirm()">
         Cancel
       </button>

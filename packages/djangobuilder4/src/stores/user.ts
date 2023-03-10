@@ -21,6 +21,12 @@ import {
   DjangoModel,
 } from "@djangobuilder/core";
 import { AuthUser } from "@djangobuilder/core/src/api";
+import type {
+  IDjangoApp,
+  IDjangoField,
+  IDjangoModel,
+  IDjangoRelationship,
+} from "@djangobuilder/core/src/types";
 
 export const useUserStore = defineStore({
   id: "user",
@@ -59,6 +65,44 @@ export const useUserStore = defineStore({
     getFieldId: (state) => (field: DjangoField) => state.fieldids.get(field),
     getRelationshipId: (state) => (relationship: DjangoRelationship) =>
       state.relationshipids.get(relationship),
+    getAllProjectSubIds: (state) => (project: DjangoProject) => {
+      const appids: Array<string> = [];
+      const modelids: Array<string> = [];
+      const fieldids: Array<string> = [];
+      const relationshipids: Array<string> = [];
+      project.apps.forEach((app: IDjangoApp) => {
+        const appid = state.appids.get(app as DjangoApp);
+        if (appid) {
+          appids.push(appid);
+        }
+        app.models.forEach((model: IDjangoModel) => {
+          const modelid = state.modelids.get(model as DjangoModel);
+          if (modelid) {
+            modelids.push(modelid);
+          }
+          model.fields.forEach((field: IDjangoField) => {
+            const fieldid = state.fieldids.get(field as DjangoField);
+            if (fieldid) {
+              fieldids.push(fieldid);
+            }
+          });
+          model.relationships.forEach((relationship: IDjangoRelationship) => {
+            const relationshipid = state.relationshipids.get(
+              relationship as DjangoRelationship
+            );
+            if (relationshipid) {
+              relationshipids.push(relationshipid);
+            }
+          });
+        });
+      });
+      return {
+        appids,
+        modelids,
+        fieldids,
+        relationshipids,
+      };
+    },
   },
   actions: {
     onUpdate(changedEntity: string, change: DocumentChange<DocumentData>) {
@@ -87,10 +131,26 @@ export const useUserStore = defineStore({
         }
       } else if (change.type === "removed") {
         console.log("Removed: ", changedEntity, data);
+        if (changedEntity === "project") {
+          delete this.projects[id];
+          delete this.coreProjects[id];
+        } else if (changedEntity === "app") {
+          delete this.apps[id];
+        } else if (changedEntity === "model") {
+          delete this.models[id];
+        } else if (changedEntity === "field") {
+          delete this.fields[id];
+        } else if (changedEntity === "relationship") {
+          delete this.relationships[id];
+        } else {
+          console.error("Don't understand how to remove", changedEntity);
+        }
       } else {
         console.error("Don't understand how to handle the change", change);
       }
-      this.createCoreProjects();
+      if (this.loaded) {
+        this.createCoreProjects();
+      }
     },
     setUser(user: User | null) {
       this.user = user;

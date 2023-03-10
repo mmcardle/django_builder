@@ -7,7 +7,6 @@ import type { DjangoRelationship } from "@djangobuilder/core";
 defineProps<{
   relationship: DjangoRelationship;
 }>();
-
 </script>
 
 <template>

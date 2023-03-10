@@ -18,7 +18,7 @@ async function updateProject(
   project: DjangoProject,
   args: Record<string, string | boolean | number>
 ) {
-  console.log("UPDATE", project, args)
+  console.log("UPDATE", project, args);
   const projectid = getProjectId.value(project);
   if (projectid) {
     await updateDoc(doc(db, "projects", projectid), args);

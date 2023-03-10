@@ -28,7 +28,7 @@ function handleEdit() {
 
 onMounted(() => {
   nextTick(() => {
-    handleEdit();
+    //handleEdit();
   });
 });
 

@@ -29,19 +29,25 @@ const DjangoVersionChoices = {
   [`${DjangoVersion.DJANGO4}`]: DjangoVersion.DJANGO4.toString(),
 };
 
-function handleCreateProject() {
+async function handleCreateProject() {
   error.value = "";
   if (!name.value) {
     error.value = "Set a name";
     return;
   }
-  createProject(
+  await createProject(
     name.value,
     description.value,
     django_version.value,
     htmx.value,
     channels.value
   );
+  creatingProject.value = false;
+  name.value = "";
+  description.value = "";
+  htmx.value = true;
+  channels.value = true;
+  django_version.value = DjangoVersion.DJANGO4.toString();
 }
 </script>
 
@@ -154,7 +160,7 @@ function handleCreateProject() {
 #projects {
   display: grid;
   grid-auto-rows: 1fr;
-  grid-template-rows: auto;
+  grid-template-rows: repeat(3, 1fr);
   grid-template-columns: repeat(3, 1fr);
 }
 .project-header-wrapper {
