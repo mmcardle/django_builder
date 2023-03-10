@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from "vue";
 
-const props = defineProps<{
+export interface Props {
   value: string;
-}>();
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  value: "",
+});
 
 const emit = defineEmits<{
   (e: "update", value: string): void;
@@ -53,7 +57,7 @@ function handleAbortEdit(): void {
       ref="editRef"
       type="text"
       v-model="editedValue"
-      :size="editedValue.length - 1"
+      :size="Math.max(editedValue.length - 1, 6)"
       @blur="handleFinishEdit"
       @keydown.enter="handleFinishEdit"
       @keydown.escape="handleAbortEdit"

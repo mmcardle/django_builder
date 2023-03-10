@@ -1,5 +1,6 @@
 import Renderer from "./django/rendering"
 import fs from 'fs';
+import { logger } from "firebase-tools";
 
 class Colors {
   static Reset = "\x1b[0m";

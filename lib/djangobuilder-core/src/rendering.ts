@@ -177,7 +177,7 @@ export enum DjangoProjectFileResource {
   MODEL_FILE,
 }
 
-type DjangoEntity =
+export type DjangoEntity =
   | DjangoProject
   | DjangoApp
   | DjangoModel

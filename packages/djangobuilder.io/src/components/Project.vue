@@ -145,11 +145,15 @@
 import DirectoryView from '@/components/DirectoryView.vue'
 import AppView from '@/components/AppView.vue'
 import firebase from 'firebase/compat/app';
+import Renderer from '@/django/rendering'
+import ModelImporter from '@/django/importer'
+import { DEFAULT_DJANGO_VERSION } from '@/django'
 import {schemas} from '@/schemas'
 import {showDeleteDialog, showFormDialog} from '@/dialogs/'
 import 'highlight.js/styles/a11y-light.css'
 import store from "../store";
-import { Renderer as DBCoreRenderer, ModelImporter, DEFAULT_DJANGO_VERSION} from "@djangobuilder/core"
+
+const renderer = new Renderer(store)
 
 export default {
   props: ['id'],
@@ -164,6 +168,10 @@ export default {
     }
   },
   computed: {
+    renderer: () => renderer,
+    all_renderers: function () {
+      return renderer.project_flat(this.id)
+    },
     isloaded: function () {
       return this.$store.getters.loaded()
     },
@@ -198,9 +206,7 @@ export default {
         event_label: this.name,
         value: 1
       })
-      const coreRenderer = new DBCoreRenderer(store)
-      const djangoCoreProject = this.$store.getters.projectData(this.id)
-      const url = coreRenderer.tarballURL(djangoCoreProject)
+      const url = renderer.tarball_url(this.id)
       const link = document.createElement("a")
       link.download = this.name + '.tar'
       link.href = url

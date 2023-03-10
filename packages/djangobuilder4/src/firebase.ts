@@ -12,6 +12,7 @@ import {
   onSnapshot,
   Query,
   QueryConstraint,
+  setDoc,
   updateDoc,
   writeBatch,
   type DocumentChange,
@@ -139,6 +140,25 @@ async function deleteApp(projectid: string, appid: string) {
   batch.commit().catch((err) => console.error("Failed!", err));
 }
 
+async function createProject(
+  name: string,
+  description: string,
+  django_version: string,
+  htmx: boolean,
+  channels: boolean
+) {
+  const docRef = await addDoc(collection(db, "projects"), {
+    owner: auth.currentUser?.uid,
+    name,
+    description,
+    django_version,
+    htmx,
+    channels,
+    apps: []
+  });
+  console.log("Document written with ID: ", docRef.id);
+}
+
 export {
   auth,
   db,
@@ -147,6 +167,7 @@ export {
   fetchModels,
   fetchFields,
   fetchRelationships,
+  createProject,
   addApp,
   deleteApp,
 };

@@ -39,6 +39,8 @@
         </v-card>
       </v-col>
       <v-col cols=6 md=8 lg=9 class="pl-1">
+        <!--div>active_nodes:{{active_nodes}}</div>
+        <div>active:{{active}}</div-->
         <template v-if="active">
           <h2 class="blue--text text--darken-4 mx-2">
             <v-icon class="blue--text text--darken-4 mr-2">{{icon(active.name)}}</v-icon>
@@ -57,7 +59,7 @@
           <v-card class="ma-2" elevation="2">
             <v-card-text class="ma-0 pt-1">
               <!-- Important this the next line is all one line! -->
-              <highlight-code :lang="lang(active.name)" style="min-height: 783px; max-height:800px; overflow-y:auto">{{render(active)}}</highlight-code>
+              <highlight-code :lang="lang(active.name)" style="min-height: 783px; max-height:800px; overflow-y:auto">{{active.render()}}</highlight-code>
             </v-card-text>
           </v-card>
 
@@ -82,7 +84,7 @@
               </v-toolbar>
 
               <div class="pa-1">
-                <highlight-code :lang="lang(active.name)" style="min-height: 800px; max-height:800px; overflow-y:auto">{{render(active)}}</highlight-code>
+                <highlight-code :lang="lang(active.name)" style="min-height: 800px; max-height:800px; overflow-y:auto">{{active.render()}}</highlight-code>
               </div>
 
             </v-card>
@@ -96,19 +98,22 @@
 
 <script>
 import store from "../store";
-import { Renderer as DBCoreRenderer } from "@djangobuilder/core"
+import Renderer from '@/django/rendering';
 
-const coreRenderer = new DBCoreRenderer();
+const renderer = new Renderer(store)
 
-export default {
+  export default {
     props: ['id'],
     data: () => ({
       overlay: false,
+      active_nodes: [],
       active: undefined,
       open: [],
       code_dialog: undefined,
     }),
     computed: {
+      sourcecode: () => "from django.db import models",
+      renderer: () => renderer,
       isloaded: function () {
         return this.$store.getters.loaded()
       },
@@ -124,34 +129,39 @@ export default {
         return this.active.path.split('/')
       },
       items: function () {
-        const djangoCoreProject = this.$store.getters.projectData(this.id)
-        return coreRenderer.asTree(djangoCoreProject);
+        return renderer.project_tree(this.id)
       }
     },
     mounted: function () {
       const project = this.$store.getters.projectData(this.id)
-      const tree = coreRenderer.asTree(project);
-      if (project.apps.length > 0) {
-        const appNode = tree.find(node => node.name == project.apps[0].name)
-        if (appNode) {
-          const modelsNode = appNode.children.find(node => node.name === "models.py")
-          this.active = modelsNode
-          return
+      const apps = Object.keys(project.apps).map((app) => {
+        if (this.$store.getters.appData(app)) {
+          return Object.assign(this.$store.getters.appData(app), {id: app})
+        } else {
+          return {}
         }
-      }
-      const projectNode = tree.find(node => node.name == project.name)
-      if (projectNode) {
-        const settingsNode = projectNode.children.find(node => node.name === "settings.py")
-        if (settingsNode) {
-          this.active = settingsNode
+      })
+      if (apps.length > 0 && this.$store.getters.appData(apps[0].id) !== undefined ) {
+        const app = apps[0]
+        const a = {
+          path: app.name + "/models.py",
+          name: "models.py",
+          render: () => renderer.app_render("models.py", this.id, app.id)
         }
+        this.active = a
+        this.active_nodes = [a]
+      } else {
+        const a = {
+          path: project.name + "/settings.py",
+          name: "settings.py",
+          render: () => renderer.project_render("settings.py", this.id)
+        }
+        this.active = a
+        this.active_nodes = [a]
       }
     },
     created: function () {
-      const project = this.$store.getters.projectData(this.id);
-      const appIdMap = this.$store.getters.appIdMap();
-      console.log("CREATED", project, this.id)
-      console.log("CREATED", appIdMap[project.apps[0]])
+      const project = this.$store.getters.projectData(this.id)
       const apps = Object.keys(project.apps).map((app) => {
         if (this.$store.getters.appData(app)) {
           return Object.assign(this.$store.getters.appData(app), {id: app})
@@ -167,27 +177,11 @@ export default {
       }
     },
     methods: {
-      render(active) {
-        const djangoCoreProject = this.$store.getters.projectData(this.id)
-        if (active.type == "project") {
-          return coreRenderer.renderProjectFile(active.name, djangoCoreProject)
-        } else if (active.type == "app") {
-          const [ appName,  ] = active.path.split("/");
-          const djangoCoreApp = djangoCoreProject.apps.find((app) => app.name == appName)
-          return coreRenderer.renderAppFile(active.name, djangoCoreApp)
-        } else if (active.type == "model") {
-          const djangoCoreApp = djangoCoreProject.apps.find((app) => app.name == active.appName)
-          const djangoCoreModel = djangoCoreApp.models.find((model) => model.name == active.modelName)
-          const modelFile = active.name.split("_").slice(1).join("_");
-          return coreRenderer.renderModelFile(modelFile, djangoCoreModel)
-        }
-        throw new Error(`No renderer for ${active.type} ${active.path}`)
-      },
       full_screen_code_dialog() {
         this.code_dialog = true
       },
       click(item) {
-        if (item.type !== "folder") {
+        if (item.render) {
           this.active = item
         }
       },

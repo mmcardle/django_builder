@@ -3,8 +3,9 @@ import { useUserStore } from "../stores/user";
 import { addApp } from "../firebase";
 import { storeToRefs } from "pinia";
 import ProjectTree from "./ProjectTree.vue";
-import ProjectApp from "./ProjectApp.vue";
-import EditableText from "@/widgets/EditableText.vue";
+import PopUp from "@/widgets/PopUp.vue";
+import EditableTextPopUp from "@/widgets/EditableTextPopUp.vue";
+
 import {
   DjangoApp,
   DjangoModel,
@@ -25,7 +26,6 @@ const userStore = useUserStore();
 const { getUser, getProjectId } = storeToRefs(userStore);
 
 const renderer = new Renderer();
-const tree = renderer.asTree(props.project);
 
 const code = ref("");
 const language = ref("python");
@@ -99,21 +99,21 @@ function addAppWithName(name: string) {
       {{ props.project.name }}
       <div>
         <span id="add-app">
-          <button
-            v-if="!addingApp"
-            class="project-button"
-            @click="addAppHandler"
-          >
-            Add App
-          </button>
-          <span v-else>
-            <EditableText
+          <button class="project-button" @click="addAppHandler">Add App</button>
+          <PopUp v-if="addingApp">
+            <EditableTextPopUp
               value="app_name"
+              title="App Name"
               v-on:update="(name) => addAppWithName(name)"
+              v-on:abort="
+                () => {
+                  addingApp = false;
+                }
+              "
             >
               {{ "app_name" }}
-            </EditableText>
-          </span>
+            </EditableTextPopUp>
+          </PopUp>
         </span>
         <button class="project-button" @click="download">Download</button>
       </div>
@@ -124,7 +124,8 @@ function addAppWithName(name: string) {
         <div id="side-fixed">
           <ProjectTree
             :spacing="0"
-            :tree="tree"
+            :project="project"
+            :tree="renderer.asTree(props.project)"
             :open="false"
             :active="active"
             v-on:click="handleClick"

@@ -37,7 +37,7 @@ function handleDeleteApp(app: DjangoApp) {
 </script>
 
 <template>
-  <div class="project-header-wrapper">
+  <div class="project-header">
     <router-link :to="{ name: 'project', params: { id: projectid } }">{{
       project.name
     }}</router-link>
@@ -87,7 +87,7 @@ function handleDeleteApp(app: DjangoApp) {
           />
         </td>
       </tr>
-      <tr>
+      <!--tr>
         <td>Apps</td>
         <td>
           <div v-for="app in project.apps" :key="app.name">
@@ -98,7 +98,7 @@ function handleDeleteApp(app: DjangoApp) {
             />
           </div>
         </td>
-      </tr>
+      </tr-->
     </table>
   </div>
 </template>
@@ -112,9 +112,7 @@ a {
   overflow-y: hidden;
   margin-bottom: 4px;
 }
-.project-header-wrapper {
-  border: 1px dotted lightgray;
-  margin: 4px;
+.project-header {
   padding: 10px;
   display: flex;
   flex-direction: column;

@@ -4,7 +4,7 @@
       app clipped temporary>
       <v-list three-line>
         <v-subheader>Switch to Project ...</v-subheader>
-        <v-list-item :to="{ name: 'Project', params: { id: i } }"
+        <v-list-item :to="{ name: 'Project', params: { id: project.id } }"
           v-for="(project, i) in this.$store.getters.projects()"
           :key="i" class="mb-3">
           <v-list-item-action>
@@ -12,15 +12,15 @@
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>
-              <h2>{{project.name}}</h2>
+              <h2>{{project.data().name}}</h2>
             </v-list-item-title>
             <v-list-item-title class="orange--text text--darken-1">
-              <template v-if="project.description">
-                {{project.description}}
+              <template v-if="project.data().description">
+                {{project.data().description}}
               </template>
             </v-list-item-title>
             <v-list-item-subtitle v-if="loaded && verified">
-              <div v-for="(d, app) in project.apps" v-bind:key="app" class="mt-2">
+              <div v-for="(d, app) in project.data().apps" v-bind:key="app" class="mt-2">
                 <div v-if="$store.getters.appData(app)">
                   <div v-for="(d, model) in $store.getters.appData(app).models" v-bind:key="app+model" >
                     <v-icon class="red--text text--darken-4" >mdi-database</v-icon>
@@ -166,11 +166,11 @@
                 </v-list-item-action>
                 <v-list-item-content>
                   <v-list-item-title>
-                    <h2>{{project.name}}</h2>
+                    <h2>{{project.data().name}}</h2>
                   </v-list-item-title>
                   <v-list-item-title class="orange--text text--darken-1">
-                    <template v-if="project.description">
-                      {{project.description}}
+                    <template v-if="project.data().description">
+                      {{project.data().description}}
                     </template>
                     <template v-else>
                       ---

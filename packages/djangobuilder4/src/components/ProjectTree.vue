@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { DjangoApp } from "@djangobuilder/core";
-import type { DjangoProjectFile } from "@djangobuilder/core/src/rendering";
 import { ref } from "vue";
+import type { DjangoProject } from "@djangobuilder/core/";
+import type { DjangoProjectFile } from "@djangobuilder/core/src/rendering";
 
 const props = defineProps<{
+  project: DjangoProject;
   tree: DjangoProjectFile[];
   spacing: number;
   open: boolean;
@@ -55,6 +56,7 @@ function folderClick(i: number): void {
       >
         <ProjectTree
           v-if="djangoFile.children"
+          :project="project"
           :spacing="spacing + 1"
           :tree="djangoFile.children"
           :open="false"
