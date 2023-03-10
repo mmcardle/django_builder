@@ -129,6 +129,14 @@ async function addApp(user: User, projectid: string, name: string) {
   await updateDoc(projectRef, { [`apps.${appRef.id}`]: true });
 }
 
+
+async function addModel(user: User, appid: string, name: string, abstract: boolean) {
+  const newModelData = { owner: user.uid, name, abstract, fields: {}, relationships: [] };
+  const modelRef = await addDoc(collection(db, "models"), newModelData);
+  const appRef = doc(db, "apps", appid);
+  await updateDoc(appRef, { [`models.${modelRef.id}`]: true });
+}
+
 async function deleteResources(
   projectids: Array<string>,
   appids: Array<string>,
@@ -186,6 +194,7 @@ export {
   fetchRelationships,
   createProject,
   addApp,
+  addModel,
   deleteResources,
   deleteApp,
 };

@@ -1,4 +1,4 @@
-import { defineStore } from "pinia";
+import { defineStore, type PiniaCustomStateProperties } from "pinia";
 import {
   fetchApps,
   fetchModels,
@@ -27,6 +27,9 @@ import type {
   IDjangoModel,
   IDjangoRelationship,
 } from "@djangobuilder/core/src/types";
+
+
+
 
 export const useUserStore = defineStore({
   id: "user",
@@ -64,47 +67,73 @@ export const useUserStore = defineStore({
     getModelId: (state) => (app: DjangoModel) => state.modelids.get(app),
     getFieldId: (state) => (field: DjangoField) => state.fieldids.get(field),
     getRelationshipId: (state) => (relationship: DjangoRelationship) =>
-      state.relationshipids.get(relationship),
-    getAllProjectSubIds: (state) => (project: DjangoProject) => {
-      const appids: Array<string> = [];
-      const modelids: Array<string> = [];
-      const fieldids: Array<string> = [];
-      const relationshipids: Array<string> = [];
-      project.apps.forEach((app: IDjangoApp) => {
-        const appid = state.appids.get(app as DjangoApp);
-        if (appid) {
-          appids.push(appid);
-        }
-        app.models.forEach((model: IDjangoModel) => {
-          const modelid = state.modelids.get(model as DjangoModel);
-          if (modelid) {
-            modelids.push(modelid);
-          }
-          model.fields.forEach((field: IDjangoField) => {
-            const fieldid = state.fieldids.get(field as DjangoField);
-            if (fieldid) {
-              fieldids.push(fieldid);
-            }
-          });
-          model.relationships.forEach((relationship: IDjangoRelationship) => {
-            const relationshipid = state.relationshipids.get(
-              relationship as DjangoRelationship
-            );
-            if (relationshipid) {
-              relationshipids.push(relationshipid);
-            }
-          });
-        });
-      });
-      return {
-        appids,
-        modelids,
-        fieldids,
-        relationshipids,
-      };
-    },
+      state.relationshipids.get(relationship)
   },
   actions: {
+    getAllModelSubIds(model: DjangoModel) {
+
+      const field_ids: Array<string> = [];
+      const relationship_ids: Array<string> = [];
+    
+      model.fields.forEach((field: IDjangoField) => {
+        const fieldid = this.fieldids.get(field as DjangoField);
+        if (fieldid) field_ids.push(fieldid);
+      });
+      model.relationships.forEach((relationship: IDjangoRelationship) => {
+        const relationshipid = this.relationshipids.get(
+          relationship as DjangoRelationship
+        );
+        if (relationshipid) relationship_ids.push(relationshipid);
+      });
+    
+      return {
+        field_ids,
+        relationship_ids,
+      };
+    },
+    getAllAppSubIds(app: DjangoApp) {
+
+      const app_model_ids: Array<string> = [];
+      const app_field_ids: Array<string> = [];
+      const app_relationship_ids: Array<string> = [];
+    
+      app.models.forEach((model: IDjangoModel) => {
+        const modelid = this.modelids.get(model as DjangoModel);
+        if (modelid) app_model_ids.push(modelid);
+        const {field_ids, relationship_ids} = this.getAllModelSubIds(model as DjangoModel)
+        app_field_ids.push(...field_ids)
+        app_relationship_ids.push(...relationship_ids)
+      });
+    
+      return {
+        modelids: app_model_ids,
+        fieldids: app_field_ids,
+        relationshipids: app_relationship_ids,
+      };
+    },
+    getAllProjectSubIds(project: DjangoProject) {
+      const project_app_ids: Array<string> = [];
+      const project_model_ids: Array<string> = [];
+      const project_field_ids: Array<string> = [];
+      const project_relationship_ids: Array<string> = [];
+      
+      project.apps.forEach((app: IDjangoApp) => {
+        const {modelids, fieldids, relationshipids} = this.getAllAppSubIds(app);
+        project_model_ids.push(...modelids)
+        project_field_ids.push(...fieldids)
+        project_relationship_ids.push(...relationshipids)
+        const appid = this.appids.get(app as DjangoApp);
+        if (appid) {
+          project_app_ids.push(appid);
+        }
+      });
+      return {
+        appids: project_app_ids,
+        modelids: project_model_ids,
+        fieldids: project_field_ids,
+        relationshipids: project_relationship_ids,
+      };
+    },
     onUpdate(changedEntity: string, change: DocumentChange<DocumentData>) {
       const data = change.doc.data();
       const id = change.doc.id;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from "../stores/user";
-import { addApp } from "../firebase";
+import { addApp, addModel } from "../firebase";
 import { storeToRefs } from "pinia";
 import ProjectTree from "./ProjectTree.vue";
 import PopUp from "@/widgets/PopUp.vue";
@@ -23,18 +23,19 @@ const props = defineProps<{
 }>();
 
 const userStore = useUserStore();
-const { getUser, getProjectId } = storeToRefs(userStore);
+const { getUser, getProjectId, getAppId } = storeToRefs(userStore);
 
 const renderer = new Renderer();
 
 const code = ref("");
 const language = ref("python");
-const active = ref("");
+const active = ref<DjangoProjectFile>();
 const addingApp = ref(false);
+const addingModel = ref(false);
 
 function handleClick(djangoFile: DjangoProjectFile): void {
   console.debug("Clicked on", djangoFile);
-  active.value = djangoFile.path;
+  active.value = djangoFile;
   const extension = djangoFile.name.split(".").pop();
 
   switch (extension) {
@@ -80,15 +81,22 @@ function download() {
   link.click();
 }
 
-function addAppHandler() {
-  addingApp.value = true;
-}
 function addAppWithName(name: string) {
   addingApp.value = false;
   const user = getUser.value;
   const projectid = getProjectId.value(props.project);
   if (user && projectid) {
     addApp(user, projectid, name);
+  }
+}
+
+function addModelWithName(app: DjangoApp, name: string) {
+  addingModel.value = false;
+  const appid = getAppId.value(app);
+  const user = getUser.value;
+  if (user && appid) {
+    // TODO - abstract
+    addModel(user, appid, name, false);
   }
 }
 </script>
@@ -99,17 +107,13 @@ function addAppWithName(name: string) {
       {{ props.project.name }}
       <div>
         <span id="add-app">
-          <button class="project-button" @click="addAppHandler">Add App</button>
+          <button class="project-button" @click="addingApp = true;">Add App</button>
           <PopUp v-if="addingApp">
             <EditableTextPopUp
               value="app_name"
               title="App Name"
               v-on:update="(name) => addAppWithName(name)"
-              v-on:abort="
-                () => {
-                  addingApp = false;
-                }
-              "
+              v-on:abort="addingApp = false"
             >
               {{ "app_name" }}
             </EditableTextPopUp>
@@ -127,12 +131,26 @@ function addAppWithName(name: string) {
             :project="project"
             :tree="renderer.asTree(props.project)"
             :open="false"
-            :active="active"
+            :active="active ? active.path: ''"
             v-on:click="handleClick"
           />
         </div>
       </div>
       <div id="codecontent">
+        <div v-if="active && active.type === DjangoProjectFileResource.APP_FILE">
+          {{ active.path }}
+          <button @click="addingModel = true;">Add Model</button>
+          <PopUp v-if="addingModel">
+            <EditableTextPopUp
+              value="Model1"
+              title="Add Model"
+              v-on:update="(name) => addModelWithName(active?.resource, name)"
+              v-on:abort="addingModel = false"
+            >
+            {{ "app_name" }}
+          </EditableTextPopUp>
+        </PopUp>
+        </div>
         <!--div id="tabs">
           <div class="tab">settings.py</div>
           <div class="tab tabselected">models.py</div>

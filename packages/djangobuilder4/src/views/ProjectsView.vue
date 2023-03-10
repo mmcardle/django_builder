@@ -15,7 +15,9 @@ const { getLoaded, getCoreProjects } = storeToRefs(userStore);
 
 const creatingProject = ref(false);
 
-const name = ref("");
+const nameDefault = "NewProject"
+
+const name = ref(nameDefault);
 const django_version = ref(DjangoVersion.DJANGO4.toString());
 const description = ref("");
 const htmx = ref(true);
@@ -43,7 +45,7 @@ async function handleCreateProject() {
     channels.value
   );
   creatingProject.value = false;
-  name.value = "";
+  name.value = nameDefault;
   description.value = "";
   htmx.value = true;
   channels.value = true;
@@ -126,16 +128,16 @@ async function handleCreateProject() {
                 <td></td>
                 <td>
                   <button
-                    id="cancel-project-button"
-                    @click="creatingProject = false"
-                  >
-                    Cancel
-                  </button>
-                  <button
                     id="create-project-button"
                     @click="handleCreateProject"
                   >
                     Create
+                  </button>
+                  <button
+                    id="cancel-project-button"
+                    @click="creatingProject = false"
+                  >
+                    Cancel
                   </button>
                 </td>
               </tr>
@@ -171,6 +173,7 @@ async function handleCreateProject() {
   border: 1px dotted lightgray;
   margin: 10px;
   flex-direction: column;
+  position: relative;
 }
 #new-project-title {
   text-decoration: underline;
@@ -187,17 +190,19 @@ async function handleCreateProject() {
   width: 100%;
 }
 #new-project-button {
-  display: block;
+  position: relative;
+  top: calc(50% - 10px);
   width: 50%;
-  margin: 40px auto;
+  left: 25%;
+  padding: 5px;
 }
 #create-project-button {
   margin-top: 5px;
+  float: right;
 }
 #cancel-project-button {
   margin-top: 5px;
   color: gray;
-  float: right;
 }
 #new-project-error {
   color: red;

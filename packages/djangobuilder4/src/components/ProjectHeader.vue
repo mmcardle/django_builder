@@ -20,12 +20,13 @@ const DjangoVersionChoices = {
 };
 
 const userStore = useUserStore();
-const { getProjectId, getAllProjectSubIds } = storeToRefs(userStore);
+const { getProjectId } = storeToRefs(userStore);
 const projectid = getProjectId.value(props.project);
 
 function handleDeleteProject() {
   const { appids, modelids, fieldids, relationshipids } =
-    getAllProjectSubIds.value(props.project);
+    userStore.getAllProjectSubIds(props.project);
+  console.log("here", appids, modelids, fieldids, relationshipids )
   if (projectid) {
     deleteResources([projectid], appids, modelids, fieldids, relationshipids);
   }

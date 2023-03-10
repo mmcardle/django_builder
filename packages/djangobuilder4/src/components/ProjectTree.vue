@@ -97,5 +97,6 @@ function folderClick(i: number): void {
 }
 .active {
   color: rgb(161, 43, 22);
+  background-color: rgb(230, 230, 230)
 }
 </style>
