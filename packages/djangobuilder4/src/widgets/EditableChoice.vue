@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
 
-const props = defineProps<{
+export interface Props {
   value: string;
   choices: Record<string, string>;
   display_as: string;
-}>();
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  value: "",
+  title: "Input",
+  display_as: "select",
+});
 
 const randomname = (Math.random() + 1).toString(36).substring(7);
 

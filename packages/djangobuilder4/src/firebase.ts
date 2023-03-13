@@ -13,6 +13,7 @@ import {
   Query,
   QueryConstraint,
   updateDoc,
+  WriteBatch,
   writeBatch,
   type DocumentChange,
   type DocumentData,
@@ -129,21 +130,31 @@ async function addApp(user: User, projectid: string, name: string) {
   await updateDoc(projectRef, { [`apps.${appRef.id}`]: true });
 }
 
-
-async function addModel(user: User, appid: string, name: string, abstract: boolean) {
-  const newModelData = { owner: user.uid, name, abstract, fields: {}, relationships: [] };
+async function addModel(
+  user: User,
+  appid: string,
+  name: string,
+  abstract: boolean
+) {
+  const newModelData = {
+    owner: user.uid,
+    name,
+    abstract,
+    fields: {},
+    relationships: [],
+  };
   const modelRef = await addDoc(collection(db, "models"), newModelData);
   const appRef = doc(db, "apps", appid);
   await updateDoc(appRef, { [`models.${modelRef.id}`]: true });
 }
 
-async function deleteResources(
+async function getDeleteBatch(
   projectids: Array<string>,
   appids: Array<string>,
   modelids: Array<string>,
   fieldids: Array<string>,
   relationshipids: Array<string>
-) {
+) : Promise<WriteBatch> {
   const batch = writeBatch(db);
   projectids.map((projectid) => batch.delete(doc(db, "projects", projectid)));
   appids.map((appid) => batch.delete(doc(db, "apps", appid)));
@@ -152,6 +163,16 @@ async function deleteResources(
   relationshipids.map((relationshipid) =>
     batch.delete(doc(db, "relationship", relationshipid))
   );
+  return batch
+  batch.commit().catch((err) => console.error("Failed!", err));
+}
+
+
+async function deleteProject(projectid: string) {
+  console.log("Remove project ", projectid);
+  const projectRef = doc(db, "projects", projectid);
+  const batch = writeBatch(db);
+
   batch.commit().catch((err) => console.error("Failed!", err));
 }
 
@@ -163,6 +184,16 @@ async function deleteApp(projectid: string, appid: string) {
   batch.update(projectRef, { [`apps.${appid}`]: deleteField() });
   batch.delete(appRef);
   batch.commit().catch((err) => console.error("Failed!", err));
+}
+
+async function deleteModel(appid: string, modelid: string, batch?: WriteBatch) {
+  console.log("Remove model ", modelid, "from ", appid);
+  if (!batch) {
+    batch = writeBatch(db);
+  }
+  const appRef = doc(db, "apps", appid);
+  batch.update(appRef, { [`models.${modelid}`]: deleteField() });
+  await batch.commit().catch((err) => console.error("Failed!", err));
 }
 
 async function createProject(
@@ -195,6 +226,7 @@ export {
   createProject,
   addApp,
   addModel,
-  deleteResources,
+  getDeleteBatch,
   deleteApp,
+  deleteModel,
 };

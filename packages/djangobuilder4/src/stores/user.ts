@@ -5,6 +5,10 @@ import {
   fetchProjects,
   fetchFields,
   fetchRelationships,
+  getDeleteBatch,
+  deleteModel,
+  addApp,
+  addModel,
 } from "../firebase";
 import type { Unsubscribe, User } from "firebase/auth";
 import type { App, Field, Model, Project, Relationship } from "@/types";
@@ -28,9 +32,6 @@ import type {
   IDjangoRelationship,
 } from "@djangobuilder/core/src/types";
 
-
-
-
 export const useUserStore = defineStore({
   id: "user",
   state: () => ({
@@ -43,6 +44,7 @@ export const useUserStore = defineStore({
     fields: {} as Record<string, Field>,
     relationships: {} as Record<string, Relationship>,
     coreProjects: {} as Record<string, DjangoProject>,
+    coreApps: {} as Record<string, DjangoApp>,
     projectids: {} as Map<DjangoProject, string>,
     appids: {} as Map<DjangoApp, string>,
     modelids: {} as Map<DjangoModel, string>,
@@ -61,20 +63,21 @@ export const useUserStore = defineStore({
     getCoreProjects: (state) => state.coreProjects,
     getCoreProject: (state) => (projectid: string) =>
       state.coreProjects[projectid],
+    getCoreApp: (state) => (appid: string) =>
+      state.coreApps[appid],
     getProjectId: (state) => (project: DjangoProject) =>
       state.projectids.get(project),
     getAppId: (state) => (app: DjangoApp) => state.appids.get(app),
     getModelId: (state) => (app: DjangoModel) => state.modelids.get(app),
     getFieldId: (state) => (field: DjangoField) => state.fieldids.get(field),
     getRelationshipId: (state) => (relationship: DjangoRelationship) =>
-      state.relationshipids.get(relationship)
+      state.relationshipids.get(relationship),
   },
   actions: {
     getAllModelSubIds(model: DjangoModel) {
-
       const field_ids: Array<string> = [];
       const relationship_ids: Array<string> = [];
-    
+
       model.fields.forEach((field: IDjangoField) => {
         const fieldid = this.fieldids.get(field as DjangoField);
         if (fieldid) field_ids.push(fieldid);
@@ -85,26 +88,27 @@ export const useUserStore = defineStore({
         );
         if (relationshipid) relationship_ids.push(relationshipid);
       });
-    
+
       return {
         field_ids,
         relationship_ids,
       };
     },
     getAllAppSubIds(app: DjangoApp) {
-
       const app_model_ids: Array<string> = [];
       const app_field_ids: Array<string> = [];
       const app_relationship_ids: Array<string> = [];
-    
+
       app.models.forEach((model: IDjangoModel) => {
         const modelid = this.modelids.get(model as DjangoModel);
         if (modelid) app_model_ids.push(modelid);
-        const {field_ids, relationship_ids} = this.getAllModelSubIds(model as DjangoModel)
-        app_field_ids.push(...field_ids)
-        app_relationship_ids.push(...relationship_ids)
+        const { field_ids, relationship_ids } = this.getAllModelSubIds(
+          model as DjangoModel
+        );
+        app_field_ids.push(...field_ids);
+        app_relationship_ids.push(...relationship_ids);
       });
-    
+
       return {
         modelids: app_model_ids,
         fieldids: app_field_ids,
@@ -116,12 +120,13 @@ export const useUserStore = defineStore({
       const project_model_ids: Array<string> = [];
       const project_field_ids: Array<string> = [];
       const project_relationship_ids: Array<string> = [];
-      
+
       project.apps.forEach((app: IDjangoApp) => {
-        const {modelids, fieldids, relationshipids} = this.getAllAppSubIds(app);
-        project_model_ids.push(...modelids)
-        project_field_ids.push(...fieldids)
-        project_relationship_ids.push(...relationshipids)
+        const { modelids, fieldids, relationshipids } =
+          this.getAllAppSubIds(app);
+        project_model_ids.push(...modelids);
+        project_field_ids.push(...fieldids);
+        project_relationship_ids.push(...relationshipids);
         const appid = this.appids.get(app as DjangoApp);
         if (appid) {
           project_app_ids.push(appid);
@@ -244,8 +249,13 @@ export const useUserStore = defineStore({
           }
           const coreApp = coreProject.addApp(app.name);
           this.appids.set(coreApp, appid);
+          this.coreApps[appid] = coreApp;
           Object.keys(app.models).forEach((modelid) => {
             const model = this.models[modelid];
+            if (!model) {
+              console.error("Missing model", modelid, "from app", appid);
+              return;
+            }
             const coreModel = coreApp.addModel(model.name, model.abstract);
             this.modelids.set(coreModel as DjangoModel, modelid);
             Object.keys(model.fields).forEach((fieldid) => {
@@ -288,6 +298,39 @@ export const useUserStore = defineStore({
           });
         });
       });
+    },
+    async addApp(project: DjangoProject, name: string) {
+      const projectid = this.getProjectId(project);
+      const user = this.getUser
+      if (user && projectid) {
+        addApp(user, projectid, name);
+      }
+    },
+    async addModel(app: DjangoApp, name: string, abstract: boolean) {
+      const appid = this.getAppId(app);
+      const user = this.getUser
+      if (user && appid) {
+        addModel(user, appid, name, abstract);
+      }
+    },
+    async deleteProject(project: DjangoProject) {
+      const { appids, modelids, fieldids, relationshipids } = this.getAllProjectSubIds(project);
+      const projectid = this.projectids.get(project)
+      if (projectid) {
+        getDeleteBatch([projectid], appids, modelids, fieldids, relationshipids);
+      }
+    },
+    async deleteModel(model: DjangoModel) {
+      const { field_ids, relationship_ids } = this.getAllModelSubIds(model);
+      const modelid = this.modelids.get(model)
+      const appid = this.appids.get(model.app)
+      console.log("Delete model", modelid, field_ids, relationship_ids);
+      if (modelid && appid) {
+        const batch = await getDeleteBatch([], [], [modelid], field_ids, relationship_ids);
+        await deleteModel(appid, modelid, batch)
+      } else {
+        throw new Error("Could not delete " + model.name);
+      }
     },
     async fetchUserData(user: User) {
       this.loaded = false;

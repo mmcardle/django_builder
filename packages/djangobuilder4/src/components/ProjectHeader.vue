@@ -6,7 +6,6 @@ import { updateProject } from "@/api";
 import EditableText from "@/widgets/EditableText.vue";
 import EditableBoolean from "@/widgets/EditableBoolean.vue";
 import EditableChoice from "@/widgets/EditableChoice.vue";
-import { deleteResources } from "@/firebase";
 import ConfirmableButton from "@/widgets/ConfirmableButton.vue";
 
 const props = defineProps<{
@@ -24,12 +23,8 @@ const { getProjectId } = storeToRefs(userStore);
 const projectid = getProjectId.value(props.project);
 
 function handleDeleteProject() {
-  const { appids, modelids, fieldids, relationshipids } =
-    userStore.getAllProjectSubIds(props.project);
-  console.log("here", appids, modelids, fieldids, relationshipids )
-  if (projectid) {
-    deleteResources([projectid], appids, modelids, fieldids, relationshipids);
-  }
+  userStore.deleteProject(props.project)
+
 }
 </script>
 

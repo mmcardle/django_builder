@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { useUserStore } from "../stores/user";
-import { addApp, addModel } from "../firebase";
 import { storeToRefs } from "pinia";
 import ProjectTree from "./ProjectTree.vue";
-import PopUp from "@/widgets/PopUp.vue";
 import EditableTextPopUp from "@/widgets/EditableTextPopUp.vue";
+import PopUp from "@/widgets/PopUp.vue";
 
 import {
   DjangoApp,
@@ -16,14 +15,14 @@ import {
   DjangoProjectFileResource,
   type DjangoProjectFile,
 } from "@djangobuilder/core/src/rendering";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 const props = defineProps<{
   project: DjangoProject;
 }>();
 
 const userStore = useUserStore();
-const { getUser, getProjectId, getAppId } = storeToRefs(userStore);
+const { getAppId, getCoreApp } = storeToRefs(userStore);
 
 const renderer = new Renderer();
 
@@ -32,12 +31,25 @@ const language = ref("python");
 const active = ref<DjangoProjectFile>();
 const addingApp = ref(false);
 const addingModel = ref(false);
+const deletingModel = ref(false);
+const modelToDelete = ref();
+const modelChoices = ref<Array<DjangoModel>>([]);
 
-function handleClick(djangoFile: DjangoProjectFile): void {
+watch(userStore, renderFile);
+
+function handleProjectFileClick(djangoFile: DjangoProjectFile): void {
   console.debug("Clicked on", djangoFile);
   active.value = djangoFile;
-  const extension = djangoFile.name.split(".").pop();
+  renderFile();
+}
 
+function renderFile(): void {
+  const djangoFile = active.value;
+  if (!djangoFile) {
+    return;
+  }
+  console.debug("Render File", djangoFile);
+  const extension = djangoFile.name.split(".").pop();
   switch (extension) {
     case "py":
       language.value = "python";
@@ -55,10 +67,14 @@ function handleClick(djangoFile: DjangoProjectFile): void {
       code.value = renderer.renderProjectFile(djangoFile.name, props.project);
       break;
     case DjangoProjectFileResource.APP_FILE:
-      code.value = renderer.renderAppFile(
-        djangoFile.name,
-        djangoFile.resource as DjangoApp
-      );
+      const appid = getAppId.value(djangoFile.resource as DjangoApp)
+      if (!appid) {
+        console.error("No such app", djangoFile)
+        break;
+      }
+      const updatedApp = getCoreApp.value(appid)
+      modelChoices.value = updatedApp.models as DjangoModel[]
+      code.value = renderer.renderAppFile(djangoFile.name, updatedApp);
       break;
     case DjangoProjectFileResource.MODEL_FILE:
       code.value = renderer.renderModelFile(
@@ -72,7 +88,7 @@ function handleClick(djangoFile: DjangoProjectFile): void {
   }
 }
 
-function download() {
+function handleDownload() {
   const tarballURL = renderer.tarballURL(props.project);
   const link = document.createElement("a");
   link.download = props.project.name + ".tar";
@@ -81,24 +97,26 @@ function download() {
   link.click();
 }
 
-function addAppWithName(name: string) {
+function handleAddApp(name: string) {
   addingApp.value = false;
-  const user = getUser.value;
-  const projectid = getProjectId.value(props.project);
-  if (user && projectid) {
-    addApp(user, projectid, name);
+  userStore.addApp(props.project, name);
+}
+
+async function handleAddModel(app: DjangoApp | undefined, name: string) {
+  addingModel.value = false;
+  if (app) {
+    // TODO - abstract
+    userStore.addModel(app, name, false);
   }
 }
 
-function addModelWithName(app: DjangoApp, name: string) {
-  addingModel.value = false;
-  const appid = getAppId.value(app);
-  const user = getUser.value;
-  if (user && appid) {
-    // TODO - abstract
-    addModel(user, appid, name, false);
-  }
+async function handleDeleteModel() {
+  deletingModel.value = false
+  const toDelete = modelToDelete.value
+  toDelete.value = undefined;
+  await userStore.deleteModel(toDelete);
 }
+
 </script>
 
 <template>
@@ -107,19 +125,18 @@ function addModelWithName(app: DjangoApp, name: string) {
       {{ props.project.name }}
       <div>
         <span id="add-app">
-          <button class="project-button" @click="addingApp = true;">Add App</button>
-          <PopUp v-if="addingApp">
-            <EditableTextPopUp
-              value="app_name"
-              title="App Name"
-              v-on:update="(name) => addAppWithName(name)"
-              v-on:abort="addingApp = false"
-            >
-              {{ "app_name" }}
-            </EditableTextPopUp>
-          </PopUp>
+          <button class="project-button" @click="addingApp = true">
+            Add App
+          </button>
+          <EditableTextPopUp
+            v-if="addingApp"
+            value="app_name"
+            title="App Name"
+            v-on:update="(name) => handleAddApp(name)"
+            v-on:abort="addingApp = false"
+          />
         </span>
-        <button class="project-button" @click="download">Download</button>
+        <button class="project-button" @click="handleDownload">Download</button>
       </div>
       <button class="project-button">Delete</button>
     </div>
@@ -131,35 +148,78 @@ function addModelWithName(app: DjangoApp, name: string) {
             :project="project"
             :tree="renderer.asTree(props.project)"
             :open="false"
-            :active="active ? active.path: ''"
-            v-on:click="handleClick"
+            :active="active ? active.path : ''"
+            v-on:click="handleProjectFileClick"
           />
         </div>
       </div>
-      <div id="codecontent">
-        <div v-if="active && active.type === DjangoProjectFileResource.APP_FILE">
-          {{ active.path }}
-          <button @click="addingModel = true;">Add Model</button>
-          <PopUp v-if="addingModel">
+      <div id="side-right">
+        <div id="code-tools">
+          <span v-if="active">
+            {{ active.path }}
+          </span>
+          <span
+            v-if="
+              active?.resource &&
+              active.type === DjangoProjectFileResource.APP_FILE
+            "
+          >
+            <button
+              id="code-tools-add-model-button"
+              @click="addingModel = true"
+            >
+              Add Model
+            </button>
             <EditableTextPopUp
+              v-if="active && addingModel"
               value="Model1"
               title="Add Model"
-              v-on:update="(name) => addModelWithName(active?.resource, name)"
+              v-on:update="(name) => handleAddModel(active?.resource as DjangoApp, name)"
               v-on:abort="addingModel = false"
+            />
+
+            <button
+              id="code-tools-add-model-button"
+              :disabled="modelChoices.length == 0"
+              @click="deletingModel = true"
             >
-            {{ "app_name" }}
-          </EditableTextPopUp>
-        </PopUp>
+              Delete Model
+            </button>
+            <PopUp v-if="deletingModel">
+              <div>Choose model to delete:</div>
+              <select
+                id="code-tools-delete-model-select"
+                @keydown.escape="deletingModel = false"
+                v-model="modelToDelete"
+              >
+                <option
+                  v-for="model in modelChoices"
+                  :value="model"
+                  :key="model.name"
+                >
+                  {{ model.name }}
+                </option>
+              </select>
+              <button
+                id="code-tools-delete-model-button"
+                :disabled="modelToDelete === undefined"
+                @click="handleDeleteModel()"
+              >
+                OK
+              </button>
+              <button
+                id="code-tools-cancel-delete-model-button"
+                @click="deletingModel = false"
+              >
+                Cancel
+              </button>
+            </PopUp>
+          </span>
         </div>
-        <!--div id="tabs">
-          <div class="tab">settings.py</div>
-          <div class="tab tabselected">models.py</div>
-        </div-->
-        <div id="code">
-          <!--div v-for="app in props.project.apps" v-bind:key="app.name">
-            <ProjectApp :app="app" />
-          </div-->
-          <highlightjs :language="language" :code="code" />
+        <div id="code-content">
+          <div id="code">
+            <highlightjs :language="language" :code="code" />
+          </div>
         </div>
       </div>
     </div>
@@ -191,8 +251,6 @@ pre code.hljs {
 #project-body * {
   /*border: 1px solid red;*/
 }
-#codecontent {
-}
 #top {
   padding: 0.4em 0em;
   padding: 5px;
@@ -208,19 +266,21 @@ pre code.hljs {
   margin: 0 4px;
 }
 #main {
-  display: flex;
-  flex-direction: row;
-  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 1fr 6fr;
 }
 #side {
   border-top: 1px dotted lightgray;
   border-right: 1px dotted lightgray;
-  padding: 5px;
-  padding-top: 15px;
 }
 #side-fixed {
   position: sticky;
   top: 0;
+  padding: 5px;
+  padding-top: 15px;
+  white-space: nowrap;
+}
+#side-right {
 }
 #tabs {
   display: flex;
@@ -246,11 +306,30 @@ pre code.hljs {
 .tab:last-child {
   border-right: 1px solid transparent;
 }
-#codecontent {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+#code-tools {
+  background-color: white;
   border-top: 1px dotted lightgray;
+  border-bottom: 1px dotted lightgray;
+  padding: 5px;
+  position: sticky;
+  top: 0;
+}
+#code-tools-add-model-button {
+  margin-left: 20px;
+}
+#code-tools-delete-model-select {
+  display: block;
+  width: 100%;
+  margin: 4px 0;
+}
+#code-tools-delete-model-button {
+  float: right;
+  margin-top: 4px;
+}
+#code-tools-cancel-delete-model-button {
+
+}
+#code-content {
   padding: 5px;
 }
 #code {

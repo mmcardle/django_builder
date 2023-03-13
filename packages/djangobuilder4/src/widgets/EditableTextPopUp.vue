@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from "vue";
+import PopUp from "@/widgets/PopUp.vue";
 
 export interface Props {
   value: string;
@@ -46,24 +47,26 @@ function handleAbortEdit(): void {
 </script>
 
 <template>
-  <div class="popup">
-    <label>
-      {{ title }}
-      <input
-        ref="editRef"
-        type="text"
-        v-model="editedValue"
-        size="15"
-        @keydown.escape="handleAbortEdit"
-      />
-    </label>
-    <button @click="handleFinishEdit">OK</button>
-    <button class="cancel" @click="handleAbortEdit()">&#10539;</button>
-  </div>
+  <PopUp>
+    <div class="wrapper">
+      <label>
+        {{ title }}
+        <input
+          ref="editRef"
+          type="text"
+          v-model="editedValue"
+          size="15"
+          @keydown.escape="handleAbortEdit"
+        />
+      </label>
+      <button @click="handleFinishEdit">OK</button>
+      <button class="cancel" @click="handleAbortEdit()">&#10539;</button>
+    </div>
+  </PopUp>
 </template>
 
 <style scoped>
-div.popup {
+.wrapper {
   white-space: nowrap;
 }
 label {
