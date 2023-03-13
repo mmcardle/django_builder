@@ -70,37 +70,37 @@ function userVerified(user: User) {
   return githubVerified !== undefined || user.emailVerified || user.isAnonymous;
 }
 
-router.beforeEach((to, from, next) => {
-  //console.debug("from", from);
+router.beforeEach((to, from) => {
+  console.debug("from", from.fullPath, " -> ", to.fullPath);
   //console.debug("to", to);
   const currentUser = auth.currentUser;
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
-  if (requiresAuth && !currentUser) {
-    next({ name: "login" });
+  if (false && requiresAuth && !currentUser) {
+    return { name: "login" };
   } else if (currentUser) {
     const verified = userVerified(currentUser);
     // console.log('Current User verified', verified, 'requesting', to.name)
     if (verified && to.name == "login") {
-      // console.log('User is verified and trying to access the login page so send to home page')
-      next({ name: "projects" });
+      console.debug('User is verified and trying to access the login page so send to home page')
+      return { name: "projects" };
     } else if (verified && to.name == "unverified") {
-      // console.log('User is verified and trying to access the unverified page so send to home page')
-      next({ name: "projects" });
+      console.debug('User is verified and trying to access the unverified page so send to home page')
+      return { name: "projects" };
     } else if (
       !verified &&
       to.name != "unverified" &&
       to.name != "verify_email_action"
     ) {
-      // console.log('2. User is unverified and trying to access another page so send to unverified page')
-      next({ name: "unverified" });
+      console.debug('2. User is unverified and trying to access another page so send to unverified page')
+      return { name: "unverified" };
     } else {
-      // console.log('User sent to page', to.name)
-      next();
+      console.debug('User sent to page', to.name)
+      return;
     }
   } else {
-    // console.log('Anonymous User sent to page that require no auth', to.name)
-    next();
+    console.debug('Anonymous User sent to page that require no auth', to.name)
+    return;
   }
 });
 

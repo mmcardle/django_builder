@@ -146,7 +146,7 @@ export const useUserStore = defineStore({
         if (change.type === "modified") {
           console.log("Modified: ", changedEntity, data);
         } else if (change.type === "added") {
-          console.log("Added: ", changedEntity, data);
+          //console.log("Added: ", changedEntity, data);
         } else {
           console.error("Don't understand how to handle change", change.type);
         }
@@ -207,7 +207,7 @@ export const useUserStore = defineStore({
       this.relationshipids = new Map();
       this.loaded = false;
     },
-    loginUser(user: User | null) {
+    async loginUser(user: User | null) {
       this.user = user;
       if (user) {
         this.projects = {};
@@ -221,7 +221,7 @@ export const useUserStore = defineStore({
         this.modelids = new Map();
         this.fieldids = new Map();
         this.relationshipids = new Map();
-        this.fetchUserData(user);
+        await this.fetchUserData(user);
       }
     },
     createCoreProjects() {

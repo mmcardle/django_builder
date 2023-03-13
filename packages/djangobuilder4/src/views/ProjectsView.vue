@@ -15,7 +15,7 @@ const { getLoaded, getCoreProjects } = storeToRefs(userStore);
 
 const creatingProject = ref(false);
 
-const nameDefault = "NewProject"
+const nameDefault = "NewProject";
 
 const name = ref(nameDefault);
 const django_version = ref(DjangoVersion.DJANGO4.toString());
@@ -147,13 +147,22 @@ async function handleCreateProject() {
       </div>
     </div>
     <div v-else>
-      Loading ...
-      <LoadingSpinner />
+      <div id="loading">
+        <div>Loading ...</div>
+        <LoadingSpinner />
+      </div>
     </div>
   </main>
 </template>
 
 <style scoped>
+#loading {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 #content {
   display: grid;
   height: 100vh;

@@ -59,8 +59,10 @@ async function handleLogin() {
 <template>
   <CenteredFormLayout>
     <h3>Login to Django Builder</h3>
-    <form @submit.prevent class="login-form">
+    <div id="loading">
       <LoadingSpinner v-if="isLoading" />
+    </div>
+    <form @submit.prevent class="login-form">
       <div>
         <label
           >Username
@@ -100,6 +102,12 @@ async function handleLogin() {
 
 <style scoped lang="scss">
 @import "../assets/forms.css";
+
+#loading {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
 
 .forgot-password {
   text-align: center;

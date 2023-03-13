@@ -9,12 +9,8 @@
 
 <style scoped>
 .loading-ring {
-  position: fixed;
-  width: 80px;
-  height: 80px;
-  margin: auto;
-  left: 10px;
-  right: 10px;
+  min-height: 80px;
+  min-width: 80px;
 }
 .loading-ring div {
   box-sizing: border-box;
