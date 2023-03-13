@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, watch, onMounted } from "vue";
 import { useUserStore } from "../stores/user";
 import { storeToRefs } from "pinia";
 import ProjectTree from "./ProjectTree.vue";
@@ -15,7 +16,6 @@ import {
   DjangoProjectFileResource,
   type DjangoProjectFile,
 } from "@djangobuilder/core/src/rendering";
-import { ref, watch } from "vue";
 
 const props = defineProps<{
   project: DjangoProject;
@@ -26,6 +26,7 @@ const { getAppId, getCoreApp } = storeToRefs(userStore);
 
 const renderer = new Renderer();
 
+const loaded = ref(false);
 const code = ref("");
 const language = ref("python");
 const active = ref<DjangoProjectFile>();
@@ -34,8 +35,35 @@ const addingModel = ref(false);
 const deletingModel = ref(false);
 const modelToDelete = ref();
 const modelChoices = ref<Array<DjangoModel>>([]);
+const opened = ref();
 
 watch(userStore, renderFile);
+
+onMounted(() => {
+  const projectTree = renderer.asTree(props.project);
+  if (props.project.apps.length == 0) {
+    const projectNode = projectTree.find(
+      (node) => node.name === props.project.name && node.folder === true
+    );
+    opened.value = projectNode;
+    if (projectNode && projectNode.children) {
+      active.value = projectNode.children.find(
+        (node) => node.name === "settings.py"
+      );
+    }
+  } else {
+    const firstApp = props.project.apps[0];
+    const appNode = projectTree.find(
+      (node) => node.name === firstApp.name && node.folder === true
+    );
+    opened.value = appNode;
+    if (appNode && appNode.children) {
+      active.value = appNode.children.find((node) => node.name === "models.py");
+    }
+  }
+  loaded.value = true;
+  renderFile();
+});
 
 function handleProjectFileClick(djangoFile: DjangoProjectFile): void {
   console.debug("Clicked on", djangoFile);
@@ -63,25 +91,28 @@ function renderFile(): void {
   }
 
   switch (djangoFile.type) {
-    case DjangoProjectFileResource.PROJECT_FILE:
+    case DjangoProjectFileResource.PROJECT_FILE: {
       code.value = renderer.renderProjectFile(djangoFile.name, props.project);
       break;
-    case DjangoProjectFileResource.APP_FILE:
-      const appid = getAppId.value(djangoFile.resource as DjangoApp)
+    }
+    case DjangoProjectFileResource.APP_FILE: {
+      const appid = getAppId.value(djangoFile.resource as DjangoApp);
       if (!appid) {
-        console.error("No such app", djangoFile)
+        console.error("No such app", djangoFile);
         break;
       }
-      const updatedApp = getCoreApp.value(appid)
-      modelChoices.value = updatedApp.models as DjangoModel[]
+      const updatedApp = getCoreApp.value(appid);
+      modelChoices.value = updatedApp.models as DjangoModel[];
       code.value = renderer.renderAppFile(djangoFile.name, updatedApp);
       break;
-    case DjangoProjectFileResource.MODEL_FILE:
+    }
+    case DjangoProjectFileResource.MODEL_FILE: {
       code.value = renderer.renderModelFile(
         djangoFile.name,
         djangoFile.resource as DjangoModel
       );
       break;
+    }
     default:
       code.value = "";
       break;
@@ -111,12 +142,11 @@ async function handleAddModel(app: DjangoApp | undefined, name: string) {
 }
 
 async function handleDeleteModel() {
-  deletingModel.value = false
-  const toDelete = modelToDelete.value
+  deletingModel.value = false;
+  const toDelete = modelToDelete.value;
   toDelete.value = undefined;
   await userStore.deleteModel(toDelete);
 }
-
 </script>
 
 <template>
@@ -144,10 +174,12 @@ async function handleDeleteModel() {
       <div id="side">
         <div id="side-fixed">
           <ProjectTree
+            v-if="loaded"
             :spacing="0"
             :project="project"
             :tree="renderer.asTree(props.project)"
             :open="false"
+            :opened="opened"
             :active="active ? active.path : ''"
             v-on:click="handleProjectFileClick"
           />
@@ -327,7 +359,6 @@ pre code.hljs {
   margin-top: 4px;
 }
 #code-tools-cancel-delete-model-button {
-
 }
 #code-content {
   padding: 5px;

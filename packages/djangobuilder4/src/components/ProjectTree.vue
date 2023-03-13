@@ -9,6 +9,7 @@ const props = defineProps<{
   spacing: number;
   open: boolean;
   active: string;
+  opened: DjangoProjectFile;
 }>();
 
 const emit = defineEmits<{
@@ -16,7 +17,11 @@ const emit = defineEmits<{
 }>();
 
 const spacings = Array.from(Array(props.spacing).keys());
-const openState = ref(props.tree.map(() => props.open));
+const openState = ref(
+  props.tree.map((node) =>
+    node.path === props.opened?.path ? true : props.open
+  )
+);
 
 function handleClick(djangoFile: DjangoProjectFile): void {
   emit("click", djangoFile);
@@ -60,6 +65,7 @@ function folderClick(i: number): void {
           :spacing="spacing + 1"
           :tree="djangoFile.children"
           :open="false"
+          :opened="opened"
           :active="active"
           v-on:click="handleClick"
         />
@@ -97,6 +103,6 @@ function folderClick(i: number): void {
 }
 .active {
   color: rgb(161, 43, 22);
-  background-color: rgb(230, 230, 230)
+  background-color: rgb(230, 230, 230);
 }
 </style>
