@@ -516,6 +516,21 @@ export default class Renderer {
     ];
   }
 
+  reduce(nodes: DjangoProjectFile[]) : DjangoProjectFile[]  {
+    let result: Array<DjangoProjectFile> = nodes
+    nodes.forEach((node) => {
+      if (node.children) {
+        result = result.concat(this.reduce(node.children))
+      }
+    })
+    return result
+  }
+
+  asFlat(project: DjangoProject): DjangoProjectFile[] {
+    const tree = this.asTree(project);
+    return this.reduce(tree);
+  }
+
   tarball(project: DjangoProject): Tarball {
     const tarball = new Tarball();
 
