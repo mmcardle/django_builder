@@ -46,15 +46,20 @@ watch(userStore, renderFile);
 
 onMounted(() => {
   const projectTree = renderer.asTree(props.project);
-  const projectFiles = renderer.asFlat(props.project)
-  const pathParam = route.params.path;
+  const projectFiles = renderer.asFlat(props.project);
+  const pathParams = route.params.path;
 
   // First find by path param
-  if (pathParam) {
-    active.value = projectFiles.find(
-      (node) => node.path === pathParam
-    );
-    if (active.value && active.value.type === DjangoProjectFileResource.APP_FILE) {
+  if (pathParams?.length > 0) {
+    const pathParam =
+      pathParams instanceof String
+        ? pathParams
+        : (pathParams as string[]).join("/");
+    active.value = projectFiles.find((node) => node.path === pathParam);
+    if (
+      active.value &&
+      active.value.type === DjangoProjectFileResource.APP_FILE
+    ) {
       const app: DjangoApp = active.value.resource as DjangoApp;
       const appNode = projectTree.find(
         (node) => node.name === app.name && node.folder === true
@@ -62,7 +67,7 @@ onMounted(() => {
       opened.value = appNode;
     }
   }
-  
+
   // if not pathParam found find first app and show models.py
   if (!active.value && props.project.apps.length > 0) {
     const firstApp = props.project.apps[0];
@@ -102,7 +107,11 @@ function renderFile(): void {
     return;
   }
 
-  router.replace({ name: "project", params: { id: projectId, path: djangoFile.path }})
+  router.replace({
+    path: `/project/${projectId}/${djangoFile.path}`,
+    //name: "project",
+    //params: { id: projectId, path: djangoFile.path },
+  });
 
   console.debug("Render File", djangoFile);
   const extension = djangoFile.name.split(".").pop();

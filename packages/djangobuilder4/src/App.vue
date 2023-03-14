@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { RouterView } from "vue-router";
+import { RouterView, useRouter } from "vue-router";
 import { useUserStore } from "./stores/user";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import CenteredFormLayout from "./layouts/CenteredFormLayout.vue";
@@ -8,6 +8,7 @@ import LoadingSpinner from "./widgets/LoadingSpinner.vue";
 
 const userStore = useUserStore();
 const loading = ref(true);
+const router = useRouter();
 
 onMounted(async () => {
   const auth = getAuth();
@@ -17,6 +18,7 @@ onMounted(async () => {
       await userStore.loginUser(user);
     } else {
       userStore.logoutUser();
+      router.push({ name: "login" });
     }
     loading.value = false;
   });
