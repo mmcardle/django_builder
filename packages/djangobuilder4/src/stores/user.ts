@@ -1,4 +1,4 @@
-import { defineStore, type PiniaCustomStateProperties } from "pinia";
+import { defineStore } from "pinia";
 import {
   fetchApps,
   fetchModels,
@@ -6,6 +6,8 @@ import {
   fetchFields,
   fetchRelationships,
   getDeleteBatch,
+  deleteProject,
+  deleteApp,
   deleteModel,
   addApp,
   addModel,
@@ -317,19 +319,30 @@ export const useUserStore = defineStore({
       const { appids, modelids, fieldids, relationshipids } = this.getAllProjectSubIds(project);
       const projectid = this.projectids.get(project)
       if (projectid) {
-        getDeleteBatch([projectid], appids, modelids, fieldids, relationshipids);
+        const batch = await getDeleteBatch([], appids, modelids, fieldids, relationshipids);
+        await deleteProject(projectid, batch);
+      }
+    },
+    async deleteApp(app: DjangoApp) {
+      const { modelids, fieldids, relationshipids } = this.getAllAppSubIds(app);
+      const appid = this.appids.get(app)
+      const projectid = this.projectids.get(app.project as DjangoProject)
+      if (appid && projectid) {
+        const batch = await getDeleteBatch([], [], modelids, fieldids, relationshipids);
+        await deleteApp(projectid, appid, batch);
+      } else {
+        throw new Error("Could not delete app " + app.name);
       }
     },
     async deleteModel(model: DjangoModel) {
       const { field_ids, relationship_ids } = this.getAllModelSubIds(model);
       const modelid = this.modelids.get(model)
       const appid = this.appids.get(model.app)
-      console.log("Delete model", modelid, field_ids, relationship_ids);
       if (modelid && appid) {
         const batch = await getDeleteBatch([], [], [modelid], field_ids, relationship_ids);
         await deleteModel(appid, modelid, batch)
       } else {
-        throw new Error("Could not delete " + model.name);
+        throw new Error("Could not delete model " + model.name);
       }
     },
     async fetchUserData(user: User) {

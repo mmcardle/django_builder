@@ -14,6 +14,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "click", djangoFile: DjangoProjectFile): void;
+  (e: "folderClick", djangoFile: DjangoProjectFile): void;
 }>();
 
 const spacings = Array.from(Array(props.spacing).keys());
@@ -27,8 +28,9 @@ function handleClick(djangoFile: DjangoProjectFile): void {
   emit("click", djangoFile);
 }
 
-function folderClick(i: number): void {
+function folderClick(i: number, djangoFile: DjangoProjectFile): void {
   openState.value[i] = !openState.value[i];
+  emit("folderClick", djangoFile);
 }
 </script>
 
@@ -36,7 +38,7 @@ function folderClick(i: number): void {
   <div id="content">
     <div v-for="(djangoFile, i) in tree" :key="djangoFile.path">
       <div class="folder" v-if="djangoFile.folder">
-        <div class="item" @click="folderClick(i)">
+        <div class="item" @click="folderClick(i, djangoFile)">
           <span v-for="space in spacings" :key="space" class="space"></span>
           <span :class="openState[i] ? 'foldername-open' : 'foldername-closed'">
             {{ djangoFile.name }}

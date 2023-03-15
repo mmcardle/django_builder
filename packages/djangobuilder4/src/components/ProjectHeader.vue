@@ -24,7 +24,6 @@ const projectid = getProjectId.value(props.project);
 
 function handleDeleteProject() {
   userStore.deleteProject(props.project)
-
 }
 </script>
 
@@ -95,7 +94,7 @@ function handleDeleteProject() {
     <div class="delete-project-button">
       <ConfirmableButton
         :message="`Are you sure you wish to delete Project '${props.project.name}'?`"
-        :icon="'&#128465;'"
+        :text="'&#128465;'"
         @confirm="handleDeleteProject()"
       />
     </div>

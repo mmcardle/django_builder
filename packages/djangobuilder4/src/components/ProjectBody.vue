@@ -6,12 +6,13 @@ import { storeToRefs } from "pinia";
 import ProjectTree from "./ProjectTree.vue";
 import EditableTextPopUp from "@/widgets/EditableTextPopUp.vue";
 import PopUp from "@/widgets/PopUp.vue";
+import ConfirmableButton from "@/widgets/ConfirmableButton.vue";
 
 import {
   DjangoApp,
   DjangoModel,
+  DjangoProject,
   Renderer,
-  type DjangoProject,
 } from "@djangobuilder/core";
 import {
   DjangoProjectFileResource,
@@ -31,13 +32,21 @@ const { getAppId, getCoreApp } = storeToRefs(userStore);
 
 const renderer = new Renderer();
 
+const project = ref<DjangoProject>(props.project);
+
+
 const loaded = ref(false);
 const code = ref("");
 const language = ref("python");
 const active = ref<DjangoProjectFile>();
+const activeApp = ref();
 const addingApp = ref(false);
 const addingModel = ref(false);
+
+const deletingProject = ref(false);
+const deletingApp = ref(false);
 const deletingModel = ref(false);
+
 const modelToDelete = ref();
 const modelChoices = ref<Array<DjangoModel>>([]);
 const opened = ref();
@@ -45,63 +54,95 @@ const opened = ref();
 watch(userStore, renderFile);
 
 onMounted(() => {
-  const projectTree = renderer.asTree(props.project);
-  const projectFiles = renderer.asFlat(props.project);
+  project.value = userStore.getCoreProject(projectId);
   const pathParams = route.params.path;
 
-  // First find by path param
-  if (pathParams?.length > 0) {
-    const pathParam =
-      pathParams instanceof String
-        ? pathParams
-        : (pathParams as string[]).join("/");
-    active.value = projectFiles.find((node) => node.path === pathParam);
-    if (
-      active.value &&
-      active.value.type === DjangoProjectFileResource.APP_FILE
-    ) {
-      const app: DjangoApp = active.value.resource as DjangoApp;
-      const appNode = projectTree.find(
-        (node) => node.name === app.name && node.folder === true
-      );
-      opened.value = appNode;
-    }
-  }
-
   // if not pathParam found find first app and show models.py
-  if (!active.value && props.project.apps.length > 0) {
-    const firstApp = props.project.apps[0];
-    const appNode = projectTree.find(
-      (node) => node.name === firstApp.name && node.folder === true
-    );
-    opened.value = appNode;
-    if (appNode && appNode.children) {
-      active.value = appNode.children.find((node) => node.name === "models.py");
-    }
-  } else if (!active.value) {
-    // if no apps, find settings.py file
-    const projectNode = projectTree.find(
-      (node) => node.name === props.project.name && node.folder === true
-    );
-    opened.value = projectNode;
-    if (projectNode && projectNode.children) {
-      active.value = projectNode.children.find(
-        (node) => node.name === "settings.py"
-      );
-    }
+  const { djangoFile, appNode } = findByPath(project.value, pathParams)
+  active.value = djangoFile
+  opened.value = appNode
+
+  if(!active.value) {
+    const { djangoFile, appNode } = chooseFileToDisplay(project.value);
+    active.value = djangoFile
+    opened.value = appNode
   }
 
   loaded.value = true;
   renderFile();
 });
 
+
+function findByPath(project: DjangoProject, params: string | string[]) {
+  const projectTree = renderer.asTree(project);
+  const projectFiles = renderer.asFlat(project);
+  let djangoFile;
+  let appNode;
+  const pathParam = params instanceof String ? params : (params as string[]).join("/");
+    djangoFile = projectFiles.find((node) => node.path === pathParam);
+    if (
+      djangoFile &&
+      djangoFile.type === DjangoProjectFileResource.APP_FILE
+    ) {
+      const app: DjangoApp = djangoFile.resource as DjangoApp;
+      appNode = projectTree.find(
+        (node) => node.name === app.name && node.folder === true
+      );
+    }
+  
+    return { djangoFile, appNode }
+}
+
+function chooseFileToDisplay(project: DjangoProject) {
+  const projectTree = renderer.asTree(project);
+  let djangoFile;
+  let appNode;
+  if (!active.value && project.apps.length > 0) {
+    const firstApp = project.apps[0];
+    appNode = projectTree.find(
+      (node) => node.name === firstApp.name && node.folder === true
+    );
+    if (appNode && appNode.children) {
+      djangoFile = appNode.children.find((node) => node.name === "models.py");
+    }
+  } else if (!djangoFile) {
+    // if no apps, find settings.py file
+    const projectNode = projectTree.find(
+      (node) => node.name === project.name && node.folder === true
+    );
+    appNode = projectNode;
+    if (projectNode && projectNode.children) {
+      djangoFile = projectNode.children.find(
+        (node) => node.name === "settings.py"
+      );
+    }
+  }
+  return { djangoFile, appNode }
+}
+
+function handleProjectFolderClick(djangoFile: DjangoProjectFile): void {
+  console.debug("Folder Clicked on", djangoFile);
+  if (djangoFile.resource instanceof DjangoApp) {
+    console.debug("Current App", djangoFile.resource);
+    activeApp.value = djangoFile.resource
+  } else {
+    activeApp.value = undefined;
+  }
+}
+
 function handleProjectFileClick(djangoFile: DjangoProjectFile): void {
   console.debug("Clicked on", djangoFile);
+  if (djangoFile.resource instanceof DjangoApp) {
+    console.debug("Current App", djangoFile.resource);
+    activeApp.value = djangoFile.resource
+  }
   active.value = djangoFile;
   renderFile();
 }
 
 function renderFile(): void {
+  console.debug("Render File", active.value);
+
   const djangoFile = active.value;
   if (!djangoFile) {
     return;
@@ -109,11 +150,8 @@ function renderFile(): void {
 
   router.replace({
     path: `/project/${projectId}/${djangoFile.path}`,
-    //name: "project",
-    //params: { id: projectId, path: djangoFile.path },
   });
 
-  console.debug("Render File", djangoFile);
   const extension = djangoFile.name.split(".").pop();
   switch (extension) {
     case "py":
@@ -129,7 +167,7 @@ function renderFile(): void {
 
   switch (djangoFile.type) {
     case DjangoProjectFileResource.PROJECT_FILE: {
-      code.value = renderer.renderProjectFile(djangoFile.name, props.project);
+      code.value = renderer.renderProjectFile(djangoFile.name, project.value);
       break;
     }
     case DjangoProjectFileResource.APP_FILE: {
@@ -157,9 +195,9 @@ function renderFile(): void {
 }
 
 function handleDownload() {
-  const tarballURL = renderer.tarballURL(props.project);
+  const tarballURL = renderer.tarballURL(project.value);
   const link = document.createElement("a");
-  link.download = props.project.name + ".tar";
+  link.download = project.value.name + ".tar";
   link.href = tarballURL;
   document.body.appendChild(link);
   link.click();
@@ -167,7 +205,7 @@ function handleDownload() {
 
 function handleAddApp(name: string) {
   addingApp.value = false;
-  userStore.addApp(props.project, name);
+  userStore.addApp(project.value, name);
 }
 
 async function handleAddModel(app: DjangoApp | undefined, name: string) {
@@ -176,6 +214,26 @@ async function handleAddModel(app: DjangoApp | undefined, name: string) {
     // TODO - abstract
     userStore.addModel(app, name, false);
   }
+}
+
+async function handleDeleteProject() {
+  deletingProject.value = true;
+  await userStore.deleteProject(project.value);
+  await router.push({name: "projects"})
+}
+
+async function handleDeleteApp() {
+  deletingApp.value = true;
+  const toDelete = activeApp.value;
+  activeApp.value = undefined;
+  await userStore.deleteApp(toDelete);
+  project.value = userStore.getCoreProject(projectId);
+  active.value = undefined
+  const { djangoFile, appNode } = chooseFileToDisplay(project.value);
+  active.value = djangoFile
+  opened.value = appNode
+  renderFile();
+  deletingApp.value = false;
 }
 
 async function handleDeleteModel() {
@@ -187,7 +245,7 @@ async function handleDeleteModel() {
 </script>
 
 <template>
-  <div id="project-body">
+  <div id="project-body" v-if="!deletingProject && !deletingApp">
     <div id="top">
       {{ props.project.name }}
       <div>
@@ -204,8 +262,15 @@ async function handleDeleteModel() {
           />
         </span>
         <button class="project-button" @click="handleDownload">Download</button>
+        <span class="project-button">
+          <ConfirmableButton
+          :message="`Are you sure you wish to delete Project '${props.project.name}'?`"
+          :text="'&#128465;'"
+          @confirm="handleDeleteProject()"
+          />
+        </span>
       </div>
-      <button class="project-button">Delete</button>
+      <span><!--spacer --></span>
     </div>
     <div id="main">
       <div id="side">
@@ -219,15 +284,17 @@ async function handleDeleteModel() {
             :opened="opened"
             :active="active ? active.path : ''"
             v-on:click="handleProjectFileClick"
+            v-on:folder-click="handleProjectFolderClick"
           />
         </div>
       </div>
       <div id="side-right">
         <div id="code-tools">
-          <span v-if="active">
+          <span v-if="active" id="code-tools-path">
             {{ active.path }}
           </span>
           <span
+            id="code-tools-buttons"
             v-if="
               active?.resource &&
               active.type === DjangoProjectFileResource.APP_FILE
@@ -283,6 +350,13 @@ async function handleDeleteModel() {
                 Cancel
               </button>
             </PopUp>
+            <ConfirmableButton
+              v-if="activeApp"
+              :message="`Are you sure you wish to delete App '${activeApp.name}'?`"
+              :text="`Delete App`"
+              :style="'margin-left: 20px'"
+              @confirm="handleDeleteApp()"
+            />
           </span>
         </div>
         <div id="code-content">
@@ -383,8 +457,12 @@ pre code.hljs {
   position: sticky;
   top: 0;
 }
-#code-tools-add-model-button {
+#code-tools-path {
+}
+#code-tools-buttons * {
   margin-left: 20px;
+}
+#code-tools button, #code-tools .button {
 }
 #code-tools-delete-model-select {
   display: block;

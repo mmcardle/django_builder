@@ -164,33 +164,38 @@ async function getDeleteBatch(
     batch.delete(doc(db, "relationship", relationshipid))
   );
   return batch
-  batch.commit().catch((err) => console.error("Failed!", err));
 }
 
 
-async function deleteProject(projectid: string) {
-  console.log("Remove project ", projectid);
-  const projectRef = doc(db, "projects", projectid);
-  const batch = writeBatch(db);
-
-  batch.commit().catch((err) => console.error("Failed!", err));
-}
-
-async function deleteApp(projectid: string, appid: string) {
-  console.log("Remove app ", appid, "from ", projectid);
-  const projectRef = doc(db, "projects", projectid);
-  const appRef = doc(db, "apps", appid);
-  const batch = writeBatch(db);
-  batch.update(projectRef, { [`apps.${appid}`]: deleteField() });
-  batch.delete(appRef);
-  batch.commit().catch((err) => console.error("Failed!", err));
-}
-
-async function deleteModel(appid: string, modelid: string, batch?: WriteBatch) {
-  console.log("Remove model ", modelid, "from ", appid);
+async function deleteProject(projectid: string, batch?: WriteBatch) {
+  console.debug("Delete project ", projectid);
   if (!batch) {
     batch = writeBatch(db);
   }
+  const projectRef = doc(db, "projects", projectid);
+  batch.delete(projectRef);
+  batch.commit().catch((err) => console.error("Failed to delete project!", err));
+}
+
+async function deleteApp(projectid: string, appid: string, batch?: WriteBatch) {
+  console.debug("Delete app ", appid, "from ", projectid);
+  if (!batch) {
+    batch = writeBatch(db);
+  }
+  const appRef = doc(db, "apps", appid);
+  batch.delete(appRef);
+  const projectRef = doc(db, "projects", projectid);
+  batch.update(projectRef, { [`apps.${appid}`]: deleteField() });
+  batch.commit().catch((err) => console.error("Failed to delete app!", err));
+}
+
+async function deleteModel(appid: string, modelid: string, batch?: WriteBatch) {
+  console.debug("Delete model ", modelid, "from ", appid);
+  if (!batch) {
+    batch = writeBatch(db);
+  }
+  const modelRef = doc(db, "models", modelid);
+  batch.delete(modelRef);
   const appRef = doc(db, "apps", appid);
   batch.update(appRef, { [`models.${modelid}`]: deleteField() });
   await batch.commit().catch((err) => console.error("Failed!", err));
@@ -227,6 +232,7 @@ export {
   addApp,
   addModel,
   getDeleteBatch,
+  deleteProject,
   deleteApp,
   deleteModel,
 };

@@ -4,18 +4,21 @@ import PopUp from "./PopUp.vue";
 
 export interface Props {
   message?: string;
-  icon?: string;
+  text?: string;
+  style?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   message: "Confirm",
-  icon: "&#10539;",
+  text: "&#10539;",
+  style: "",
 });
 
 const emit = defineEmits<{
   (e: "confirm"): void;
   (e: "abort"): void;
 }>();
+console.log(props)
 
 const confirming = ref(false);
 
@@ -35,27 +38,22 @@ function handleAbortConfirm(): void {
 </script>
 
 <template>
-  <span class="buttons">
-    <button class="button" @click="handleConfirm()">{{ icon }}</button>
-    <PopUp v-if="confirming">
-      <div>
-        {{ message }}
-      </div>
-      <button class="cancel-button" @click="handleAbortConfirm()">
-        Cancel
-      </button>
-      <button class="confirm-button" @click="handleEndConfirm()">
-        Confirm
-      </button>
-    </PopUp>
-  </span>
+  <button :style="style" class="button" @click="handleConfirm()">{{ text }}</button>
+  <PopUp v-if="confirming">
+    <div>
+      {{ message }}
+    </div>
+    <button class="cancel-button" @click="handleAbortConfirm()">
+      Cancel
+    </button>
+    <button class="confirm-button" @click="handleEndConfirm()">
+      Confirm
+    </button>
+  </PopUp>
 </template>
 
 <style scoped>
 .button {
-  margin: 0;
-  padding: 0 4px;
-  color: red;
 }
 .confirm-button {
   color: red;
