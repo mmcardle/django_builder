@@ -13,6 +13,7 @@
   "scripts": {
     "dev": "yarn --cwd packages/djangobuilder4 dev",
     "build": "yarn --cwd packages/djangobuilder4 build",
+    "lint": "yarn --cwd packages/djangobuilder4 lint",
     "devio": "yarn --cwd packages/djangobuilder.io dev",
     "buildio": "yarn --cwd packages/djangobuilder.io build",
     "smoketest": "yarn --cwd lib/djangobuilder-core run smoketest",

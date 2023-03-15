@@ -34,7 +34,6 @@ const renderer = new Renderer();
 
 const project = ref<DjangoProject>(props.project);
 
-
 const loaded = ref(false);
 const code = ref("");
 const language = ref("python");
@@ -58,39 +57,37 @@ onMounted(() => {
   const pathParams = route.params.path;
 
   // if not pathParam found find first app and show models.py
-  const { djangoFile, appNode } = findByPath(project.value, pathParams)
-  active.value = djangoFile
-  opened.value = appNode
+  if (pathParams) {
+    const { djangoFile, appNode } = findByPath(project.value, pathParams);
+    active.value = djangoFile;
+    opened.value = appNode;
+  }
 
-  if(!active.value) {
+  if (!active.value) {
     const { djangoFile, appNode } = chooseFileToDisplay(project.value);
-    active.value = djangoFile
-    opened.value = appNode
+    active.value = djangoFile;
+    opened.value = appNode;
   }
 
   loaded.value = true;
   renderFile();
 });
 
-
 function findByPath(project: DjangoProject, params: string | string[]) {
   const projectTree = renderer.asTree(project);
   const projectFiles = renderer.asFlat(project);
-  let djangoFile;
   let appNode;
-  const pathParam = params instanceof String ? params : (params as string[]).join("/");
-    djangoFile = projectFiles.find((node) => node.path === pathParam);
-    if (
-      djangoFile &&
-      djangoFile.type === DjangoProjectFileResource.APP_FILE
-    ) {
-      const app: DjangoApp = djangoFile.resource as DjangoApp;
-      appNode = projectTree.find(
-        (node) => node.name === app.name && node.folder === true
-      );
-    }
-  
-    return { djangoFile, appNode }
+  const pathParam =
+    params instanceof String ? params : (params as string[]).join("/");
+  const djangoFile = projectFiles.find((node) => node.path === pathParam);
+  if (djangoFile && djangoFile.type === DjangoProjectFileResource.APP_FILE) {
+    const app: DjangoApp = djangoFile.resource as DjangoApp;
+    appNode = projectTree.find(
+      (node) => node.name === app.name && node.folder === true
+    );
+  }
+
+  return { djangoFile, appNode };
 }
 
 function chooseFileToDisplay(project: DjangoProject) {
@@ -117,14 +114,14 @@ function chooseFileToDisplay(project: DjangoProject) {
       );
     }
   }
-  return { djangoFile, appNode }
+  return { djangoFile, appNode };
 }
 
 function handleProjectFolderClick(djangoFile: DjangoProjectFile): void {
   console.debug("Folder Clicked on", djangoFile);
   if (djangoFile.resource instanceof DjangoApp) {
     console.debug("Current App", djangoFile.resource);
-    activeApp.value = djangoFile.resource
+    activeApp.value = djangoFile.resource;
   } else {
     activeApp.value = undefined;
   }
@@ -134,7 +131,7 @@ function handleProjectFileClick(djangoFile: DjangoProjectFile): void {
   console.debug("Clicked on", djangoFile);
   if (djangoFile.resource instanceof DjangoApp) {
     console.debug("Current App", djangoFile.resource);
-    activeApp.value = djangoFile.resource
+    activeApp.value = djangoFile.resource;
   }
   active.value = djangoFile;
   renderFile();
@@ -219,7 +216,7 @@ async function handleAddModel(app: DjangoApp | undefined, name: string) {
 async function handleDeleteProject() {
   deletingProject.value = true;
   await userStore.deleteProject(project.value);
-  await router.push({name: "projects"})
+  await router.push({ name: "projects" });
 }
 
 async function handleDeleteApp() {
@@ -228,10 +225,10 @@ async function handleDeleteApp() {
   activeApp.value = undefined;
   await userStore.deleteApp(toDelete);
   project.value = userStore.getCoreProject(projectId);
-  active.value = undefined
+  active.value = undefined;
   const { djangoFile, appNode } = chooseFileToDisplay(project.value);
-  active.value = djangoFile
-  opened.value = appNode
+  active.value = djangoFile;
+  opened.value = appNode;
   renderFile();
   deletingApp.value = false;
 }
@@ -264,9 +261,9 @@ async function handleDeleteModel() {
         <button class="project-button" @click="handleDownload">Download</button>
         <span class="project-button">
           <ConfirmableButton
-          :message="`Are you sure you wish to delete Project '${props.project.name}'?`"
-          :text="'&#128465;'"
-          @confirm="handleDeleteProject()"
+            :message="`Are you sure you wish to delete Project '${props.project.name}'?`"
+            :text="'&#128465;'"
+            @confirm="handleDeleteProject()"
           />
         </span>
       </div>
@@ -462,7 +459,8 @@ pre code.hljs {
 #code-tools-buttons * {
   margin-left: 20px;
 }
-#code-tools button, #code-tools .button {
+#code-tools button,
+#code-tools .button {
 }
 #code-tools-delete-model-select {
   display: block;

@@ -3,6 +3,7 @@ import LoginView from "../views/LoginView.vue";
 
 import { auth } from "../firebase";
 import type { User } from "@firebase/auth";
+import { useUserStore } from "@/stores/user";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -71,35 +72,47 @@ function userVerified(user: User) {
 }
 
 router.beforeEach((to, from) => {
-  console.debug("from", from.fullPath, " -> ", to.fullPath);
+  const userStore = useUserStore();
+  console.debug("from", from.fullPath, " -> ", to.fullPath, userStore.loaded);
   //console.debug("to", to);
   const currentUser = auth.currentUser;
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
-  if (false && requiresAuth && !currentUser) {
+  if (!userStore.loaded) {
+    return;
+  }
+
+  if (requiresAuth && !currentUser) {
+    console.debug("View requires auth but no user.");
     return { name: "login" };
   } else if (currentUser) {
     const verified = userVerified(currentUser);
-    // console.log('Current User verified', verified, 'requesting', to.name)
+    console.debug("Current User verified", verified, "requesting", to.name);
     if (verified && to.name == "login") {
-      console.debug('User is verified and trying to access the login page so send to home page')
+      console.debug(
+        "User is verified and trying to access the login page so send to home page"
+      );
       return { name: "projects" };
     } else if (verified && to.name == "unverified") {
-      console.debug('User is verified and trying to access the unverified page so send to home page')
+      console.debug(
+        "User is verified and trying to access the unverified page so send to home page"
+      );
       return { name: "projects" };
     } else if (
       !verified &&
       to.name != "unverified" &&
       to.name != "verify_email_action"
     ) {
-      console.debug('2. User is unverified and trying to access another page so send to unverified page')
+      console.debug(
+        "2. User is unverified and trying to access another page so send to unverified page"
+      );
       return { name: "unverified" };
     } else {
-      console.debug('User sent to page', to.name)
+      console.debug("User sent to page", to.name);
       return;
     }
   } else {
-    console.debug('Anonymous User sent to page that require no auth', to.name)
+    console.debug("Anonymous User sent to page that require no auth", to.name);
     return;
   }
 });

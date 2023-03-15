@@ -154,7 +154,7 @@ async function getDeleteBatch(
   modelids: Array<string>,
   fieldids: Array<string>,
   relationshipids: Array<string>
-) : Promise<WriteBatch> {
+): Promise<WriteBatch> {
   const batch = writeBatch(db);
   projectids.map((projectid) => batch.delete(doc(db, "projects", projectid)));
   appids.map((appid) => batch.delete(doc(db, "apps", appid)));
@@ -163,9 +163,8 @@ async function getDeleteBatch(
   relationshipids.map((relationshipid) =>
     batch.delete(doc(db, "relationship", relationshipid))
   );
-  return batch
+  return batch;
 }
-
 
 async function deleteProject(projectid: string, batch?: WriteBatch) {
   console.debug("Delete project ", projectid);
@@ -174,7 +173,9 @@ async function deleteProject(projectid: string, batch?: WriteBatch) {
   }
   const projectRef = doc(db, "projects", projectid);
   batch.delete(projectRef);
-  batch.commit().catch((err) => console.error("Failed to delete project!", err));
+  batch
+    .commit()
+    .catch((err) => console.error("Failed to delete project!", err));
 }
 
 async function deleteApp(projectid: string, appid: string, batch?: WriteBatch) {

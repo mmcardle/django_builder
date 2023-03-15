@@ -23,7 +23,7 @@ const { getProjectId } = storeToRefs(userStore);
 const projectid = getProjectId.value(props.project);
 
 function handleDeleteProject() {
-  userStore.deleteProject(props.project)
+  userStore.deleteProject(props.project);
 }
 </script>
 

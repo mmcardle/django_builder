@@ -65,8 +65,7 @@ export const useUserStore = defineStore({
     getCoreProjects: (state) => state.coreProjects,
     getCoreProject: (state) => (projectid: string) =>
       state.coreProjects[projectid],
-    getCoreApp: (state) => (appid: string) =>
-      state.coreApps[appid],
+    getCoreApp: (state) => (appid: string) => state.coreApps[appid],
     getProjectId: (state) => (project: DjangoProject) =>
       state.projectids.get(project),
     getAppId: (state) => (app: DjangoApp) => state.appids.get(app),
@@ -303,32 +302,45 @@ export const useUserStore = defineStore({
     },
     async addApp(project: DjangoProject, name: string) {
       const projectid = this.getProjectId(project);
-      const user = this.getUser
+      const user = this.getUser;
       if (user && projectid) {
         addApp(user, projectid, name);
       }
     },
     async addModel(app: DjangoApp, name: string, abstract: boolean) {
       const appid = this.getAppId(app);
-      const user = this.getUser
+      const user = this.getUser;
       if (user && appid) {
         addModel(user, appid, name, abstract);
       }
     },
     async deleteProject(project: DjangoProject) {
-      const { appids, modelids, fieldids, relationshipids } = this.getAllProjectSubIds(project);
-      const projectid = this.projectids.get(project)
+      const { appids, modelids, fieldids, relationshipids } =
+        this.getAllProjectSubIds(project);
+      const projectid = this.projectids.get(project);
       if (projectid) {
-        const batch = await getDeleteBatch([], appids, modelids, fieldids, relationshipids);
+        const batch = await getDeleteBatch(
+          [],
+          appids,
+          modelids,
+          fieldids,
+          relationshipids
+        );
         await deleteProject(projectid, batch);
       }
     },
     async deleteApp(app: DjangoApp) {
       const { modelids, fieldids, relationshipids } = this.getAllAppSubIds(app);
-      const appid = this.appids.get(app)
-      const projectid = this.projectids.get(app.project as DjangoProject)
+      const appid = this.appids.get(app);
+      const projectid = this.projectids.get(app.project as DjangoProject);
       if (appid && projectid) {
-        const batch = await getDeleteBatch([], [], modelids, fieldids, relationshipids);
+        const batch = await getDeleteBatch(
+          [],
+          [],
+          modelids,
+          fieldids,
+          relationshipids
+        );
         await deleteApp(projectid, appid, batch);
       } else {
         throw new Error("Could not delete app " + app.name);
@@ -336,11 +348,17 @@ export const useUserStore = defineStore({
     },
     async deleteModel(model: DjangoModel) {
       const { field_ids, relationship_ids } = this.getAllModelSubIds(model);
-      const modelid = this.modelids.get(model)
-      const appid = this.appids.get(model.app)
+      const modelid = this.modelids.get(model);
+      const appid = this.appids.get(model.app);
       if (modelid && appid) {
-        const batch = await getDeleteBatch([], [], [modelid], field_ids, relationship_ids);
-        await deleteModel(appid, modelid, batch)
+        const batch = await getDeleteBatch(
+          [],
+          [],
+          [modelid],
+          field_ids,
+          relationship_ids
+        );
+        await deleteModel(appid, modelid, batch);
       } else {
         throw new Error("Could not delete model " + model.name);
       }

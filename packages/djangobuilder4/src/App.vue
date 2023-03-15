@@ -13,9 +13,9 @@ const router = useRouter();
 onMounted(async () => {
   const auth = getAuth();
   onAuthStateChanged(auth, async (user) => {
-    console.debug("User", user);
     if (user) {
       await userStore.loginUser(user);
+      router.push({ name: "projects" });
     } else {
       userStore.logoutUser();
       router.push({ name: "login" });
