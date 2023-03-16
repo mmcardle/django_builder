@@ -5,6 +5,8 @@ import { useUserStore } from "../stores/user";
 import { storeToRefs } from "pinia";
 import ProjectTree from "./ProjectTree.vue";
 import EditableTextPopUp from "@/widgets/EditableTextPopUp.vue";
+import EditableText from "@/widgets/EditableText.vue";
+import EditableBoolean from "@/widgets/EditableBoolean.vue";
 import PopUp from "@/widgets/PopUp.vue";
 import ConfirmableButton from "@/widgets/ConfirmableButton.vue";
 
@@ -50,23 +52,37 @@ const modelToDelete = ref();
 const modelChoices = ref<Array<DjangoModel>>([]);
 const opened = ref();
 
+type NewModelData = {
+  name: string;
+  abstract: boolean;
+};
+
+const defaultModelData = { name: "Model", abstract: false };
+const newModelData = ref<NewModelData>(defaultModelData);
+
 watch(userStore, renderFile);
 
 onMounted(() => {
   project.value = userStore.getCoreProject(projectId);
   const pathParams = route.params.path;
 
-  // if not pathParam found find first app and show models.py
   if (pathParams) {
     const { djangoFile, appNode } = findByPath(project.value, pathParams);
     active.value = djangoFile;
     opened.value = appNode;
+    if (appNode?.resource) {
+      activeApp.value = appNode.resource as DjangoApp;
+    }
   }
 
   if (!active.value) {
+    // if no pathParam found find first app and show models.py
     const { djangoFile, appNode } = chooseFileToDisplay(project.value);
     active.value = djangoFile;
     opened.value = appNode;
+    if (appNode?.resource) {
+      activeApp.value = appNode.resource as DjangoApp;
+    }
   }
 
   loaded.value = true;
@@ -205,11 +221,15 @@ function handleAddApp(name: string) {
   userStore.addApp(project.value, name);
 }
 
-async function handleAddModel(app: DjangoApp | undefined, name: string) {
+async function handleAddModel(app: DjangoApp) {
   addingModel.value = false;
   if (app) {
-    // TODO - abstract
-    userStore.addModel(app, name, false);
+    await userStore.addModel(
+      app,
+      newModelData.value.name,
+      newModelData.value.abstract
+    );
+    newModelData.value = defaultModelData;
   }
 }
 
@@ -303,13 +323,49 @@ async function handleDeleteModel() {
             >
               Add Model
             </button>
-            <EditableTextPopUp
-              v-if="active && addingModel"
-              value="Model1"
-              title="Add Model"
-              v-on:update="(name) => handleAddModel(active?.resource as DjangoApp, name)"
-              v-on:abort="addingModel = false"
-            />
+            <PopUp v-if="active && addingModel">
+              Add Model
+              <table>
+                <tr>
+                  <td>Name</td>
+                  <td>
+                    <EditableText
+                      :value="newModelData.name"
+                      v-on:update="(value) => (newModelData.name = value)"
+                    >
+                      {{ newModelData.name }}
+                    </EditableText>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Abstract</td>
+                  <td>
+                    <EditableBoolean
+                      :value="newModelData.abstract"
+                      v-on:update="(value) => (newModelData.abstract = value)"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <button
+                      id="cancel-project-button"
+                      @click="addingModel = false"
+                    >
+                      Cancel
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      id="create-model-button"
+                      @click="handleAddModel(active?.resource as DjangoApp)"
+                    >
+                      Create
+                    </button>
+                  </td>
+                </tr>
+              </table>
+            </PopUp>
 
             <button
               id="code-tools-add-model-button"
@@ -454,9 +510,13 @@ pre code.hljs {
   position: sticky;
   top: 0;
 }
+#code-tools table {
+  width: 100%;
+  table-layout: fixed;
+}
 #code-tools-path {
 }
-#code-tools-buttons * {
+#code-tools-buttons button {
   margin-left: 20px;
 }
 #code-tools button,
