@@ -18,13 +18,8 @@ async function updateProject(
   project: DjangoProject,
   args: Record<string, string | boolean | number>
 ) {
-  console.log("UPDATE", project, args);
   const projectid = getProjectId.value(project);
-  if (projectid) {
-    await updateDoc(doc(db, "projects", projectid), args);
-  } else {
-    throw new Error(`No project ${project.name}`);
-  }
+  await updateDoc(doc(db, "projects", projectid), args);
 }
 
 async function updateApp(
@@ -44,11 +39,7 @@ async function updateModel(
   args: Record<string, string | boolean | number>
 ) {
   const modelid = getModelId.value(model);
-  if (modelid) {
-    await updateDoc(doc(db, "models", modelid), args);
-  } else {
-    throw new Error(`No model ${model.name}`);
-  }
+  await updateDoc(doc(db, "models", modelid), args);
 }
 
 async function updateField(
@@ -68,11 +59,7 @@ async function updateRelationship(
   args: Record<string, string | boolean | number>
 ) {
   const relationshipid = getRelationshipId.value(relationship);
-  if (relationshipid) {
-    await updateDoc(doc(db, "relationships", relationshipid), args);
-  } else {
-    throw new Error(`No relationship ${relationship.name}`);
-  }
+  await updateDoc(doc(db, "relationships", relationshipid), args);
 }
 
 export {

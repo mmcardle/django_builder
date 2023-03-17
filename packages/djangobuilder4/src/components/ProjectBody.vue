@@ -6,15 +6,20 @@ import { storeToRefs } from "pinia";
 import ProjectTree from "./ProjectTree.vue";
 import EditableTextPopUp from "@/widgets/EditableTextPopUp.vue";
 import EditableText from "@/widgets/EditableText.vue";
+import EditableChoice from "@/widgets/EditableChoice.vue";
 import EditableBoolean from "@/widgets/EditableBoolean.vue";
 import PopUp from "@/widgets/PopUp.vue";
 import ConfirmableButton from "@/widgets/ConfirmableButton.vue";
 
 import {
   DjangoApp,
+  DjangoField,
   DjangoModel,
   DjangoProject,
   Renderer,
+  FieldTypes,
+  DjangoRelationship,
+  RelationshipTypes,
 } from "@djangobuilder/core";
 import {
   DjangoProjectFileResource,
@@ -25,6 +30,16 @@ import router from "@/router";
 const props = defineProps<{
   project: DjangoProject;
 }>();
+
+const fieldChoices: Record<string, string> = {};
+Object.keys(FieldTypes).forEach((fieldType) => {
+  fieldChoices[fieldType] = fieldType;
+});
+
+const relationshipChoices: Record<string, string> = {};
+Object.keys(RelationshipTypes).forEach((relationshipType) => {
+  relationshipChoices[relationshipType] = relationshipType;
+});
 
 const route = useRoute();
 const projectId = route.params.id as string;
@@ -43,6 +58,7 @@ const active = ref<DjangoProjectFile>();
 const activeApp = ref();
 const addingApp = ref(false);
 const addingModel = ref(false);
+const edittingModels = ref(false);
 
 const deletingProject = ref(false);
 const deletingApp = ref(false);
@@ -185,10 +201,6 @@ function renderFile(): void {
     }
     case DjangoProjectFileResource.APP_FILE: {
       const appid = getAppId.value(djangoFile.resource as DjangoApp);
-      if (!appid) {
-        console.error("No such app", djangoFile);
-        break;
-      }
       const updatedApp = getCoreApp.value(appid);
       modelChoices.value = updatedApp.models as DjangoModel[];
       code.value = renderer.renderAppFile(djangoFile.name, updatedApp);
@@ -259,6 +271,33 @@ async function handleDeleteModel() {
   toDelete.value = undefined;
   await userStore.deleteModel(toDelete);
 }
+
+async function handleUpdateModel(
+  model: DjangoModel,
+  args: Record<string, string | boolean | number>
+) {
+  await userStore.updateModel(model, args);
+  const appid = userStore.getAppId(model.app);
+  activeApp.value = userStore.getCoreApp(appid);
+}
+
+async function handleUpdateField(
+  field: DjangoField,
+  args: Record<string, string | boolean | number>
+) {
+  await userStore.updateField(field, args);
+  const appid = userStore.getAppId(field.model.app);
+  activeApp.value = userStore.getCoreApp(appid);
+}
+
+async function handleUpdateRelationship(
+  relationship: DjangoRelationship,
+  args: Record<string, string | boolean | number>
+) {
+  await userStore.updateRelationship(relationship, args);
+  const appid = userStore.getAppId(relationship.model.app);
+  activeApp.value = userStore.getCoreApp(appid);
+}
 </script>
 
 <template>
@@ -317,6 +356,12 @@ async function handleDeleteModel() {
               active.type === DjangoProjectFileResource.APP_FILE
             "
           >
+            <button
+              id="code-tools-edit-models-button"
+              @click="edittingModels = !edittingModels"
+            >
+              Edit Models
+            </button>
             <button
               id="code-tools-add-model-button"
               @click="addingModel = true"
@@ -414,7 +459,110 @@ async function handleDeleteModel() {
         </div>
         <div id="code-content">
           <div id="code">
-            <highlightjs :language="language" :code="code" />
+            <div v-if="edittingModels">
+              {{ "&nbsp;" }}
+              <div
+                v-for="model in (activeApp as DjangoApp).models"
+                :key="model.name"
+              >
+                {{ "class "
+                }}<EditableText
+                  :value="model.name"
+                  v-on:update="(name) => handleUpdateModel(model as DjangoModel, { name })"
+                >
+                  {{ model.name }}({{ model.parents }})
+                </EditableText>
+                <div v-for="field in model.fields" :key="field.name">
+                  {{ "&nbsp;&nbsp;" }}
+                  <EditableText
+                    :value="field.name"
+                    v-on:update="(name) => handleUpdateField(field as DjangoField, { name })"
+                  >
+                    {{ field.name }}
+                  </EditableText>
+                  =
+                  <EditableChoice
+                    :value="field.type.name"
+                    :choices="fieldChoices"
+                    v-on:update="(type) => handleUpdateField(field as DjangoField, { type })"
+                    >{{ field.type.name }}</EditableChoice
+                  >
+
+                  (<EditableText
+                    :value="field.args"
+                    v-on:update="(args) => handleUpdateField(field as DjangoField, { args })"
+                  >
+                    {{ field.args }} </EditableText
+                  >)
+                </div>
+                <div>
+                  {{ "&nbsp;&nbsp;" }}
+                  <EditableText value="new_field" v-on:update="(name) => {}">
+                    {{ "new_field" }}
+                  </EditableText>
+                  =
+                  <EditableChoice
+                    value="CharField"
+                    :choices="fieldChoices"
+                    v-on:update="(type) => {}"
+                    >{{ "CharField" }}</EditableChoice
+                  >
+                  (<EditableText :value="''" v-on:update="(args) => {}">
+                    {{ "" }} </EditableText
+                  >)
+                  {{ "&nbsp;&nbsp;" }}
+                  <button>Add</button>
+                </div>
+                <div
+                  v-for="relationship in model.relationships"
+                  :key="relationship.name"
+                >
+                  <EditableText
+                    :value="relationship.name"
+                    v-on:update="(name) => handleUpdateRelationship(relationship as DjangoRelationship, { name })"
+                  >
+                    {{ relationship.name }}
+                  </EditableText>
+                  =
+                  <EditableChoice
+                    :value="relationship.type.name"
+                    :choices="relationshipChoices"
+                    v-on:update="(type) => handleUpdateRelationship(relationship as DjangoRelationship, { type })"
+                    >{{ relationship.type.name }}</EditableChoice
+                  >
+
+                  (<EditableText
+                    :value="relationship.args"
+                    v-on:update="(args) => handleUpdateRelationship(relationship as DjangoRelationship, { args })"
+                  >
+                    {{ relationship.args }} </EditableText
+                  >)
+                </div>
+                <div>
+                  {{ "&nbsp;&nbsp;" }}
+                  <EditableText
+                    value="new_relationship"
+                    v-on:update="(name) => {}"
+                  >
+                    {{ "new_relationship" }}
+                  </EditableText>
+                  =
+                  <EditableChoice
+                    value="ForeignKey"
+                    :choices="relationshipChoices"
+                    v-on:update="(type) => {}"
+                    >{{ "ForeignKey" }}</EditableChoice
+                  >
+
+                  (<EditableText value="" v-on:update="(args) => {}">
+                    {{ "" }} </EditableText
+                  >)
+                  <button>Add</button>
+                </div>
+                {{ "&nbsp;" }}
+              </div>
+            </div>
+            <highlightjs v-else :language="language" :code="code" />
           </div>
         </div>
       </div>
@@ -462,6 +610,7 @@ pre code.hljs {
   margin: 0 4px;
 }
 #main {
+  z-index: 0;
   display: grid;
   grid-template-columns: 1fr 6fr;
 }

@@ -5,6 +5,11 @@ import {
   fetchProjects,
   fetchFields,
   fetchRelationships,
+  updateProject,
+  updateApp,
+  updateModel,
+  updateField,
+  updateRelationship,
   getDeleteBatch,
   deleteProject,
   deleteApp,
@@ -33,6 +38,23 @@ import type {
   IDjangoModel,
   IDjangoRelationship,
 } from "@djangobuilder/core/src/types";
+import type { DjangoEntity } from "@djangobuilder/core/src/rendering";
+
+function getRecordOrThrow(record: Record<string, DjangoEntity>, id: string) {
+  const value = record[id];
+  if (!value) {
+    throw new Error(`${id} not found in ${record}`);
+  }
+  return value;
+}
+
+function getMapOrThrow(map: Map<DjangoEntity, string>, id: DjangoEntity) {
+  const value = map.get(id);
+  if (!value) {
+    throw new Error(`${id} not found in ${map}`);
+  }
+  return value;
+}
 
 export const useUserStore = defineStore({
   id: "user",
@@ -64,15 +86,18 @@ export const useUserStore = defineStore({
     getRelationships: (state) => state.relationships,
     getCoreProjects: (state) => state.coreProjects,
     getCoreProject: (state) => (projectid: string) =>
-      state.coreProjects[projectid],
-    getCoreApp: (state) => (appid: string) => state.coreApps[appid],
+      getRecordOrThrow(state.coreProjects, projectid) as DjangoProject,
+    getCoreApp: (state) => (appid: string) =>
+      getRecordOrThrow(state.coreApps, appid) as DjangoApp,
     getProjectId: (state) => (project: DjangoProject) =>
-      state.projectids.get(project),
-    getAppId: (state) => (app: DjangoApp) => state.appids.get(app),
-    getModelId: (state) => (app: DjangoModel) => state.modelids.get(app),
-    getFieldId: (state) => (field: DjangoField) => state.fieldids.get(field),
+      getMapOrThrow(state.projectids, project),
+    getAppId: (state) => (app: DjangoApp) => getMapOrThrow(state.appids, app),
+    getModelId: (state) => (app: DjangoModel) =>
+      getMapOrThrow(state.modelids, app),
+    getFieldId: (state) => (field: DjangoField) =>
+      getMapOrThrow(state.fieldids, field),
     getRelationshipId: (state) => (relationship: DjangoRelationship) =>
-      state.relationshipids.get(relationship),
+      getMapOrThrow(state.relationshipids, relationship),
   },
   actions: {
     getAllModelSubIds(model: DjangoModel) {
@@ -303,16 +328,51 @@ export const useUserStore = defineStore({
     async addApp(project: DjangoProject, name: string) {
       const projectid = this.getProjectId(project);
       const user = this.getUser;
-      if (user && projectid) {
+      if (user) {
         addApp(user, projectid, name);
       }
     },
     async addModel(app: DjangoApp, name: string, abstract: boolean) {
       const appid = this.getAppId(app);
       const user = this.getUser;
-      if (user && appid) {
+      if (user) {
         addModel(user, appid, name, abstract);
       }
+    },
+    async updateProject(
+      project: DjangoProject,
+      args: Record<string, string | boolean | number>
+    ) {
+      const projectid = this.getProjectId(project);
+      await updateProject(projectid, args);
+    },
+    async updateApp(
+      app: DjangoApp,
+      args: Record<string, string | boolean | number>
+    ) {
+      const appid = this.getAppId(app);
+      await updateApp(appid, args);
+    },
+    async updateModel(
+      model: DjangoModel,
+      args: Record<string, string | boolean | number>
+    ) {
+      const modelid = this.getModelId(model);
+      await updateModel(modelid, args);
+    },
+    async updateField(
+      field: DjangoField,
+      args: Record<string, string | boolean | number>
+    ) {
+      const fieldid = this.getFieldId(field);
+      await updateField(fieldid, args);
+    },
+    async updateRelationship(
+      relationship: DjangoRelationship,
+      args: Record<string, string | boolean | number>
+    ) {
+      const relationshipid = this.getRelationshipId(relationship);
+      await updateRelationship(relationshipid, args);
     },
     async deleteProject(project: DjangoProject) {
       const { appids, modelids, fieldids, relationshipids } =

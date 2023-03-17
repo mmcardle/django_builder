@@ -4,7 +4,7 @@ import { ref, nextTick } from "vue";
 export interface Props {
   value: string;
   choices: Record<string, string>;
-  display_as: string;
+  display_as?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {

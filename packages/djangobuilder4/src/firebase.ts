@@ -221,6 +221,49 @@ async function createProject(
   console.log("Document written with ID: ", docRef.id);
 }
 
+async function updateResource(
+  resource: string,
+  id: string,
+  args: Record<string, string | boolean | number>
+) {
+  return await updateDoc(doc(db, resource, id), args);
+}
+
+async function updateProject(
+  id: string,
+  args: Record<string, string | boolean | number>
+) {
+  return await updateResource("projects", id, args);
+}
+
+async function updateApp(
+  id: string,
+  args: Record<string, string | boolean | number>
+) {
+  return await updateResource("apps", id, args);
+}
+
+async function updateModel(
+  id: string,
+  args: Record<string, string | boolean | number>
+) {
+  return await updateResource("models", id, args);
+}
+
+async function updateField(
+  id: string,
+  args: Record<string, string | boolean | number>
+) {
+  return await updateResource("fields", id, args);
+}
+
+async function updateRelationship(
+  id: string,
+  args: Record<string, string | boolean | number>
+) {
+  return await updateResource("relationships", id, args);
+}
+
 export {
   auth,
   db,
@@ -232,6 +275,11 @@ export {
   createProject,
   addApp,
   addModel,
+  updateProject,
+  updateApp,
+  updateModel,
+  updateField,
+  updateRelationship,
   getDeleteBatch,
   deleteProject,
   deleteApp,
