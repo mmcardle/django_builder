@@ -1,8 +1,7 @@
 
-import {
+import type {
   IDjangoApp,
   IDjangoProject,
-  DjangoVersion,
   IDjangoModel,
   IDjangoField,
   IDjangoRelationship,
@@ -13,6 +12,7 @@ import {
   IRelatedField,
 } from "./types";
 
+import { DjangoVersion } from "./types";
 
 type ModelType = {
   type: string;

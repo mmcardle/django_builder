@@ -52,7 +52,7 @@ import DjangoProject, {
   DjangoRelationship,
   ManyToManyRelationship,
 } from "./api";
-import { IDjangoModel } from "./types";
+import type { IDjangoModel } from "./types";
 
 Handlebars.registerHelper("raw", (options) => options.fn());
 Handlebars.registerHelper(

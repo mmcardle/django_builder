@@ -3,7 +3,7 @@ import { updateApp, updateModel } from "../api";
 import EditableText from "@/widgets/EditableText.vue";
 import ProjectField from "./ProjectField.vue";
 import ProjectRelationship from "./ProjectRelationship.vue";
-import type { DjangoApp } from "@djangobuilder/core";
+import type { DjangoApp, DjangoField, DjangoModel } from "@djangobuilder/core";
 
 defineProps<{
   app: DjangoApp;
@@ -30,7 +30,7 @@ defineProps<{
         class
         <EditableText
           :value="model.name"
-          v-on:update="(name) => updateModel(model, { name })"
+          v-on:update="(name) => updateModel(model as  DjangoModel, { name })"
         >
           <span>{{ model.name }}</span>
         </EditableText>
@@ -47,7 +47,7 @@ defineProps<{
         <ProjectRelationship :relationship="relationship" />
       </div>
       <div v-for="field in model.fields" v-bind:key="field.name">
-        <ProjectField :field="field" />
+        <ProjectField :field="field as DjangoField" />
       </div>
       <div>{{ "&nbsp;" }}</div>
     </div>

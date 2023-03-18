@@ -75,12 +75,15 @@ interface IDjangoProject {
 }
 
 export {
+  DjangoVersion,
+}
+
+export type {
   IDjangoProject,
   IDjangoApp,
   IDjangoModel,
   IDjangoField,
   IDjangoRelationship,
-  DjangoVersion,
   IRelatedField,
   IBuiltInModel,
   IFieldType,

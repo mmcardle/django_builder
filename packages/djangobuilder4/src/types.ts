@@ -43,4 +43,4 @@ type Relationship = {
   args: string;
 };
 
-export type { User, Project, App, Model, Field, Relationship };
+export type { Project, App, Model, Field, Relationship };
