@@ -45,7 +45,7 @@ class HTMXXXX__MODEL_NAME__XXXCreateView(generic.CreateView):
 
 class HTMXXXX__MODEL_NAME__XXXDeleteView(generic.DeleteView):
     model = models.XXX__MODEL_NAME__XXX
-    success_url = reverse_lazy("app_XXX__MODEL_NAME__XXX_htmx_list")
+    success_url = reverse_lazy("XXX__APP_NAME__XXX_XXX__MODEL_NAME__XXX_htmx_list")
     
     def form_valid(self, form):
         super().form_valid(form)

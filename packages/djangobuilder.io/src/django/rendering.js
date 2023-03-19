@@ -644,9 +644,9 @@ CHANNEL_LAYERS = {
         htmx_body += `
       <div class="col col-lg-6">
         <h5>Add A ${model.name}</h5>
-        <div hx-get="{% url 'app_${model.name}_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+        <div hx-get="{% url '${app.name}_${model.name}_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
         <h4>${model.name} List</h4>
-        <div hx-get="{% url 'app_${model.name}_htmx_list' %}" hx-trigger="load">
+        <div hx-get="{% url '${app.name}_${model.name}_htmx_list' %}" hx-trigger="load">
         </div>
       </div>`
       })
@@ -1060,6 +1060,8 @@ CHANNEL_LAYERS = {
     var imports = 'from django.db import models\n'
     imports += 'from django.urls import reverse\n'
 
+    const parentImportClasses = new Set();
+
     let importGIS = false;
     let importPostgres = false;
 
@@ -1074,7 +1076,8 @@ CHANNEL_LAYERS = {
             const model = this.store.getters.modelData(parent.model)
             return model.name
           } else if (parent.type == 'django') {
-            return parent.class.split(".").pop()
+            parentImportClasses.add(parent.class);
+            return parent.class.split(".").pop();
           }
         }))
 
@@ -1163,6 +1166,12 @@ CHANNEL_LAYERS = {
       }
 
     })
+    
+    parentImportClasses.forEach((parent) => {
+      const parentSplit = parent.split(".");
+      const parentModule = parentSplit.pop();
+      imports += 'from ' + parentSplit.join('.') + " import " + parentModule + "\n";
+    })
 
     if (importGIS) {
       imports += 'from django.contrib.gis.db import models as gis_models\n'
@@ -1217,6 +1226,8 @@ CHANNEL_LAYERS = {
   }
 
   htmx_py (projectid, appid) {
+    const appData = this.store.getters.appData(appid)
+
     const models = this.get_models(appid).filter((modelData)=> {
       // Do not include abstract models in form views
       return !modelData.abstract
@@ -1233,7 +1244,8 @@ CHANNEL_LAYERS = {
     htmx_views += 'from . import forms\n'
 
     models.forEach((model) => {
-      htmx_views += htmx.replaceAll('XXX__MODEL_NAME__XXX', model.name) + '\n'
+      htmx_views += htmx.replaceAll('XXX__MODEL_NAME__XXX', model.name)
+        .replaceAll('XXX__APP_NAME__XXX', appData.name) + '\n'
     })
     return htmx_views
   }
