@@ -1226,6 +1226,8 @@ CHANNEL_LAYERS = {
   }
 
   htmx_py (projectid, appid) {
+    const appData = this.store.getters.appData(appid)
+
     const models = this.get_models(appid).filter((modelData)=> {
       // Do not include abstract models in form views
       return !modelData.abstract
@@ -1242,7 +1244,8 @@ CHANNEL_LAYERS = {
     htmx_views += 'from . import forms\n'
 
     models.forEach((model) => {
-      htmx_views += htmx.replaceAll('XXX__MODEL_NAME__XXX', model.name) + '\n'
+      htmx_views += htmx.replaceAll('XXX__MODEL_NAME__XXX', model.name)
+        .replaceAll('XXX__APP_NAME__XXX', appData.name) + '\n'
     })
     return htmx_views
   }
