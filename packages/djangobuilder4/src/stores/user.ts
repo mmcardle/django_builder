@@ -18,7 +18,15 @@ import {
   addModel,
 } from "../firebase";
 import type { Unsubscribe, User } from "firebase/auth";
-import type { App, Field, Model, Project, Relationship } from "@/types";
+import type {
+  App,
+  DjangoParent,
+  Field,
+  Model,
+  Project,
+  Relationship,
+  UserParent,
+} from "@/types";
 import type { DocumentChange, DocumentData } from "firebase/firestore";
 import {
   BuiltInModelTypes,
@@ -70,6 +78,7 @@ export const useUserStore = defineStore({
     relationships: {} as Record<string, Relationship>,
     coreProjects: {} as Record<string, DjangoProject>,
     coreApps: {} as Record<string, DjangoApp>,
+    coreModels: {} as Record<string, DjangoModel>,
     projectids: {} as Map<DjangoProject, string>,
     appids: {} as Map<DjangoApp, string>,
     modelids: {} as Map<DjangoModel, string>,
@@ -90,6 +99,8 @@ export const useUserStore = defineStore({
       getRecordOrThrow(state.coreProjects, projectid) as DjangoProject,
     getCoreApp: (state) => (appid: string) =>
       getRecordOrThrow(state.coreApps, appid) as DjangoApp,
+    getCoreModel: (state) => (modelid: string) =>
+      getRecordOrThrow(state.coreModels, modelid) as DjangoModel,
     getProjectId: (state) => (project: DjangoProject) =>
       getMapOrThrow(state.projectids, project),
     getAppId: (state) => (app: DjangoApp) => getMapOrThrow(state.appids, app),
@@ -252,6 +263,8 @@ export const useUserStore = defineStore({
       }
     },
     createCoreProjects() {
+      const parentUserModels: Map<string, UserParent[]> = new Map();
+
       Object.entries(this.projects).forEach(([projectid, project]) => {
         const coreVersion = String(project.django_version).startsWith("2")
           ? DjangoVersion.DJANGO2
@@ -284,11 +297,14 @@ export const useUserStore = defineStore({
               return;
             }
             const coreParents: IParentField[] = [];
+
             if (model.parents) {
               model.parents
                 .filter((p) => p.type === "django")
                 .forEach((parent) => {
-                  const parentModelName = parent.class.split(".").pop();
+                  const parentModelName = (parent as DjangoParent).class
+                    .split(".")
+                    .pop();
                   const coreParent = Object.values(BuiltInModelTypes).find(
                     (v) => v.model === parentModelName
                   );
@@ -304,7 +320,16 @@ export const useUserStore = defineStore({
               [],
               coreParents
             );
+
+            if (model.parents) {
+              parentUserModels.set(
+                modelid,
+                model.parents.filter((p) => p.type === "user") as UserParent[]
+              );
+            }
+
             this.modelids.set(coreModel as DjangoModel, modelid);
+            this.coreModels[modelid] = coreModel as DjangoModel;
             Object.keys(model.fields).forEach((fieldid) => {
               const field = this.fields[fieldid];
               const typeSplit = field.type.split(".");
@@ -343,6 +368,14 @@ export const useUserStore = defineStore({
               this.relationshipids.set(coreRelationship, relationshipid);
             });
           });
+        });
+      });
+
+      parentUserModels.forEach((values, modelid) => {
+        const childModel = this.coreModels[modelid];
+        values.forEach((parent) => {
+          const parentModel = this.coreModels[parent.model];
+          childModel.parents.push(parentModel);
         });
       });
     },

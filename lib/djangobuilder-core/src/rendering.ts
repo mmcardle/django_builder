@@ -52,7 +52,7 @@ import DjangoProject, {
   DjangoRelationship,
   ManyToManyRelationship,
 } from "./api";
-import type { IDjangoModel } from "./types";
+import type { IBuiltInModel, IDjangoModel, IParentField } from "./types";
 
 Handlebars.registerHelper("raw", (options) => options.fn());
 Handlebars.registerHelper(
@@ -67,6 +67,20 @@ Handlebars.registerHelper(
 );
 Handlebars.registerHelper("relatedTo", (relationship: DjangoRelationship) =>
   relationship.relatedTo()
+);
+
+Handlebars.registerHelper("modelParents", (modelParents: IParentField[]) =>
+  {
+    if (modelParents.length === 0) {
+      return "models.Model"
+    }
+    return modelParents.map(parent => {
+      if ((parent as IBuiltInModel).model) {
+        return (parent as IBuiltInModel).model
+      }
+      return parent.name
+    }).join(", ")
+  }
 );
 
 Handlebars.registerHelper("importModule", (field: DjangoField) =>

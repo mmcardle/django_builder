@@ -10,7 +10,7 @@ from django.contrib.postgres.fields import ranges as postgres_range_fields
 
 {{#app.models}}
 
-class {{name}}({{#each parents}}{{name}}{{else}}models.Model{{/each}}):
+class {{name}}({{#modelParents parents}}{{/modelParents}}):
 
     {{#relationships}}
     {{name}} = models.{{type.name}}("{{ relatedTo .}}", {{{args}}})

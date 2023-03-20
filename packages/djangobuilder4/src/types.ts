@@ -16,10 +16,18 @@ type App = {
   models: Record<string, boolean>;
 };
 
-type Parent = {
+type DjangoParent = {
   type: string;
   class: string;
-}
+};
+
+type UserParent = {
+  type: string;
+  app: string;
+  model: string;
+};
+
+type Parent = DjangoParent | UserParent;
 
 type Model = {
   id: string;
@@ -48,4 +56,13 @@ type Relationship = {
   args: string;
 };
 
-export type { Project, App, Model, Field, Relationship };
+export type {
+  Project,
+  App,
+  Model,
+  Field,
+  Relationship,
+  Parent,
+  UserParent,
+  DjangoParent,
+};

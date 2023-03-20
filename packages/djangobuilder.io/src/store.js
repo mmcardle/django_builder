@@ -44,11 +44,11 @@ export default new Vuex.Store({
         }
       })
       const models_no_parents = unordered_models.filter(model => model !== undefined).filter((model) => {
-        return model.parents.length === 0
+        return model.parents?.length === 0
       })
 
       const models_with_parents = unordered_models.filter(model => model !== undefined).filter((model) => {
-        return model.parents.length !== 0
+        return model.parents?.length !== 0
       })
 
       const models_with_parents_sorted = models_with_parents.sort((model, otherModel) => {

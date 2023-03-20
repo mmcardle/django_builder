@@ -472,7 +472,7 @@ async function handleUpdateRelationship(
                 >
                   {{ model.name }}
                 </EditableText>
-                ({{ model.parents.map((p) => p.name).join(",") }}):
+                ({{ model.parents.map((p) => p.name).join(", ") }}):
                 <br />
                 <br />
                 <div
