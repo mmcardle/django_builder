@@ -1,0 +1,43 @@
+// Deny read/write access to all users under any conditions
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /projects/{project} {
+
+      allow read, write, list: if request.auth.uid == resource.data.owner;
+      allow create: if request.auth.uid != null;
+
+      // match /apps/{app} {
+      //  allow read, write, list: if request.auth.uid == resource.data.owner;
+      //  allow create: if request.auth.uid != null;
+      // }
+
+    }
+    match /apps/{project} {
+
+      allow read, write, list: if request.auth.uid == resource.data.owner;
+      allow create: if request.auth.uid != null;
+
+    }
+
+    match /models/{project} {
+
+      allow read, write, list: if request.auth.uid == resource.data.owner;
+      allow create: if request.auth.uid != null;
+
+    }
+
+    match /fields/{project} {
+
+      allow read, write, list: if request.auth.uid == resource.data.owner;
+      allow create: if request.auth.uid != null;
+
+    }
+
+    match /relationships/{project} {
+
+      allow read, write, list: if request.auth.uid == resource.data.owner;
+      allow create: if request.auth.uid != null;
+
+    }
+  }
+}
