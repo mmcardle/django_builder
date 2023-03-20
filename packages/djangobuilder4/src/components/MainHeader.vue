@@ -18,7 +18,12 @@ async function logout() {
 <template>
   <div class="wrapper">
     <div class="welcome">
-      Welcome to Django Builder - {{ user?.displayName || user?.email }}
+      <router-link :to="{ name: 'projects' }">
+        <img src="/public/favicon-16x16.png" />
+      </router-link>
+      <div class="welcome-text">
+        Welcome to Django Builder - {{ user?.displayName || user?.email }}
+      </div>
     </div>
     <slot></slot>
     <div class="header-link">
@@ -34,25 +39,34 @@ async function logout() {
 .wrapper {
   margin: 4px;
   clear: both;
+  display: flex;
 }
 .logout-button {
   display: inline;
   margin: 0;
 }
 .welcome {
-  display: inline-block;
+  display: flex;
   padding: 10px;
   border: 1px dotted lightgray;
+}
+.welcome img {
+  border: 1px dotted lightgray;
+  margin-right: 10px;
+}
+.welcome .welcome-text {
+  margin-top: 2px;
 }
 .header-link {
   display: inline-block;
   padding: 10px;
   border: 1px dotted lightgray;
   margin-left: 5px;
+  margin-top: 2px;
 }
 .header-link-right {
   display: inline-block;
-  padding: 10px;
+  padding: 8px;
   border: 1px dotted lightgray;
   margin-left: 5px;
 }
