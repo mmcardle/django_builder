@@ -14,7 +14,7 @@
     "dev": "yarn --cwd packages/djangobuilder4 dev",
     "build": "yarn run build_io && yarn build_4",
     "build_io": "yarn --cwd packages/djangobuilder.io build",
-    "build_4": "yarn --cwd packages/djangobuilder4 build-only",
+    "build_4": "yarn --cwd packages/djangobuilder4 build",
     "lint": "yarn --cwd packages/djangobuilder4 lint",
     "devio": "yarn --cwd packages/djangobuilder.io dev",
     "buildio": "yarn --cwd packages/djangobuilder.io build",

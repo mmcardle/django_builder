@@ -16,12 +16,17 @@ type App = {
   models: Record<string, boolean>;
 };
 
+type Parent = {
+  type: string;
+  class: string;
+}
+
 type Model = {
   id: string;
   owner: string;
   name: string;
   abstract: boolean;
-  parents: Array<string>;
+  parents: Array<Parent>;
   relationships: Record<string, boolean>;
   fields: Record<string, boolean>;
 };

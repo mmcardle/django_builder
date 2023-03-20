@@ -4,6 +4,7 @@ interface IBuiltInModel {
 }
 
 type IRelatedField = IDjangoModel | IBuiltInModel;
+type IParentField = IDjangoModel | IBuiltInModel;
 
 interface IFieldType {
   name: string
@@ -40,7 +41,7 @@ interface IDjangoModel {
   primaryKey: string;
   nameField: string;
   relatedName: string;
-  parents: Array<IDjangoModel|IBuiltInModel>;
+  parents: Array<IParentField>;
   fields: Array<IDjangoField>;
   relationships: Array<IDjangoRelationship>;
   addField(name: string, type: IFieldType, args: string, editable: boolean ): IDjangoField;
@@ -85,6 +86,7 @@ export type {
   IDjangoField,
   IDjangoRelationship,
   IRelatedField,
+  IParentField,
   IBuiltInModel,
   IFieldType,
   IFieldTestDefault,

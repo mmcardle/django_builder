@@ -19,7 +19,7 @@ async function logout() {
   <div class="wrapper">
     <div class="welcome">
       <router-link :to="{ name: 'projects' }">
-        <img src="/public/favicon-16x16.png" />
+        <img src="/favicon-16x16.png" />
       </router-link>
       <div class="welcome-text">
         Welcome to Django Builder - {{ user?.displayName || user?.email }}

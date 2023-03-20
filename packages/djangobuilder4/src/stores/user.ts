@@ -37,6 +37,7 @@ import type {
   IDjangoField,
   IDjangoModel,
   IDjangoRelationship,
+  IParentField,
 } from "@djangobuilder/core/src/types";
 import type { DjangoEntity } from "@djangobuilder/core/src/rendering";
 
@@ -282,7 +283,27 @@ export const useUserStore = defineStore({
               console.error("Missing model", modelid, "from app", appid);
               return;
             }
-            const coreModel = coreApp.addModel(model.name, model.abstract);
+            const coreParents: IParentField[] = [];
+            if (model.parents) {
+              model.parents
+                .filter((p) => p.type === "django")
+                .forEach((parent) => {
+                  const parentModelName = parent.class.split(".").pop();
+                  const coreParent = Object.values(BuiltInModelTypes).find(
+                    (v) => v.model === parentModelName
+                  );
+                  if (coreParent) {
+                    coreParents.push(coreParent);
+                  }
+                });
+            }
+            const coreModel = coreApp.addModel(
+              model.name,
+              model.abstract,
+              [],
+              [],
+              coreParents
+            );
             this.modelids.set(coreModel as DjangoModel, modelid);
             Object.keys(model.fields).forEach((fieldid) => {
               const field = this.fields[fieldid];

@@ -470,8 +470,42 @@ async function handleUpdateRelationship(
                   :value="model.name"
                   v-on:update="(name) => handleUpdateModel(model as DjangoModel, { name })"
                 >
-                  {{ model.name }}({{ model.parents }})
+                  {{ model.name }}
                 </EditableText>
+                ({{ model.parents.map((p) => p.name).join(",") }}):
+                <br />
+                <br />
+                <div
+                  v-for="relationship in model.relationships"
+                  :key="relationship.name"
+                >
+                  {{ "&nbsp;&nbsp;" }}
+                  <EditableText
+                    :value="relationship.name"
+                    v-on:update="(name) => handleUpdateRelationship(relationship as DjangoRelationship, { name })"
+                  >
+                    {{ relationship.name }}
+                  </EditableText>
+                  =
+                  <EditableChoice
+                    :value="relationship.type.name"
+                    :choices="relationshipChoices"
+                    v-on:update="(type) => handleUpdateRelationship(relationship as DjangoRelationship, { type })"
+                    >{{ relationship.type.name }}</EditableChoice
+                  >
+
+                  (<EditableText
+                    :value="relationship.args"
+                    v-on:update="(args) => handleUpdateRelationship(relationship as DjangoRelationship, { args })"
+                  >
+                    {{ relationship.args }} </EditableText
+                  >)
+                </div>
+                <div>
+                  {{ "&nbsp;&nbsp;" }}
+                  <button>Add Relationship</button>
+                </div>
+                <br />
                 <div v-for="field in model.fields" :key="field.name">
                   {{ "&nbsp;&nbsp;" }}
                   <EditableText
@@ -497,67 +531,7 @@ async function handleUpdateRelationship(
                 </div>
                 <div>
                   {{ "&nbsp;&nbsp;" }}
-                  <EditableText value="new_field" v-on:update="(name) => {}">
-                    {{ "new_field" }}
-                  </EditableText>
-                  =
-                  <EditableChoice
-                    value="CharField"
-                    :choices="fieldChoices"
-                    v-on:update="(type) => {}"
-                    >{{ "CharField" }}</EditableChoice
-                  >
-                  (<EditableText :value="''" v-on:update="(args) => {}">
-                    {{ "" }} </EditableText
-                  >)
-                  {{ "&nbsp;&nbsp;" }}
-                  <button>Add</button>
-                </div>
-                <div
-                  v-for="relationship in model.relationships"
-                  :key="relationship.name"
-                >
-                  <EditableText
-                    :value="relationship.name"
-                    v-on:update="(name) => handleUpdateRelationship(relationship as DjangoRelationship, { name })"
-                  >
-                    {{ relationship.name }}
-                  </EditableText>
-                  =
-                  <EditableChoice
-                    :value="relationship.type.name"
-                    :choices="relationshipChoices"
-                    v-on:update="(type) => handleUpdateRelationship(relationship as DjangoRelationship, { type })"
-                    >{{ relationship.type.name }}</EditableChoice
-                  >
-
-                  (<EditableText
-                    :value="relationship.args"
-                    v-on:update="(args) => handleUpdateRelationship(relationship as DjangoRelationship, { args })"
-                  >
-                    {{ relationship.args }} </EditableText
-                  >)
-                </div>
-                <div>
-                  {{ "&nbsp;&nbsp;" }}
-                  <EditableText
-                    value="new_relationship"
-                    v-on:update="(name) => {}"
-                  >
-                    {{ "new_relationship" }}
-                  </EditableText>
-                  =
-                  <EditableChoice
-                    value="ForeignKey"
-                    :choices="relationshipChoices"
-                    v-on:update="(type) => {}"
-                    >{{ "ForeignKey" }}</EditableChoice
-                  >
-
-                  (<EditableText value="" v-on:update="(args) => {}">
-                    {{ "" }} </EditableText
-                  >)
-                  <button>Add</button>
+                  <button>Add Field</button>
                 </div>
                 {{ "&nbsp;" }}
               </div>
