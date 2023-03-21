@@ -11,7 +11,7 @@ import type {
   IRelatedField,
   IParentField,
 } from "./types";
-
+import * as crypto from "crypto";
 import { DjangoVersion } from "./types";
 
 type ModelType = {
@@ -217,6 +217,7 @@ export const BuiltInModelTypes = {
 };
 
 export class DjangoRelationship implements IDjangoRelationship {
+  id: string;
   model: IDjangoModel;
   name: string;
   type: IRelationshipType;
@@ -228,8 +229,10 @@ export class DjangoRelationship implements IDjangoRelationship {
     name: string,
     type: IRelationshipType,
     to: IRelatedField,
-    args: string
+    args: string,
+    id?: string
   ) {
+    this.id = id ? id : crypto.randomUUID();
     this.model = model;
     this.name = name;
     this.type = type;
@@ -395,6 +398,7 @@ export const RelationshipTypes = {
 };
 
 export class DjangoField implements IDjangoField {
+  id: string;
   model: IDjangoModel;
   name: string;
   type: FieldType;
@@ -406,8 +410,10 @@ export class DjangoField implements IDjangoField {
     name: string,
     type: FieldType,
     args: string,
-    is_editable_field?: boolean
+    is_editable_field?: boolean,
+    id?: string
   ) {
+    this.id = id ? id : crypto.randomUUID();
     this.model = model;
     this.name = name;
     this.type = type;
@@ -434,6 +440,7 @@ export class DjangoField implements IDjangoField {
 }
 
 export class DjangoModel implements IDjangoModel {
+  id: string;
   app: IDjangoApp;
   name: string;
   fields: IDjangoField[] = [];
@@ -452,8 +459,10 @@ export class DjangoModel implements IDjangoModel {
     abstract?: boolean,
     fields?: IDjangoField[],
     relationships?: IDjangoRelationship[],
-    parents?: IParentField[]
+    parents?: IParentField[],
+    id?: string
   ) {
+    this.id = id ? id : crypto.randomUUID();
     this.app = app;
     this.name = name;
     this.relatedName = name;
@@ -503,11 +512,13 @@ export class DjangoModel implements IDjangoModel {
 }
 
 export class DjangoApp implements IDjangoApp {
+  id: string;
   project: IDjangoProject;
   name: string;
   models: IDjangoModel[] = [];
 
-  constructor(project: IDjangoProject, name: string, models?: IDjangoModel[]) {
+  constructor(project: IDjangoProject, name: string, models?: IDjangoModel[], id?: string) {
+    this.id = id ? id : crypto.randomUUID();
     this.project = project;
     this.name = name;
     if (models) {
@@ -520,8 +531,8 @@ export class DjangoApp implements IDjangoApp {
     abstract: boolean | undefined = false,
     fields?: Array<IDjangoField>,
     relationships?: Array<IDjangoRelationship>,
-    parents?: Array<IParentField>
-  ): IDjangoModel {
+    parents?: Array<IParentField>,
+  ): DjangoModel {
     const model = new DjangoModel(
       this,
       name,
@@ -546,6 +557,7 @@ export interface DjangoProjectParams {
 }
 
 class DjangoProject implements IDjangoProject {
+  id: string;
   name: string;
   version: DjangoVersion;
   description: string;
@@ -562,8 +574,10 @@ class DjangoProject implements IDjangoProject {
     name: string,
     description = "",
     version: DjangoVersion = DjangoVersion.DJANGO4,
-    options: DjangoProjectParams = { htmx: true, channels: true }
+    options: DjangoProjectParams = { htmx: true, channels: true },
+    id?: string
   ) {
+    this.id = id ? id : crypto.randomUUID();
     this.name = name;
     this.description = description;
     this.version = version;

@@ -10,7 +10,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt -r requirements-dev.txt
 
-docker-compose up postgres -d
+docker-compose up -d postgres
 while ! echo exit | nc localhost 5432; do sleep 1; done
 
 python manage.py makemigrations

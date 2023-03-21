@@ -408,10 +408,10 @@ export default class Renderer {
         );
       });
 
-      let model_children: DjangoProjectFile[] = Object.keys(APP_FILES).map(
+      const model_children: DjangoProjectFile[] = Object.keys(APP_FILES).map(
         (render_name) => {
           return {
-            resource: app,
+            resource: app as DjangoApp,
             type: DjangoProjectFileResource.APP_FILE,
             path: app.name + "/" + render_name,
             name: render_name,
@@ -420,35 +420,40 @@ export default class Renderer {
         }
       );
 
-      model_children = model_children.concat(
-        {
-          resource: app,
-          type: DjangoProjectFileResource.FOLDER,
-          path: app.name + "/templates/" + app.name,
-          name: "templates/" + app.name,
-          folder: true,
-          children: model_templates,
-        },
-        {
-          resource: app,
-          type: DjangoProjectFileResource.FOLDER,
-          path: app.name + "/migrations/",
-          name: "migrations",
-          folder: true,
-          children: [
-            {
-              resource: app,
-              type: DjangoProjectFileResource.APP_FILE,
-              path: app.name + "/migrations/__init__.py",
-              name: "__init__.py",
-              folder: false,
-            },
-          ],
-        }
-      );
+      const appTemplateRootFolder: DjangoProjectFile = {
+        resource: app as DjangoApp,
+        type: DjangoProjectFileResource.FOLDER,
+        path: app.name + "/templates/" + app.name,
+        name: "templates/" + app.name,
+        folder: true,
+        children: model_templates,
+      }
+
+      model_children.push(appTemplateRootFolder)
+
+      const migrationInit: DjangoProjectFile = {
+        resource: app as DjangoApp,
+        type: DjangoProjectFileResource.APP_FILE,
+        path: app.name + "/migrations/__init__.py",
+        name: "__init__.py",
+        folder: false,
+      }
+
+      const migrationFolder = {
+        resource: app as DjangoApp,
+        type: DjangoProjectFileResource.FOLDER,
+        path: app.name + "/migrations/",
+        name: "migrations",
+        folder: true,
+        children: [
+          migrationInit
+        ],
+      }
+
+      model_children.push(migrationFolder)
 
       return {
-        resource: app,
+        resource: app as DjangoApp,
         type: DjangoProjectFileResource.FOLDER,
         path: app.name,
         name: app.name,
@@ -478,19 +483,25 @@ export default class Renderer {
         folder: true,
         children: project.apps.map((app) => {
           return {
-            resource: app,
+            resource: app as DjangoApp,
             type: DjangoProjectFileResource.APP_FILE,
             path: "tests/" + app.name,
             name: app.name,
             folder: true,
             children: Object.keys(APP_TEST_FILES).map((render_name) => {
               return {
-                resource: app,
+                resource: app as DjangoApp,
                 type: DjangoProjectFileResource.APP_FILE,
                 path: "tests/" + app.name + "/" + render_name,
                 name: render_name,
                 folder: false,
               };
+            }).concat({
+              resource: app as DjangoApp,
+              type: DjangoProjectFileResource.APP_FILE,
+              path: "tests/" + app.name + "/__init__.py",
+              name: "__init__.py",
+              folder: false,
             }),
           };
         }),
@@ -502,7 +513,7 @@ export default class Renderer {
     ).map((name) => {
       const path = "templates/" + name;
       return {
-        resource: project,
+        resource: project as DjangoProject,
         type: DjangoProjectFileResource.PROJECT_FILE,
         path,
         name,
@@ -512,7 +523,7 @@ export default class Renderer {
 
     const template_items: DjangoProjectFile[] = [
       {
-        resource: project,
+        resource: project as DjangoProject,
         type: DjangoProjectFileResource.FOLDER,
         path: "templates",
         name: "templates",
@@ -520,6 +531,7 @@ export default class Renderer {
         children: template_children,
       },
     ];
+
 
     return [
       project_item,

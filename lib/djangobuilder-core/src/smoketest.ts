@@ -12,19 +12,13 @@ import DjangoProject, {
   DateRangeField, ForeignKey, OneToOneRelationship, ManyToManyRelationship,
   DateField, DateTimeField, BinaryField,
 } from "./api";
-
-import ModelImporter from "./importer"
-
 //import { exit } from 'process';
 
-const importer = new ModelImporter();
-
-const modelsfile = fs.readFileSync("../../ThePetZoo/birds/models.py", "utf-8")
-
-const modelsDescriptions = importer.import_models([modelsfile.toString()])
-
-//console.log(modelsDescriptions)
-//exit()
+//import ModelImporter from "./importer"
+// const importer = new ModelImporter();
+// const modelsfile = fs.readFileSync("../../ThePetZoo/birds/models.py", "utf-8")
+// const modelsDescriptions = importer.import_models([modelsfile.toString()])
+// console.log(modelsDescriptions)
 
 const zooProject = new DjangoProject(
   "ThePetZoo",
@@ -33,7 +27,8 @@ const zooProject = new DjangoProject(
   {
     channels: true,
     htmx: true
-  }
+  },
+  "1234"
 );
 
 const mammalsApp: DjangoApp = zooProject.addApp("mammals");
@@ -140,7 +135,7 @@ console.log(renderer.renderAppFile("forms.py", birdsApp));
 console.log(renderer.renderAppFile("test_views.py", birdsApp));
 
 const projectTree = renderer.asTree(zooProject);
-console.log("ProjectTree", JSON.stringify(projectTree, null, 2))
+//console.log("ProjectTree", JSON.stringify(projectTree, null, 2))
 
 const tarballContent = renderer.tarballContent(zooProject);
 const outputFile = `${zooProject.name}.tar`;
@@ -151,4 +146,3 @@ try {
 } catch (err) {
   console.error(err);
 }
-

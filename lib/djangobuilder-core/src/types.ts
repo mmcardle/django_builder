@@ -1,3 +1,7 @@
+interface Identifiable {
+  id : string;
+}
+
 interface IBuiltInModel {
   name: string;
   model: string;
@@ -18,14 +22,14 @@ interface IRelationshipType {
 
 type IFieldTestDefault = Array<number| string> | number | string;
 
-interface IDjangoField {
+interface IDjangoField extends Identifiable {
   model: IDjangoModel;
   name: string;
   type: IFieldType;
   args: string;
 }
 
-interface IDjangoRelationship {
+interface IDjangoRelationship extends Identifiable {
   model: IDjangoModel;
   name: string;
   type: IRelationshipType;
@@ -34,7 +38,7 @@ interface IDjangoRelationship {
   relatedTo(): string;
 }
 
-interface IDjangoModel {
+interface IDjangoModel extends Identifiable {
   app: IDjangoApp;
   name: string;
   abstract: boolean;
@@ -49,7 +53,7 @@ interface IDjangoModel {
   setNameField(fieldName: string): void;
 }
 
-interface IDjangoApp {
+interface IDjangoApp extends Identifiable {
   project: IDjangoProject;
   name: string;
   models: Array<IDjangoModel>;
@@ -63,7 +67,7 @@ enum DjangoVersion {
   DJANGO4 = 4.1,
 }
 
-interface IDjangoProject {
+interface IDjangoProject extends Identifiable {
   name: string;
   description: string;
   version: DjangoVersion;
