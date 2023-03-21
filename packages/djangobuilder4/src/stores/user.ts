@@ -90,8 +90,10 @@ export const useUserStore = defineStore({
   actions: {
     getAllModelSubIds(model: DjangoModel) {
       return {
-        fieldids: model.fields.map(field => field.id),
-        relationshipids: model.relationships.map(relationship => relationship.id),
+        fieldids: model.fields.map((field) => field.id),
+        relationshipids: model.relationships.map(
+          (relationship) => relationship.id
+        ),
       };
     },
     getAllAppSubIds(app: DjangoApp) {
@@ -117,8 +119,8 @@ export const useUserStore = defineStore({
       const project_model_ids: Array<string> = [];
       const project_field_ids: Array<string> = [];
       const project_relationship_ids: Array<string> = [];
-      const project_app_ids: Array<string> = project.apps.map(app => app.id);
-      
+      const project_app_ids: Array<string> = project.apps.map((app) => app.id);
+
       project.apps.forEach((app: DjangoApp) => {
         const { modelids, fieldids, relationshipids } =
           this.getAllAppSubIds(app);
@@ -281,12 +283,11 @@ export const useUserStore = defineStore({
               const typeSplit = field.type.split(".");
               const typeSplitLast = typeSplit[typeSplit.length - 1];
               const fieldType = FieldTypes[typeSplitLast];
-              // TODO - editable?
-              const coreField = coreModel.addField(
+              coreModel.addField(
                 field.name,
                 fieldType,
                 field.args,
-                false,
+                false, // TODO - editable?
                 fieldid
               );
             });
@@ -305,7 +306,7 @@ export const useUserStore = defineStore({
                 (bim) => bim.model === toSplitLast
               );
 
-              const coreRelationship = coreModel.addRelationship(
+              coreModel.addRelationship(
                 relationship.name,
                 relationshipType,
                 relationshipTo || AuthUser,
@@ -321,7 +322,11 @@ export const useUserStore = defineStore({
         const childModel = this.coreModels[modelid];
         values.forEach((parent) => {
           const parentModel = this.coreModels[parent.model];
-          childModel.parents.push(parentModel);
+          if (parentModel) {
+            childModel.parents.push(parentModel);
+          } else {
+            console.warn("Missing parent model", parent.model);
+          }
         });
       });
     },
@@ -369,7 +374,7 @@ export const useUserStore = defineStore({
     },
     async deleteProject(project: DjangoProject) {
       const { appids, modelids, fieldids, relationshipids } =
-      this.getAllProjectSubIds(project);
+        this.getAllProjectSubIds(project);
       const batch = await getDeleteBatch(
         [],
         appids,
@@ -391,7 +396,7 @@ export const useUserStore = defineStore({
       await deleteApp(app.project.id, app.id, batch);
     },
     async deleteModel(model: DjangoModel) {
-    const { fieldids, relationshipids } = this.getAllModelSubIds(model);
+      const { fieldids, relationshipids } = this.getAllModelSubIds(model);
       const batch = await getDeleteBatch(
         [],
         [],

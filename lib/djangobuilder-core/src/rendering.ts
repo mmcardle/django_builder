@@ -74,7 +74,7 @@ Handlebars.registerHelper("modelParents", (modelParents: IParentField[]) =>
     if (modelParents.length === 0) {
       return "models.Model"
     }
-    return modelParents.map(parent => {
+    return modelParents.filter(parent => parent !== undefined).map(parent => {
       if ((parent as IBuiltInModel).model) {
         return (parent as IBuiltInModel).model
       }

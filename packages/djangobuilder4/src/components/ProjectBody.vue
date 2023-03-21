@@ -45,7 +45,7 @@ const route = useRoute();
 const projectId = route.params.id as string;
 
 const userStore = useUserStore();
-const { getApp } = storeToRefs(userStore);
+const { getCoreApp } = storeToRefs(userStore);
 
 const renderer = new Renderer();
 
@@ -200,8 +200,8 @@ function renderFile(): void {
       break;
     }
     case DjangoProjectFileResource.APP_FILE: {
-      const appid = (djangoFile.resource as DjangoApp).id;
-      const updatedApp = getApp.value(appid);
+      const updatedApp = getCoreApp.value(djangoFile.resource.id);
+      activeApp.value = updatedApp;
       modelChoices.value = updatedApp.models as DjangoModel[];
       code.value = renderer.renderAppFile(djangoFile.name, updatedApp);
       break;
@@ -277,7 +277,6 @@ async function handleUpdateModel(
   args: Record<string, string | boolean | number>
 ) {
   await userStore.updateModel(model, args);
-  activeApp.value = userStore.getCoreApp(model.app.id);
 }
 
 async function handleUpdateField(
@@ -285,7 +284,6 @@ async function handleUpdateField(
   args: Record<string, string | boolean | number>
 ) {
   await userStore.updateField(field, args);
-  activeApp.value = userStore.getCoreApp(field.model.app.id);
 }
 
 async function handleUpdateRelationship(
@@ -293,7 +291,6 @@ async function handleUpdateRelationship(
   args: Record<string, string | boolean | number>
 ) {
   await userStore.updateRelationship(relationship, args);
-  activeApp.value = userStore.getCoreApp(relationship.model.app.id);
 }
 </script>
 
@@ -456,7 +453,7 @@ async function handleUpdateRelationship(
         </div>
         <div id="code-content">
           <div id="code">
-            <div v-if="edittingModels">
+            <div v-if="edittingModels && activeApp">
               {{ "&nbsp;" }}
               <div
                 v-for="model in (activeApp as DjangoApp).models"
