@@ -11,7 +11,6 @@ import type {
   IRelatedField,
   IParentField,
 } from "./types";
-import * as crypto from "crypto";
 import { DjangoVersion } from "./types";
 
 type ModelType = {
@@ -218,14 +217,14 @@ export const BuiltInModelTypes = {
 
 export class DjangoRelationship implements IDjangoRelationship {
   id: string;
-  model: IDjangoModel;
+  model: DjangoModel;
   name: string;
   type: IRelationshipType;
   to: IRelatedField;
   args: string;
 
   constructor(
-    model: IDjangoModel,
+    model: DjangoModel,
     name: string,
     type: IRelationshipType,
     to: IRelatedField,
@@ -399,14 +398,14 @@ export const RelationshipTypes = {
 
 export class DjangoField implements IDjangoField {
   id: string;
-  model: IDjangoModel;
+  model: DjangoModel;
   name: string;
   type: FieldType;
   args: string;
   is_editable_field: boolean;
 
   constructor(
-    model: IDjangoModel,
+    model: DjangoModel,
     name: string,
     type: FieldType,
     args: string,
@@ -441,10 +440,10 @@ export class DjangoField implements IDjangoField {
 
 export class DjangoModel implements IDjangoModel {
   id: string;
-  app: IDjangoApp;
+  app: DjangoApp;
   name: string;
-  fields: IDjangoField[] = [];
-  relationships: IDjangoRelationship[] = [];
+  fields: DjangoField[] = [];
+  relationships: DjangoRelationship[] = [];
 
   parents: IParentField[] = [];
   abstract = false;
@@ -454,11 +453,11 @@ export class DjangoModel implements IDjangoModel {
   relatedName: string;
 
   constructor(
-    app: IDjangoApp,
+    app: DjangoApp,
     name: string,
     abstract?: boolean,
-    fields?: IDjangoField[],
-    relationships?: IDjangoRelationship[],
+    fields?: DjangoField[],
+    relationships?: DjangoRelationship[],
     parents?: IParentField[],
     id?: string
   ) {
@@ -492,9 +491,10 @@ export class DjangoModel implements IDjangoModel {
     name: string,
     type: FieldType,
     args: string,
-    editable?: boolean
+    editable?: boolean,
+    id?: string,
   ): DjangoField {
-    const field = new DjangoField(this, name, type, args, editable);
+    const field = new DjangoField(this, name, type, args, editable, id);
     this.fields.push(field);
     return field;
   }
@@ -503,9 +503,10 @@ export class DjangoModel implements IDjangoModel {
     name: string,
     type: RelationshipType,
     to: IRelatedField,
-    args: string
+    args: string,
+    id?: string,
   ): DjangoRelationship {
-    const relationship = new DjangoRelationship(this, name, type, to, args);
+    const relationship = new DjangoRelationship(this, name, type, to, args, id);
     this.relationships.push(relationship);
     return relationship;
   }
@@ -513,11 +514,11 @@ export class DjangoModel implements IDjangoModel {
 
 export class DjangoApp implements IDjangoApp {
   id: string;
-  project: IDjangoProject;
+  project: DjangoProject;
   name: string;
-  models: IDjangoModel[] = [];
+  models: DjangoModel[] = [];
 
-  constructor(project: IDjangoProject, name: string, models?: IDjangoModel[], id?: string) {
+  constructor(project: DjangoProject, name: string, models?: DjangoModel[], id?: string) {
     this.id = id ? id : crypto.randomUUID();
     this.project = project;
     this.name = name;
@@ -529,9 +530,10 @@ export class DjangoApp implements IDjangoApp {
   addModel(
     name: string,
     abstract: boolean | undefined = false,
-    fields?: Array<IDjangoField>,
-    relationships?: Array<IDjangoRelationship>,
+    fields?: Array<DjangoField>,
+    relationships?: Array<DjangoRelationship>,
     parents?: Array<IParentField>,
+    id?: string
   ): DjangoModel {
     const model = new DjangoModel(
       this,
@@ -539,7 +541,8 @@ export class DjangoApp implements IDjangoApp {
       abstract,
       fields,
       relationships,
-      parents
+      parents,
+      id
     );
     this.models.push(model);
     return model;
@@ -564,7 +567,7 @@ class DjangoProject implements IDjangoProject {
   channels: boolean;
   htmx: boolean;
   postgres: boolean;
-  apps: Array<IDjangoApp> = [];
+  apps: Array<DjangoApp> = [];
   middlewares: Array<string> = [];
 
   // TODO
@@ -591,8 +594,8 @@ class DjangoProject implements IDjangoProject {
     }
   }
 
-  addApp(name: string): DjangoApp {
-    const app = new DjangoApp(this, name);
+  addApp(name: string, models?: DjangoModel[], id?: string): DjangoApp {
+    const app = new DjangoApp(this, name, models, id);
     this.apps.push(app);
     return app;
   }

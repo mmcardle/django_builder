@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { DjangoVersion, type DjangoProject } from "@djangobuilder/core";
 import { useUserStore } from "../stores/user";
-import { storeToRefs } from "pinia";
 import { updateProject } from "@/api";
 import EditableText from "@/widgets/EditableText.vue";
 import EditableBoolean from "@/widgets/EditableBoolean.vue";
@@ -19,8 +18,6 @@ const DjangoVersionChoices = {
 };
 
 const userStore = useUserStore();
-const { getProjectId } = storeToRefs(userStore);
-const projectid = getProjectId.value(props.project);
 
 function handleDeleteProject() {
   userStore.deleteProject(props.project);
@@ -29,7 +26,7 @@ function handleDeleteProject() {
 
 <template>
   <div class="project-header">
-    <router-link :to="{ name: 'project', params: { id: projectid } }">{{
+    <router-link :to="{ name: 'project', params: { id: project.id } }">{{
       project.name
     }}</router-link>
 

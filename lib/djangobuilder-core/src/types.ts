@@ -74,6 +74,7 @@ interface IDjangoProject extends Identifiable {
   channels: boolean;
   htmx: boolean;
   postgres: boolean;
+  pillow: boolean;
   apps: Array<IDjangoApp>;
   middlewares: Array<string>;
   addApp(name: string): IDjangoApp;

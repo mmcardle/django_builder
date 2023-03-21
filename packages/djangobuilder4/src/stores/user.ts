@@ -57,14 +57,6 @@ function getRecordOrThrow(record: Record<string, DjangoEntity>, id: string) {
   return value;
 }
 
-function getMapOrThrow(map: Map<DjangoEntity, string>, id: DjangoEntity) {
-  const value = map.get(id);
-  if (!value) {
-    throw new Error(`${id} not found in ${map}`);
-  }
-  return value;
-}
-
 export const useUserStore = defineStore({
   id: "user",
   state: () => ({
@@ -79,11 +71,6 @@ export const useUserStore = defineStore({
     coreProjects: {} as Record<string, DjangoProject>,
     coreApps: {} as Record<string, DjangoApp>,
     coreModels: {} as Record<string, DjangoModel>,
-    projectids: {} as Map<DjangoProject, string>,
-    appids: {} as Map<DjangoApp, string>,
-    modelids: {} as Map<DjangoModel, string>,
-    fieldids: {} as Map<DjangoField, string>,
-    relationshipids: {} as Map<DjangoRelationship, string>,
   }),
   getters: {
     getLoaded: (state) => state.loaded,
@@ -99,52 +86,25 @@ export const useUserStore = defineStore({
       getRecordOrThrow(state.coreProjects, projectid) as DjangoProject,
     getCoreApp: (state) => (appid: string) =>
       getRecordOrThrow(state.coreApps, appid) as DjangoApp,
-    getCoreModel: (state) => (modelid: string) =>
-      getRecordOrThrow(state.coreModels, modelid) as DjangoModel,
-    getProjectId: (state) => (project: DjangoProject) =>
-      getMapOrThrow(state.projectids, project),
-    getAppId: (state) => (app: DjangoApp) => getMapOrThrow(state.appids, app),
-    getModelId: (state) => (app: DjangoModel) =>
-      getMapOrThrow(state.modelids, app),
-    getFieldId: (state) => (field: DjangoField) =>
-      getMapOrThrow(state.fieldids, field),
-    getRelationshipId: (state) => (relationship: DjangoRelationship) =>
-      getMapOrThrow(state.relationshipids, relationship),
   },
   actions: {
     getAllModelSubIds(model: DjangoModel) {
-      const field_ids: Array<string> = [];
-      const relationship_ids: Array<string> = [];
-
-      model.fields.forEach((field: IDjangoField) => {
-        const fieldid = this.fieldids.get(field as DjangoField);
-        if (fieldid) field_ids.push(fieldid);
-      });
-      model.relationships.forEach((relationship: IDjangoRelationship) => {
-        const relationshipid = this.relationshipids.get(
-          relationship as DjangoRelationship
-        );
-        if (relationshipid) relationship_ids.push(relationshipid);
-      });
-
       return {
-        field_ids,
-        relationship_ids,
+        fieldids: model.fields.map(field => field.id),
+        relationshipids: model.relationships.map(relationship => relationship.id),
       };
     },
     getAllAppSubIds(app: DjangoApp) {
-      const app_model_ids: Array<string> = [];
       const app_field_ids: Array<string> = [];
       const app_relationship_ids: Array<string> = [];
+      const app_model_ids = app.models.map((model) => model.id);
 
       app.models.forEach((model: IDjangoModel) => {
-        const modelid = this.modelids.get(model as DjangoModel);
-        if (modelid) app_model_ids.push(modelid);
-        const { field_ids, relationship_ids } = this.getAllModelSubIds(
+        const { fieldids, relationshipids } = this.getAllModelSubIds(
           model as DjangoModel
         );
-        app_field_ids.push(...field_ids);
-        app_relationship_ids.push(...relationship_ids);
+        app_field_ids.push(...fieldids);
+        app_relationship_ids.push(...relationshipids);
       });
 
       return {
@@ -154,22 +114,19 @@ export const useUserStore = defineStore({
       };
     },
     getAllProjectSubIds(project: DjangoProject) {
-      const project_app_ids: Array<string> = [];
       const project_model_ids: Array<string> = [];
       const project_field_ids: Array<string> = [];
       const project_relationship_ids: Array<string> = [];
-
-      project.apps.forEach((app: IDjangoApp) => {
+      const project_app_ids: Array<string> = project.apps.map(app => app.id);
+      
+      project.apps.forEach((app: DjangoApp) => {
         const { modelids, fieldids, relationshipids } =
           this.getAllAppSubIds(app);
         project_model_ids.push(...modelids);
         project_field_ids.push(...fieldids);
         project_relationship_ids.push(...relationshipids);
-        const appid = this.appids.get(app as DjangoApp);
-        if (appid) {
-          project_app_ids.push(appid);
-        }
       });
+
       return {
         appids: project_app_ids,
         modelids: project_model_ids,
@@ -238,11 +195,6 @@ export const useUserStore = defineStore({
       this.fields = {};
       this.relationships = {};
       this.coreProjects = {};
-      this.projectids = new Map();
-      this.appids = new Map();
-      this.modelids = new Map();
-      this.fieldids = new Map();
-      this.relationshipids = new Map();
       this.loaded = false;
     },
     async loginUser(user: User | null) {
@@ -254,11 +206,6 @@ export const useUserStore = defineStore({
         this.fields = {};
         this.relationships = {};
         this.coreProjects = {};
-        this.projectids = new Map();
-        this.appids = new Map();
-        this.modelids = new Map();
-        this.fieldids = new Map();
-        this.relationshipids = new Map();
         await this.fetchUserData(user);
       }
     },
@@ -276,10 +223,10 @@ export const useUserStore = defineStore({
           project.name,
           project.description,
           coreVersion,
-          { channels: project.channels, htmx: project.htmx }
+          { channels: project.channels, htmx: project.htmx },
+          projectid
         );
-        this.projectids.set(coreProject, projectid);
-        this.coreProjects[projectid] = coreProject;
+        this.coreProjects[project.id] = coreProject;
 
         Object.keys(project.apps).forEach((appid) => {
           const app = this.apps[appid];
@@ -287,8 +234,7 @@ export const useUserStore = defineStore({
             console.error("Missing app", appid, "from project", project);
             return;
           }
-          const coreApp = coreProject.addApp(app.name);
-          this.appids.set(coreApp, appid);
+          const coreApp = coreProject.addApp(app.name, [], appid);
           this.coreApps[appid] = coreApp;
           Object.keys(app.models).forEach((modelid) => {
             const model = this.models[modelid];
@@ -318,7 +264,8 @@ export const useUserStore = defineStore({
               model.abstract,
               [],
               [],
-              coreParents
+              coreParents,
+              modelid
             );
 
             if (model.parents) {
@@ -328,7 +275,6 @@ export const useUserStore = defineStore({
               );
             }
 
-            this.modelids.set(coreModel as DjangoModel, modelid);
             this.coreModels[modelid] = coreModel as DjangoModel;
             Object.keys(model.fields).forEach((fieldid) => {
               const field = this.fields[fieldid];
@@ -340,9 +286,9 @@ export const useUserStore = defineStore({
                 field.name,
                 fieldType,
                 field.args,
-                false
+                false,
+                fieldid
               );
-              this.fieldids.set(coreField as DjangoField, fieldid);
             });
 
             Object.keys(model.relationships).forEach((relationshipid) => {
@@ -363,9 +309,9 @@ export const useUserStore = defineStore({
                 relationship.name,
                 relationshipType,
                 relationshipTo || AuthUser,
-                relationship.args
+                relationship.args,
+                relationshipid
               );
-              this.relationshipids.set(coreRelationship, relationshipid);
             });
           });
         });
@@ -380,102 +326,80 @@ export const useUserStore = defineStore({
       });
     },
     async addApp(project: DjangoProject, name: string) {
-      const projectid = this.getProjectId(project);
       const user = this.getUser;
       if (user) {
-        addApp(user, projectid, name);
+        addApp(user, project.id, name);
       }
     },
     async addModel(app: DjangoApp, name: string, abstract: boolean) {
-      const appid = this.getAppId(app);
       const user = this.getUser;
       if (user) {
-        addModel(user, appid, name, abstract);
+        addModel(user, app.id, name, abstract);
       }
     },
     async updateProject(
       project: DjangoProject,
       args: Record<string, string | boolean | number>
     ) {
-      const projectid = this.getProjectId(project);
-      await updateProject(projectid, args);
+      await updateProject(project.id, args);
     },
     async updateApp(
       app: DjangoApp,
       args: Record<string, string | boolean | number>
     ) {
-      const appid = this.getAppId(app);
-      await updateApp(appid, args);
+      await updateApp(app.id, args);
     },
     async updateModel(
       model: DjangoModel,
       args: Record<string, string | boolean | number>
     ) {
-      const modelid = this.getModelId(model);
-      await updateModel(modelid, args);
+      await updateModel(model.id, args);
     },
     async updateField(
       field: DjangoField,
       args: Record<string, string | boolean | number>
     ) {
-      const fieldid = this.getFieldId(field);
-      await updateField(fieldid, args);
+      await updateField(field.id, args);
     },
     async updateRelationship(
       relationship: DjangoRelationship,
       args: Record<string, string | boolean | number>
     ) {
-      const relationshipid = this.getRelationshipId(relationship);
-      await updateRelationship(relationshipid, args);
+      await updateRelationship(relationship.id, args);
     },
     async deleteProject(project: DjangoProject) {
       const { appids, modelids, fieldids, relationshipids } =
-        this.getAllProjectSubIds(project);
-      const projectid = this.projectids.get(project);
-      if (projectid) {
-        const batch = await getDeleteBatch(
-          [],
-          appids,
-          modelids,
-          fieldids,
-          relationshipids
-        );
-        await deleteProject(projectid, batch);
-      }
+      this.getAllProjectSubIds(project);
+      const batch = await getDeleteBatch(
+        [],
+        appids,
+        modelids,
+        fieldids,
+        relationshipids
+      );
+      await deleteProject(project.id, batch);
     },
     async deleteApp(app: DjangoApp) {
       const { modelids, fieldids, relationshipids } = this.getAllAppSubIds(app);
-      const appid = this.appids.get(app);
-      const projectid = this.projectids.get(app.project as DjangoProject);
-      if (appid && projectid) {
-        const batch = await getDeleteBatch(
-          [],
-          [],
-          modelids,
-          fieldids,
-          relationshipids
-        );
-        await deleteApp(projectid, appid, batch);
-      } else {
-        throw new Error("Could not delete app " + app.name);
-      }
+      const batch = await getDeleteBatch(
+        [],
+        [],
+        modelids,
+        fieldids,
+        relationshipids
+      );
+      await deleteApp(app.project.id, app.id, batch);
     },
     async deleteModel(model: DjangoModel) {
-      const { field_ids, relationship_ids } = this.getAllModelSubIds(model);
-      const modelid = this.modelids.get(model);
-      const appid = this.appids.get(model.app);
-      if (modelid && appid) {
-        const batch = await getDeleteBatch(
-          [],
-          [],
-          [modelid],
-          field_ids,
-          relationship_ids
-        );
-        await deleteModel(appid, modelid, batch);
-      } else {
-        throw new Error("Could not delete model " + model.name);
-      }
+    const { fieldids, relationshipids } = this.getAllModelSubIds(model);
+      const batch = await getDeleteBatch(
+        [],
+        [],
+        [model.id],
+        fieldids,
+        relationshipids
+      );
+      await deleteModel(model.app.id, model.id, batch);
     },
     async fetchUserData(user: User) {
       this.loaded = false;

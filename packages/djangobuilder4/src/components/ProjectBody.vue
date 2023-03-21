@@ -45,7 +45,7 @@ const route = useRoute();
 const projectId = route.params.id as string;
 
 const userStore = useUserStore();
-const { getAppId, getCoreApp } = storeToRefs(userStore);
+const { getApp } = storeToRefs(userStore);
 
 const renderer = new Renderer();
 
@@ -200,8 +200,8 @@ function renderFile(): void {
       break;
     }
     case DjangoProjectFileResource.APP_FILE: {
-      const appid = getAppId.value(djangoFile.resource as DjangoApp);
-      const updatedApp = getCoreApp.value(appid);
+      const appid = (djangoFile.resource as DjangoApp).id;
+      const updatedApp = getApp.value(appid);
       modelChoices.value = updatedApp.models as DjangoModel[];
       code.value = renderer.renderAppFile(djangoFile.name, updatedApp);
       break;
@@ -277,8 +277,7 @@ async function handleUpdateModel(
   args: Record<string, string | boolean | number>
 ) {
   await userStore.updateModel(model, args);
-  const appid = userStore.getAppId(model.app);
-  activeApp.value = userStore.getCoreApp(appid);
+  activeApp.value = userStore.getCoreApp(model.app.id);
 }
 
 async function handleUpdateField(
@@ -286,8 +285,7 @@ async function handleUpdateField(
   args: Record<string, string | boolean | number>
 ) {
   await userStore.updateField(field, args);
-  const appid = userStore.getAppId(field.model.app);
-  activeApp.value = userStore.getCoreApp(appid);
+  activeApp.value = userStore.getCoreApp(field.model.app.id);
 }
 
 async function handleUpdateRelationship(
@@ -295,8 +293,7 @@ async function handleUpdateRelationship(
   args: Record<string, string | boolean | number>
 ) {
   await userStore.updateRelationship(relationship, args);
-  const appid = userStore.getAppId(relationship.model.app);
-  activeApp.value = userStore.getCoreApp(appid);
+  activeApp.value = userStore.getCoreApp(relationship.model.app.id);
 }
 </script>
 

@@ -11,35 +11,28 @@ import { useUserStore } from "./stores/user";
 import { storeToRefs } from "pinia";
 
 const userStore = useUserStore();
-const { getProjectId, getAppId, getModelId, getFieldId, getRelationshipId } =
+const { getFieldId, getRelationshipId } =
   storeToRefs(userStore);
 
 async function updateProject(
   project: DjangoProject,
   args: Record<string, string | boolean | number>
 ) {
-  const projectid = getProjectId.value(project);
-  await updateDoc(doc(db, "projects", projectid), args);
+  await updateDoc(doc(db, "projects", project.id), args);
 }
 
 async function updateApp(
   app: DjangoApp,
   args: Record<string, string | boolean | number>
 ) {
-  const appid = getAppId.value(app);
-  if (appid) {
-    await updateDoc(doc(db, "apps", appid), args);
-  } else {
-    throw new Error(`No app ${app.name}`);
-  }
+  await updateDoc(doc(db, "apps", app.id), args);
 }
 
 async function updateModel(
   model: DjangoModel,
   args: Record<string, string | boolean | number>
 ) {
-  const modelid = getModelId.value(model);
-  await updateDoc(doc(db, "models", modelid), args);
+  await updateDoc(doc(db, "models", model.id), args);
 }
 
 async function updateField(
