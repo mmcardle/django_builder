@@ -14,8 +14,11 @@ import {
   deleteProject,
   deleteApp,
   deleteModel,
+  deleteField,
   addApp,
   addModel,
+  addField,
+  deleteRelationship,
 } from "../firebase";
 import type { Unsubscribe, User } from "firebase/auth";
 import type {
@@ -342,6 +345,12 @@ export const useUserStore = defineStore({
         addModel(user, app.id, name, abstract);
       }
     },
+    async addField(model: DjangoModel, name: string, type: string, args: string) {
+      const user = this.getUser;
+      if (user) {
+        addField(user, model.id, name, type, args);
+      }
+    },
     async updateProject(
       project: DjangoProject,
       args: Record<string, string | boolean | number>
@@ -405,6 +414,12 @@ export const useUserStore = defineStore({
         relationshipids
       );
       await deleteModel(model.app.id, model.id, batch);
+    },
+    async deleteField(field: DjangoField) {
+      await deleteField(field.model.id, field.id);
+    },
+    async deleteRelationship(field: DjangoRelationship) {
+      await deleteRelationship(field.model.id, field.id);
     },
     async fetchUserData(user: User) {
       this.loaded = false;

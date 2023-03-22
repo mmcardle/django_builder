@@ -50,7 +50,7 @@ function handleAbortEdit(): void {
 <template>
   <span @click="handleEdit" v-if="!editing">
     <slot></slot>
-    <em v-if="editedValue === ''">Click to edit</em>
+    <em v-if="value === '' && editedValue === ''">Click to edit</em>
   </span>
   <template v-else>
     <input

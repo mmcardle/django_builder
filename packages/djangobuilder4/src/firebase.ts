@@ -6,7 +6,7 @@ import {
 } from "firebase/auth";
 import {
   addDoc,
-  deleteField,
+  deleteField as firebaseDeleteField,
   doc,
   getFirestore,
   onSnapshot,
@@ -148,6 +148,24 @@ async function addModel(
   await updateDoc(appRef, { [`models.${modelRef.id}`]: true });
 }
 
+async function addField(
+  user: User,
+  modelid: string,
+  name: string,
+  type: string,
+  args: string,
+) {
+  const newFieldData = {
+    owner: user.uid,
+    name,
+    type,
+    args,
+  };
+  const fieldRef = await addDoc(collection(db, "fields"), newFieldData);
+  const modelRef = doc(db, "models", modelid);
+  await updateDoc(modelRef, { [`fields.${fieldRef.id}`]: true });
+}
+
 async function getDeleteBatch(
   projectids: Array<string>,
   appids: Array<string>,
@@ -186,7 +204,7 @@ async function deleteApp(projectid: string, appid: string, batch?: WriteBatch) {
   const appRef = doc(db, "apps", appid);
   batch.delete(appRef);
   const projectRef = doc(db, "projects", projectid);
-  batch.update(projectRef, { [`apps.${appid}`]: deleteField() });
+  batch.update(projectRef, { [`apps.${appid}`]: firebaseDeleteField() });
   batch.commit().catch((err) => console.error("Failed to delete app!", err));
 }
 
@@ -198,7 +216,31 @@ async function deleteModel(appid: string, modelid: string, batch?: WriteBatch) {
   const modelRef = doc(db, "models", modelid);
   batch.delete(modelRef);
   const appRef = doc(db, "apps", appid);
-  batch.update(appRef, { [`models.${modelid}`]: deleteField() });
+  batch.update(appRef, { [`models.${modelid}`]: firebaseDeleteField() });
+  await batch.commit().catch((err) => console.error("Failed!", err));
+}
+
+async function deleteField(modelid: string, fieldid: string, batch?: WriteBatch) {
+  console.debug("Delete field ", fieldid, "from ", modelid);
+  if (!batch) {
+    batch = writeBatch(db);
+  }
+  const fieldRef = doc(db, "fields", fieldid);
+  batch.delete(fieldRef);
+  const modelRef = doc(db, "models", modelid);
+  batch.update(modelRef, { [`fields.${fieldid}`]: firebaseDeleteField() });
+  await batch.commit().catch((err) => console.error("Failed!", err));
+}
+
+async function deleteRelationship(modelid: string, relationshipid: string, batch?: WriteBatch) {
+  console.debug("Delete relationship ", relationshipid, "from ", modelid);
+  if (!batch) {
+    batch = writeBatch(db);
+  }
+  const relationshipRef = doc(db, "relationships", relationshipid);
+  batch.delete(relationshipRef);
+  const modelRef = doc(db, "models", modelid);
+  batch.update(modelRef, { [`relationships.${relationshipid}`]: firebaseDeleteField() });
   await batch.commit().catch((err) => console.error("Failed!", err));
 }
 
@@ -275,6 +317,7 @@ export {
   createProject,
   addApp,
   addModel,
+  addField,
   updateProject,
   updateApp,
   updateModel,
@@ -284,4 +327,6 @@ export {
   deleteProject,
   deleteApp,
   deleteModel,
+  deleteField,
+  deleteRelationship,
 };

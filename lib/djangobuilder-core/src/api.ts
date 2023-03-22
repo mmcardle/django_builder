@@ -251,25 +251,28 @@ export class FieldType implements IFieldType {
   testDefault: IFieldTestDefault;
   is_postgres = false;
   is_postgres_range = false;
-  viewDefault: string | undefined;
+  viewDefault?: string;
+  argsDefault?: string;
 
   constructor(
     name: string,
     testDefault: IFieldTestDefault,
     is_postgres?: boolean,
     is_postgres_range?: boolean,
-    viewDefault?: string
+    viewDefault?: string,
+    argsDefault?: string
   ) {
     this.name = name;
     this.testDefault = testDefault;
     this.is_postgres = is_postgres === undefined ? false : true;
     this.is_postgres_range = is_postgres_range === undefined ? false : true;
     this.viewDefault = viewDefault;
+    this.argsDefault = argsDefault;
   }
 }
 
-export const CharField = new FieldType("CharField", "'text'");
-export const TextField = new FieldType("TextField", "'some\\ntext'");
+export const CharField = new FieldType("CharField", "'text'", false, false, undefined, "max_length=30");
+export const TextField = new FieldType("TextField", "'some\\ntext'", false, false, undefined, "max_length=100");
 export const JSONField = new FieldType("JSONField", '\'{"value": "key"}\'');
 export const DateField = new FieldType("DateField", "'2022-01-01'");
 export const DateTimeField = new FieldType(

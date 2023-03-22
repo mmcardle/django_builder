@@ -10,7 +10,7 @@ export interface Props {
 
 withDefaults(defineProps<Props>(), {
   message: "Confirm",
-  text: "&#10539;",
+  text: "",
   style: "",
 });
 
@@ -37,16 +37,19 @@ function handleAbortConfirm(): void {
 </script>
 
 <template>
-  <button :style="style" class="button" @click="handleConfirm()">
-    {{ text }}
-  </button>
-  <PopUp v-if="confirming">
-    <div>
-      {{ message }}
-    </div>
-    <button class="cancel-button" @click="handleAbortConfirm()">Cancel</button>
-    <button class="confirm-button" @click="handleEndConfirm()">Confirm</button>
-  </PopUp>
+  <span class="wrapper">
+    <button :style="style" class="button" @click="handleConfirm()">
+      {{ text }}
+      <slot></slot>
+    </button>
+    <PopUp v-if="confirming">
+      <div>
+        {{ message }}
+      </div>
+      <button class="cancel-button" @click="handleAbortConfirm()">Cancel</button>
+      <button class="confirm-button" @click="handleEndConfirm()">Confirm</button>
+    </PopUp>
+  </span>
 </template>
 
 <style scoped>
