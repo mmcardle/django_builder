@@ -171,9 +171,45 @@ async function handleCreateProject() {
 #projects {
   display: grid;
   grid-auto-rows: 1fr;
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   grid-template-columns: repeat(3, 1fr);
 }
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-height: 600px) {
+  #projects {
+    grid-template-rows: repeat(1, 1fr);
+  }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-height: 600px) {
+  #projects {
+    grid-template-rows: repeat(2, 1fr);
+  }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-height: 768px) {
+  #projects {
+    grid-template-rows: repeat(3, 1fr);
+  }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-height: 992px) {
+  #projects {
+    grid-template-rows: repeat(4, 1fr);
+  }
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-height: 1200px) {
+  #projects {
+    grid-template-rows: repeat(5, 1fr);
+  }
+}
+
 .project-header-wrapper {
   border: 1px dotted lightgray;
   margin: 10px;

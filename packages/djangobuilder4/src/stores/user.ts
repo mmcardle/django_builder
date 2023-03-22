@@ -75,12 +75,12 @@ export const useUserStore = defineStore({
   getters: {
     getLoaded: (state) => state.loaded,
     getUser: (state) => state.user,
-    getProjects: (state) => state.projects,
+    /*getProjects: (state) => state.projects,
     getProject: (state) => (projectid: string) => state.projects[projectid],
     getApps: (state) => state.apps,
     getModels: (state) => state.models,
     getFields: (state) => state.fields,
-    getRelationships: (state) => state.relationships,
+    getRelationships: (state) => state.relationships,*/
     getCoreProjects: (state) => state.coreProjects,
     getCoreProject: (state) => (projectid: string) =>
       getRecordOrThrow(state.coreProjects, projectid) as DjangoProject,

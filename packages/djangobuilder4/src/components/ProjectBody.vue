@@ -6,10 +6,10 @@ import { storeToRefs } from "pinia";
 import ProjectTree from "./ProjectTree.vue";
 import EditableTextPopUp from "@/widgets/EditableTextPopUp.vue";
 import EditableText from "@/widgets/EditableText.vue";
-import EditableChoice from "@/widgets/EditableChoice.vue";
 import EditableBoolean from "@/widgets/EditableBoolean.vue";
 import PopUp from "@/widgets/PopUp.vue";
 import ConfirmableButton from "@/widgets/ConfirmableButton.vue";
+import ModelEditor from "@/components/ModelEditor.vue";
 
 import {
   DjangoApp,
@@ -17,9 +17,7 @@ import {
   DjangoModel,
   DjangoProject,
   Renderer,
-  FieldTypes,
   DjangoRelationship,
-  RelationshipTypes,
 } from "@djangobuilder/core";
 import {
   DjangoProjectFileResource,
@@ -30,16 +28,6 @@ import router from "@/router";
 const props = defineProps<{
   project: DjangoProject;
 }>();
-
-const fieldChoices: Record<string, string> = {};
-Object.keys(FieldTypes).forEach((fieldType) => {
-  fieldChoices[fieldType] = fieldType;
-});
-
-const relationshipChoices: Record<string, string> = {};
-Object.keys(RelationshipTypes).forEach((relationshipType) => {
-  relationshipChoices[relationshipType] = relationshipType;
-});
 
 const route = useRoute();
 const projectId = route.params.id as string;
@@ -315,7 +303,7 @@ async function handleUpdateRelationship(
         <span class="project-button">
           <ConfirmableButton
             :message="`Are you sure you wish to delete Project '${props.project.name}'?`"
-            :text="'&#128465;'"
+            text="Delete Project"
             @confirm="handleDeleteProject()"
           />
         </span>
@@ -453,83 +441,13 @@ async function handleUpdateRelationship(
         </div>
         <div id="code-content">
           <div id="code">
-            <div v-if="edittingModels && activeApp">
-              {{ "&nbsp;" }}
-              <div
-                v-for="model in (activeApp as DjangoApp).models"
-                :key="model.name"
-              >
-                {{ "class "
-                }}<EditableText
-                  :value="model.name"
-                  v-on:update="(name) => handleUpdateModel(model as DjangoModel, { name })"
-                >
-                  {{ model.name }}
-                </EditableText>
-                ({{ model.parents.map((p) => p.name).join(", ") }}):
-                <br />
-                <br />
-                <div
-                  v-for="relationship in model.relationships"
-                  :key="relationship.name"
-                >
-                  {{ "&nbsp;&nbsp;" }}
-                  <EditableText
-                    :value="relationship.name"
-                    v-on:update="(name) => handleUpdateRelationship(relationship as DjangoRelationship, { name })"
-                  >
-                    {{ relationship.name }}
-                  </EditableText>
-                  =
-                  <EditableChoice
-                    :value="relationship.type.name"
-                    :choices="relationshipChoices"
-                    v-on:update="(type) => handleUpdateRelationship(relationship as DjangoRelationship, { type })"
-                    >{{ relationship.type.name }}</EditableChoice
-                  >
-
-                  (<EditableText
-                    :value="relationship.args"
-                    v-on:update="(args) => handleUpdateRelationship(relationship as DjangoRelationship, { args })"
-                  >
-                    {{ relationship.args }} </EditableText
-                  >)
-                </div>
-                <div>
-                  {{ "&nbsp;&nbsp;" }}
-                  <button>Add Relationship</button>
-                </div>
-                <br />
-                <div v-for="field in model.fields" :key="field.name">
-                  {{ "&nbsp;&nbsp;" }}
-                  <EditableText
-                    :value="field.name"
-                    v-on:update="(name) => handleUpdateField(field as DjangoField, { name })"
-                  >
-                    {{ field.name }}
-                  </EditableText>
-                  =
-                  <EditableChoice
-                    :value="field.type.name"
-                    :choices="fieldChoices"
-                    v-on:update="(type) => handleUpdateField(field as DjangoField, { type })"
-                    >{{ field.type.name }}</EditableChoice
-                  >
-
-                  (<EditableText
-                    :value="field.args"
-                    v-on:update="(args) => handleUpdateField(field as DjangoField, { args })"
-                  >
-                    {{ field.args }} </EditableText
-                  >)
-                </div>
-                <div>
-                  {{ "&nbsp;&nbsp;" }}
-                  <button>Add Field</button>
-                </div>
-                {{ "&nbsp;" }}
-              </div>
-            </div>
+            <ModelEditor
+              v-if="edittingModels && activeApp"
+              :app="activeApp"
+              @updateField="handleUpdateField"
+              @updateModel="handleUpdateModel"
+              @updateRelationship="handleUpdateRelationship"
+            />
             <highlightjs v-else :language="language" :code="code" />
           </div>
         </div>
@@ -568,8 +486,8 @@ pre code.hljs {
   padding: 5px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: start;
+  gap: 20px;
 }
 #add-app {
   display: inline-block;
