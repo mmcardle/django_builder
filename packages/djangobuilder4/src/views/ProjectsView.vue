@@ -11,7 +11,7 @@ import { DjangoVersion } from "@djangobuilder/core";
 import { createProject } from "@/firebase";
 
 const userStore = useUserStore();
-const { getLoaded, getCoreProjects } = storeToRefs(userStore);
+const { isLoaded, getCoreProjects } = storeToRefs(userStore);
 
 const creatingProject = ref(false);
 
@@ -56,7 +56,7 @@ async function handleCreateProject() {
 <template>
   <main id="content">
     <MainHeader />
-    <div id="projects" v-if="getLoaded">
+    <div id="projects" v-if="isLoaded">
       <div
         v-for="(project, id) in getCoreProjects"
         v-bind:key="id"

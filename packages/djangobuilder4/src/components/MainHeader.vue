@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { storeToRefs } from "pinia";
 import { auth } from "../firebase";
 import { useRouter } from "vue-router";
 import { useUserStore } from "../stores/user";
@@ -6,7 +7,7 @@ import { useUserStore } from "../stores/user";
 const router = useRouter();
 const userStore = useUserStore();
 
-const user = userStore.getUser;
+const { user } = storeToRefs(userStore);
 
 async function logout() {
   await auth.signOut();

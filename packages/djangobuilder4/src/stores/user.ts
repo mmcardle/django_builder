@@ -65,7 +65,7 @@ export const useUserStore = defineStore({
   state: () => ({
     loaded: false,
     subscriptions: [] as Array<Unsubscribe>,
-    user: null as User | null,
+    firebaseUser: null as User | null,
     projects: {} as Record<string, Project>,
     apps: {} as Record<string, App>,
     models: {} as Record<string, Model>,
@@ -76,14 +76,8 @@ export const useUserStore = defineStore({
     coreModels: {} as Record<string, DjangoModel>,
   }),
   getters: {
-    getLoaded: (state) => state.loaded,
-    getUser: (state) => state.user,
-    /*getProjects: (state) => state.projects,
-    getProject: (state) => (projectid: string) => state.projects[projectid],
-    getApps: (state) => state.apps,
-    getModels: (state) => state.models,
-    getFields: (state) => state.fields,
-    getRelationships: (state) => state.relationships,*/
+    isLoaded: (state) => state.loaded,
+    user: (state) => state.firebaseUser,
     getCoreProjects: (state) => state.coreProjects,
     getCoreProject: (state) => (projectid: string) =>
       getRecordOrThrow(state.coreProjects, projectid) as DjangoProject,
@@ -187,13 +181,13 @@ export const useUserStore = defineStore({
       }
     },
     setUser(user: User | null) {
-      this.user = user;
+      this.firebaseUser = user;
     },
     logoutUser() {
       this.subscriptions.forEach((unsub) => {
         unsub();
       });
-      this.user = null;
+      this.firebaseUser = null;
       this.projects = {};
       this.apps = {};
       this.models = {};
@@ -203,7 +197,7 @@ export const useUserStore = defineStore({
       this.loaded = false;
     },
     async loginUser(user: User | null) {
-      this.user = user;
+      this.firebaseUser = user;
       if (user) {
         this.projects = {};
         this.apps = {};
@@ -334,19 +328,19 @@ export const useUserStore = defineStore({
       });
     },
     async addApp(project: DjangoProject, name: string) {
-      const user = this.getUser;
+      const user = this.user;
       if (user) {
         addApp(user, project.id, name);
       }
     },
     async addModel(app: DjangoApp, name: string, abstract: boolean) {
-      const user = this.getUser;
+      const user = this.user;
       if (user) {
         addModel(user, app.id, name, abstract);
       }
     },
     async addField(model: DjangoModel, name: string, type: string, args: string) {
-      const user = this.getUser;
+      const user = this.user;
       if (user) {
         addField(user, model.id, name, type, args);
       }
