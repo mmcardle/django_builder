@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from "vue";
+import { ref, nextTick, onMounted, watch } from "vue";
 
 export interface Props {
   value: string;
+  remain_open?: boolean;
+  block: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   value: "",
+  remain_open: false,
+  block: false,
 });
 
 const emit = defineEmits<{
@@ -14,17 +18,26 @@ const emit = defineEmits<{
   (e: "abort"): void;
 }>();
 
+console.log("VAL", props.value);
+
 const editRef = ref();
-const editing = ref(false);
+const editing = ref(props.remain_open);
 const aborted = ref(false);
 const editedValue = ref(props.value);
 
 function handleEdit() {
-  editing.value = true;
+  editing.value = props.remain_open || true;
   nextTick(() => {
     editRef.value.focus();
   });
 }
+
+watch(
+  () => props.value,
+  (newValue) => {
+    editedValue.value = newValue;
+  }
+);
 
 onMounted(() => {
   nextTick(() => {
@@ -36,12 +49,12 @@ function handleFinishEdit() {
   if (!aborted.value) {
     emit("update", editedValue.value);
   }
-  editing.value = false;
+  editing.value = props.remain_open || false;
 }
 
 function handleAbortEdit(): void {
   aborted.value = true;
-  editing.value = false;
+  editing.value = props.remain_open || false;
   editedValue.value = props.value;
   emit("abort");
 }
@@ -56,6 +69,7 @@ function handleAbortEdit(): void {
     <input
       ref="editRef"
       type="text"
+      :class="props.block ? 'block' : ''"
       v-model="editedValue"
       :size="Math.max(editedValue.length - 1, 6)"
       @blur="handleFinishEdit"
@@ -67,11 +81,11 @@ function handleAbortEdit(): void {
 
 <style scoped>
 input {
-  padding: 0px 0px;
+  padding: 1px 0px 2px 0px;
   border-top-style: hidden;
   border-right-style: hidden;
   border-left-style: hidden;
-  border-bottom-style: solid;
+  border-bottom-style: hidden;
   background-color: #eee;
   outline: none;
 }
@@ -81,5 +95,8 @@ span {
   border-bottom: 1px dashed gray;
   margin-top: 1px;
   padding-bottom: 1px;
+}
+.block {
+  width: 100%;
 }
 </style>

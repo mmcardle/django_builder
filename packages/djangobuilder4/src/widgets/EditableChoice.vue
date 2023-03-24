@@ -5,12 +5,14 @@ export interface Props {
   value: string;
   choices: Record<string, string>;
   display_as?: string;
+  remain_open?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   value: "",
   title: "Input",
   display_as: "select",
+  remain_open: false,
 });
 
 const randomname = (Math.random() + 1).toString(36).substring(7);
@@ -21,12 +23,12 @@ const emit = defineEmits<{
 }>();
 
 const editRef = ref();
-const editing = ref(false);
+const editing = ref(props.remain_open);
 const aborted = ref(false);
 const editedValue = ref(props.value);
 
 function handleEdit() {
-  editing.value = true;
+  editing.value = props.remain_open || true;
   nextTick(() => {
     if (editRef.value) {
       editRef.value.focus();
@@ -38,12 +40,18 @@ function handleFinishEdit() {
   if (!aborted.value) {
     emit("update", editedValue.value);
   }
-  editing.value = false;
+  editing.value = props.remain_open || false;
+}
+
+function handleChange() {
+  if (!aborted.value) {
+    emit("update", editedValue.value);
+  }
 }
 
 function handleAbortEdit(): void {
   aborted.value = true;
-  editing.value = false;
+  editing.value = props.remain_open || false;
   editedValue.value = props.value;
   emit("abort");
 }
@@ -59,6 +67,7 @@ function handleAbortEdit(): void {
       <select
         ref="editRef"
         @blur="handleFinishEdit"
+        @change="handleChange"
         @keydown.escape="handleAbortEdit"
         v-model="editedValue"
       >

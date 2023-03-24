@@ -358,6 +358,7 @@ async function handleUpdateRelationship(
                   <td>
                     <EditableText
                       :value="newModelData.name"
+                      block
                       v-on:update="(value) => (newModelData.name = value)"
                     >
                       {{ newModelData.name }}
@@ -376,7 +377,7 @@ async function handleUpdateRelationship(
                 <tr>
                   <td>
                     <button
-                      id="cancel-project-button"
+                      id="cancel-create-model-button"
                       @click="addingModel = false"
                     >
                       Cancel
