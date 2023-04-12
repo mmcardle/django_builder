@@ -207,7 +207,6 @@ export const ParentModelTypes = {
   [`${AbstractUser.name}`]: AbstractUser,
 };
 
-// TODO - typing
 export const BuiltInModelTypes = {
   [`${AuthUser.name}`]: AuthUser,
   [`${AbstractUser.name}`]: AbstractUser,

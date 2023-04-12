@@ -4,7 +4,7 @@ import { ref, nextTick, onMounted, watch } from "vue";
 export interface Props {
   value: string;
   remain_open?: boolean;
-  block: boolean;
+  block?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -17,8 +17,6 @@ const emit = defineEmits<{
   (e: "update", value: string): void;
   (e: "abort"): void;
 }>();
-
-console.log("VAL", props.value);
 
 const editRef = ref();
 const editing = ref(props.remain_open);
@@ -38,12 +36,6 @@ watch(
     editedValue.value = newValue;
   }
 );
-
-onMounted(() => {
-  nextTick(() => {
-    //handleEdit();
-  });
-});
 
 function handleFinishEdit() {
   if (!aborted.value) {

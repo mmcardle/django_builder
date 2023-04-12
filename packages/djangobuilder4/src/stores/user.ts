@@ -18,6 +18,7 @@ import {
   addApp,
   addModel,
   addField,
+  addRelationship,
   deleteRelationship,
 } from "../firebase";
 import type { Unsubscribe, User } from "firebase/auth";
@@ -339,10 +340,27 @@ export const useUserStore = defineStore({
         addModel(user, app.id, name, abstract);
       }
     },
-    async addField(model: DjangoModel, name: string, type: string, args: string) {
+    async addField(
+      model: DjangoModel,
+      name: string,
+      type: string,
+      args: string
+    ) {
       const user = this.user;
       if (user) {
         addField(user, model.id, name, type, args);
+      }
+    },
+    async addRelationship(
+      model: DjangoModel,
+      name: string,
+      type: string,
+      to: string,
+      args: string
+    ) {
+      const user = this.user;
+      if (user) {
+        addRelationship(user, model.id, name, type, to, args);
       }
     },
     async updateProject(

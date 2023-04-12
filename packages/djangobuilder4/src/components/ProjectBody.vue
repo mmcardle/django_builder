@@ -338,18 +338,10 @@ async function handleUpdateRelationship(
               active.type === DjangoProjectFileResource.APP_FILE
             "
           >
-            <button
-              id="code-tools-edit-models-button"
-              @click="edittingModels = !edittingModels"
-            >
+            <button @click="edittingModels = !edittingModels">
               Edit Models
             </button>
-            <button
-              id="code-tools-add-model-button"
-              @click="addingModel = true"
-            >
-              Add Model
-            </button>
+            <button @click="addingModel = true">Add Model</button>
             <PopUp v-if="active && addingModel">
               Add Model
               <table>
@@ -376,16 +368,10 @@ async function handleUpdateRelationship(
                 </tr>
                 <tr>
                   <td>
-                    <button
-                      id="cancel-create-model-button"
-                      @click="addingModel = false"
-                    >
-                      Cancel
-                    </button>
+                    <button @click="addingModel = false">Cancel</button>
                   </td>
                   <td>
                     <button
-                      id="create-model-button"
                       @click="handleAddModel(active?.resource as DjangoApp)"
                     >
                       Create
@@ -396,7 +382,6 @@ async function handleUpdateRelationship(
             </PopUp>
 
             <button
-              id="code-tools-add-model-button"
               :disabled="modelChoices.length == 0"
               @click="deletingModel = true"
             >
@@ -424,12 +409,7 @@ async function handleUpdateRelationship(
               >
                 OK
               </button>
-              <button
-                id="code-tools-cancel-delete-model-button"
-                @click="deletingModel = false"
-              >
-                Cancel
-              </button>
+              <button @click="deletingModel = false">Cancel</button>
             </PopUp>
             <ConfirmableButton
               v-if="activeApp"
@@ -555,9 +535,6 @@ pre code.hljs {
 #code-tools-buttons button {
   margin-left: 20px;
 }
-#code-tools button,
-#code-tools .button {
-}
 #code-tools-delete-model-select {
   display: block;
   width: 100%;
@@ -566,8 +543,6 @@ pre code.hljs {
 #code-tools-delete-model-button {
   float: right;
   margin-top: 4px;
-}
-#code-tools-cancel-delete-model-button {
 }
 #code-content {
   padding: 5px;

@@ -3,7 +3,7 @@ import { ref, nextTick } from "vue";
 
 export interface Props {
   value: string;
-  choices: Record<string, string>;
+  choices: object | string[];
   display_as?: string;
   remain_open?: boolean;
 }
@@ -26,6 +26,8 @@ const editRef = ref();
 const editing = ref(props.remain_open);
 const aborted = ref(false);
 const editedValue = ref(props.value);
+
+const isArray = ref(props.choices instanceof Array);
 
 function handleEdit() {
   editing.value = props.remain_open || true;
@@ -71,9 +73,16 @@ function handleAbortEdit(): void {
         @keydown.escape="handleAbortEdit"
         v-model="editedValue"
       >
-        <option v-for="choice in Object.keys(choices)" :key="choice">
-          {{ choices[choice] }}
-        </option>
+        <template v-if="!isArray">
+          <option v-for="choice in (choices as object)" :key="choice">
+            {{ choice }}
+          </option>
+        </template>
+        <template v-if="isArray">
+          <option v-for="choice in choices" :key="choice">
+            {{ choice }}
+          </option>
+        </template>
       </select>
     </template>
   </template>

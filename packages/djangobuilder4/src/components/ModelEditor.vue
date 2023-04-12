@@ -2,7 +2,11 @@
 import { reactive, ref } from "vue";
 import { useUserStore } from "@/stores/user";
 
-import { FieldTypes, RelationshipTypes } from "@djangobuilder/core";
+import {
+  BuiltInModelTypes,
+  FieldTypes,
+  RelationshipTypes,
+} from "@djangobuilder/core";
 import type {
   DjangoApp,
   DjangoField,
@@ -40,16 +44,11 @@ const emit = defineEmits<{
 const userStore = useUserStore();
 
 const addingField = ref("");
+const addingRelationship = ref("");
 
-const fieldChoices: Record<string, string> = {};
-Object.keys(FieldTypes).forEach((fieldType) => {
-  fieldChoices[fieldType] = fieldType;
-});
-
-const relationshipChoices: Record<string, string> = {};
-Object.keys(RelationshipTypes).forEach((relationshipType) => {
-  relationshipChoices[relationshipType] = relationshipType;
-});
+const fieldTypeChoices = Object.keys(FieldTypes);
+const relationshipTypeChoices = Object.keys(RelationshipTypes);
+const relationshipToChoices = Object.keys(BuiltInModelTypes);
 
 type NewFieldData = {
   name: string;
@@ -64,6 +63,23 @@ const defaultFieldData = {
 };
 const newFieldData = reactive<NewFieldData>(defaultFieldData);
 
+type NewRelationshipData = {
+  name: string;
+  type: string;
+  to: string;
+  args: string;
+};
+
+const defaultRelationshipData = {
+  name: "field",
+  type: "ForeignKey",
+  to: "",
+  args: "",
+};
+const newRelationshipData = reactive<NewRelationshipData>(
+  defaultRelationshipData
+);
+
 async function handleAddField(model: DjangoModel) {
   await userStore.addField(
     model,
@@ -74,6 +90,17 @@ async function handleAddField(model: DjangoModel) {
   addingField.value = "";
 }
 
+async function handleAddRelationship(model: DjangoModel) {
+  await userStore.addRelationship(
+    model,
+    newRelationshipData.name,
+    newRelationshipData.type,
+    newRelationshipData.to,
+    newRelationshipData.args
+  );
+  addingRelationship.value = "";
+}
+
 async function handleDeleteField(field: DjangoField) {
   await userStore.deleteField(field);
 }
@@ -82,7 +109,7 @@ async function handleDeleteRelationship(relationship: DjangoRelationship) {
   await userStore.deleteRelationship(relationship);
 }
 
-function updateType(type: string) {
+function updateFieldType(type: string) {
   newFieldData.type = type;
   const defaultArgs = FieldTypes[type].argsDefault;
   newFieldData.args = defaultArgs || "";
@@ -105,7 +132,13 @@ function updateType(type: string) {
       <br />
       <br />
       <div v-for="relationship in model.relationships" :key="relationship.id">
-        {{ "&nbsp;&nbsp;" }}
+        <ConfirmableButton
+          class="delete-button"
+          @confirm="() => handleDeleteRelationship(relationship)"
+        >
+          &#10539;
+        </ConfirmableButton>
+        {{ "&nbsp;" }}
         <EditableText
           :value="relationship.name"
           v-on:update="(name) => emit('updateRelationship', relationship as DjangoRelationship, { name })"
@@ -115,12 +148,19 @@ function updateType(type: string) {
         =
         <EditableChoice
           :value="relationship.type.name"
-          :choices="relationshipChoices"
-          :remain_open="true"
+          :choices="relationshipTypeChoices"
           v-on:update="(type) => emit('updateRelationship', relationship as DjangoRelationship, { type })"
         >
           {{ relationship.type.name }} </EditableChoice
         >(
+        <EditableChoice
+          :value="relationship.to.name"
+          :choices="relationshipToChoices"
+          v-on:update="(to) => emit('updateRelationship', relationship as DjangoRelationship, { to })"
+        >
+          {{ relationship.to.name }}
+        </EditableChoice>
+        ,
         <EditableText
           :value="relationship.args"
           v-on:update="(args) => emit('updateRelationship', relationship as DjangoRelationship, { args })"
@@ -128,20 +168,87 @@ function updateType(type: string) {
           {{ relationship.args }}
         </EditableText>
         )
-        <ConfirmableButton
-          class="delete-button"
-          @confirm="() => handleDeleteRelationship(relationship)"
-        >
-          &#10539;
-        </ConfirmableButton>
       </div>
       <div>
-        {{ "&nbsp;&nbsp;" }}
-        <button class="add-button">Add Relationship</button>
+        {{ "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" }}
+        <button class="add-button" @click="addingRelationship = model.id">
+          Add Relationship
+        </button>
+        <PopUp v-if="addingRelationship === model.id" location="left">
+          Add Relationship
+          <table>
+            <tr>
+              <td>Name</td>
+              <td>
+                <EditableText
+                  :value="newRelationshipData.name"
+                  :remain_open="true"
+                  block
+                  v-on:update="(value) => (newRelationshipData.name = value)"
+                >
+                  {{ newRelationshipData.name }}
+                </EditableText>
+              </td>
+            </tr>
+            <tr>
+              <td>Type</td>
+              <td>
+                <EditableChoice
+                  :value="newRelationshipData.type"
+                  :choices="relationshipTypeChoices"
+                  :remain_open="true"
+                  v-on:update="updateFieldType"
+                >
+                  {{ newRelationshipData.type }}
+                </EditableChoice>
+              </td>
+            </tr>
+            <tr>
+              <td>To</td>
+              <td>
+                <EditableChoice
+                  :value="newRelationshipData.to"
+                  :choices="relationshipToChoices"
+                  :remain_open="true"
+                  v-on:update="(to) => (newRelationshipData.to = to)"
+                >
+                  {{ newRelationshipData.type }}
+                </EditableChoice>
+              </td>
+            </tr>
+            <tr>
+              <td>Args</td>
+              <td>
+                <EditableText
+                  :value="newRelationshipData.args"
+                  :remain_open="true"
+                  block
+                  v-on:update="(args) => (newRelationshipData.args = args)"
+                >
+                  {{ newRelationshipData.args }}
+                </EditableText>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <button @click="addingRelationship = ''">Cancel</button>
+              </td>
+              <td>
+                <button @click="handleAddRelationship(model)">Create</button>
+              </td>
+            </tr>
+          </table>
+        </PopUp>
       </div>
       <br />
       <div v-for="field in model.fields" :key="field.id">
-        {{ "&nbsp;&nbsp;" }}
+        <ConfirmableButton
+          class="delete-button"
+          @confirm="() => handleDeleteField(field)"
+        >
+          &#10539;
+        </ConfirmableButton>
+        {{ "&nbsp;" }}
         <EditableText
           :value="field.name"
           v-on:update="(name) => emit('updateField', field as DjangoField, { name })"
@@ -151,7 +258,7 @@ function updateType(type: string) {
         =
         <EditableChoice
           :value="field.type.name"
-          :choices="fieldChoices"
+          :choices="fieldTypeChoices"
           v-on:update="(type) => emit('updateField', field as DjangoField, { type })"
           >{{ field.type.name }}
         </EditableChoice>
@@ -162,15 +269,9 @@ function updateType(type: string) {
         >
           {{ field.args }} </EditableText
         >)
-        <ConfirmableButton
-          class="delete-button"
-          @confirm="() => handleDeleteField(field)"
-        >
-          &#10539;
-        </ConfirmableButton>
       </div>
       <div>
-        {{ "&nbsp;&nbsp;" }}
+        {{ "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" }}
         <button
           class="add-button"
           :disabled="addingField !== ''"
@@ -199,9 +300,9 @@ function updateType(type: string) {
               <td>
                 <EditableChoice
                   :value="newFieldData.type"
-                  :choices="fieldChoices"
+                  :choices="fieldTypeChoices"
                   :remain_open="true"
-                  v-on:update="updateType"
+                  v-on:update="updateFieldType"
                 >
                   {{ newFieldData.type }}
                 </EditableChoice>
@@ -222,14 +323,10 @@ function updateType(type: string) {
             </tr>
             <tr>
               <td>
-                <button id="cancel-project-button" @click="addingField = ''">
-                  Cancel
-                </button>
+                <button @click="addingField = ''">Cancel</button>
               </td>
               <td>
-                <button id="create-model-button" @click="handleAddField(model)">
-                  Create
-                </button>
+                <button @click="handleAddField(model)">Create</button>
               </td>
             </tr>
           </table>
