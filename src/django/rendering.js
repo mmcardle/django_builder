@@ -786,7 +786,7 @@ CHANNEL_LAYERS = {
         detail_html += `\n         id="${field.name}" type="${html_field_type}"`
         detail_html += `\n         name="${field.name}" value="{{ object.${field.name} }}" disabled>`
       } else {
-        detail_html += `\n      <input class="form-control col-sm-10"'`
+        detail_html += `\n      <input class="form-control col-sm-10"`
         detail_html += `\n         id="${field.name}" type="${html_field_type}"`
         detail_html += `\n         name="${field.name}" value="{{ object.${field.name} }}">`
       }
