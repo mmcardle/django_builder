@@ -98,7 +98,7 @@ class Django {
       'django.db.models.SlugField': '"slug"',
       'django.db.models.IPAddressField': '"127.0.0.1"',
       'django.db.models.GenericIPAddressField': '"127.0.0.1"',
-      'django.db.models.NullBooleanField': 'true',
+      'django.db.models.NullBooleanField': 'True',
       'django.db.models.TimeField': '100',
       'django.db.models.BinaryField': "b'bytes'",
       'django.db.models.AutoField': '"auto"',
