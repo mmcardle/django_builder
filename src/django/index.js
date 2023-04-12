@@ -83,7 +83,7 @@ class Django {
       'django.db.models.CommaSeparatedIntegerField': '1,2,3',
       'django.db.models.BigAutoField': '"sometext"',
       'django.db.models.BigIntegerField': '1',
-      'django.db.models.BooleanField': 'true',
+      'django.db.models.BooleanField': 'True',
       'django.db.models.DateField': 'datetime.now()',
       'django.db.models.DateTimeField': 'datetime.now()',
       'django.db.models.DecimalField': '1.0',
