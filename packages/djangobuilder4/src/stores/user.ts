@@ -211,6 +211,7 @@ export const useUserStore = defineStore({
     },
     createCoreProjects() {
       const parentUserModels: Map<string, UserParent[]> = new Map();
+      const reletionshipsToInternalModels: Map<string, DjangoModel> = new Map();
 
       Object.entries(this.projects).forEach(([projectid, project]) => {
         const coreVersion = String(project.django_version).startsWith("2")
@@ -293,27 +294,54 @@ export const useUserStore = defineStore({
             Object.keys(model.relationships).forEach((relationshipid) => {
               const relationship = this.relationships[relationshipid];
 
-              const typeSplit = relationship.type.split(".");
-              const typeSplitLast = typeSplit[typeSplit.length - 1];
-              const relationshipType = RelationshipTypes[typeSplitLast];
-
-              // TODO - relationship.to might be to another model
               const toSplit = relationship.to.split(".");
               const toSplitLast = toSplit[toSplit.length - 1];
               const relationshipTo = Object.values(BuiltInModelTypes).find(
-                (bim) => bim.model === toSplitLast
+                (builtInModel) => builtInModel.model === toSplitLast
               );
 
-              coreModel.addRelationship(
-                relationship.name,
-                relationshipType,
-                relationshipTo || AuthUser,
-                relationship.args,
-                relationshipid
-              );
+              if (relationshipTo) {
+                const typeSplit = relationship.type.split(".");
+                const typeSplitLast = typeSplit[typeSplit.length - 1];
+                const relationshipType = RelationshipTypes[typeSplitLast];
+                coreModel.addRelationship(
+                  relationship.name,
+                  relationshipType,
+                  relationshipTo,
+                  relationship.args,
+                  relationshipid
+                );
+              } else {
+                reletionshipsToInternalModels.set(relationshipid, coreModel);
+              }
             });
           });
         });
+      });
+
+      // We have initialized all models, now we can find relationships between them
+      reletionshipsToInternalModels.forEach((coreModel, relationshipid) => {
+        const relationship = this.relationships[relationshipid];
+        const toSplit = relationship.to.split(".");
+        const toSplitFirst = toSplit[0];
+        const toSplitLast = toSplit[toSplit.length - 1];
+        const foundModel = Object.values(this.coreModels).find(
+          (coreModel) =>
+            coreModel.name === toSplitLast &&
+            coreModel.app.name === toSplitFirst
+        );
+        if (foundModel) {
+          const typeSplit = relationship.type.split(".");
+          const typeSplitLast = typeSplit[typeSplit.length - 1];
+          const relationshipType = RelationshipTypes[typeSplitLast];
+          coreModel.addRelationship(
+            relationship.name,
+            relationshipType,
+            foundModel,
+            relationship.args,
+            relationshipid
+          );
+        }
       });
 
       parentUserModels.forEach((values, modelid) => {
