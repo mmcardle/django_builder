@@ -1014,7 +1014,7 @@ CHANNEL_LAYERS = {
     admin += 'from . import models\n'
     admin += '\n\n'
 
-    const models = this.get_models(appid)
+    const models = this.get_models(appid).filter(model => !model.abstract);
 
     models.forEach((model) => {
       admin += 'class ' + model.name + 'AdminForm(forms.ModelForm):\n'
