@@ -965,7 +965,8 @@ CHANNEL_LAYERS = {
     api += 'from . import serializers\n'
     api += 'from . import models\n'
 
-    const models = this.get_models(appid)
+    const models = this.get_models(appid).filter(model => !model.abstract);
+
 
     models.forEach((model) => {
       api += '\n\n'
