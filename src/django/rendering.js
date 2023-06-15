@@ -615,7 +615,7 @@ CHANNEL_LAYERS = {
 
     apps.forEach((app) => {
       output += `\n<div class="m-2"><h4>${app.name}</h4></div>`
-      this.get_models(app.id).forEach((model) => {
+      this.get_models(app.id).filter(model => !model.abstract).forEach((model) => {
         output += `\n<div class="m-2"><a class="btn btn-light" href="{% url '${app.name}_${model.name}_list' %}">${model.name} Listing</a></div>`
       })
     })
@@ -639,7 +639,7 @@ CHANNEL_LAYERS = {
     const apps = this.get_apps(projectid);
     let htmx_body = ""
     apps.forEach((app) => {
-      const models = this.get_models(app.id)
+      const models = this.get_models(app.id).filter(model => !model.abstract)
       models.forEach((model) => {
         htmx_body += `
       <div class="col col-lg-6">
@@ -985,7 +985,7 @@ CHANNEL_LAYERS = {
     serializers += '\n'
     serializers += 'from . import models\n'
 
-    const models = this.get_models(appid)
+    const models = this.get_models(appid).filter(model => !model.abstract)
     
     models.forEach((model) => {
       const fields = this.get_fields(model)
