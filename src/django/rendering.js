@@ -965,7 +965,7 @@ CHANNEL_LAYERS = {
     api += 'from . import serializers\n'
     api += 'from . import models\n'
 
-    const models = this.get_models(appid).filter(model => !model.abstract);
+    const models = this.get_models(appid).filter(model => !model.abstract)
 
 
     models.forEach((model) => {
@@ -1015,7 +1015,7 @@ CHANNEL_LAYERS = {
     admin += 'from . import models\n'
     admin += '\n\n'
 
-    const models = this.get_models(appid).filter(model => !model.abstract);
+    const models = this.get_models(appid).filter(model => !model.abstract)
 
     models.forEach((model) => {
       admin += 'class ' + model.name + 'AdminForm(forms.ModelForm):\n'
