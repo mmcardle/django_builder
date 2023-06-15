@@ -907,7 +907,7 @@ CHANNEL_LAYERS = {
     urls += '\n\n'
     urls += 'router = routers.DefaultRouter()\n'
 
-    const models = this.get_models(appid)
+    const models = this.get_models(appid).filter(model => !model.abstract)
 
     models.forEach((model) => {
       urls += 'router.register("' + model.name + '", api.' + model.name + 'ViewSet)\n'
