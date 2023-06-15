@@ -220,7 +220,7 @@ class Renderer {
 
       if (app == undefined) return
 
-      const models = this.get_models(app_id)
+      const models = this.get_models(app_id).filter(model => !model.abstract)
 
       let model_templates = []
 
