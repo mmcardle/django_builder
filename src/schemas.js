@@ -55,7 +55,7 @@ const app = () => [
 const model = () => [
   {
     fieldType: "TextInput",
-    placeholder: "ModelNameHere",
+    placeholder: "ModelName",
     label: "Model Name (Used in code + templates; CamelCase recommended)",
     name: "name",
     required: true,
@@ -78,8 +78,8 @@ const model = () => [
 const field = () => [
   {
     fieldType: "TextInput",
-    placeholder: "field_name_here",
-    label: "Name",
+    placeholder: "field_name",
+    label: "Field name (Used in code + templates; snake_case recommended)",
     name: "name",
     required: true,
     nospaces: true
