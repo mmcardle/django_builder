@@ -220,7 +220,7 @@ class Renderer {
 
       if (app == undefined) return
 
-      const models = this.get_models(app_id)
+      const models = this.get_concrete_models(app_id)
 
       let model_templates = []
 
@@ -455,6 +455,12 @@ class Renderer {
     return this.store.getters.ordered_models(appid)
   }
 
+  // Only return non-abstract models, so Django won't try to use
+  // abstract models in admin panel (admin.py), serialize.py, etc.
+  get_concrete_models(appid) {
+    return this.get_models(appid).filter(model => !model.abstract)
+  }
+
   get_fields(model) {
     return keys(model.fields).map((field) => {
       return this.store.getters.fields()[field] ? this.store.getters.fields()[field].data() : [];
@@ -615,7 +621,7 @@ CHANNEL_LAYERS = {
 
     apps.forEach((app) => {
       output += `\n<div class="m-2"><h4>${app.name}</h4></div>`
-      this.get_models(app.id).forEach((model) => {
+      this.get_concrete_models(app.id).forEach((model) => {
         output += `\n<div class="m-2"><a class="btn btn-light" href="{% url '${app.name}_${model.name}_list' %}">${model.name} Listing</a></div>`
       })
     })
@@ -639,7 +645,7 @@ CHANNEL_LAYERS = {
     const apps = this.get_apps(projectid);
     let htmx_body = ""
     apps.forEach((app) => {
-      const models = this.get_models(app.id)
+      const models = this.get_concrete_models(app.id)
       models.forEach((model) => {
         htmx_body += `
       <div class="col col-lg-6">
@@ -907,7 +913,7 @@ CHANNEL_LAYERS = {
     urls += '\n\n'
     urls += 'router = routers.DefaultRouter()\n'
 
-    const models = this.get_models(appid)
+    const models = this.get_concrete_models(appid)
 
     models.forEach((model) => {
       urls += 'router.register("' + model.name + '", api.' + model.name + 'ViewSet)\n'
@@ -965,7 +971,8 @@ CHANNEL_LAYERS = {
     api += 'from . import serializers\n'
     api += 'from . import models\n'
 
-    const models = this.get_models(appid)
+    const models = this.get_concrete_models(appid)
+
 
     models.forEach((model) => {
       api += '\n\n'
@@ -984,7 +991,7 @@ CHANNEL_LAYERS = {
     serializers += '\n'
     serializers += 'from . import models\n'
 
-    const models = this.get_models(appid)
+    const models = this.get_concrete_models(appid)
     
     models.forEach((model) => {
       const fields = this.get_fields(model)
@@ -1014,7 +1021,7 @@ CHANNEL_LAYERS = {
     admin += 'from . import models\n'
     admin += '\n\n'
 
-    const models = this.get_models(appid)
+    const models = this.get_concrete_models(appid)
 
     models.forEach((model) => {
       admin += 'class ' + model.name + 'AdminForm(forms.ModelForm):\n'
@@ -1188,10 +1195,8 @@ CHANNEL_LAYERS = {
   }
 
   views_py(projectid, appid) {
-    const models = this.get_models(appid).filter((modelData)=> {
-      // Do not include abstract models in form views
-      return !modelData.abstract
-    })
+    // Do not include abstract models in form views
+    const models = this.get_concrete_models(appid)
 
     const appData = this.store.getters.appData(appid)
 
@@ -1228,10 +1233,8 @@ CHANNEL_LAYERS = {
   htmx_py (projectid, appid) {
     const appData = this.store.getters.appData(appid)
 
-    const models = this.get_models(appid).filter((modelData)=> {
-      // Do not include abstract models in form views
-      return !modelData.abstract
-    })
+    // Do not include abstract models in form views
+    const models = this.get_concrete_models(appid)
 
     let htmx_views = 'from django.views import generic\n'
     htmx_views += 'from django.urls import reverse_lazy\n'
@@ -1268,10 +1271,8 @@ CHANNEL_LAYERS = {
   }
 
   forms_py(projectid, appid) {
-    const models = this.get_models(appid).filter((modelData)=> {
-      // Do not include abstract models in forms
-      return !modelData.abstract
-    })
+    // Do not include abstract models in forms
+    const models = this.get_concrete_models(appid)
 
     let forms = 'from django import forms'
 
@@ -1372,9 +1373,7 @@ CHANNEL_LAYERS = {
     const extra_imports = new Set()
 
     apps.forEach((app) => {
-      const models = this.get_models(app.id).filter((modelData)=> {
-        return !modelData.abstract
-      })
+      const models = this.get_concrete_models(app.id)
       models.forEach((model) => {
         const parent_user_models = []
         const parent_django_models = []
@@ -1457,9 +1456,8 @@ CHANNEL_LAYERS = {
     tests += '\n\n'
     tests += 'pytestmark = [pytest.mark.django_db]\n'
 
-    const models = this.get_models(appid).filter((modelData)=> {
-      return !modelData.abstract
-    })
+    const models = this.get_concrete_models(appid)
+
     models.forEach((model) => {
       tests += '\n\n'
 
