@@ -30,10 +30,12 @@ let htmx_list;
 
 if (isNode) { 
   var path = require('path');
-  const cwd = process.cwd();
+
+  const currentFilePath = __filename;
+  const currentDirectoryPath = path.dirname(currentFilePath);
   
   function readSrcFile(relpath) {
-    return fs.readFileSync(path.join(cwd, "src", relpath), 'utf-8');
+    return fs.readFileSync(path.join(currentDirectoryPath, "..", relpath), 'utf-8');
   }
   
   settings = readSrcFile('django/python/settings.py');

@@ -12,14 +12,17 @@
   ],
   "scripts": {
     "dev": "yarn --cwd packages/djangobuilder4 dev",
-    "build": "yarn run build_io && yarn build_4",
+    "build": "yarn run build_io && yarn build_v4",
     "build_io": "yarn --cwd packages/djangobuilder.io build",
-    "build_4": "yarn --cwd packages/djangobuilder4 build",
+    "build_v4": "yarn --cwd packages/djangobuilder4 build",
     "lint": "yarn --cwd packages/djangobuilder4 lint",
     "devio": "yarn --cwd packages/djangobuilder.io dev",
     "buildio": "yarn --cwd packages/djangobuilder.io build",
     "smoketest": "yarn --cwd lib/djangobuilder-core run smoketest",
     "coretest": "yarn --cwd lib/djangobuilder-core run test",
-    "test": "yarn run smoketest && yarn coretest"
+    "test_v4": "yarn --cwd packages/djangobuilder4 run test:unit",
+    "test_io": "yarn --cwd packages/djangobuilder.io run test:unit",
+    "test": "yarn run smoketest && yarn coretest && yarn test_v4 && yarn test_io",
+    "ci": "yarn --cwd packages/djangobuilder.io run ci"
   }
 }

@@ -7,12 +7,6 @@ import type {
   DjangoProject,
   DjangoRelationship,
 } from "@djangobuilder/core";
-import { useUserStore } from "./stores/user";
-import { storeToRefs } from "pinia";
-
-const userStore = useUserStore();
-const { getFieldId, getRelationshipId } =
-  storeToRefs(userStore);
 
 async function updateProject(
   project: DjangoProject,
@@ -39,20 +33,14 @@ async function updateField(
   field: DjangoField,
   args: Record<string, string | boolean | number>
 ) {
-  const fieldid = getFieldId.value(field);
-  if (fieldid) {
-    await updateDoc(doc(db, "fields", fieldid), args);
-  } else {
-    throw new Error(`No field ${field.name}`);
-  }
+  await updateDoc(doc(db, "fields", field.id), args);
 }
 
 async function updateRelationship(
   relationship: DjangoRelationship,
   args: Record<string, string | boolean | number>
 ) {
-  const relationshipid = getRelationshipId.value(relationship);
-  await updateDoc(doc(db, "relationships", relationshipid), args);
+  await updateDoc(doc(db, "relationships", relationship.id), args);
 }
 
 export {
