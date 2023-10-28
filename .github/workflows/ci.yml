@@ -13,7 +13,7 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       - uses: actions/cache@v3
         id: yarn-cache  # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
@@ -39,7 +39,7 @@ jobs:
           path: ./packages/djangobuilder.io/dist
 
   smoke_tests:
-    name: Smoke tests - djangobuilder-core
+    name: Core - Smoke tests
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -48,7 +48,7 @@ jobs:
       - run: yarn smoketest
  
   core_tests:
-    name: Core tests - djangobuilder-core
+    name: Core - Unit tests
     needs: [smoke_tests]
     runs-on: ubuntu-latest
     steps:
@@ -57,7 +57,7 @@ jobs:
       - run: yarn coretest
 
   test_v4:
-    name: Unit Tests - djangobuilder 4
+    name: DB4 - Unit Tests
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -66,7 +66,7 @@ jobs:
       - run: yarn test_v4
 
   cli_tests:
-    name: CLI Tests - djangobuilder.io
+    name: DB.io - CLI Tests
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -75,7 +75,7 @@ jobs:
       - run: script/cli_test.sh
   
   io_tests:
-    name: Unit Tests - djangobuilder.io
+    name: DB.io - Unit Tests
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -84,7 +84,7 @@ jobs:
       - run: yarn test_io
 
   e2e_tests:
-    name: E2E Tests - djangobuilder.io
+    name: DB.io - E2E Tests
     needs: [io_tests]
     runs-on: ubuntu-latest
     env:
