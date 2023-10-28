@@ -12,6 +12,7 @@ import type {
   IParentField,
 } from "./types";
 import { DjangoVersion } from "./types";
+import { uniqueId } from "./util";
 
 type ModelType = {
   type: string;
@@ -230,7 +231,7 @@ export class DjangoRelationship implements IDjangoRelationship {
     args: string,
     id?: string
   ) {
-    this.id = id ? id : crypto.randomUUID();
+    this.id = id ? id : uniqueId();
     this.model = model;
     this.name = name;
     this.type = type;
@@ -263,8 +264,8 @@ export class FieldType implements IFieldType {
   ) {
     this.name = name;
     this.testDefault = testDefault;
-    this.is_postgres = is_postgres === undefined ? false : true;
-    this.is_postgres_range = is_postgres_range === undefined ? false : true;
+    this.is_postgres = is_postgres === undefined ? false : is_postgres;
+    this.is_postgres_range = is_postgres_range === undefined ? false : is_postgres_range;
     this.viewDefault = viewDefault;
     this.argsDefault = argsDefault;
   }
@@ -414,7 +415,7 @@ export class DjangoField implements IDjangoField {
     is_editable_field?: boolean,
     id?: string
   ) {
-    this.id = id ? id : crypto.randomUUID();
+    this.id = id ? id : uniqueId();
     this.model = model;
     this.name = name;
     this.type = type;
@@ -463,7 +464,7 @@ export class DjangoModel implements IDjangoModel {
     parents?: IParentField[],
     id?: string
   ) {
-    this.id = id ? id : crypto.randomUUID();
+    this.id = id ? id : uniqueId();
     this.app = app;
     this.name = name;
     this.relatedName = name;
@@ -521,7 +522,7 @@ export class DjangoApp implements IDjangoApp {
   models: DjangoModel[] = [];
 
   constructor(project: DjangoProject, name: string, models?: DjangoModel[], id?: string) {
-    this.id = id ? id : crypto.randomUUID();
+    this.id = id ? id : uniqueId()
     this.project = project;
     this.name = name;
     if (models) {
@@ -582,7 +583,7 @@ class DjangoProject implements IDjangoProject {
     options: DjangoProjectParams = { htmx: true, channels: true },
     id?: string
   ) {
-    this.id = id ? id : crypto.randomUUID();
+    this.id = id ? id : uniqueId();
     this.name = name;
     this.description = description;
     this.version = version;

@@ -19,6 +19,7 @@
     "devio": "yarn --cwd packages/djangobuilder.io dev",
     "buildio": "yarn --cwd packages/djangobuilder.io build",
     "smoketest": "yarn --cwd lib/djangobuilder-core run smoketest",
-    "coretest": "yarn --cwd lib/djangobuilder-core run test"
+    "coretest": "yarn --cwd lib/djangobuilder-core run test",
+    "test": "yarn run smoketest && yarn coretest"
   }
 }
