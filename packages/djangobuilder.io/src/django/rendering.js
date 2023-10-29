@@ -784,6 +784,9 @@ CHANNEL_LAYERS = {
         case 'django.db.models.ImageField':
           html_field_type = "file"
           break
+        case 'django.db.models.BooleanField':
+          html_field_type = "checkbox"
+          break
       }
       const disabled = field.args.indexOf('editable=False') !== -1
 
