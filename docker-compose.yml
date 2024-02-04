@@ -1,0 +1,12 @@
+version: '2.3'
+  
+services:
+  postgres:
+    hostname: postgres
+    image: postgres:15.1
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
