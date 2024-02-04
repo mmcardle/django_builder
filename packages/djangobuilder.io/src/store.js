@@ -260,19 +260,27 @@ export default new Vuex.Store({
         abstract: Boolean(payload.abstract),
         fields: {},
         relationships: {}
-      }).then((model) => {
-        if (payload.add_default_fields) {
-          return dispatch('addDefaultFields', model).then(() => {
-            return firebase.firestore().collection('apps').doc(payload.app).update(
-              {[`models.${model.id}`]: true}
-            ).then(() => model)
-          })
-        } else {
-          return firebase.firestore().collection('apps').doc(payload.app).update(
-            {[`models.${model.id}`]: true}
-          ).then(() => model)
+      }).then(async (model) => {
+        if (payload.uuid_as_pk) {
+          await dispatch('addUUIDAsPk', model)
         }
+        if (payload.add_default_fields) {
+          await dispatch('addDefaultFields', model)
+        }
+        await firebase.firestore().collection('apps').doc(payload.app).update(
+          {[`models.${model.id}`]: true}
+        )
+        return model
       })
+    },
+    addUUIDAsPk: function ({dispatch}, model) {
+      const uuid_pk_field_payload = {
+        model: model.id,
+        name: 'id',
+        type: 'django.db.models.UUIDField',
+        args: 'primary_key=True, default=uuid.uuid4, editable=False'
+      }
+      return dispatch('addField', uuid_pk_field_payload)
     },
     addDefaultFields: function ({dispatch}, model) {
       const created_field_payload = {

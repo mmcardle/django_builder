@@ -575,7 +575,8 @@ export default {
             app,
             formdata.name,
             formdata.parents,
-            formdata.abstract
+            formdata.abstract,
+            formdata.uuid_as_pk
           );
         },
         this._modelSchemaForApp(),
@@ -613,6 +614,7 @@ export default {
       name,
       parents,
       abstract,
+      uuid_as_pk = false,
       add_default_fields = true
     ) {
       return this.$store.dispatch("addModel", {
@@ -620,6 +622,7 @@ export default {
         name: name,
         parents: parents,
         abstract: abstract,
+        uuid_as_pk,
         add_default_fields: add_default_fields
       });
     },

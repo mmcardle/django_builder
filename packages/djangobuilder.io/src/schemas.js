@@ -70,6 +70,11 @@ const model = () => [
   },
   {
     fieldType: "BooleanInput",
+    label: "Add UUID as Primary Key.",
+    name: "uuid_as_pk",
+  },
+  {
+    fieldType: "BooleanInput",
     label: "This is an abstract model.",
     name: "abstract",
   }
