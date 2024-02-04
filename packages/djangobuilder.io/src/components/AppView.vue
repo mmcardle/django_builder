@@ -97,7 +97,7 @@
             elevation="0"
           >
 
-            <v-speed-dial absolute right direction="left" open-on-hover transition="slide-x-reverse-transition">
+            <v-speed-dial absolute right direction="left" open-on-hover transition="slide-x-reverse-transition" data-testid="app_view_model_menu">
               <template v-slot:activator>
                 <v-btn x-small color="info" right dark fab>
                   <v-icon>mdi-cogs</v-icon>
@@ -106,7 +106,7 @@
 
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
-                  <v-btn x-small fab dark color="green" @click="showFieldDialog(model.id)" v-on="on">
+                  <v-btn x-small fab dark color="green" @click="showFieldDialog(model.id)" v-on="on" data-testid="app_view_model_add_field">
                     <v-icon>add</v-icon>
                   </v-btn>
                 </template>
@@ -580,7 +580,8 @@ export default {
         },
         this._modelSchemaForApp(),
         undefined,
-        extra
+        extra,
+        'Add Model'
       );
     },
     showRelationshipDialog: function(model) {
