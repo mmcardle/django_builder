@@ -48,5 +48,4 @@ coverage/
 DjangoProject/
 lib/djangobuilder-core/*.tar
 packages/*.tar.gz
-packages/djangobuilder.io-core/
 output.tar

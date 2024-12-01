@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="formdialog" max-width="600" @keydown.enter="do_ok" v-if="active">
+  <v-dialog v-model="formdialog" max-width="600" @keydown.enter="do_ok">
     <v-card>
       <v-card-title class="primary white--text">
         <span class="white--text text-h5">
@@ -70,7 +70,6 @@ export default {
   },
   data: function() {
     return {
-      active: true,
       form: undefined,
       formdialog: true,
       icon: 'add',
@@ -94,16 +93,12 @@ export default {
     do_ok: function() {
       if (this.form.$refs.form.validate()) {
         this.formdialog = false
-        this.active = false
-        this.ok(this.formdata);
-        this.$destroy();
+        this.ok(this.formdata)
       }
     },
     do_cancel: function() {
       this.formdialog = false
-      this.active = false
       this.cancel()
-      this.$destroy();
     },
   }
 }

@@ -1,6 +1,6 @@
 {
-  "name": "djangobuilder",
-  "version": "0.1.0",
+  "name": "djangobuilder.io",
+  "version": "2.0.0",
   "private": true,
   "bin": {
     "django-builder": "bin/django-builder"
@@ -9,7 +9,7 @@
     "dev": "vite --port 8080",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
+    "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore --fix src",
     "test:unit": "vitest --run",
     "test:e2e_chrome": "nightwatch --headless -e chrome",
     "test:e2e_firefox": "nightwatch --headless -e firefox",
@@ -21,6 +21,7 @@
     "ci": "start-server-and-test test:e2e_serve http://localhost:8082 test:e2e"
   },
   "dependencies": {
+    "@djangobuilder/core": "1.0.0",
     "esm": "^3.2.25",
     "firebase": "^9.1.0",
     "firebase-tools": "^9.19.0",
@@ -37,6 +38,8 @@
   "devDependencies": {
     "@mdi/font": "^6.1.95",
     "@mdi/js": "^6.1.95",
+    "@typescript-eslint/eslint-plugin": "^5.53.0",
+    "@typescript-eslint/parser": "^5.53.0",
     "@vitejs/plugin-vue2": "^1.1.2",
     "@vitest/ui": "^0.24.3",
     "@vue/compiler-dom": "^3.2.41",
@@ -57,7 +60,7 @@
     "stylus": "^0.55.0",
     "stylus-loader": "^6.1.0",
     "unplugin-vue-components": "^0.22.4",
-    "vite": "^2.9.16",
+    "vite": "^2.5.4",
     "vite-plugin-vue2": "1.9.0",
     "vitest": "^0.24.3",
     "vue-cli-plugin-vuetify": "^2.4.2",
@@ -74,6 +77,7 @@
     },
     "extends": [
       "plugin:vue/essential",
+      "plugin:@typescript-eslint/recommended",
       "eslint:recommended"
     ],
     "plugins": [
