@@ -70,6 +70,7 @@ export default {
   },
   data: function() {
     return {
+      active: true,
       form: undefined,
       formdialog: true,
       icon: 'add',

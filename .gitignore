@@ -49,3 +49,5 @@ DjangoProject/
 lib/djangobuilder-core/*.tar
 packages/*.tar.gz
 output.tar
+
+dist_*
