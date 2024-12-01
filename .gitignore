@@ -14,6 +14,7 @@ screens/
 # env files
 .env
 .env.local
+.env.development
 .env.*.local
 
 # Log files
