@@ -56,14 +56,14 @@ jobs:
       - run: yarn
       - run: yarn coretest
 
-  # cli_tests:
-  #   name: DB.io - CLI Tests
-  #   needs: [build]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - run: yarn
-  #     - run: script/cli_test.sh
+  cli_tests:
+    name: DB.io - CLI Tests
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: yarn
+      - run: script/cli_test.sh
   
   io_tests:
     name: DB.io - Unit Tests
