@@ -1,5 +1,14 @@
 #!/usr/bin/env node
-import DjangoProject, { DjangoApp, DjangoModel, DjangoField, DjangoRelationship } from './api';
+import DjangoProject, { 
+  DjangoApp,
+  DjangoModel,
+  AuthUser,
+  FieldTypes,
+  RelationshipType,
+  RelationshipTypes,
+  BuiltInModel,
+  BuiltInModelTypes
+} from './api';
 import Renderer from './rendering';
 import { DjangoVersion } from './types';
 
@@ -47,11 +56,26 @@ switch (command) {
 
       const models = appData.models.map((modelData: any) => {
         const model = new DjangoModel(djangoApp, modelData.name, false, []);
-        model.fields.forEach((field: any) => {
-          model.addField(field.name, field.type, field.options);
+        modelData.fields.forEach((field: any) => {
+          console.log("Adding field", field);
+          const fieldType = FieldTypes[field.type];
+          if (!fieldType) {
+            throw new Error(`Unsupported field type ${field.type}`);
+          }
+          model.addField(field.name, fieldType, field.options);
+        })
+        modelData.relationships.forEach((relationshipData: any) => {
+          let to: BuiltInModel = BuiltInModelTypes[relationshipData.to];
+          if (!to) {
+            throw new Error(`Unsupported relationship to ${relationshipData.to}`);
+          }
+          let relType: RelationshipType = RelationshipTypes[relationshipData.type];
+          if (!relType) {
+            throw new Error(`Unsupported relationship type ${relationshipData.type}`);
+          }
+          model.addRelationship(relationshipData.name, relType, to, relationshipData.args);
         })
         return model;
-        
       });
 
       project.addApp(appData.name, models);

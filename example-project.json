@@ -24,8 +24,8 @@
           "relationships": [
             {
               "name": "relationship1",
-              "type": "django.db.models.ForeignKey",
-              "to": "django.contrib.auth.models.User",
+              "type": "ForeignKey",
+              "to": "auth.User",
               "args": "on_delete=models.CASCADE"
             }
           ]
