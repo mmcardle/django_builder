@@ -62,7 +62,7 @@ switch (command) {
           if (!fieldType) {
             throw new Error(`Unsupported field type ${field.type}`);
           }
-          model.addField(field.name, fieldType, field.options);
+          model.addField(field.name, fieldType, field.args);
         })
         modelData.relationships.forEach((relationshipData: any) => {
           let to: BuiltInModel = BuiltInModelTypes[relationshipData.to];
