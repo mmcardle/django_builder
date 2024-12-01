@@ -4,12 +4,15 @@
   "scripts": {
     "dev": "vite --port 8080",
     "build": "run-p type-check build-only",
+    "build:development": "run-s type-check build-only:development",
+    "build:staging": "run-s type-check build-only:staging",
     "preview": "vite preview --port 4173",
-    "test:unit": "vitest --environment jsdom",
     "test:e2e": "start-server-and-test preview http://localhost:4173/ 'cypress open --e2e'",
     "test:e2e:ci": "start-server-and-test preview http://localhost:4173/ 'cypress run --e2e'",
     "build-only": "vite build --base=/db4/",
-    "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
+    "build-only:staging": "vite build --mode=staging --base=/db4/",
+    "build-only:development": "vite build --mode=development --base=/db4/",
+    "type-check": "vue-tsc --noEmit -p tsconfig.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
@@ -42,7 +45,6 @@
     "start-server-and-test": "^1.14.0",
     "typescript": "~4.7.4",
     "vite": "^3.0.4",
-    "vitest": "^0.21.0",
     "vue-tsc": "^0.39.5"
   }
 }

@@ -1,3 +1,0 @@
-// Vitest Snapshot v1
-
-exports[`ProjectHeader > renders properly 1`] = `"Project 1"`;

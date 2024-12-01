@@ -45,22 +45,20 @@ export default new Vuex.Store({
       })
       const models_no_parents = unordered_models.filter(model => model !== undefined).filter((model) => {
         return model.parents?.length === 0
-      })
+      }).sort((a, b) => a.name.localeCompare(b.name) );
 
       const models_with_parents = unordered_models.filter(model => model !== undefined).filter((model) => {
         return model.parents?.length !== 0
       })
 
       const models_with_parents_sorted = models_with_parents.sort((model, otherModel) => {
-        const otherModelParentClasses = otherModel.parents.filter((c) => {
-          return c.type !== 'django'
-        }).map((c) => {
-          return state.models[c.model].data().name
-        })
+        const otherModelParentClasses = otherModel?.parents ? otherModel?.parents.filter(
+          (parentClass) => parentClass.type !== 'django'
+        ).map((c) => state.models[c.model].data().name) : [];
         return otherModelParentClasses.indexOf(model.name) === -1 ? 1 : -1
       })
 
-      return models_no_parents.concat(models_with_parents_sorted)
+      return models_no_parents.concat(models_with_parents_sorted);
     },
   },
   mutations: {
@@ -262,19 +260,27 @@ export default new Vuex.Store({
         abstract: Boolean(payload.abstract),
         fields: {},
         relationships: {}
-      }).then((model) => {
-        if (payload.add_default_fields) {
-          return dispatch('addDefaultFields', model).then(() => {
-            return firebase.firestore().collection('apps').doc(payload.app).update(
-              {[`models.${model.id}`]: true}
-            ).then(() => model)
-          })
-        } else {
-          return firebase.firestore().collection('apps').doc(payload.app).update(
-            {[`models.${model.id}`]: true}
-          ).then(() => model)
+      }).then(async (model) => {
+        if (payload.uuid_as_pk) {
+          await dispatch('addUUIDAsPk', model)
         }
+        if (payload.add_default_fields) {
+          await dispatch('addDefaultFields', model)
+        }
+        await firebase.firestore().collection('apps').doc(payload.app).update(
+          {[`models.${model.id}`]: true}
+        )
+        return model
       })
+    },
+    addUUIDAsPk: function ({dispatch}, model) {
+      const uuid_pk_field_payload = {
+        model: model.id,
+        name: 'id',
+        type: 'django.db.models.UUIDField',
+        args: 'primary_key=True, default=uuid.uuid4, editable=False'
+      }
+      return dispatch('addField', uuid_pk_field_payload)
     },
     addDefaultFields: function ({dispatch}, model) {
       const created_field_payload = {

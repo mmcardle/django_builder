@@ -12,13 +12,24 @@
   ],
   "scripts": {
     "dev": "yarn --cwd packages/djangobuilder4 dev",
-    "devio": "yarn --cwd packages/djangobuilder.io dev",
-    "deviocore": "yarn --cwd packages/djangobuilder.io-core dev",
-    "build": "yarn run build_io && yarn build_4",
+    "build": "yarn run build_io && yarn build_v4",
+    "build_development": "yarn run build_io_development && yarn build_v4_development",
+    "build_io_development": "yarn --cwd packages/djangobuilder.io build --mode=development",
+    "build_v4_development": "yarn --cwd packages/djangobuilder4 build:development",
+    "build_staging": "yarn run build_io_staging && yarn build_v4_staging",
+    "build_io_staging": "yarn --cwd packages/djangobuilder.io build --mode=staging",
+    "build_v4_staging": "yarn --cwd packages/djangobuilder4 build:staging",
+    "build_production": "yarn run build_io_production && yarn build_v4_production",
+    "build_io_production": "yarn --cwd packages/djangobuilder.io build --mode=production",
+    "build_v4_production": "yarn --cwd packages/djangobuilder4 build",
     "build_io": "yarn --cwd packages/djangobuilder.io build",
-    "build_4": "yarn --cwd packages/djangobuilder4 build",
+    "build_v4": "yarn --cwd packages/djangobuilder4 build",
     "lint": "yarn --cwd packages/djangobuilder4 lint",
     "smoketest": "yarn --cwd lib/djangobuilder-core run smoketest",
-    "coretest": "yarn --cwd lib/djangobuilder-core run test"
+    "coretest": "yarn --cwd lib/djangobuilder-core run test",
+    "test_v4": "yarn --cwd packages/djangobuilder4 run test:unit",
+    "test_io": "yarn --cwd packages/djangobuilder.io run test:unit",
+    "test": "yarn run smoketest && yarn coretest && yarn test_v4 && yarn test_io",
+    "ci": "yarn --cwd packages/djangobuilder.io run ci"
   }
 }

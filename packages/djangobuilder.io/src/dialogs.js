@@ -38,7 +38,7 @@ const showDeleteDialog = function (text, ok, cancel = () => {}) {
   dialog.$mount()
 }
 
-const showFormDialog = function (headline, ok, schema, formdata, extra) {
+const showFormDialog = function (headline, ok, schema, formdata, extra, okText) {
   var FormDialogClass = Vue.extend(FormDialog)
   var dialog = new FormDialogClass({
     vuetify,
@@ -47,7 +47,8 @@ const showFormDialog = function (headline, ok, schema, formdata, extra) {
       ok: ok,
       schema: schema,
       formdata: formdata || {},
-      extra: extra
+      extra: extra,
+      okText: okText,
     }
   })
   dialog.$mount()

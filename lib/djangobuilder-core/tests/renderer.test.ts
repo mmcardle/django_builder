@@ -20,7 +20,7 @@ const project_files = Object.keys(ROOT_FILES)
 const app_files = Object.keys(APP_FILES)
   .concat(Object.keys(APP_TEST_FILES));
 
-const basicProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: false, channels: false});
+const basicProject = new DjangoProject("TestProject", "TestProject Description", DjangoVersion.DJANGO4, {htmx: false, channels: false}, "id-1");
 const basicApp = basicProject.addApp("testapp1");
 const basicModel = basicApp.addModel("TestModel1");
 basicModel.addField("TestField1", CharField, "");

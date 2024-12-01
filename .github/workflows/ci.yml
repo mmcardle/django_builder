@@ -6,17 +6,16 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
         with:
-          node-version: '14.x'
-      - run: yarn install
+          node-version: 16
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: yarn-cache  # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -24,49 +23,74 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-v2-
 
+      - run: yarn install
       - run: yarn build
 
-      - name: Upload dist directory
+      - name: Upload djangobuilder4 dist directory
         uses: actions/upload-artifact@v1
         with:
-          name: dist
-          path: dist
-  
-  unit_tests:
-    name: Unit Tests
+          name: djangobuilder4_dist
+          path: ./packages/djangobuilder4/dist
+      
+      - name: Upload djangobuilder.io dist directory
+        uses: actions/upload-artifact@v1
+        with:
+          name: djangobuilder.io_dist
+          path: ./packages/djangobuilder.io/dist
+
+  smoke_tests:
+    name: Core - Smoke tests
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: yarn
-      - run: yarn test:unit
+      - run: yarn smoketest
  
+  core_tests:
+    name: Core - Unit tests
+    needs: [smoke_tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: yarn
+      - run: yarn coretest
+
   cli_tests:
-    name: CLI Tests
+    name: DB.io - CLI Tests
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: yarn
-      - run: script/run.sh
+      - run: script/cli_test.sh
+  
+  io_tests:
+    name: DB.io - Unit Tests
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: yarn
+      - run: yarn test_io
 
   e2e_tests:
-    name: E2E Tests
-    needs: [build]
+    name: DB.io - E2E Tests
+    needs: [io_tests]
     runs-on: ubuntu-latest
     env:
       FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       FIRESTORE_EMULATOR_HOST: localhost:8080
       DISPLAY: ":99"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
       - run: yarn
       - name: Download dist
         uses: actions/download-artifact@v1
         with:
-          name: dist
-      - run: export yarn ci
+          name: djangobuilder4_dist
+      - run: yarn ci
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:

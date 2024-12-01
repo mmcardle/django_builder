@@ -44,8 +44,8 @@ const project = () => [
 const app = () => [
   {
     fieldType: "TextInput",
-    placeholder: "This will be the importable python name for your app.",
-    label: "Application Name",
+    placeholder: "app_name",
+    label: "Application Name (This will be the importable python name for your app)",
     name: "name",
     required: true,
     nospaces: true
@@ -55,8 +55,8 @@ const app = () => [
 const model = () => [
   {
     fieldType: "TextInput",
-    placeholder: "amodel",
-    label: "Model Name",
+    placeholder: "ModelName",
+    label: "Model Name (Used in code + templates; CamelCase recommended)",
     name: "name",
     required: true,
     nospaces: true
@@ -70,6 +70,11 @@ const model = () => [
   },
   {
     fieldType: "BooleanInput",
+    label: "Add UUID as Primary Key.",
+    name: "uuid_as_pk",
+  },
+  {
+    fieldType: "BooleanInput",
     label: "This is an abstract model.",
     name: "abstract",
   }
@@ -78,8 +83,8 @@ const model = () => [
 const field = () => [
   {
     fieldType: "TextInput",
-    placeholder: "afield",
-    label: "Name",
+    placeholder: "field_name",
+    label: "Field name (Used in code + templates; snake_case recommended)",
     name: "name",
     required: true,
     nospaces: true
