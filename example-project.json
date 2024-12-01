@@ -2,6 +2,7 @@
   "name": "DjangoProject",
   "description": "A Django Project with great potential",
   "htmx": false,
+  "postgres": false,
   "apps": [
     {
       "name": "DjangoApp1",

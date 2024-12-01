@@ -25,6 +25,7 @@
     "lint": "eslint .",
     "fix-lint": "eslint . --fix",
     "smoketest": "npx tsc && npx ts-node src/smoketest.ts",
-    "test": "jest ."
+    "test": "jest .",
+    "cli": "tsc -t es5 src/cli.ts --outDir dist --esModuleInterop && node dist/cli.js render"
   }
 }

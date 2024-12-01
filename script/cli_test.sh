@@ -2,7 +2,9 @@
 
 set -ex
 
-./bin/django-builder example-project.json output.tar
+cd lib/djangobuilder-core
+yarn run cli ../../example-project.json ../../output.tar
+cd ../..
 
 tar -xvf output.tar
 
