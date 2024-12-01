@@ -279,7 +279,7 @@
     </v-snackbar>
 
     <v-footer app fixed style="z-index:5">
-      <span>&copy; {{year}}</span>
+      <span>&copy; {{year}} Version {{ PACKAGE_VERSION }}</span>
       <v-spacer />
       <v-btn class="hidden-xs-only" text @click.stop="cookie_snackbar = !cookie_snackbar">Privacy Settings</v-btn>
       <v-btn class="hidden-sm-and-up" text @click.stop="privacy_dialog = true">Privacy Policy</v-btn>
@@ -310,6 +310,13 @@ import { config } from 'vue-gtag'
 
 const COOKIES_ON = 'Analytics Cookies On'
 const COOKIES_OFF = 'Analytics Cookies Off'
+const MODE = import.meta.env.MODE
+const PROD = import.meta.env.PROD
+
+let PACKAGE_VERSION = import.meta.env.PACKAGE_VERSION
+if (!PROD) {
+  PACKAGE_VERSION = `${PACKAGE_VERSION} ${MODE}`
+}
 
 export default {
   mixins: [addProjectMixin],
@@ -323,7 +330,8 @@ export default {
       user: null,
       verified: false,
       dialog: false,
-      mdiDatabase: mdiDatabase
+      mdiDatabase: mdiDatabase,
+      PACKAGE_VERSION,
     }
   },
   computed: {

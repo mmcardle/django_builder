@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "dev": "yarn --cwd packages/djangobuilder4 dev",
+    "devio": "yarn --cwd packages/djangobuilder.io dev",
     "build": "yarn run build_io && yarn build_v4",
     "build_development": "yarn run build_io_development && yarn build_v4_development",
     "build_io_development": "yarn --cwd packages/djangobuilder.io build --mode=development",
