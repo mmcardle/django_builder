@@ -27,13 +27,13 @@ jobs:
       - run: yarn build
 
       - name: Upload djangobuilder4 dist directory
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: djangobuilder4_dist
           path: ./packages/djangobuilder4/dist
       
       - name: Upload djangobuilder.io dist directory
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: djangobuilder.io_dist
           path: ./packages/djangobuilder.io/dist
