@@ -2,6 +2,8 @@
 node_modules
 /dist
 /dist_*
+/lib/djangobuilder-core/dist
+/packages/*/dist
 .firebase
 firestore-debug.log
 .firebaserc
@@ -12,6 +14,7 @@ screens/
 # env files
 .env
 .env.local
+.env.development
 .env.*.local
 
 # Log files
@@ -29,6 +32,7 @@ yarn-error.log*
 *.sw*
 
 # Testing
+ThePetZoo/
 tests_output/
 chromedriver.log
 geckodriver.log
@@ -42,4 +46,7 @@ coverage/
 
 **/.venv
 DjangoProject/
+lib/djangobuilder-core/*.tar
+packages/*.tar.gz
+packages/djangobuilder.io-core/
 output.tar

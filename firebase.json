@@ -12,6 +12,10 @@
     ],
     "rewrites": [
       {
+        "source": "db4/**",
+        "destination": "/db4/index.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
