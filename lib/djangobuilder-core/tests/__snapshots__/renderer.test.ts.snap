@@ -1937,8 +1937,6 @@ from datetime import timedelta, datetime, time
 
 from django.db import models
 from django.urls import reverse
-from django.contrib.postgres import fields as postgres_fields
-from django.contrib.postgres.fields import ranges as postgres_range_fields
 
 
 class TestModel1(models.Model):
@@ -2904,8 +2902,6 @@ from datetime import timedelta, datetime, time
 
 from django.db import models
 from django.urls import reverse
-from django.contrib.postgres import fields as postgres_fields
-from django.contrib.postgres.fields import ranges as postgres_range_fields
 
 
 class TestModel3(models.Model):
@@ -4476,8 +4472,6 @@ from datetime import timedelta, datetime, time
 
 from django.db import models
 from django.urls import reverse
-from django.contrib.postgres import fields as postgres_fields
-from django.contrib.postgres.fields import ranges as postgres_range_fields
 
 
 class TestModel2(models.Model):
