@@ -4,7 +4,7 @@ jobs:
   
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
@@ -41,7 +41,7 @@ jobs:
   smoke_tests:
     name: Core - Smoke tests
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: yarn
@@ -50,7 +50,7 @@ jobs:
   core_tests:
     name: Core - Unit tests
     needs: [smoke_tests]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: yarn
@@ -59,7 +59,7 @@ jobs:
   cli_tests:
     name: DB.io - CLI Tests
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: yarn
@@ -68,7 +68,7 @@ jobs:
   io_tests:
     name: DB.io - Unit Tests
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: yarn
