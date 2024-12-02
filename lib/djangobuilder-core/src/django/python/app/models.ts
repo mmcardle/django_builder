@@ -5,8 +5,10 @@ from datetime import timedelta, datetime, time
 
 from django.db import models
 from django.urls import reverse
+{{#project.postgres}}
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.fields import ranges as postgres_range_fields
+{{/project.postgres}}
 
 {{#app.models}}
 
