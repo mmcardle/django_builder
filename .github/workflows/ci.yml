@@ -62,6 +62,7 @@ jobs:
     needs: [build]
     runs-on: ubuntu-24.04
     steps:
+      - run: sudo apt-get install -y libsqlite3-dev
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
