@@ -2,6 +2,11 @@
 
 set -ex
 
+if [ -z "$1" ]; then
+    echo "Usage: $0 <project.json>"
+    exit 1
+fi
+
 DIR=`mktemp --directory`
 TEMP_TAR="${DIR}/output.tar"
 PROJECT_NAME=`cat $1 | jq -r '.name'`
@@ -19,8 +24,7 @@ cd ${DIR}
 tar -xvf ${TEMP_TAR}
 cd ${DIR}/${PROJECT_NAME}
 
-pyenv local 3.13
-python3 -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
 uv pip sync requirements.txt 
 python manage.py makemigrations
