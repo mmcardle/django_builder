@@ -21,6 +21,7 @@ export const template = `
   </div>
 </div>
 
+{{#project.htmx}}
 <div class='container'>
   <div class='card'>
     <div class='card-body'>
@@ -30,5 +31,6 @@ export const template = `
     </div>
   </div>
 </div>
+{{/project.htmx}}
 {% endblock %}
 `

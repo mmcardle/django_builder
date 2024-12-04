@@ -1,3 +1,4 @@
+PHONY: build deploy smoke_test
 
 deploy:
 ifeq "$(name)" ""
@@ -12,3 +13,7 @@ else
 	cp -r packages/djangobuilder4/dist/* dist_$(name)/db4/
 	firebase deploy --public=dist_$(name)
 endif
+
+smoke_test:
+	./script/cli_test.sh example_projects/example-project.json
+	./script/cli_test.sh example_projects/example-project-htmx.json

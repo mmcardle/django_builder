@@ -52,7 +52,6 @@ exports[`Project file tests DjangoTestCase {
 "
 Django==4.1
 django-extensions
-djangorestframework
 psycopg2-binary
 Pillow
 "
@@ -65,7 +64,6 @@ exports[`Project file tests DjangoTestCase {
 "
 Django==4.1
 django-extensions
-djangorestframework
 django-htmx
 psycopg2-binary
 Pillow
@@ -79,7 +77,6 @@ exports[`Project file tests DjangoTestCase {
 "
 Django==4.1
 django-extensions
-djangorestframework
 channels
 channels_redis
 psycopg2-binary
@@ -2419,7 +2416,6 @@ exports[`Render Basic Project Root Files requirements.txt 1`] = `
 "
 Django==4.1
 django-extensions
-djangorestframework
 psycopg2-binary
 Pillow
 "
@@ -3407,7 +3403,6 @@ exports[`Render Channels Project Root Files requirements.txt 1`] = `
 "
 Django==4.1
 django-extensions
-djangorestframework
 channels
 channels_redis
 psycopg2-binary
@@ -3965,7 +3960,6 @@ exports[`Render HTMX Project Root Files requirements.txt 1`] = `
 "
 Django==4.1
 django-extensions
-djangorestframework
 django-htmx
 psycopg2-binary
 Pillow

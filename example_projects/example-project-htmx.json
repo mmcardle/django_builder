@@ -1,0 +1,36 @@
+{
+  "name": "HTMXDjangoProject",
+  "description": "An HTMX Django Project with great potential",
+  "htmx": true,
+  "postgres": false,
+  "apps": [
+    {
+      "name": "DjangoApp1",
+      "models": [
+        {
+          "name":"DjangoModel1",
+          "fields": [
+            {
+              "name": "field1",
+              "type": "CharField",
+              "args": "default='field1',max_length=30"
+            },
+            {
+              "name": "field2",
+              "type": "TextField",
+              "args": "default='field1',max_length=100"
+            }
+          ],
+          "relationships": [
+            {
+              "name": "relationship1",
+              "type": "ForeignKey",
+              "to": "auth.User",
+              "args": "null=True,on_delete=models.CASCADE"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
