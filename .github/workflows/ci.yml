@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: yarn
-      - run: script/cli_test.sh
+      - run: script/cli_test.sh example_projects/example-project.json
   
   io_tests:
     name: DB.io - Unit Tests
