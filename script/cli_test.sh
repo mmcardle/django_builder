@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 DIR=`mktemp --directory`
 TEMP_TAR="${DIR}/output.tar"
