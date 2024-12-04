@@ -51,7 +51,8 @@ exports[`Project file tests DjangoTestCase {
 } 1`] = `
 "
 Django==4.1
-django-extensions
+djangorestframework
+asgiref
 psycopg2-binary
 Pillow
 "
@@ -63,7 +64,8 @@ exports[`Project file tests DjangoTestCase {
 } 2`] = `
 "
 Django==4.1
-django-extensions
+djangorestframework
+asgiref
 django-htmx
 psycopg2-binary
 Pillow
@@ -76,7 +78,8 @@ exports[`Project file tests DjangoTestCase {
 } 3`] = `
 "
 Django==4.1
-django-extensions
+djangorestframework
+asgiref
 channels
 channels_redis
 psycopg2-binary
@@ -877,15 +880,6 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
   </div>
 </div>
 
-<div class='container'>
-  <div class='card'>
-    <div class='card-body'>
-      <div>
-        <a href="{% url 'htmx' %}">HTMX UI</a>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
 "
 `;
@@ -939,15 +933,6 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
   </div>
 </div>
 
-<div class='container'>
-  <div class='card'>
-    <div class='card-body'>
-      <div>
-        <a href="{% url 'htmx' %}">HTMX UI</a>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
 "
 `;
@@ -2348,15 +2333,6 @@ exports[`Render Basic Project Root Files index.html 1`] = `
   </div>
 </div>
 
-<div class='container'>
-  <div class='card'>
-    <div class='card-body'>
-      <div>
-        <a href="{% url 'htmx' %}">HTMX UI</a>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
 "
 `;
@@ -2415,7 +2391,8 @@ addopts=-v -ra
 exports[`Render Basic Project Root Files requirements.txt 1`] = `
 "
 Django==4.1
-django-extensions
+djangorestframework
+asgiref
 psycopg2-binary
 Pillow
 "
@@ -3335,15 +3312,6 @@ exports[`Render Channels Project Root Files index.html 1`] = `
   </div>
 </div>
 
-<div class='container'>
-  <div class='card'>
-    <div class='card-body'>
-      <div>
-        <a href="{% url 'htmx' %}">HTMX UI</a>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
 "
 `;
@@ -3402,7 +3370,8 @@ addopts=-v -ra
 exports[`Render Channels Project Root Files requirements.txt 1`] = `
 "
 Django==4.1
-django-extensions
+djangorestframework
+asgiref
 channels
 channels_redis
 psycopg2-binary
@@ -3959,7 +3928,8 @@ addopts=-v -ra
 exports[`Render HTMX Project Root Files requirements.txt 1`] = `
 "
 Django==4.1
-django-extensions
+djangorestframework
+asgiref
 django-htmx
 psycopg2-binary
 Pillow
