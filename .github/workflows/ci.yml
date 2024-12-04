@@ -66,6 +66,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13' 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          # Install a specific version of uv.
+          version: "0.5.6"
       - run: yarn
       - run: script/cli_test.sh example_projects/example-project.json
   

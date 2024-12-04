@@ -24,12 +24,12 @@ cd ${DIR}
 tar -xvf ${TEMP_TAR}
 cd ${DIR}/${PROJECT_NAME}
 
-python3.13 -m venv .venv
+uv venv --python 3.13
 source .venv/bin/activate
 uv pip sync requirements.txt 
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver &
+uv run python manage.py makemigrations
+uv run python manage.py migrate
+uv run python manage.py runserver &
 ID=$!
 curl --connect-timeout 5 \
     --retry-connrefused \
