@@ -73,7 +73,7 @@ jobs:
           # Install a specific version of uv.
           version: "0.5.6"
       - run: yarn
-      - run: script/cli_test.sh example_projects/example-project.json
+      - run: make smoke_test
   
   io_tests:
     name: DB.io - Unit Tests
