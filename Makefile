@@ -1,5 +1,11 @@
 PHONY: build deploy smoke_test
 
+EXAMPLE_TAR_OUTPUT = $(abspath ./example_project.tar)
+EXAMPLE_PROJECT_JSON = $(abspath ./example_projects/example-project.json)
+EXAMPLE_PROJECT_HTMX_JSON = $(abspath ./example_projects/example-project-htmx.json)
+
+PROJECT_NAME=`cat ${EXAMPLE_PROJECT_JSON}  | jq -r '.name'`
+
 deploy:
 ifeq "$(name)" ""
 	@echo "Specify name e.g. make deploy name=staging" && exit 1
@@ -15,5 +21,10 @@ else
 endif
 
 smoke_test:
-	./script/cli_test.sh example_projects/example-project.json
-	./script/cli_test.sh example_projects/example-project-htmx.json
+	./script/cli_test.sh ${EXAMPLE_PROJECT_JSON}
+	./script/cli_test.sh ${EXAMPLE_PROJECT_HTMX_JSON}
+
+create:
+	yarn run cli ${EXAMPLE_PROJECT_JSON} ${EXAMPLE_TAR_OUTPUT}
+	echo "Project created at ${PROJECT_NAME}"
+	tar -xvf ${EXAMPLE_TAR_OUTPUT}

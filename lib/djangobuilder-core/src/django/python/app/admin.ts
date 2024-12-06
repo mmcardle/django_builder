@@ -1,5 +1,4 @@
-export const template = `
-from django.contrib import admin
+export const template = `from django.contrib import admin
 from django import forms
 
 from . import models
@@ -18,20 +17,20 @@ class {{name}}Admin(admin.ModelAdmin):
     form = {{name}}AdminForm
     list_display = [
         {{#fields}}
-        '{{name}}',
+        "{{name}}",
         {{/fields}}
         {{#relationships}}
         {{#isNotManyToMany .}}
-        '{{name}}',
+        "{{name}}",
         {{/isNotManyToMany}}
         {{/relationships}}
     ]
     readonly_fields = [
         {{#fields}}
-        '{{name}}',
+        "{{name}}",
         {{/fields}}
         {{#relationships}}
-        '{{name}}',
+        "{{name}}",
         {{/relationships}}
     ]
 {{/abstract}}

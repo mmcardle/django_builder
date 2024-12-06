@@ -2,7 +2,6 @@
 import DjangoProject, { 
   DjangoApp,
   DjangoModel,
-  AuthUser,
   FieldTypes,
   RelationshipType,
   RelationshipTypes,
@@ -11,15 +10,18 @@ import DjangoProject, {
 } from './api';
 import Renderer from './rendering';
 import { DjangoVersion } from './types';
+import { writeFileSync, readFileSync } from 'fs';
+import { resolve } from 'path';
 
 const args = process.argv.slice(2);
 
-console.log("ARGS", args);
 
 if (args.length === 0) {
   console.error('No arguments provided.');
   process.exit(1);
 }
+
+console.log("Running CLI:", args);
 
 const command = args[0];
 
@@ -35,7 +37,7 @@ switch (command) {
     }
     const input_file = args[1];
     const output_file = args[2];
-    const projectData = JSON.parse(require('fs').readFileSync(input_file, 'utf8'));
+    const projectData = JSON.parse(readFileSync(input_file, 'utf8'));
     
     const projectParams = {
       channels: projectData.channels || false,
@@ -57,19 +59,21 @@ switch (command) {
       const models = appData.models.map((modelData: any) => {
         const model = new DjangoModel(djangoApp, modelData.name, false, []);
         modelData.fields.forEach((field: any) => {
+          const editable = field.args.indexOf("editable=False") === -1;
           console.log("Adding field", field);
           const fieldType = FieldTypes[field.type];
           if (!fieldType) {
             throw new Error(`Unsupported field type ${field.type}`);
           }
-          model.addField(field.name, fieldType, field.args);
+          model.addField(field.name, fieldType, field.args, editable);
         })
         modelData.relationships.forEach((relationshipData: any) => {
-          let to: BuiltInModel = BuiltInModelTypes[relationshipData.to];
+          const to: BuiltInModel = BuiltInModelTypes[relationshipData.to];
+          console.log("Adding relationship", to);
           if (!to) {
             throw new Error(`Unsupported relationship to ${relationshipData.to}`);
           }
-          let relType: RelationshipType = RelationshipTypes[relationshipData.type];
+          const relType: RelationshipType = RelationshipTypes[relationshipData.type];
           if (!relType) {
             throw new Error(`Unsupported relationship type ${relationshipData.type}`);
           }
@@ -84,8 +88,11 @@ switch (command) {
     const renderer = new Renderer();
     const tarballContent = renderer.tarballContent(project);
     // write to file
-    require('fs').writeFileSync(output_file, tarballContent);
-    console.log(`Rendered project to ${output_file}`);
+
+    const absolutePath = resolve(output_file);
+
+    writeFileSync(absolutePath, tarballContent);
+    console.log(`Rendered project to ${absolutePath}`);
     break;
   default:
     console.error(`Unknown command: ${command}`);

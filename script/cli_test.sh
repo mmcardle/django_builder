@@ -18,7 +18,7 @@ if [ -z "${PROJECT_NAME}" ]; then
     exit 1
 fi
 
-yarn run cli ../../$1 ${TEMP_TAR}
+yarn run cli $1 ${TEMP_TAR}
 
 cd ${DIR}
 tar -xvf ${TEMP_TAR}
@@ -29,17 +29,17 @@ source .venv/bin/activate
 uv pip sync requirements.txt 
 uv run python manage.py makemigrations
 uv run python manage.py migrate
-uv run python manage.py runserver &
+uv run python manage.py runserver 9001 &
 ID=$!
 curl --connect-timeout 5 \
     --retry-connrefused \
     --max-time 5 \
     --retry 5 \
     --retry-delay 2 \
-    --retry-max-time 60 \
-    'http://127.0.0.1:8000'
+    --retry-max-time 10 \
+    'http://127.0.0.1:9001'
 
-curl 'http://127.0.0.1:8000' | grep "DjangoModel1 Listing"
+curl 'http://127.0.0.1:9001' | grep "DjangoModel1 Listing"
 RESULT=$?
 
 kill ${ID}

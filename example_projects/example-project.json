@@ -11,6 +11,16 @@
           "name":"DjangoModel1",
           "fields": [
             {
+              "name": "created",
+              "type": "DateTimeField",
+              "args": "auto_now_add=True, editable=False"
+            },
+            {
+              "name": "last_updated",
+              "type": "DateTimeField",
+              "args": "auto_now=True, editable=False"
+            },
+            {
               "name": "field1",
               "type": "CharField",
               "args": "default='field1',max_length=30"

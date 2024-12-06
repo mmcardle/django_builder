@@ -185,23 +185,32 @@ const HTMX_MIDDLEWARE = "django_htmx.middleware.HtmxMiddleware";
 export class BuiltInModel implements IBuiltInModel {
   name: string;
   model: string;
+  importModule: string;
 
-  constructor(name: string, model: string) {
+  constructor(name: string, model: string, importModule: string) {
     this.name = name;
     this.model = model;
+    this.importModule = importModule;
   }
 }
 
-export const AuthUser = new BuiltInModel("auth.User", "User");
+export const AuthUser = new BuiltInModel(
+  "auth.User", "User",  "django.contrib.auth.models"
+);
 export const AbstractUser = new BuiltInModel(
   "auth.AbstractUser",
-  "AbstractUser"
+  "AbstractUser",
+  "django.contrib.auth.models",
 );
 export const AbstractBaseUser = new BuiltInModel(
   "auth.AbstractBaseUser",
-  "AbstractBaseUser"
+  "AbstractBaseUser",
+  "django.contrib.auth.models",
 );
-export const AuthGroup = new BuiltInModel("auth.Group", "Group");
+export const AuthGroup = new BuiltInModel(
+  "auth.Group", "Group",
+  "django.contrib.auth.models",
+);
 
 export const ParentModelTypes = {
   [`${AuthUser.name}`]: AuthUser,
@@ -412,7 +421,7 @@ export class DjangoField implements IDjangoField {
     name: string,
     type: FieldType,
     args: string,
-    is_editable_field?: boolean,
+    is_editable_field = true,
     id?: string
   ) {
     this.id = id ? id : uniqueId();
@@ -420,10 +429,7 @@ export class DjangoField implements IDjangoField {
     this.name = name;
     this.type = type;
     this.args = args;
-    this.is_editable_field =
-      is_editable_field === undefined || is_editable_field === true
-        ? true
-        : is_editable_field;
+    this.is_editable_field = is_editable_field;
   }
 
   get is_postgres_field() {

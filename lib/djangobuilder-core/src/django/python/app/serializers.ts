@@ -10,10 +10,10 @@ class {{name}}Serializer(serializers.ModelSerializer):
         model = models.{{name}}
         fields = [
             {{#fields}}
-            '{{name}}',
+            "{{name}}",
             {{/fields}}
             {{#relationships}}
-            '{{name}}',
+            "{{name}}",
             {{/relationships}}
         ]
 {{/app.models}}
