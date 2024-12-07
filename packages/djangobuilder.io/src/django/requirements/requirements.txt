@@ -1,3 +1,0 @@
-XXX_DJANGO_VERSION_XXX
-django-extensions
-djangorestframework

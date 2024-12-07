@@ -3,7 +3,7 @@ from django import forms
 from . import models
 {{#app.models}}
 {{#relationships}}
-#from {{to.import}} import {{to.name}}
+from {{to.importModule}} import {{to.model}}
 {{/relationships}}
 {{/app.models}}
 
@@ -15,15 +15,15 @@ class {{name}}Form(forms.ModelForm):
         fields = [
             {{#fields}}
             {{#is_editable_field}}
-            '{{name}}',
+            "{{name}}",
             {{/is_editable_field}}
             {{/fields}}
             {{#relationships}}
-            '{{name}}',
+            "{{name}}",
             {{/relationships}}
             {{#parents}}
             {{#fields}}
-            '{{name}}',
+            "{{name}}",
             {{/fields}}
             {{/parents}}
         ]
@@ -31,7 +31,7 @@ class {{name}}Form(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super({{name}}Form, self).__init__(*args, **kwargs)
         {{#relationships}}
-        #self.fields["{{name}}"].queryset = {{to}}.objects.all()
+        self.fields["{{name}}"].queryset = {{to.model}}.objects.all()
         {{/relationships}}
 {{/abstract}}
 {{/app.models}}
