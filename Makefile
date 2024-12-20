@@ -2,7 +2,7 @@ PHONY: build deploy smoke_test
 
 EXAMPLE_TAR_OUTPUT = $(abspath ./example_project.tar)
 EXAMPLE_PROJECT_JSON = $(abspath ./example_projects/example-project.json)
-EXAMPLE_PROJECT_HTMX_JSON = $(abspath ./example_projects/example-project-htmx.json)
+EXAMPLE_PROJECT_POSTGRES_JSON = $(abspath ./example_projects/example-project-postgres.json)
 
 PROJECT_NAME=`cat ${EXAMPLE_PROJECT_JSON}  | jq -r '.name'`
 
@@ -22,7 +22,12 @@ endif
 
 smoke_test:
 	./script/cli_test.sh ${EXAMPLE_PROJECT_JSON}
-	./script/cli_test.sh ${EXAMPLE_PROJECT_HTMX_JSON}
+
+smoke_test_postgres:
+	./script/cli_test.sh ${EXAMPLE_PROJECT_POSTGRES_JSON} start_postgres
+
+smoke_test_postgres_ci:
+	./script/cli_test.sh ${EXAMPLE_PROJECT_POSTGRES_JSON}
 
 create:
 	yarn run cli ${EXAMPLE_PROJECT_JSON} ${EXAMPLE_TAR_OUTPUT}

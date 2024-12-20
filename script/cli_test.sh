@@ -1,15 +1,26 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 if [ -z "$1" ]; then
     echo "Usage: $0 <project.json>"
     exit 1
 fi
 
+PROJECT_FILE=$1
+START_DOCKER=${START_DOCKER:-false}
+
+if [ ! -f "${PROJECT_FILE}" ]; then
+    echo "File not found: ${PROJECT_FILE}"
+    exit 1
+fi
+
 DIR=`mktemp --directory`
 TEMP_TAR="${DIR}/output.tar"
 PROJECT_NAME=`cat $1 | jq -r '.name'`
+PORT=9001
+POSTGRES_PORT=5432
+POSTGRES_HOST=localhost
 
 echo "Project name: ${PROJECT_NAME}"
 
@@ -18,7 +29,16 @@ if [ -z "${PROJECT_NAME}" ]; then
     exit 1
 fi
 
-yarn run cli $1 ${TEMP_TAR}
+if [ -n "${START_DOCKER}" ]; then
+    docker-compose up -d
+    RETRIES=20
+    until nc -z ${POSTGRES_HOST} ${POSTGRES_PORT} > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
+    echo "Waiting for postgres server, $((RETRIES--)) remaining attempts..."
+    sleep 1
+    done
+fi
+
+yarn run cli ${PROJECT_FILE} ${TEMP_TAR}
 
 cd ${DIR}
 tar -xvf ${TEMP_TAR}
@@ -29,18 +49,21 @@ source .venv/bin/activate
 uv pip sync requirements.txt 
 uv run python manage.py makemigrations
 uv run python manage.py migrate
-uv run python manage.py runserver 9001 &
+uv run python manage.py runserver ${PORT} &
 ID=$!
+
 curl --connect-timeout 5 \
     --retry-connrefused \
     --max-time 5 \
     --retry 5 \
     --retry-delay 2 \
     --retry-max-time 10 \
-    'http://127.0.0.1:9001'
+    "http://127.0.0.1:${PORT}"
 
-curl 'http://127.0.0.1:9001' | grep "DjangoModel1 Listing"
+curl "http://127.0.0.1:${PORT}" | grep "DjangoModel1 Listing"
 RESULT=$?
+
+echo "View Results at \e[32m${DIR}/${PROJECT_NAME}"
 
 kill ${ID}
 if [ $RESULT -eq 0 ]; then

@@ -69,7 +69,6 @@ switch (command) {
         })
         modelData.relationships.forEach((relationshipData: any) => {
           const to: BuiltInModel = BuiltInModelTypes[relationshipData.to];
-          console.log("Adding relationship", to);
           if (!to) {
             throw new Error(`Unsupported relationship to ${relationshipData.to}`);
           }
