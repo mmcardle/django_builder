@@ -87,7 +87,7 @@ jobs:
         image: postgres
         # Provide the password for postgres
         env:
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: mysecretpassword
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -106,7 +106,11 @@ jobs:
           # Install a specific version of uv.
           version: "0.5.6"
       - run: yarn
-      - run: make smoke_test_postgres_ci
+      - name: Run Smoke tests with Postgres to PostgreSQL
+        run: make smoke_test_postgres_ci
+        env:
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: 5432
   
   io_tests:
     name: DB.io - Unit Tests

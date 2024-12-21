@@ -8,7 +8,7 @@ if [ -z "$1" ]; then
 fi
 
 PROJECT_FILE=`realpath $1`
-START_DOCKER=$2
+START_DOCKER=$START_DOCKER
 
 if [ ! -f "${PROJECT_FILE}" ]; then
     echo "File not found: ${PROJECT_FILE}"
@@ -18,9 +18,9 @@ fi
 DIR=`mktemp --directory`
 TEMP_TAR="${DIR}/output.tar"
 PROJECT_NAME=`cat $1 | jq -r '.name'`
-PORT=9001
-POSTGRES_PORT=5432
-POSTGRES_HOST=localhost
+DJANGO_PORT=${DJANGO_PORT:-9001}
+POSTGRES_PORT=${POSTGRES_PORT:-5432}
+POSTGRES_HOST=${POSTGRES_HOST:-localhost}
 
 echo "Project name: ${PROJECT_NAME}"
 
@@ -49,7 +49,7 @@ source .venv/bin/activate
 uv pip sync requirements.txt 
 uv run python manage.py makemigrations
 uv run python manage.py migrate
-uv run python manage.py runserver ${PORT} &
+uv run python manage.py runserver ${DJANGO_PORT} &
 ID=$!
 
 curl --connect-timeout 5 \
@@ -58,9 +58,9 @@ curl --connect-timeout 5 \
     --retry 5 \
     --retry-delay 2 \
     --retry-max-time 10 \
-    "http://127.0.0.1:${PORT}"
+    "http://127.0.0.1:${DJANGO_PORT}" || kill ${ID}
 
-curl "http://127.0.0.1:${PORT}" | grep "DjangoModel1 Listing"
+curl "http://127.0.0.1:${DJANGO_PORT}" | grep "DjangoModel1 Listing"
 RESULT=$?
 
 echo "View Results at \e[32m${DIR}/${PROJECT_NAME}"

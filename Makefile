@@ -24,7 +24,7 @@ smoke_test:
 	./script/cli_test.sh ${EXAMPLE_PROJECT_JSON}
 
 smoke_test_postgres:
-	./script/cli_test.sh ${EXAMPLE_PROJECT_POSTGRES_JSON} start_postgres
+	./script/cli_test.sh ${EXAMPLE_PROJECT_POSTGRES_JSON} start_docker
 
 smoke_test_postgres_ci:
 	./script/cli_test.sh ${EXAMPLE_PROJECT_POSTGRES_JSON}
