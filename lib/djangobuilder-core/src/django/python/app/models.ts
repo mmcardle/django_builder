@@ -1,12 +1,9 @@
-export const template = `
-import time
-import uuid
-from datetime import timedelta, datetime, time
-
-from django.db import models
+export const template = `from django.db import models
 from django.urls import reverse
+{{#project.postgres}}
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.fields import ranges as postgres_range_fields
+{{/project.postgres}}
 
 {{#app.models}}
 
@@ -16,6 +13,7 @@ class {{name}}({{#modelParents parents}}{{/modelParents}}):
     {{name}} = models.{{type.name}}("{{ relatedTo .}}", {{{args}}})
     {{/relationships}}
 
+    # Fields
     {{#fields}}
     {{name}} = {{ importModule . }}.{{type.name}}({{{args}}})
     {{/fields}}

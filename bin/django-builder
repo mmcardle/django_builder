@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
 require = require('esm')(module /*, options*/);
-require('../packages/djangobuilder.io/src/cli').cli(process.argv);
+require('../lib/djangobuilder-core/src/cli').cli(process.argv);

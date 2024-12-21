@@ -4,13 +4,14 @@ jobs:
   
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
 
+      - run: sudo apt-get install -y jq
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
@@ -19,9 +20,9 @@ jobs:
         id: yarn-cache  # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-v2-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-v3-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-v2-
+            ${{ runner.os }}-yarn-v3-
 
       - run: yarn install
       - run: yarn build
@@ -41,58 +42,82 @@ jobs:
   smoke_tests:
     name: Core - Smoke tests
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: yarn
-      - run: yarn smoketest
+      - run: yarn test_smoke
  
   core_tests:
     name: Core - Unit tests
     needs: [smoke_tests]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: yarn
-      - run: yarn coretest
+      - run: yarn test_core
 
   cli_tests:
     name: DB.io - CLI Tests
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
+      - run: sudo apt-get install -y libsqlite3-dev
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          # Install a specific version of uv.
+          version: "0.5.6"
       - run: yarn
-      - run: script/cli_test.sh
+      - run: make smoke_test
+
+  cli_tests_postgres:
+    name: DB.io - CLI Tests for Postgres
+    needs: [build]
+    runs-on: ubuntu-24.04
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: mysecretpassword
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      # - run: sudo apt-get install -y libsqlite3-dev
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          # Install a specific version of uv.
+          version: "0.5.6"
+      - run: yarn
+      - name: Run Smoke tests with Postgres
+        run: make smoke_test_postgres_ci
+        env:
+          POSTGRES_URL: postgres://postgres:mysecretpassword@localhost:5432/postgres
   
   io_tests:
     name: DB.io - Unit Tests
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: yarn
       - run: yarn test_io
-
-  e2e_tests:
-    name: DB.io - E2E Tests
-    needs: [io_tests]
-    runs-on: ubuntu-latest
-    env:
-      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-      FIRESTORE_EMULATOR_HOST: localhost:8080
-      DISPLAY: ":99"
-    steps:
-      - uses: actions/checkout@v4
-      - run: sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-      - run: yarn
-      - name: Download dist
-        uses: actions/download-artifact@v4
-        with:
-          name: djangobuilder4_dist
-      - run: yarn ci
-      - uses: actions/upload-artifact@v4
-        if: ${{ always() }}
-        with:
-          name: firebase-debug
-          path: firebase-debug.log

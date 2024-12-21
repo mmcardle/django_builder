@@ -4,6 +4,9 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import {keyByValue} from './utils'
 import { event } from 'vue-gtag'
+import {
+  DjangoProject, DjangoApp, DjangoModel, DjangoField, DjangoRelationship, DjangoVersion, FieldTypes, BuiltInModelTypes
+} from "@djangobuilder/core";
 
 Vue.use(Vuex)
 
@@ -28,7 +31,84 @@ export default new Vuex.Store({
         return Object.assign(state.projects[pid].data(), {id: pid})
       })
     },
-    projectData: (state) => (id) => state.projects[id].data(),
+    projectData: (state) => (id) => state.projects[id],
+    toCoreProject: (state) => (projectId, project) => {
+      //const projectData = state.projects[id].data();
+
+      const coreVersion = String(project.django_version).startsWith("2")
+        ? DjangoVersion.DJANGO2
+        : String(project.django_version).startsWith("3")
+        ? DjangoVersion.DJANGO3
+        : DjangoVersion.DJANGO4;
+
+      const coreProject = new DjangoProject(
+        project.name,
+        project.description,
+        coreVersion,
+        {htmx: project.htmx, channels: project.channels},
+        projectId
+      );
+      console.log("project ID", project, projectId)
+
+      console.log("projectData", project)
+
+      Object.keys(project.apps).forEach(appId => {
+        const appData = state.apps[appId].data();
+        const coreApp = new DjangoApp(coreProject, appData.name, [], appId);
+        coreProject.apps.push(coreApp)
+
+        Object.keys(appData.models).forEach(modelId => {
+          const modelData = state.models[modelId].data();
+
+          let parents = [];
+          modelData.parents?.filter((p) => p.type === "django")
+            .forEach((parent) => {
+              const parentModelName = parent.class
+                .split(".")
+                .pop();
+              const coreParent = Object.values(BuiltInModelTypes).find(
+                (v) => v.model === parentModelName
+              );
+              if (coreParent) {
+                parents.push(coreParent);
+              }
+            });
+
+          const coreModel = coreApp.addModel(
+            modelData.name,
+            modelData.abstract,
+            [],
+            [],
+            parents,
+            modelId
+          );
+
+          Object.keys(modelData.fields).forEach(fieldId => {
+            const fieldData = state.fields[fieldId].data();
+            let fieldType = FieldTypes[fieldData.type]
+            if (!fieldType) {
+              const xs = fieldData.type.split(".")
+              const x = xs[xs.length -1]
+              fieldType = FieldTypes[x]
+            }
+            const coreField = new DjangoField(
+              coreModel, fieldData.name, fieldType, fieldData.args, fieldId
+            );
+            coreModel.fields.push(coreField);
+          });
+
+          Object.keys(modelData.relationships).forEach(relationshipId => {
+            const relationshipData = state.relationships[relationshipId].data();
+            const coreRelationship = new DjangoRelationship(
+              coreModel, relationshipData.name, relationshipData.type, relationshipData.to, relationshipData.args,
+              relationshipId
+            )
+            coreModel.relationships.push(coreRelationship);
+          });
+        })
+      })
+      return coreProject
+    },
     apps: (state) => () => state.apps,
     appData: (state) => (id) => state.apps[id] ? state.apps[id].data() : undefined,
     models: (state) => () => state.models,
@@ -44,21 +124,23 @@ export default new Vuex.Store({
         }
       })
       const models_no_parents = unordered_models.filter(model => model !== undefined).filter((model) => {
-        return model.parents?.length === 0
-      }).sort((a, b) => a.name.localeCompare(b.name) );
+        return model.parents.length === 0
+      })
 
       const models_with_parents = unordered_models.filter(model => model !== undefined).filter((model) => {
-        return model.parents?.length !== 0
+        return model.parents.length !== 0
       })
 
       const models_with_parents_sorted = models_with_parents.sort((model, otherModel) => {
-        const otherModelParentClasses = otherModel?.parents ? otherModel?.parents.filter(
-          (parentClass) => parentClass.type !== 'django'
-        ).map((c) => state.models[c.model].data().name) : [];
+        const otherModelParentClasses = otherModel.parents.filter((c) => {
+          return c.type !== 'django'
+        }).map((c) => {
+          return state.models[c.model].data().name
+        })
         return otherModelParentClasses.indexOf(model.name) === -1 ? 1 : -1
       })
 
-      return models_no_parents.concat(models_with_parents_sorted);
+      return models_no_parents.concat(models_with_parents_sorted)
     },
   },
   mutations: {
@@ -119,8 +201,8 @@ export default new Vuex.Store({
         firestore.collection('projects').where(
           "owner", "==", userid
         ).orderBy("name").onSnapshot((projectData) => {
-          commit('set_state', {key: 'projects', values: keyByValue(projectData.docs, "id")})
-          resolve()
+          //commit('set_state', {key: 'projects', values: keyByValue(projectData.docs, "id")})
+          resolve(projectData)
         }, snapShotErrorHandler)
       })
       const appPromise = new Promise((resolve) => {
@@ -160,7 +242,13 @@ export default new Vuex.Store({
       })
 
       const promises = [projectPromise, appPromise, modelsPromise, fieldsPromise, relationshipPromise]
-      return Promise.all(promises).then(() => {
+      return Promise.all(promises).then(async () => {
+        const projectData = await projectPromise
+        const projects = projectData.docs.reduce((acc, doc) => {
+          acc[doc.id] = this.getters.toCoreProject(doc.id, doc.data())
+          return acc
+        }, {})
+        commit('set_state', {key: 'projects', values: projects})
         commit('set_user', firebase.auth().currentUser)
       })
     },
@@ -260,27 +348,19 @@ export default new Vuex.Store({
         abstract: Boolean(payload.abstract),
         fields: {},
         relationships: {}
-      }).then(async (model) => {
-        if (payload.uuid_as_pk) {
-          await dispatch('addUUIDAsPk', model)
-        }
+      }).then((model) => {
         if (payload.add_default_fields) {
-          await dispatch('addDefaultFields', model)
+          return dispatch('addDefaultFields', model).then(() => {
+            return firebase.firestore().collection('apps').doc(payload.app).update(
+              {[`models.${model.id}`]: true}
+            ).then(() => model)
+          })
+        } else {
+          return firebase.firestore().collection('apps').doc(payload.app).update(
+            {[`models.${model.id}`]: true}
+          ).then(() => model)
         }
-        await firebase.firestore().collection('apps').doc(payload.app).update(
-          {[`models.${model.id}`]: true}
-        )
-        return model
       })
-    },
-    addUUIDAsPk: function ({dispatch}, model) {
-      const uuid_pk_field_payload = {
-        model: model.id,
-        name: 'id',
-        type: 'django.db.models.UUIDField',
-        args: 'primary_key=True, default=uuid.uuid4, editable=False'
-      }
-      return dispatch('addField', uuid_pk_field_payload)
     },
     addDefaultFields: function ({dispatch}, model) {
       const created_field_payload = {

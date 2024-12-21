@@ -1,24 +1,81 @@
 #!/bin/bash
 
-set -ex
+set -e
 
-./bin/django-builder example-project.json output.tar
+if [ -z "$1" ]; then
+    echo "Usage: $0 <project.json>"
+    exit 1
+fi
 
-tar -xvf output.tar
+PROJECT_FILE=`realpath $1`
+START_DOCKER=$START_DOCKER
 
-cd DjangoProject
-python3 -m venv .venv
+if [ ! -f "${PROJECT_FILE}" ]; then
+    echo "File not found: ${PROJECT_FILE}"
+    exit 1
+fi
+
+DIR=`mktemp --directory`
+TEMP_TAR="${DIR}/output.tar"
+PROJECT_NAME=`cat $1 | jq -r '.name'`
+DJANGO_PORT=${DJANGO_PORT:-9001}
+POSTGRES_HOST=${POSTGRES_HOST:-localhost}
+POSTGRES_PORT=${POSTGRES_PORT:-5432}
+
+echo "Config file: ${PROJECT_FILE}"
+echo "Temp dir: ${DIR}"
+echo "Temp tar: ${TEMP_TAR}"
+echo "Django port: ${DJANGO_PORT}"
+echo "Postgres host: ${POSTGRES_HOST}"
+echo "Postgres port: ${POSTGRES_PORT}"
+echo "Project name: ${PROJECT_NAME}"
+
+if [ -z "${PROJECT_NAME}" ]; then
+    echo "Project name is required"
+    exit 1
+fi
+
+if [ -n "${START_DOCKER}" ]; then
+    docker-compose up -d
+    RETRIES=20
+    until nc -z ${POSTGRES_HOST} ${POSTGRES_PORT} > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
+    echo "Waiting for postgres server, $((RETRIES--)) remaining attempts..."
+    sleep 1
+    done
+fi
+
+yarn run cli ${PROJECT_FILE} ${TEMP_TAR}
+
+cd ${DIR}
+tar -xvf ${TEMP_TAR}
+cd ${DIR}/${PROJECT_NAME}
+
+uv venv --python 3.13
 source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver &
+uv pip sync requirements.txt 
+uv run python manage.py makemigrations
+uv run python manage.py migrate
+uv run python manage.py runserver ${DJANGO_PORT} &
 ID=$!
+
 curl --connect-timeout 5 \
     --retry-connrefused \
     --max-time 5 \
     --retry 5 \
     --retry-delay 2 \
-    --retry-max-time 60 \
-    'http://127.0.0.1:8000'
+    --retry-max-time 10 \
+    "http://127.0.0.1:${DJANGO_PORT}" || kill ${ID}
+
+curl "http://127.0.0.1:${DJANGO_PORT}" | grep "DjangoModel1 Listing"
+RESULT=$?
+
+echo "View Results at \e[32m${DIR}/${PROJECT_NAME}"
+
 kill ${ID}
+if [ $RESULT -eq 0 ]; then
+    echo -e "\e[32mTest passed\e[0m"
+    exit 0
+else
+    echo -e "\e[31mTest failed\e[0m"
+    exit 1
+fi

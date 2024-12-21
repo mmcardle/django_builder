@@ -51,9 +51,10 @@ exports[`Project file tests DjangoTestCase {
 } 1`] = `
 "
 Django==4.1
-django-extensions
 djangorestframework
+asgiref
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -64,10 +65,11 @@ exports[`Project file tests DjangoTestCase {
 } 2`] = `
 "
 Django==4.1
-django-extensions
 djangorestframework
+asgiref
 django-htmx
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -78,11 +80,12 @@ exports[`Project file tests DjangoTestCase {
 } 3`] = `
 "
 Django==4.1
-django-extensions
 djangorestframework
+asgiref
 channels
 channels_redis
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -880,15 +883,6 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
   </div>
 </div>
 
-<div class='container'>
-  <div class='card'>
-    <div class='card-body'>
-      <div>
-        <a href="{% url 'htmx' %}">HTMX UI</a>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
 "
 `;
@@ -942,15 +936,6 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
   </div>
 </div>
 
-<div class='container'>
-  <div class='card'>
-    <div class='card-body'>
-      <div>
-        <a href="{% url 'htmx' %}">HTMX UI</a>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
 "
 `;
@@ -1199,6 +1184,8 @@ https://docs.djangoproject.com/
 """
 
 from pathlib import Path
+import os
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -1265,14 +1252,17 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+POSTGRES_URL = urlparse(
+    os.environ.get('POSTGRES_URL', 'postgres://postgres:mysecretpassword@localhost:5432/postgres')
+)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'mysecretpassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': POSTGRES_URL.path[1:],
+        'USER': POSTGRES_URL.username,
+        'PASSWORD': POSTGRES_URL.password,
+        'HOST': POSTGRES_URL.hostname,
+        'PORT': POSTGRES_URL.port,
     }
 }
 
@@ -1333,6 +1323,8 @@ https://docs.djangoproject.com/
 """
 
 from pathlib import Path
+import os
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -1399,14 +1391,17 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+POSTGRES_URL = urlparse(
+    os.environ.get('POSTGRES_URL', 'postgres://postgres:mysecretpassword@localhost:5432/postgres')
+)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'mysecretpassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': POSTGRES_URL.path[1:],
+        'USER': POSTGRES_URL.username,
+        'PASSWORD': POSTGRES_URL.password,
+        'HOST': POSTGRES_URL.hostname,
+        'PORT': POSTGRES_URL.port,
     }
 }
 
@@ -1467,6 +1462,8 @@ https://docs.djangoproject.com/
 """
 
 from pathlib import Path
+import os
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -1533,14 +1530,17 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+POSTGRES_URL = urlparse(
+    os.environ.get('POSTGRES_URL', 'postgres://postgres:mysecretpassword@localhost:5432/postgres')
+)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'mysecretpassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': POSTGRES_URL.path[1:],
+        'USER': POSTGRES_URL.username,
+        'PASSWORD': POSTGRES_URL.password,
+        'HOST': POSTGRES_URL.hostname,
+        'PORT': POSTGRES_URL.port,
     }
 }
 
@@ -1784,8 +1784,7 @@ exports[`Render Basic Project App Files __init__.py 2`] = `
 `;
 
 exports[`Render Basic Project App Files admin.py 1`] = `
-"
-from django.contrib import admin
+"from django.contrib import admin
 from django import forms
 
 from . import models
@@ -1801,12 +1800,12 @@ class TestModel1AdminForm(forms.ModelForm):
 class TestModel1Admin(admin.ModelAdmin):
     form = TestModel1AdminForm
     list_display = [
-        'TestField1',
-        'TestField1',
+        "TestField1",
+        "TestField1",
     ]
     readonly_fields = [
-        'TestField1',
-        'TestField1',
+        "TestField1",
+        "TestField1",
     ]
 
 
@@ -1818,8 +1817,9 @@ admin.site.register(models.TestModel1, TestModel1Admin)
 exports[`Render Basic Project App Files api.py 1`] = `
 "
 from rest_framework import viewsets, permissions
-from . import models
+
 from . import serializers
+from . import models
 
 
 class TestModel1ViewSet(viewsets.ModelViewSet):
@@ -1849,28 +1849,28 @@ exports[`Render Basic Project App Files forms.py 1`] = `
 "
 from django import forms
 from . import models
-#from  import auth.User
+from django.contrib.auth.models import User
 
 class TestModel1Form(forms.ModelForm):
     class Meta:
         model = models.TestModel1
         fields = [
-            'TestField1',
-            'TestField1',
+            "TestField1",
+            "TestField1",
         ]
 
     def __init__(self, *args, **kwargs):
         super(TestModel1Form, self).__init__(*args, **kwargs)
-        #self.fields["TestField1"].queryset = [object Object].objects.all()
+        self.fields["TestField1"].queryset = User.objects.all()
 "
 `;
 
 exports[`Render Basic Project App Files htmx.py 1`] = `
 "
 from django.views import generic
+from django.urls import reverse_lazy
 from django.shortcuts import HttpResponse
 from django.template.response import TemplateResponse
-from django.urls import reverse_lazy
 
 from . import models
 from . import forms
@@ -1882,7 +1882,7 @@ class HTMXTestModel1ListView(generic.ListView):
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
         context = {
-            "model_id": self.model._meta.model_name,
+            "model_id": self.model._meta.verbose_name_raw,
             "objects": self.get_queryset()
         }
         return TemplateResponse(request,'htmx/list.html', context)
@@ -1903,7 +1903,7 @@ class HTMXTestModel1CreateView(generic.CreateView):
     def form_valid(self, form):
         super().form_valid(form)
         context = {
-            "model_id": self.model._meta.model_name,
+            "model_id": self.model._meta.verbose_name_raw,
             "object": self.object,
             "form": form
         }
@@ -1930,21 +1930,15 @@ class HTMXTestModel1DeleteView(generic.DeleteView):
 `;
 
 exports[`Render Basic Project App Files models.py 1`] = `
-"
-import time
-import uuid
-from datetime import timedelta, datetime, time
-
-from django.db import models
+"from django.db import models
 from django.urls import reverse
-from django.contrib.postgres import fields as postgres_fields
-from django.contrib.postgres.fields import ranges as postgres_range_fields
 
 
 class TestModel1(models.Model):
 
     TestField1 = models.ForeignKey("auth.User", )
 
+    # Fields
     TestField1 = models.CharField()
 
     class Meta:
@@ -1982,8 +1976,8 @@ class TestModel1Serializer(serializers.ModelSerializer):
     class Meta:
         model = models.TestModel1
         fields = [
-            'TestField1',
-            'TestField1',
+            "TestField1",
+            "TestField1",
         ]
 
 "
@@ -2111,7 +2105,7 @@ exports[`Render Basic Project Model Files confirm_delete.html 1`] = `
   {% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>
   <div>
-    <input class="btn btn-danger" value="Delete AnotherModel" type="submit">
+    <input class="btn btn-danger" value="Delete {{ object }}" type="submit">
   </div>
 </form>
 {% endblock %}
@@ -2353,15 +2347,6 @@ exports[`Render Basic Project Root Files index.html 1`] = `
   </div>
 </div>
 
-<div class='container'>
-  <div class='card'>
-    <div class='card-body'>
-      <div>
-        <a href="{% url 'htmx' %}">HTMX UI</a>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
 "
 `;
@@ -2420,9 +2405,10 @@ addopts=-v -ra
 exports[`Render Basic Project Root Files requirements.txt 1`] = `
 "
 Django==4.1
-django-extensions
 djangorestframework
+asgiref
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -2473,6 +2459,8 @@ https://docs.djangoproject.com/
 """
 
 from pathlib import Path
+import os
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -2539,14 +2527,17 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+POSTGRES_URL = urlparse(
+    os.environ.get('POSTGRES_URL', 'postgres://postgres:mysecretpassword@localhost:5432/postgres')
+)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'mysecretpassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': POSTGRES_URL.path[1:],
+        'USER': POSTGRES_URL.username,
+        'PASSWORD': POSTGRES_URL.password,
+        'HOST': POSTGRES_URL.hostname,
+        'PORT': POSTGRES_URL.port,
     }
 }
 
@@ -2759,8 +2750,7 @@ exports[`Render Channels Project App Files __init__.py 2`] = `
 `;
 
 exports[`Render Channels Project App Files admin.py 1`] = `
-"
-from django.contrib import admin
+"from django.contrib import admin
 from django import forms
 
 from . import models
@@ -2789,8 +2779,9 @@ admin.site.register(models.TestModel3, TestModel3Admin)
 exports[`Render Channels Project App Files api.py 1`] = `
 "
 from rest_framework import viewsets, permissions
-from . import models
+
 from . import serializers
+from . import models
 
 
 class TestModel3ViewSet(viewsets.ModelViewSet):
@@ -2835,9 +2826,9 @@ class TestModel3Form(forms.ModelForm):
 exports[`Render Channels Project App Files htmx.py 1`] = `
 "
 from django.views import generic
+from django.urls import reverse_lazy
 from django.shortcuts import HttpResponse
 from django.template.response import TemplateResponse
-from django.urls import reverse_lazy
 
 from . import models
 from . import forms
@@ -2849,7 +2840,7 @@ class HTMXTestModel3ListView(generic.ListView):
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
         context = {
-            "model_id": self.model._meta.model_name,
+            "model_id": self.model._meta.verbose_name_raw,
             "objects": self.get_queryset()
         }
         return TemplateResponse(request,'htmx/list.html', context)
@@ -2870,7 +2861,7 @@ class HTMXTestModel3CreateView(generic.CreateView):
     def form_valid(self, form):
         super().form_valid(form)
         context = {
-            "model_id": self.model._meta.model_name,
+            "model_id": self.model._meta.verbose_name_raw,
             "object": self.object,
             "form": form
         }
@@ -2897,20 +2888,14 @@ class HTMXTestModel3DeleteView(generic.DeleteView):
 `;
 
 exports[`Render Channels Project App Files models.py 1`] = `
-"
-import time
-import uuid
-from datetime import timedelta, datetime, time
-
-from django.db import models
+"from django.db import models
 from django.urls import reverse
-from django.contrib.postgres import fields as postgres_fields
-from django.contrib.postgres.fields import ranges as postgres_range_fields
 
 
 class TestModel3(models.Model):
 
 
+    # Fields
 
     class Meta:
         pass
@@ -3070,7 +3055,7 @@ exports[`Render Channels Project Model Files confirm_delete.html 1`] = `
   {% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>
   <div>
-    <input class="btn btn-danger" value="Delete AnotherModel" type="submit">
+    <input class="btn btn-danger" value="Delete {{ object }}" type="submit">
   </div>
 </form>
 {% endblock %}
@@ -3343,15 +3328,6 @@ exports[`Render Channels Project Root Files index.html 1`] = `
   </div>
 </div>
 
-<div class='container'>
-  <div class='card'>
-    <div class='card-body'>
-      <div>
-        <a href="{% url 'htmx' %}">HTMX UI</a>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
 "
 `;
@@ -3410,11 +3386,12 @@ addopts=-v -ra
 exports[`Render Channels Project Root Files requirements.txt 1`] = `
 "
 Django==4.1
-django-extensions
 djangorestframework
+asgiref
 channels
 channels_redis
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -3465,6 +3442,8 @@ https://docs.djangoproject.com/
 """
 
 from pathlib import Path
+import os
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -3531,14 +3510,17 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+POSTGRES_URL = urlparse(
+    os.environ.get('POSTGRES_URL', 'postgres://postgres:mysecretpassword@localhost:5432/postgres')
+)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'mysecretpassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': POSTGRES_URL.path[1:],
+        'USER': POSTGRES_URL.username,
+        'PASSWORD': POSTGRES_URL.password,
+        'HOST': POSTGRES_URL.hostname,
+        'PORT': POSTGRES_URL.port,
     }
 }
 
@@ -3968,10 +3950,11 @@ addopts=-v -ra
 exports[`Render HTMX Project Root Files requirements.txt 1`] = `
 "
 Django==4.1
-django-extensions
 djangorestframework
+asgiref
 django-htmx
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -4022,6 +4005,8 @@ https://docs.djangoproject.com/
 """
 
 from pathlib import Path
+import os
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -4088,14 +4073,17 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+POSTGRES_URL = urlparse(
+    os.environ.get('POSTGRES_URL', 'postgres://postgres:mysecretpassword@localhost:5432/postgres')
+)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'mysecretpassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': POSTGRES_URL.path[1:],
+        'USER': POSTGRES_URL.username,
+        'PASSWORD': POSTGRES_URL.password,
+        'HOST': POSTGRES_URL.hostname,
+        'PORT': POSTGRES_URL.port,
     }
 }
 
@@ -4315,8 +4303,7 @@ exports[`Render HTMX ProjectApp Files __init__.py 2`] = `
 `;
 
 exports[`Render HTMX ProjectApp Files admin.py 1`] = `
-"
-from django.contrib import admin
+"from django.contrib import admin
 from django import forms
 
 from . import models
@@ -4332,16 +4319,16 @@ class TestModel2AdminForm(forms.ModelForm):
 class TestModel2Admin(admin.ModelAdmin):
     form = TestModel2AdminForm
     list_display = [
-        'TestField2',
-        'TestField3',
-        'TestField2',
-        'TestField3',
+        "TestField2",
+        "TestField3",
+        "TestField2",
+        "TestField3",
     ]
     readonly_fields = [
-        'TestField2',
-        'TestField3',
-        'TestField2',
-        'TestField3',
+        "TestField2",
+        "TestField3",
+        "TestField2",
+        "TestField3",
     ]
 
 
@@ -4353,8 +4340,9 @@ admin.site.register(models.TestModel2, TestModel2Admin)
 exports[`Render HTMX ProjectApp Files api.py 1`] = `
 "
 from rest_framework import viewsets, permissions
-from . import models
+
 from . import serializers
+from . import models
 
 
 class TestModel2ViewSet(viewsets.ModelViewSet):
@@ -4384,32 +4372,32 @@ exports[`Render HTMX ProjectApp Files forms.py 1`] = `
 "
 from django import forms
 from . import models
-#from  import auth.User
-#from  import auth.User
+from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 
 class TestModel2Form(forms.ModelForm):
     class Meta:
         model = models.TestModel2
         fields = [
-            'TestField2',
-            'TestField3',
-            'TestField2',
-            'TestField3',
+            "TestField2",
+            "TestField3",
+            "TestField2",
+            "TestField3",
         ]
 
     def __init__(self, *args, **kwargs):
         super(TestModel2Form, self).__init__(*args, **kwargs)
-        #self.fields["TestField2"].queryset = [object Object].objects.all()
-        #self.fields["TestField3"].queryset = [object Object].objects.all()
+        self.fields["TestField2"].queryset = User.objects.all()
+        self.fields["TestField3"].queryset = User.objects.all()
 "
 `;
 
 exports[`Render HTMX ProjectApp Files htmx.py 1`] = `
 "
 from django.views import generic
+from django.urls import reverse_lazy
 from django.shortcuts import HttpResponse
 from django.template.response import TemplateResponse
-from django.urls import reverse_lazy
 
 from . import models
 from . import forms
@@ -4421,7 +4409,7 @@ class HTMXTestModel2ListView(generic.ListView):
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
         context = {
-            "model_id": self.model._meta.model_name,
+            "model_id": self.model._meta.verbose_name_raw,
             "objects": self.get_queryset()
         }
         return TemplateResponse(request,'htmx/list.html', context)
@@ -4442,7 +4430,7 @@ class HTMXTestModel2CreateView(generic.CreateView):
     def form_valid(self, form):
         super().form_valid(form)
         context = {
-            "model_id": self.model._meta.model_name,
+            "model_id": self.model._meta.verbose_name_raw,
             "object": self.object,
             "form": form
         }
@@ -4469,15 +4457,8 @@ class HTMXTestModel2DeleteView(generic.DeleteView):
 `;
 
 exports[`Render HTMX ProjectApp Files models.py 1`] = `
-"
-import time
-import uuid
-from datetime import timedelta, datetime, time
-
-from django.db import models
+"from django.db import models
 from django.urls import reverse
-from django.contrib.postgres import fields as postgres_fields
-from django.contrib.postgres.fields import ranges as postgres_range_fields
 
 
 class TestModel2(models.Model):
@@ -4485,6 +4466,7 @@ class TestModel2(models.Model):
     TestField2 = models.ForeignKey("auth.User", )
     TestField3 = models.ForeignKey("auth.User", )
 
+    # Fields
     TestField2 = models.CharField()
     TestField3 = models.CharField()
 
@@ -4529,10 +4511,10 @@ class TestModel2Serializer(serializers.ModelSerializer):
     class Meta:
         model = models.TestModel2
         fields = [
-            'TestField2',
-            'TestField3',
-            'TestField2',
-            'TestField3',
+            "TestField2",
+            "TestField3",
+            "TestField2",
+            "TestField3",
         ]
 
 "
@@ -4668,7 +4650,7 @@ exports[`Render HTMX ProjectModel Files confirm_delete.html 1`] = `
   {% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>
   <div>
-    <input class="btn btn-danger" value="Delete AnotherModel" type="submit">
+    <input class="btn btn-danger" value="Delete {{ object }}" type="submit">
   </div>
 </form>
 {% endblock %}
