@@ -20,18 +20,25 @@ async function logout() {
   <div class="wrapper">
     <div class="welcome">
       <router-link :to="{ name: 'projects' }">
-        <img src="/favicon-16x16.png" />
+        <img src="/favicon-16x16.png">
       </router-link>
       <div class="welcome-text">
         Welcome to Django Builder - {{ user?.displayName || user?.email }}
       </div>
     </div>
-    <slot></slot>
+    <slot />
     <div class="header-link">
-      <router-link :to="{ name: 'projects' }">Projects</router-link>
+      <router-link :to="{ name: 'projects' }">
+        Projects
+      </router-link>
     </div>
     <div class="header-link header-link-right">
-      <button class="logout-button" @click="logout">Logout</button>
+      <button
+        class="logout-button"
+        @click="logout"
+      >
+        Logout
+      </button>
     </div>
   </div>
 </template>

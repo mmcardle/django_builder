@@ -36,23 +36,29 @@ function resetPassword() {
       <label>
         Email
         <input
+          v-model="email"
           name="login"
           label="Email"
           type="text"
-          v-model="email"
           autocomplete="email"
-        />
+        >
       </label>
-      <button @click="resetPassword">Reset</button>
+      <button @click="resetPassword">
+        Reset
+      </button>
       <div class="cancel">
-        <router-link to="login">Cancel</router-link>
+        <router-link to="login">
+          Cancel
+        </router-link>
       </div>
     </template>
     <template v-else>
       <p>
         A password reset email has been sent to your email address. Once you
         reset your password you can
-        <router-link :to="{ name: 'login' }">login</router-link>
+        <router-link :to="{ name: 'login' }">
+          login
+        </router-link>
       </p>
     </template>
   </CenteredFormLayout>

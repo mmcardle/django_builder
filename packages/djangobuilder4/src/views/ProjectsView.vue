@@ -56,10 +56,13 @@ async function handleCreateProject() {
 <template>
   <main id="content">
     <MainHeader />
-    <div id="projects" v-if="isLoaded">
+    <div
+      v-if="isLoaded"
+      id="projects"
+    >
       <div
         v-for="(project, id) in getCoreProjects"
-        v-bind:key="id"
+        :key="id"
         class="project-header-wrapper"
       >
         <ProjectHeader :project="project" />
@@ -72,10 +75,16 @@ async function handleCreateProject() {
         >
           New Project
         </button>
-        <div v-else id="new-project-form">
+        <div
+          v-else
+          id="new-project-form"
+        >
           <span id="new-project-title">Create Project</span>
           <form @submit.prevent>
-            <table cellpadding="2" cellspacing="2">
+            <table
+              cellpadding="2"
+              cellspacing="2"
+            >
               <tr v-if="error">
                 <td colspan="2">
                   <div id="new-project-error">
@@ -86,13 +95,20 @@ async function handleCreateProject() {
               <tr>
                 <td>Name</td>
                 <td>
-                  <input name="name" v-model="name" autocomplete="off" />
+                  <input
+                    v-model="name"
+                    name="name"
+                    autocomplete="off"
+                  >
                 </td>
               </tr>
               <tr>
                 <td>Description</td>
                 <td>
-                  <textarea name="description" v-model="description"></textarea>
+                  <textarea
+                    v-model="description"
+                    name="description"
+                  />
                 </td>
               </tr>
               <tr>
@@ -102,7 +118,7 @@ async function handleCreateProject() {
                     :value="String(django_version)"
                     :choices="DjangoVersionChoices"
                     display_as="radio"
-                    v-on:update="(value: string) => django_version = value"
+                    @update="(value: string) => django_version = value"
                   />
                 </td>
               </tr>
@@ -111,7 +127,7 @@ async function handleCreateProject() {
                 <td>
                   <EditableBoolean
                     :value="htmx"
-                    v-on:update="(value: boolean) => (htmx = value)"
+                    @update="(value: boolean) => (htmx = value)"
                   />
                 </td>
               </tr>
@@ -120,12 +136,12 @@ async function handleCreateProject() {
                 <td>
                   <EditableBoolean
                     :value="channels"
-                    v-on:update="(value: boolean) => (channels = value)"
+                    @update="(value: boolean) => (channels = value)"
                   />
                 </td>
               </tr>
               <tr>
-                <td></td>
+                <td />
                 <td>
                   <button
                     id="create-project-button"

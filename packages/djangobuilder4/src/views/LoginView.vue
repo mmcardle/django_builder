@@ -62,17 +62,19 @@ async function handleLogin() {
     <div id="loading">
       <LoadingSpinner v-if="isLoading" />
     </div>
-    <form @submit.prevent class="login-form">
+    <form
+      class="login-form"
+      @submit.prevent
+    >
       <div>
-        <label
-          >Username
+        <label>Username
           <input
             v-model="username"
             type="text"
             placeholder="Username"
             autocomplete="username"
             :disabled="isLoading"
-          />
+          >
         </label>
       </div>
       <div>
@@ -84,16 +86,26 @@ async function handleLogin() {
             placeholder="Password"
             autocomplete="current-password"
             :disabled="isLoading"
-          />
+          >
         </label>
       </div>
-      <button @click="handleLogin" :disabled="isLoading">Login</button>
+      <button
+        :disabled="isLoading"
+        @click="handleLogin"
+      >
+        Login
+      </button>
     </form>
     <div class="forgot-password">
-      <router-link to="reset_password">Forgot Password</router-link>
+      <router-link to="reset_password">
+        Forgot Password
+      </router-link>
     </div>
     <div class="login-anonymously">
-      <button @click="handleSignInAnonymously" :disabled="isLoading">
+      <button
+        :disabled="isLoading"
+        @click="handleSignInAnonymously"
+      >
         Sign In Anonymously
       </button>
     </div>
