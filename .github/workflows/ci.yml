@@ -94,6 +94,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       # - run: sudo apt-get install -y libsqlite3-dev
       - uses: actions/checkout@v4
