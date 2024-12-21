@@ -76,7 +76,7 @@ jobs:
       - run: make smoke_test
 
   cli_tests_postgres:
-    name: DB.io - CLI Tests
+    name: DB.io - CLI Tests for Postgres
     needs: [build]
     runs-on: ubuntu-24.04
     # Service containers to run with `container-job`
@@ -109,7 +109,7 @@ jobs:
       - name: Run Smoke tests with Postgres
         run: make smoke_test_postgres_ci
         env:
-          POSTGRES_URL: postgres://postgres:mysecretpassword@postgres:5432/postgres
+          POSTGRES_URL: postgres://postgres:mysecretpassword@localhost:5432/postgres
   
   io_tests:
     name: DB.io - Unit Tests

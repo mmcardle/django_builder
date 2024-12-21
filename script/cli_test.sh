@@ -19,8 +19,8 @@ DIR=`mktemp --directory`
 TEMP_TAR="${DIR}/output.tar"
 PROJECT_NAME=`cat $1 | jq -r '.name'`
 DJANGO_PORT=${DJANGO_PORT:-9001}
-POSTGRES_PORT=${POSTGRES_PORT:-5432}
 POSTGRES_HOST=${POSTGRES_HOST:-localhost}
+POSTGRES_PORT=${POSTGRES_PORT:-5432}
 
 echo "Config file: ${PROJECT_FILE}"
 echo "Temp dir: ${DIR}"
