@@ -7,8 +7,8 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-PROJECT_FILE=$1
-START_DOCKER=${START_DOCKER:-false}
+PROJECT_FILE=`realpath $1`
+START_DOCKER=$2
 
 if [ ! -f "${PROJECT_FILE}" ]; then
     echo "File not found: ${PROJECT_FILE}"
