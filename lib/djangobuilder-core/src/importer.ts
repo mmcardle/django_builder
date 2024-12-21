@@ -1,4 +1,3 @@
-import { Exception } from "handlebars"
 import {BuiltInModelTypes, DjangoRelationship, ParentModelTypes } from "./api"
 import { FieldTypes, RelationshipTypes, DjangoProject, DjangoApp, DjangoModel, DjangoField, DjangoVersion } from "./index"
 

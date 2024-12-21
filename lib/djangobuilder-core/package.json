@@ -22,8 +22,8 @@
     "typescript": "^4.8.4"
   },
   "scripts": {
-    "lint": "eslint .",
-    "fix-lint": "eslint . --fix",
+    "lint": "eslint src/ tests/ --ext .ts",
+    "fix-lint": "eslint src/ tests/ --fix",
     "test_smoke": "npx tsc && npx ts-node src/smoketest.ts",
     "test": "jest .",
     "cli": "tsc -t es5 src/cli.ts --outDir dist --esModuleInterop && node dist/cli.js render"

@@ -135,7 +135,7 @@ console.log(renderer.renderAppFile("forms.py", birdsApp));
 console.log(renderer.renderAppFile("test_views.py", birdsApp));
 
 const projectTree = renderer.asTree(zooProject);
-//console.log("ProjectTree", JSON.stringify(projectTree, null, 2))
+console.log("ProjectTree", JSON.stringify(projectTree, null, 2))
 
 const tarballContent = renderer.tarballContent(zooProject);
 const outputFile = `${zooProject.name}.tar`;
