@@ -1,4 +1,3 @@
-import { expect, test } from '@jest/globals'
 import { mount } from '@vue/test-utils'
 import Login from '@/components/Login.vue'
 

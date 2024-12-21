@@ -1,6 +1,7 @@
 {
   "name": "djangobuilder.io",
   "version": "2.0.0",
+  "type": "module",
   "private": true,
   "bin": {
     "django-builder": "bin/django-builder"
@@ -42,8 +43,8 @@
     "autoprefixer": "^10.4.8",
     "babel-core": "^6.26.3",
     "build-if-changed": "^1.5.5",
-    "eslint": "8",
-    "eslint-plugin-vue": "8",
+    "eslint": "^9.17.0",
+    "eslint-plugin-vue": "^9.32.0",
     "eslint-plugin-vuetify": "^1.0.0-beta.6",
     "jsdom": "^20.0.1",
     "sass": "^1.54.5",
@@ -62,7 +63,6 @@
   "bic": [
     "src"
   ],
-
   "postcss": {
     "plugins": {
       "autoprefixer": {}

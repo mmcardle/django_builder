@@ -1,16 +1,14 @@
-const globals = require("globals");
-const pluginJs = require("@eslint/js");
-const pluginVue = require("eslint-plugin-vue");
+import pluginVue from 'eslint-plugin-vue'
 
-/** @type {import('eslint').Linter.Config[]} */
-module.exports = [
-  {languageOptions: { globals: globals.browser }},
-  pluginJs.configs.recommended,
-  ...pluginVue.configs["flat/essential"],
+export default [
+  // add more generic rulesets here, such as:
+  // js.configs.recommended,
+  ...pluginVue.configs['flat/essential'],
+  // ...pluginVue.configs['flat/vue2-recommended'], // Use this if you are using Vue.js 2.x.
   {
-    files: ["**/*.{js,mjs,cjs,vue}"],
     rules: {
-      "vue/multi-word-component-names": "off",
-    },
-  },
-];
+      // override/add rules settings here, such as:
+      "vue/multi-word-component-names": "warn"
+    }
+  }
+]
