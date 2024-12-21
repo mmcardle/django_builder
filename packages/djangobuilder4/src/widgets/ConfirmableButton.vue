@@ -46,8 +46,12 @@ function handleAbortConfirm(): void {
       <div>
         {{ message }}
       </div>
-      <button class="cancel-button" @click="handleAbortConfirm()">Cancel</button>
-      <button class="confirm-button" @click="handleEndConfirm()">Confirm</button>
+      <button class="cancel-button" @click="handleAbortConfirm()">
+        Cancel
+      </button>
+      <button class="confirm-button" @click="handleEndConfirm()">
+        Confirm
+      </button>
     </PopUp>
   </span>
 </template>

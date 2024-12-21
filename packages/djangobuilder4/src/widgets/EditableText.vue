@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted, watch } from "vue";
+import { ref, nextTick, watch } from "vue";
 
 export interface Props {
   value: string;

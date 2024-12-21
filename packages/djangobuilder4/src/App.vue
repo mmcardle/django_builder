@@ -28,8 +28,12 @@ onMounted(async () => {
 <template>
   <template v-if="loading">
     <CenteredFormLayout>
-      <div id="djangobuilder">Django Builder</div>
-      <div id="loading">Loading...</div>
+      <div id="djangobuilder">
+        Django Builder
+      </div>
+      <div id="loading">
+        Loading...
+      </div>
       <LoadingSpinner />
     </CenteredFormLayout>
   </template>

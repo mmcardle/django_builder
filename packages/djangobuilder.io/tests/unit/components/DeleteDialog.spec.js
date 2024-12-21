@@ -4,14 +4,14 @@ import { vi } from 'vitest';
 
 describe('DeleteDialog.vue', () => {
 
-  it('renders with default headline and text', () => {
+  test('renders with default headline and text', () => {
     const wrapper = shallowMount(DeleteDialog)
     expect(wrapper.find("span").text()).toContain('Delete?')
     expect(wrapper.find("span").text()).toContain('mdi-delete')
     expect(wrapper.text()).toContain('Are you sure you wish to delete?')
   })
 
-  it('renders with set headline and text', () => {
+  test('renders with set headline and text', () => {
     const headline = 'Delete dialog headline'
     const text = 'Delete dialog text'
     const wrapper = shallowMount(DeleteDialog, {
@@ -25,7 +25,7 @@ describe('DeleteDialog.vue', () => {
     expect(wrapper.text()).toContain(text)
   })
 
-  it('has ok method', () => {
+  test('has ok method', () => {
     const ok = vi.fn()
     const wrapper = shallowMount(DeleteDialog, {
       propsData: {ok: ok}
@@ -37,7 +37,7 @@ describe('DeleteDialog.vue', () => {
     expect(wrapper.vm.deletedialog).not.toBeTruthy()
   })
 
-  it('has cancel method', () => {
+  test('has cancel method', () => {
     const cancel = vi.fn()
     const wrapper = shallowMount(DeleteDialog, {
       propsData: {cancel: cancel}

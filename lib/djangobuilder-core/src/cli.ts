@@ -25,6 +25,33 @@ console.log("Running CLI:", args);
 
 const command = args[0];
 
+interface JSONProject {
+  name: string;
+  description: string;
+  version?: DjangoVersion;
+  channels?: boolean;
+  htmx?: boolean;
+  postgres?: boolean;
+  pillow?: boolean;
+  apps: {
+    name: string;
+    models: {
+      name: string;
+      fields: {
+        name: string;
+        type: string;
+        args: string;
+      }[];
+      relationships: {
+        name: string;
+        type: string;
+        to: string;
+        args: string;
+      }[];
+    }[];
+  }[];
+}
+
 switch (command) {
   case 'render':
     if (args.length < 2) {
@@ -37,7 +64,7 @@ switch (command) {
     }
     const input_file = args[1];
     const output_file = args[2];
-    const projectData = JSON.parse(readFileSync(input_file, 'utf8'));
+    const projectData: JSONProject = JSON.parse(readFileSync(input_file, 'utf8'));
     
     const projectParams = {
       channels: projectData.channels || false,
@@ -56,9 +83,9 @@ switch (command) {
 
       const djangoApp = new DjangoApp(project, appData.name);
 
-      const models = appData.models.map((modelData: any) => {
-        const model = new DjangoModel(djangoApp, modelData.name, false, []);
-        modelData.fields.forEach((field: any) => {
+      const models = appData.models.map((modelData) => {
+        const model = new DjangoModel(djangoApp, modelData['name'], false, []);
+        modelData.fields.forEach((field) => {
           const editable = field.args.indexOf("editable=False") === -1;
           console.log("Adding field", field);
           const fieldType = FieldTypes[field.type];
@@ -67,7 +94,7 @@ switch (command) {
           }
           model.addField(field.name, fieldType, field.args, editable);
         })
-        modelData.relationships.forEach((relationshipData: any) => {
+        modelData.relationships.forEach((relationshipData) => {
           const to: BuiltInModel = BuiltInModelTypes[relationshipData.to];
           if (!to) {
             throw new Error(`Unsupported relationship to ${relationshipData.to}`);

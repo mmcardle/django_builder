@@ -46,7 +46,7 @@ function project_data_to_store(project_data) {
     }
     Object.assign(appData, { [`${i}`]: singleAppData});
     
-    app.models.forEach((model, i) => {
+    app.models.forEach((model) => {
       const singleModelData = {
         ...model,
         parents: model.parents || [],
@@ -57,7 +57,7 @@ function project_data_to_store(project_data) {
       
       Object.assign(modelData, { [`${model.name}`]: singleModelData});
 
-      model.fields.forEach((field, i) => {
+      model.fields.forEach((field) => {
         const singleFieldData = {
           data: () => {
             return {
@@ -70,7 +70,7 @@ function project_data_to_store(project_data) {
         singleModelData.fields[`${field.name}`] = true
       })
 
-      model.relationships.forEach((relationship, i) => {
+      model.relationships.forEach((relationship) => {
         const singleRelationshipData = {
           data: () => {
             return {

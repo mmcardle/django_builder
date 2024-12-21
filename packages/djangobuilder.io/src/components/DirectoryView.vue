@@ -19,14 +19,14 @@
         </h2>
         <v-card class="ma-2 mr-0" elevation="2">
           <v-card-text class="ma-0 pa-0">
-            <v-treeview dense :items="items" :open.sync="open" :open-all="false" item-key="path" open-on-click return-object
+            <v-treeview dense :items="items" v-model:open="open" :open-all="false" item-key="path" open-on-click return-object
               style="min-height: 800px;">
-              <template v-slot:prepend="{ item, open }" v-on:click="click">
+              <template v-slot:prepend="{ item, open }">
                 <v-icon class="blue--text text--darken-4" v-if="item.folder && open" small>mdi-folder-open</v-icon>
                 <v-icon class="blue--text text--darken-4" v-else-if="item.folder" small>mdi-folder</v-icon>
                 <v-icon class="blue--text text--darken-4" v-else small>{{icon(item.name)}}</v-icon>
               </template>
-              <template slot="label" slot-scope="{ item }">
+              <template v-slot:label="{ item }" >
                 <div @click="click(item)" :class="active !== undefined && active.path === item.path ? 'red--text text--darken-4 font-weight-bold hidden-md-and-up' : 'hidden-md-and-up'">
                   {{ item.name }}
                 </div>
@@ -95,7 +95,6 @@
 </template>
 
 <script>
-import store from "../store";
 import { Renderer as DBCoreRenderer } from "@djangobuilder/core"
 import { DjangoProjectFileResource } from "@djangobuilder/core/src/rendering"
 const coreRenderer = new DBCoreRenderer();

@@ -13,7 +13,7 @@
             </span>
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon @click.native="import_dialog = false">
+          <v-btn icon @click="import_dialog = false">
             <v-icon>close</v-icon>
           </v-btn>
         </v-app-bar>
@@ -39,8 +39,10 @@
             <h4 class="text-h6 font-weight-medium font-italics">
               Importing Models - {{num_imported}}/{{imported_models.length}} complete ...
             </h4>
-            <v-progress-linear slot="extension" :value="importing_percent" class="ma-2">
-            </v-progress-linear>
+            <template v-slot:extension>
+              <v-progress-linear  :value="importing_percent" class="ma-2">
+              </v-progress-linear>
+            </template>
           </v-col>
           <v-col>
             <v-icon class="ma-4" color="primary">
@@ -535,7 +537,6 @@ export default {
       const data = this.$store.getters.projectData(this.id);
       const newOpts = {}
       Object.values(data.apps).forEach(app => {
-        const appData = this.appData(app);
         Object.keys(app.models).forEach(modelid => {
           console.log(modelid)
           const modelData = this.modelData(modelid);

@@ -20,9 +20,9 @@ jobs:
         id: yarn-cache  # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-v3-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-v4-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-v3-
+            ${{ runner.os }}-yarn-v4-
 
       - run: yarn install
       - run: yarn build
@@ -38,6 +38,30 @@ jobs:
         with:
           name: djangobuilder.io_dist
           path: ./packages/djangobuilder.io/dist
+
+  lint:
+    name: Lint
+    needs: [build]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+  
+      - uses: actions/cache@v3
+        id: yarn-cache  # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-v4-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-v4-
+      - run: yarn
+      - run: yarn lint
 
   smoke_tests:
     name: Core - Smoke tests

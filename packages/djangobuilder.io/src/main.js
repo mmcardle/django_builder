@@ -35,7 +35,7 @@ Vue.component('django-builder-title', DjangoBuilderTitle)
 
 Vue.config.productionTip = false
 
-firebase.auth().onAuthStateChanged(function(_user) {
+firebase.auth().onAuthStateChanged(function() {
   if (!app) {
     app = new Vue({
       vuetify,

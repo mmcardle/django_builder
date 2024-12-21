@@ -113,7 +113,7 @@
           <v-toolbar text>
             <v-toolbar-title><django-builder-title /></v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon @click.native="dialog = false">
+            <v-btn icon @click="dialog = false">
               <v-icon>close</v-icon>
             </v-btn>
           </v-toolbar>

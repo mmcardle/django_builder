@@ -9,7 +9,10 @@ import type {
   IFieldTestDefault,
   IRelationshipType,
   IRelatedField,
-  IParentField,
+  IParentField
+
+
+  
 } from "./types";
 import { DjangoVersion } from "./types";
 import { uniqueId } from "./util";
