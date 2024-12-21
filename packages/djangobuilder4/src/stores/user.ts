@@ -43,14 +43,7 @@ import {
   DjangoField,
   DjangoModel,
 } from "@djangobuilder/core";
-import { AuthUser } from "@djangobuilder/core/src/api";
-import type {
-  IDjangoApp,
-  IDjangoField,
-  IDjangoModel,
-  IDjangoRelationship,
-  IParentField,
-} from "@djangobuilder/core/src/types";
+import type { IDjangoModel, IParentField } from "@djangobuilder/core/src/types";
 import type { DjangoEntity } from "@djangobuilder/core/src/rendering";
 
 function getRecordOrThrow(record: Record<string, DjangoEntity>, id: string) {

@@ -108,8 +108,8 @@
           this.$store.dispatch('load', userData.user.uid)
         }).catch(function(error) {
           // Handle Errors here.
-          var _errorCode = error.code;
-          var _errorMessage = error.message;
+          // var _errorCode = error.code;
+          // var _errorMessage = error.message;
           console.log('signInAnonymously error', error)
           // ...
         });
@@ -118,21 +118,21 @@
         var provider = new firebase.auth.GithubAuthProvider();
         firebase.auth().signInWithPopup(provider).then((userData) => {
           // This gives you a GitHub Access Token. You can use it to access the GitHub API.
-          var _unused = userData.credential.accessToken;
+          // var _unused = userData.credential.accessToken;
           // The signed-in user info.
-          var _user = userData.user;
+          // var _user = userData.user;
           // ...
           console.log('signInWithGithub', userData)
           this.$router.replace('home')
           this.$store.dispatch('load', userData.user.uid)
         }).catch(function(error) {
           // Handle Errors here.
-          var _errorCode = error.code;
-          var _errorMessage = error.message;
+          // var _errorCode = error.code;
+          // var _errorMessage = error.message;
           // The email of the user's account used.
-          var _email = error.email;
+          // var _email = error.email;
           // The firebase.auth.AuthCredential type that was used.
-          var _credential = error.credential;
+           //var _credential = error.credential;
           // ...
           console.log('signInWithGithub error', error)
         });

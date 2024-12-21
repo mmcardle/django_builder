@@ -5,7 +5,7 @@ import 'firebase/compat/firestore';
 import {keyByValue} from './utils'
 import { event } from 'vue-gtag'
 import {
-  DjangoProject, DjangoApp, DjangoModel, DjangoField, DjangoRelationship, DjangoVersion, FieldTypes, BuiltInModelTypes
+  DjangoProject, DjangoApp, DjangoField, DjangoRelationship, DjangoVersion, FieldTypes, BuiltInModelTypes
 } from "@djangobuilder/core";
 
 Vue.use(Vuex)

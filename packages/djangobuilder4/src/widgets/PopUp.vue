@@ -1,17 +1,15 @@
 <script setup lang="ts">
-
 const props = defineProps<{
   location?: string;
 }>();
 
-let popupClass = "popup-left"
+let popupClass = "popup-left";
 
 switch (props.location) {
   case "right":
-    popupClass = "popup-right"
+    popupClass = "popup-right";
     break;
 }
-
 </script>
 
 <template>

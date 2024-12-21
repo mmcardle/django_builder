@@ -39,6 +39,17 @@ jobs:
           name: djangobuilder.io_dist
           path: ./packages/djangobuilder.io/dist
 
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: yarn
+      - run: yarn lint
+
   smoke_tests:
     name: Core - Smoke tests
     needs: [build]

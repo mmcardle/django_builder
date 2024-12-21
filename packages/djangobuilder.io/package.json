@@ -9,7 +9,8 @@
     "dev": "vite --port 8080",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore --fix src",
+    "lint": "eslint ./src/ ./tests",
+    "lint:fix": "yarn run lint --fix",
     "test:unit": "vitest --run",
     "pree2e": "yarn bic",
     "preci": "yarn bic"
@@ -61,35 +62,7 @@
   "bic": [
     "src"
   ],
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "es2021": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "plugin:@typescript-eslint/recommended",
-      "eslint:recommended"
-    ],
-    "plugins": [
-      "vuetify"
-    ],
-    "rules": {
-      "vuetify/no-deprecated-classes": "error",
-      "vuetify/no-legacy-grid": "error",
-      "no-console": "off",
-      "no-empty-pattern": "error",
-      "no-unused-vars": [
-        "off",
-        {
-          "vars": "all",
-          "args": "after-used",
-          "argsIgnorePattern": "^_|^unused$",
-          "varsIgnorePattern": "^_.*$"
-        }
-      ]
-    }
-  },
+
   "postcss": {
     "plugins": {
       "autoprefixer": {}

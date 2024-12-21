@@ -157,7 +157,7 @@ export default {
         name: name,
         owner:  this.userid,
         apps: {}
-      }).then((_project) => {
+      }).then(() => {
         this.load()
       })
 
