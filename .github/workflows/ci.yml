@@ -109,8 +109,7 @@ jobs:
       - name: Run Smoke tests with Postgres
         run: make smoke_test_postgres_ci
         env:
-          POSTGRES_HOST: postgres
-          POSTGRES_PORT: 5432
+          POSTGRES_URL: postgres://postgres:mysecretpassword@postgres:5432/postgres
   
   io_tests:
     name: DB.io - Unit Tests

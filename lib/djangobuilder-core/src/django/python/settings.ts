@@ -10,6 +10,10 @@ https://docs.djangoproject.com/
 """
 
 from pathlib import Path
+{{#project.postgres}}
+import os
+from urllib.parse import urlparse
+{{/project.postgres}}
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,14 +78,17 @@ WSGI_APPLICATION = '{{project.name}}.wsgi.application'
 # https://docs.djangoproject.com/en/{{project.version}}/ref/settings/#databases
 
 {{#project.postgres}}
+POSTGRES_URL = urlparse(
+    os.environ.get('POSTGRES_URL', 'postgres://postgres:mysecretpassword@localhost:5432/postgres')
+)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'mysecretpassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': POSTGRES_URL.path[1:],
+        'USER': POSTGRES_URL.username,
+        'PASSWORD': POSTGRES_URL.password,
+        'HOST': POSTGRES_URL.hostname,
+        'PORT': POSTGRES_URL.port,
     }
 }
 {{/project.postgres}}
