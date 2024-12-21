@@ -22,6 +22,12 @@ DJANGO_PORT=${DJANGO_PORT:-9001}
 POSTGRES_PORT=${POSTGRES_PORT:-5432}
 POSTGRES_HOST=${POSTGRES_HOST:-localhost}
 
+echo "Config file: ${PROJECT_FILE}"
+echo "Temp dir: ${DIR}"
+echo "Temp tar: ${TEMP_TAR}"
+echo "Django port: ${DJANGO_PORT}"
+echo "Postgres host: ${POSTGRES_HOST}"
+echo "Postgres port: ${POSTGRES_PORT}"
 echo "Project name: ${PROJECT_NAME}"
 
 if [ -z "${PROJECT_NAME}" ]; then

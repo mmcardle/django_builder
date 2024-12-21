@@ -106,7 +106,7 @@ jobs:
           # Install a specific version of uv.
           version: "0.5.6"
       - run: yarn
-      - name: Run Smoke tests with Postgres to PostgreSQL
+      - name: Run Smoke tests with Postgres
         run: make smoke_test_postgres_ci
         env:
           POSTGRES_HOST: postgres
