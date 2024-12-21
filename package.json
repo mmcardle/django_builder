@@ -26,11 +26,11 @@
     "build_io": "yarn workspace djangobuilder.io build",
     "build_v4": "yarn workspace djangobuilder.io build",
     "lint": "yarn workspace djangobuilder.io lint",
-    "smoketest": "yarn workspace @djangobuilder/core run smoketest",
-    "coretest": "yarn workspace @djangobuilder/core run test",
+    "test_smoke": "yarn workspace @djangobuilder/core run test_smoke",
+    "test_core": "yarn workspace @djangobuilder/core run test",
     "test_v4": "yarn workspace djangobuilder.io run test:unit",
     "test_io": "yarn workspace djangobuilder.io run test:unit",
-    "test": "yarn run smoketest && yarn coretest && yarn test_v4 && yarn test_io",
+    "test": "yarn run test_smoke && yarn test_core && yarn test_v4 && yarn test_io",
     "ci": "yarn workspace djangobuilder.io run ci",
     "cli": "yarn workspace @djangobuilder/core run cli"
   }

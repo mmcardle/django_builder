@@ -46,7 +46,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: yarn
-      - run: yarn smoketest
+      - run: yarn test_smoke
  
   core_tests:
     name: Core - Unit tests
@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: yarn
-      - run: yarn coretest
+      - run: yarn test_core
 
   cli_tests:
     name: DB.io - CLI Tests
