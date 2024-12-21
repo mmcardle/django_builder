@@ -11,10 +11,10 @@ django-htmx
 {{/project.htmx}}
 {{#project.postgres}}
 psycopg2-binary
-sqlparse
 {{else}}
 pysqlite3
 {{/project.postgres}}
+sqlparse
 {{#project.pillow}}
 Pillow
 {{/project.pillow}}
