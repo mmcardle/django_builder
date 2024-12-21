@@ -54,6 +54,7 @@ Django==4.1
 djangorestframework
 asgiref
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -68,6 +69,7 @@ djangorestframework
 asgiref
 django-htmx
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -83,6 +85,7 @@ asgiref
 channels
 channels_redis
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -2390,6 +2393,7 @@ Django==4.1
 djangorestframework
 asgiref
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -3367,6 +3371,7 @@ asgiref
 channels
 channels_redis
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
@@ -3924,6 +3929,7 @@ djangorestframework
 asgiref
 django-htmx
 psycopg2-binary
+sqlparse
 Pillow
 "
 `;
