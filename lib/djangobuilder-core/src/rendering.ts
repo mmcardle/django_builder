@@ -107,7 +107,7 @@ Handlebars.registerHelper(
 Handlebars.registerHelper(
   "testViewsCreateDefaultField",
   (field: DjangoField) => {
-    if (field.type.testDefault instanceof Array<string | number>) {
+    if (Array.isArray(field.type.testDefault)) {
       return (field.type.testDefault as Array<string | number>)
         .map((fieldDefault, i) => `'${field.name}_${i}': ${fieldDefault},`)
         .join("\n      ");
@@ -180,7 +180,6 @@ const CONFIRM_DELETE = "confirm_delete.html";
 const DELETE_BUTTON = "delete_button.html";
 
 const TEST_REQUIREMENTS_TXT = "test_requirements.txt";
-const TEST_SETTINGS_PY = "test_settings.py";
 
 const TEST_VIEWS = "test_views.py";
 
@@ -216,7 +215,6 @@ export const ROOT_FILES = {
   [`${REQUIREMENTS_TXT}`]: rootRequirements,
   [`${REQUIREMENTS_DEV_TXT}`]: rootRequirementsDev,
   [`${TEST_REQUIREMENTS_TXT}`]: rootTestRequirements,
-  [`${TEST_SETTINGS_PY}`]: rootTestSettings,
 };
 
 export const PROJECT_FILES = {
@@ -287,10 +285,10 @@ export default class Renderer {
 
   renderProjectFile(file: string, project: DjangoProject) {
     const template =
-      PROJECT_FILES[file] ||
-      PROJECT_TEMPLATE_FILES[file] ||
-      ROOT_FILES[file] ||
-      PROJECT_HTMX_TEMPLATE_FILES[file];
+      PROJECT_FILES[file as keyof typeof PROJECT_FILES] ||
+      PROJECT_TEMPLATE_FILES[file as keyof typeof PROJECT_TEMPLATE_FILES] ||
+      ROOT_FILES[file as keyof typeof ROOT_FILES] ||
+      PROJECT_HTMX_TEMPLATE_FILES[file as keyof typeof PROJECT_HTMX_TEMPLATE_FILES];
     if (template) {
       return this.renderTemplate(template, { project });
     } else {
@@ -303,14 +301,14 @@ export default class Renderer {
       file.endsWith(template_file)
     );
     if (foundtemplate) {
-      return this.renderTemplate(MODEL_TEMPLATE_FILES[foundtemplate], { model });
+      return this.renderTemplate(MODEL_TEMPLATE_FILES[foundtemplate as keyof typeof MODEL_TEMPLATE_FILES], { model });
     } else {
       throw Error(`No model template for ${file}`);
     }
   }
 
   renderAppFile(file: string, app: DjangoApp) {
-    const template = APP_FILES[file] || APP_TEST_FILES[file];
+    const template = APP_FILES[file as keyof typeof APP_FILES] || APP_TEST_FILES[file as keyof typeof APP_TEST_FILES];
     if (template) {
       return this.renderTemplate(template, { app });
     } else {
