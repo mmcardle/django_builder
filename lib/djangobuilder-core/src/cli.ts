@@ -53,7 +53,7 @@ interface JSONProject {
 }
 
 switch (command) {
-  case 'render':
+  case 'render': {
     if (args.length < 2) {
       console.error('No template provided for rendering.');
       process.exit(1);
@@ -120,7 +120,9 @@ switch (command) {
     writeFileSync(absolutePath, tarballContent);
     console.log(`Rendered project to ${absolutePath}`);
     break;
-  default:
+  }
+  default: {
     console.error(`Unknown command: ${command}`);
     process.exit(1);
+  }
 }
