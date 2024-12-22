@@ -11,6 +11,13 @@ firebase-debug.log
 
 screens/
 
+# python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+.python-version
+
 # env files
 .env
 .env.local
