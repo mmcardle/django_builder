@@ -1,3 +1,4 @@
+rules_version = '2';
 // Deny read/write access to all users under any conditions
 service cloud.firestore {
   match /databases/{database}/documents {
