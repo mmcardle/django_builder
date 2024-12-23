@@ -30,7 +30,7 @@
     "lint_io": "yarn workspace djangobuilder.io lint",
     "lint_v4": "yarn workspace djangobuilder4 lint",
     "lint_fix": "yarn run lint_fix_core && yarn lint_fix_io && yarn lint_fix_v4",
-    "lint_fix_core": "yarn workspace @djangobuilder/core fix-lint",
+    "lint_fix_core": "yarn workspace @djangobuilder/core lint:fix",
     "lint_fix_io": "yarn workspace djangobuilder.io lint:fix",
     "lint_fix_v4": "yarn workspace djangobuilder4 lint:fix",
     "test_smoke": "yarn workspace @djangobuilder/core run test_smoke",
