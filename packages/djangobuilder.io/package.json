@@ -19,8 +19,8 @@
   "dependencies": {
     "@djangobuilder/core": "1.0.0",
     "esm": "^3.2.25",
-    "firebase": "^9.1.0",
-    "firebase-tools": "^9.19.0",
+    "firebase": "^11.1.0",
+    "firebase-tools": "^13.29.1",
     "highlight.js": "^11.2.0",
     "raw-loader": "^4.0.2",
     "tar-js": "^0.3.0",
