@@ -84,7 +84,7 @@
             <v-alert class="white--text" :value="true" color="primary" type=info>
               <v-btn class="mt-2" color="error" absolute right top fab x-small @click="clearMoveModel"><v-icon x-small>mdi-close</v-icon></v-btn>
               Click here to move
-              <span class="orange--text2 text--darken-3 font-weight-bold">{{movingModel.name}}</span>.<span class="orange--text">{{modelData(movingModel.model).name}}
+              <span class="orange--text2 text--darken-3 font-weight-bold">{{appData(movingModel.app).name}}</span>.<span class="orange--text">{{modelData(movingModel.model).name}}
               </span>
               to
               <span class="orange--text2 text--darken-3 font-weight-bold">{{app.name}}</span>.<span class="orange--text">{{modelData(movingModel.model).name}}
@@ -93,7 +93,7 @@
           </div>
 
           <v-card
-            v-for="model in app.models"
+            v-for="model in $store.getters.ordered_models(appid)"
             :key="model.name + appid"
             class="mb-2 pt-1 pb-1"
             elevation="0"
@@ -156,11 +156,11 @@
               </a>
             </v-card-title>
 
-            <v-list v-if="model.relationships.length > 0" class="py-0">
+            <v-list v-if="Object.keys(model.relationships).length > 0" class="py-0">
               <v-list-item
                 @click="showEditRelationshipDialog(relationshipid)"
                 class="mb-1"
-                v-for="(relationship, relationshipid) in model.relationships"
+                v-for="(_, relationshipid) in model.relationships"
                 ripple 
                 :key="relationshipid + appid"
               >
@@ -170,15 +170,15 @@
 
                 <v-list-item-content class="py-0">
                   <v-list-item-title class="subheading font-weight-medium">
-                    <span class="red--text">{{relationship.name}}</span>
+                    <span class="red--text">{{relationshipData(relationshipid).name}}</span>
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-body-2">
-                    {{relationship.type.split('.').pop()}}
+                    {{relationshipData(relationshipid).type.split('.').pop()}}
                     (
                     <span
                       class="green--text"
-                    >{{relationship.to.split('.').pop()}}</span>
-                    ,{{relationship.args}})
+                    >{{relationshipData(relationshipid).to.split('.').pop()}}</span>
+                    ,{{relationshipData(relationshipid).args}})
                   </v-list-item-subtitle>
                 </v-list-item-content>
 
@@ -190,26 +190,26 @@
               </v-list-item>
             </v-list>
 
-            <v-list v-if="app.models.length > 0" class="py-0">
+            <v-list v-if="Object.keys(model.fields).length > 0" class="py-0">
               <v-list-item
                 @click="showEditFieldDialog(fieldid)"
                 ripple
-                v-for="(field, fieldid) in model.fields"
+                v-for="(_, fieldid) in model.fields"
                 :key="fieldid + appid"
-              >
+                >
                 <v-list-item-avatar size="20" style="min-width: 30px" class="hidden-xs-only">
                   <v-icon small class="grey--text text--lighten-1">mdi-circle</v-icon>
                 </v-list-item-avatar>
 
                 <v-list-item-content class="py-0 subheading font-weight-medium">
                   <v-list-item-title>
-                    <span class="primary--text">{{field.name}}</span>
+                    <span class="primary--text">{{fieldData(fieldid).name}}</span>
                   </v-list-item-title>
                   <v-list-item-subtitle>
-                    {{field.type.name.split('.').pop()}}
+                    {{fieldData(fieldid).type.split('.').pop()}}
                     <span
                       class="hidden-xs-only"
-                    >({{field.args}})</span>
+                    >({{fieldData(fieldid).args}})</span>
                   </v-list-item-subtitle>
                 </v-list-item-content>
 
@@ -291,7 +291,12 @@ export default {
   },
   computed: {
     apps: function() {
-      return this.$store.getters.projectData(this.id).data().apps
+      const appKeys = Object.keys(this.$store.getters.projectData(this.id).data().apps)
+      const apps = {}
+      appKeys.forEach(appKey => {
+        apps[appKey] = this.$store.getters.appData(appKey)
+      })
+      return apps
     }
   },
   methods: {
@@ -536,14 +541,15 @@ export default {
       var schema_with_users_models = schemas.model();
       const data = this.$store.getters.projectData(this.id).data();
       const newOpts = {}
-      Object.values(data.apps).forEach(app => {
-        Object.values(app.models).forEach(model => {
-          const modelData = this.modelData(model.id);
+      Object.keys(data.apps).forEach(appId => {
+        const app = this.appData(appId)
+        Object.keys(app.models).forEach(modelid => {
+          const modelData = this.modelData(modelid);
           const rel = app.name + ".models." + modelData.name;
           newOpts[rel] = {
             type: "user",
-            model: model.id,
-            app: app.id
+            model: modelid,
+            app: appId
           };
         });
       });
