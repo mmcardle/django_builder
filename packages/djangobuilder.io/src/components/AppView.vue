@@ -240,7 +240,7 @@
             </v-card-text>
           </v-card>
 
-          <div v-if="app.models.length === 0" class="mb-3">
+          <div v-if="$store.getters.ordered_models(appid).length == 0" class="mb-3">
             <v-subheader class="ma-2">Add some models.</v-subheader>
             <v-subheader class="ma-2">
               <v-btn color="info" block @click="showModelDialog(appid)">
@@ -291,7 +291,7 @@ export default {
   },
   computed: {
     apps: function() {
-      return this.$store.getters.projectData(this.id).apps
+      return this.$store.getters.projectData(this.id).data().apps
     }
   },
   methods: {
@@ -534,17 +534,16 @@ export default {
     },
     _modelSchemaForApp: function() {
       var schema_with_users_models = schemas.model();
-      const data = this.$store.getters.projectData(this.id);
+      const data = this.$store.getters.projectData(this.id).data();
       const newOpts = {}
       Object.values(data.apps).forEach(app => {
-        Object.keys(app.models).forEach(modelid => {
-          console.log(modelid)
-          const modelData = this.modelData(modelid);
+        Object.values(app.models).forEach(model => {
+          const modelData = this.modelData(model.id);
           const rel = app.name + ".models." + modelData.name;
           newOpts[rel] = {
             type: "user",
-            model: modelid,
-            app: app
+            model: model.id,
+            app: app.id
           };
         });
       });
@@ -557,7 +556,7 @@ export default {
     },
     _relationshipSchemaForApp: function() {
       var schema_with_users_models = schemas.relationship();
-      const data = this.$store.getters.projectData(this.id);
+      const data = this.$store.getters.projectData(this.id).data();
       Object.keys(data.apps).map(app => {
         const appData = this.appData(app);
         Object.keys(appData.models).map(modelid => {
@@ -625,7 +624,6 @@ export default {
       abstract,
       add_default_fields = true
     ) {
-      console.log("PAR", parents)
       return this.$store.dispatch("addModel", {
         app: app,
         name: name,

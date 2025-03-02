@@ -15,6 +15,7 @@ export default new Vuex.Store({
     user: undefined,
     loaded: false,
     error: false,
+    coreProjects: {},
     projects: {},
     apps: {},
     models: {},
@@ -33,8 +34,6 @@ export default new Vuex.Store({
     },
     projectData: (state) => (id) => state.projects[id],
     toCoreProject: (state) => (projectId, project) => {
-      //const projectData = state.projects[id].data();
-
       const coreVersion = String(project.django_version).startsWith("2")
         ? DjangoVersion.DJANGO2
         : String(project.django_version).startsWith("3")
@@ -48,9 +47,6 @@ export default new Vuex.Store({
         {htmx: project.htmx, channels: project.channels},
         projectId
       );
-      console.log("project ID", project, projectId)
-
-      console.log("projectData", project)
 
       Object.keys(project.apps).forEach(appId => {
         const appData = state.apps[appId].data();
@@ -106,7 +102,7 @@ export default new Vuex.Store({
             coreModel.relationships.push(coreRelationship);
           });
         })
-      })
+      });
       return coreProject
     },
     apps: (state) => () => state.apps,
@@ -201,7 +197,7 @@ export default new Vuex.Store({
         firestore.collection('projects').where(
           "owner", "==", userid
         ).orderBy("name").onSnapshot((projectData) => {
-          //commit('set_state', {key: 'projects', values: keyByValue(projectData.docs, "id")})
+          commit('set_state', {key: 'projects', values: keyByValue(projectData.docs, "id")})
           resolve(projectData)
         }, snapShotErrorHandler)
       })
@@ -243,12 +239,6 @@ export default new Vuex.Store({
 
       const promises = [projectPromise, appPromise, modelsPromise, fieldsPromise, relationshipPromise]
       return Promise.all(promises).then(async () => {
-        const projectData = await projectPromise
-        const projects = projectData.docs.reduce((acc, doc) => {
-          acc[doc.id] = this.getters.toCoreProject(doc.id, doc.data())
-          return acc
-        }, {})
-        commit('set_state', {key: 'projects', values: projects})
         commit('set_user', firebase.auth().currentUser)
       })
     },

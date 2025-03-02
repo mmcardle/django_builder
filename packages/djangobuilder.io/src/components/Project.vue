@@ -172,23 +172,23 @@ export default {
     },
     name: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return ''
-      return this.$store.getters.projectData(this.id).name
+      return this.$store.getters.projectData(this.id).data().name
     },
     channels: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return false
-      return this.$store.getters.projectData(this.id).channels
+      return this.$store.getters.projectData(this.id).data().channels
     },
     htmx: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return false
-      return this.$store.getters.projectData(this.id).htmx
+      return this.$store.getters.projectData(this.id).data().htmx
     },
     django_version: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return '?'
-      return this.$store.getters.projectData(this.id).django_version || DEFAULT_DJANGO_VERSION
+      return this.$store.getters.projectData(this.id).data().django_version || DEFAULT_DJANGO_VERSION
     },
     apps: function () {
       if (this.$store.getters.projectData(this.id) === undefined) return []
-      return this.$store.getters.projectData(this.id).apps
+      return this.$store.getters.projectData(this.id).data().apps
     },
   },
   methods: {
@@ -199,7 +199,8 @@ export default {
         value: 1
       })
       const coreRenderer = new DBCoreRenderer(store)
-      const djangoCoreProject = this.$store.getters.projectData(this.id)
+      const project = this.$store.getters.projectData(this.id).data()
+      const djangoCoreProject = this.$store.getters.toCoreProject(this.id, project)
       const url = coreRenderer.tarballURL(djangoCoreProject)
       const link = document.createElement("a")
       link.download = this.name + '.tar'

@@ -494,12 +494,6 @@ export default class Renderer {
                 name: render_name,
                 folder: false,
               };
-            }).concat({
-              resource: app as DjangoApp,
-              type: DjangoProjectFileResource.APP_FILE,
-              path: "tests/" + app.name + "/__init__.py",
-              name: "__init__.py",
-              folder: false,
             }),
           };
         }),
