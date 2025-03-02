@@ -253,7 +253,7 @@ export default {
           this.$firestore.collection('projects').doc(this.id).update(firebaseData)
         },
         schemas.project(),
-        this.$store.getters.projectData(this.id)
+        this.$store.getters.projectData(this.id).data()
       )
     },
     showDeleteProjectDialog: function () {
