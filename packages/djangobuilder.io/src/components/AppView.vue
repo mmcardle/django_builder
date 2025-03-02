@@ -69,7 +69,7 @@
       <v-card class="ma-2 mb-5">
         <v-card-title class="pb-0 pt-2">
           <v-icon class="blue--text text--darken-4 mr-1">mdi-folder</v-icon>
-          <a class="blue--text text--darken-1" @click="showEditAppDialog(app)">{{app.name}}</a>
+          <a class="blue--text text--darken-1" @click="showEditAppDialog(appid)">{{app.name}}</a>
           <v-btn v-if="$store.getters.ordered_models(appid).length > 4" fab x-small color="info" dark @click="showModelDialog(appid)" class="ml-4">
             <v-icon>add</v-icon>
           </v-btn>
@@ -430,21 +430,21 @@ export default {
     fieldData: function(fieldid) {
       return this.$store.getters.fields()[fieldid] ? this.$store.getters.fields()[fieldid].data() : {name: '?', type: '?'};
     },
-    showEditAppDialog: function(app) {
+    showEditAppDialog: function(appid) {
+      const appData = this.$store.getters.appData(appid)
       showFormDialog(
         "Edit application",
         formdata => {
-          console.log("A", app.id)
           this.$firestore
             .collection("apps")
-            .doc(app.id)
+            .doc(appid)
             .update(formdata).then(() => {
               // NOT REACTIVE
-              app.name = formdata.name
+              appData.name = formdata.name
             });
         },
         schemas.app(),
-        { name: app.name }
+        appData
       );
     },
     showEditModelDialog: function(app, modelid) {
