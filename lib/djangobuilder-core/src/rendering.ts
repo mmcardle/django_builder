@@ -134,8 +134,11 @@ Handlebars.registerHelper(
     if (relationship.to instanceof DjangoModel) {
       return `${relationship.to.app.name}_${relationship.to.name}()`;
     }
+    if (typeof relationship.to === "string") {
+      return relationship.to
+    }
     throw Error(
-      `Could not create test helper for ${relationship.name} ${relationship.type} ${relationship.to.name}`
+      `Could not create test helper for ${relationship.name} ${relationship.type} ${relationship.to.name} ${JSON.stringify(relationship.to)}`
     );
   }
 );

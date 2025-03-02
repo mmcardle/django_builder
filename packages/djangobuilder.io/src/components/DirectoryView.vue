@@ -105,6 +105,7 @@ const recurseTreeToItems = (tree) => {
       name: item.name,
       path: item.path,
       folder: item.folder,
+      type: item.type,
       children: item.children ? recurseTreeToItems(item.children) : undefined
     }
   })

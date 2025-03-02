@@ -5,7 +5,7 @@ import 'firebase/compat/firestore';
 import {keyByValue} from './utils'
 import { event } from 'vue-gtag'
 import {
-  DjangoProject, DjangoApp, DjangoField, DjangoRelationship, DjangoVersion, FieldTypes, BuiltInModelTypes
+  DjangoProject, DjangoApp, DjangoModel, DjangoField, DjangoRelationship, DjangoVersion, FieldTypes, BuiltInModelTypes
 } from "@djangobuilder/core";
 
 Vue.use(Vuex)
@@ -96,7 +96,11 @@ export default new Vuex.Store({
           Object.keys(modelData.relationships).forEach(relationshipId => {
             const relationshipData = state.relationships[relationshipId].data();
             const coreRelationship = new DjangoRelationship(
-              coreModel, relationshipData.name, relationshipData.type, relationshipData.to, relationshipData.args,
+              coreModel, 
+              relationshipData.name,
+              relationshipData.type,
+              relationshipData.to,
+              relationshipData.args,
               relationshipId
             )
             coreModel.relationships.push(coreRelationship);
