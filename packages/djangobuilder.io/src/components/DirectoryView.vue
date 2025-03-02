@@ -104,7 +104,6 @@ const recurseTreeToItems = (tree) => {
     return {
       name: item.name,
       path: item.path,
-      type: item.type,
       folder: item.folder,
       children: item.children ? recurseTreeToItems(item.children) : undefined
     }
@@ -202,7 +201,7 @@ export default {
         this.code_dialog = true
       },
       click(item) {
-        if (item.type !== "folder") {
+        if (!item.folder) {
           this.active = item
         }
       },
