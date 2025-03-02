@@ -412,6 +412,7 @@ export default class Renderer {
       const model_children: DjangoProjectFile[] = Object.keys(APP_FILES).map(
         (render_name) => {
           return {
+            appName: app.name,
             resource: app as DjangoApp,
             type: DjangoProjectFileResource.APP_FILE,
             path: app.name + "/" + render_name,
@@ -484,6 +485,7 @@ export default class Renderer {
         folder: true,
         children: project.apps.map((app) => {
           return {
+            appName: app.name,
             resource: app as DjangoApp,
             type: DjangoProjectFileResource.APP_FILE,
             path: "tests/" + app.name,
@@ -491,6 +493,7 @@ export default class Renderer {
             folder: true,
             children: Object.keys(APP_TEST_FILES).map((render_name) => {
               return {
+                appName: app.name,
                 resource: app as DjangoApp,
                 type: DjangoProjectFileResource.APP_FILE,
                 path: "tests/" + app.name + "/" + render_name,

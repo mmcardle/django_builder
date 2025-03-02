@@ -101,7 +101,6 @@ const coreRenderer = new DBCoreRenderer();
 
 const recurseTreeToItems = (tree) => {
   return tree.map((item) => {
-    console.log("item", item)
     return {
       appName: item.appName,
       name: item.name,
@@ -186,8 +185,7 @@ export default {
         if (active.type == DjangoProjectFileResource.PROJECT_FILE) {
           return coreRenderer.renderProjectFile(active.name, djangoCoreProject)
         } else if (active.type == DjangoProjectFileResource.APP_FILE) {
-          const [ appName,  ] = active.path.split("/");
-          const djangoCoreApp = djangoCoreProject.apps.find((app) => app.name == appName)
+          const djangoCoreApp = djangoCoreProject.apps.find((app) => app.name == active.appName)
           return coreRenderer.renderAppFile(active.name, djangoCoreApp)
         } else if (active.type == DjangoProjectFileResource.MODEL_FILE) {
           const djangoCoreApp = djangoCoreProject.apps.find((app) => app.name == active.appName)
