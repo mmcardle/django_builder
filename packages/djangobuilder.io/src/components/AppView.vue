@@ -435,6 +435,7 @@ export default {
       showFormDialog(
         "Edit application",
         formdata => {
+          console.debug("Edit app", JSON.parse(JSON.stringify(formdata)))
           this.$firestore
             .collection("apps")
             .doc(appid)
@@ -452,6 +453,7 @@ export default {
       showFormDialog(
         "Edit model",
         formdata => {
+          console.debug("Edit model", JSON.parse(JSON.stringify(formdata)))
           this.$firestore
             .collection("models")
             .doc(modelid)
@@ -470,6 +472,7 @@ export default {
       showFormDialog(
         "Edit Relationship",
         formdata => {
+          console.debug("Edit relationship", formdata)
           this.$firestore
             .collection("relationships")
             .doc(relationshipid)
@@ -489,6 +492,7 @@ export default {
       showFormDialog(
         "Edit field",
         formdata => {
+          console.debug("Edit field", JSON.parse(JSON.stringify(formdata)))
           this.$firestore
             .collection("fields")
             .doc(fieldid)
@@ -586,7 +590,7 @@ export default {
       showFormDialog(
         "Add new model",
         formdata => {
-          console.log("FORM", formdata)
+          console.debug("Add new model", JSON.parse(JSON.stringify(formdata)))
           this.addModel(
             app,
             formdata.name,
@@ -603,6 +607,7 @@ export default {
       showFormDialog(
         "Add new relationship",
         formdata => {
+          console.debug("Add new relationship", JSON.parse(JSON.stringify(formdata)))
           this.addRelationship(
             model,
             formdata.name,
@@ -618,6 +623,7 @@ export default {
       showFormDialog(
         "Add new field",
         formdata => {
+          console.debug("Add new field", JSON.parse(JSON.stringify(formdata)))
           this.addField(model, formdata.name, formdata.type, formdata.args);
         },
         schemas.field()

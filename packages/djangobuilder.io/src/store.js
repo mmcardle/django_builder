@@ -15,7 +15,6 @@ export default new Vuex.Store({
     user: undefined,
     loaded: false,
     error: false,
-    coreProjects: {},
     projects: {},
     apps: {},
     models: {},
@@ -360,7 +359,7 @@ export default new Vuex.Store({
       const created_field_payload = {
         model: model.id,
         name: 'created',
-        type: 'django.db.models.DateTimeField',
+        type: 'DateTimeField',
         args: 'auto_now_add=True, editable=False'
       }
       return dispatch('addField', created_field_payload).then(() => {
@@ -368,7 +367,7 @@ export default new Vuex.Store({
         const last_updated_field_payload = {
           model: model.id,
           name: 'last_updated',
-          type: 'django.db.models.DateTimeField',
+          type: 'DateTimeField',
           args: 'auto_now=True, editable=False'
         }
 
