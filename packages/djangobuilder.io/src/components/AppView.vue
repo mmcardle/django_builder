@@ -451,10 +451,7 @@ export default {
     },
     showEditModelDialog: function(app, modelid) {
       const modelData = this.$store.getters.modelData(modelid);
-      
-      
-      //console.debug("REAL parent values", modelData.parents)
-      
+
       /*
       modelData.parents = JSON.parse(JSON.stringify(modelData.parents))
       modelData.parents = [
@@ -568,32 +565,22 @@ export default {
     _modelSchemaForApp: function() {
       var schema_with_users_models = schemas.model();
       const data = this.$store.getters.projectData(this.id).data();
-      const newOpts = {}
+      const otherModelOptions = {}
       Object.keys(data.apps).forEach(appId => {
         const app = this.appData(appId)
         Object.keys(app.models).forEach(modelid => {
           const modelData = this.modelData(modelid);
           const rel = app.name + ".models." + modelData.name;
-          newOpts[rel] = {
-            type: "user",
-            model: modelid,
-            app: appId
-          };
+          otherModelOptions[rel] = { name: rel };
         });
       });
-
-      const baseOpts = Object.assign({}, schema_with_users_models[1].options)
-      const opts = Object.assign({}, baseOpts, newOpts)
-      console.debug("REAL opts", schema_with_users_models[1].options)
       
-      const options = Object.values(schema_with_users_models[1].options).reduce((acc, opt) => {
+      const builtInOptions = Object.values(schema_with_users_models[1].options).reduce((acc, opt) => {
         acc[opt.name] = {name: opt.name}
         return acc
       }, {})
 
-      schema_with_users_models[1].options = options
-
-      console.debug("NEW PARENT opts", schema_with_users_models[1].options)
+      schema_with_users_models[1].options = Object.assign({}, otherModelOptions, builtInOptions)
 
       /*
       schema_with_users_models[1].options = {
