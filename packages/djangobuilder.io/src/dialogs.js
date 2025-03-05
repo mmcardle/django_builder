@@ -46,13 +46,13 @@ const showFormDialog = function (headline, ok, schema, formdata, extra) {
       headline: headline,
       ok: (formdata2) => {
         // Remove all undefined values
-        console.debug("Raw formdata", JSON.stringify(formdata))
-        Object.keys(formdata).forEach(key => {
-          if (formdata[key] === undefined) {
-            delete formdata[key];
+        console.debug("Raw formdata", formdata2)
+        Object.keys(formdata2).forEach(key => {
+          if (formdata2[key] === undefined) {
+            delete formdata2[key];
           }
         });
-        console.debug("Cleaned formdata", JSON.parse(JSON.stringify(formdata)))
+        console.debug("Cleaned formdata", JSON.parse(JSON.stringify(formdata2)))
         return ok(formdata2)
       },
       schema: schema,

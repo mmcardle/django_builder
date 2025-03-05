@@ -1,9 +1,14 @@
 <template>
   <div>
     <v-autocomplete
-      :rules="rules" :label="label" :value="value"
-      :multiple="multi" :required="required"
+      :rules="rules"
+      :label="label"
+      :value="value"
+      :multiple="multi"
+      :required="required"
       :items="items"
+      chips
+      small-chips
       @input="$emit('input', $event);">
     </v-autocomplete>
   </div>
@@ -12,6 +17,14 @@
 export default {
   name: 'SelectListObjects',
   props: ['multi', 'options', 'name', 'label', 'value', 'required', 'nospaces'],
+  mounted() {
+    console.debug(
+      "SelectListObjects mounted", this.options
+    )
+    console.debug(
+      "SelectListObjects value", this.value
+    )
+  },
   computed: {
     items ()  {
       return Object.keys(this.options).map((k) => {

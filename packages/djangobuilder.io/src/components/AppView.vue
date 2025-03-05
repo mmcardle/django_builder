@@ -393,7 +393,8 @@ export default {
       })
     },
     modelsParents: function(model) {
-      return model.parents.join(" ");
+      console.debug("modelsParents", model.parents)
+      return model.parents.map(parent => parent.name).join(", ");
     },
     clearMoveModel: function (e) {
       e.preventDefault()
@@ -450,14 +451,36 @@ export default {
     },
     showEditModelDialog: function(app, modelid) {
       const modelData = this.$store.getters.modelData(modelid);
+      
+      
+      //console.debug("REAL parent values", modelData.parents)
+      
+      /*
+      modelData.parents = JSON.parse(JSON.stringify(modelData.parents))
+      modelData.parents = [
+        {name: 'A'},
+        {name: 'B'}
+      ]
+      */
+
+      modelData.parents = modelData.parents.map(parent => {
+        return {name: parent.name}
+      })
+      
+      console.debug("modelData parents", modelData.parents)
       showFormDialog(
         "Edit model",
         formdata => {
           console.debug("Edit model", JSON.parse(JSON.stringify(formdata)))
+          const formdataWithParentsAsLists = {
+            ...formdata,
+            parents: formdata.parents.map(parent => ({name: parent.name}))
+          }
+          console.debug("Edit model 2", JSON.parse(JSON.stringify(formdataWithParentsAsLists)))
           this.$firestore
             .collection("models")
             .doc(modelid)
-            .update(formdata);
+            .update(formdataWithParentsAsLists);
         },
         this._modelSchemaForApp(),
         {
@@ -489,6 +512,7 @@ export default {
     },
     showEditFieldDialog: function(fieldid) {
       const fieldData = this.$store.getters.fields()[fieldid].data();
+      console.debug("Edit field 1", JSON.parse(JSON.stringify(fieldData)))
       showFormDialog(
         "Edit field",
         formdata => {
@@ -560,8 +584,30 @@ export default {
 
       const baseOpts = Object.assign({}, schema_with_users_models[1].options)
       const opts = Object.assign({}, baseOpts, newOpts)
+      console.debug("REAL opts", schema_with_users_models[1].options)
+      
+      const options = Object.values(schema_with_users_models[1].options).reduce((acc, opt) => {
+        acc[opt.name] = {name: opt.name}
+        return acc
+      }, {})
 
-      schema_with_users_models[1].options = opts
+      schema_with_users_models[1].options = options
+
+      console.debug("NEW PARENT opts", schema_with_users_models[1].options)
+
+      /*
+      schema_with_users_models[1].options = {
+        'A': {name: 'A'},
+        'B': {name: 'B'},
+        'C': {name: 'C'},
+        'D': {name: 'D'}
+      }
+      */
+
+      console.debug(
+        "schema_with_users_models", 
+        schema_with_users_models[1].options 
+      )
       return schema_with_users_models;
     },
     _relationshipSchemaForApp: function() {
