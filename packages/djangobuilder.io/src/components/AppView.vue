@@ -393,7 +393,6 @@ export default {
       })
     },
     modelsParents: function(model) {
-      console.debug("modelsParents", model.parents)
       return model.parents.map(parent => parent.name).join(", ");
     },
     clearMoveModel: function (e) {
@@ -451,23 +450,14 @@ export default {
     },
     showEditModelDialog: function(app, modelid) {
       const modelData = this.$store.getters.modelData(modelid);
-
-      modelData.parents = modelData.parents.map(parent => ({ name: parent.name }))
-      
-      console.debug("modelData parents", modelData.parents)
       showFormDialog(
         "Edit model",
         formdata => {
           console.debug("Edit model", JSON.parse(JSON.stringify(formdata)))
-          const formdataWithParentsAsLists = {
-            ...formdata,
-            parents: formdata.parents.map(parent => ({name: parent.name}))
-          }
-          console.debug("Edit model 2", JSON.parse(JSON.stringify(formdataWithParentsAsLists)))
           this.$firestore
             .collection("models")
             .doc(modelid)
-            .update(formdataWithParentsAsLists);
+            .update(formdata);
         },
         this._modelSchemaForApp(),
         {
@@ -606,7 +596,7 @@ export default {
           this.addModel(
             app,
             formdata.name,
-            formdata.parents,
+            formdata.parents.map(parent => ({name: parent.name})),
             formdata.abstract
           );
         },
@@ -651,7 +641,7 @@ export default {
       return this.$store.dispatch("addModel", {
         app: app,
         name: name,
-        parents: parents?.map(parent => parent.name) || [],
+        parents: parents,
         abstract: abstract,
         add_default_fields: add_default_fields
       });

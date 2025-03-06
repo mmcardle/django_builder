@@ -16,14 +16,6 @@
 export default {
   name: 'SelectListObjects',
   props: ['multi', 'options', 'name', 'label', 'value', 'required', 'nospaces'],
-  mounted() {
-    console.debug(
-      "SelectListObjects mounted", this.options
-    )
-    console.debug(
-      "SelectListObjects value", this.value
-    )
-  },
   computed: {
     rules () {
       const rules = []
