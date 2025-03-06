@@ -6,9 +6,8 @@
       :value="value"
       :multiple="multi"
       :required="required"
-      :items="items"
+      :items="options"
       chips
-      small-chips
       @input="$emit('input', $event);">
     </v-autocomplete>
   </div>
@@ -26,11 +25,6 @@ export default {
     )
   },
   computed: {
-    items ()  {
-      return Object.keys(this.options).map((k) => {
-        return {text: k, value: this.options[k]}
-      })
-    },
     rules () {
       const rules = []
 

@@ -452,17 +452,7 @@ export default {
     showEditModelDialog: function(app, modelid) {
       const modelData = this.$store.getters.modelData(modelid);
 
-      /*
-      modelData.parents = JSON.parse(JSON.stringify(modelData.parents))
-      modelData.parents = [
-        {name: 'A'},
-        {name: 'B'}
-      ]
-      */
-
-      modelData.parents = modelData.parents.map(parent => {
-        return {name: parent.name}
-      })
+      modelData.parents = modelData.parents.map(parent => ({ name: parent.name }))
       
       console.debug("modelData parents", modelData.parents)
       showFormDialog(
@@ -580,21 +570,10 @@ export default {
         return acc
       }, {})
 
-      schema_with_users_models[1].options = Object.assign({}, otherModelOptions, builtInOptions)
+      const allOptions = Object.assign({}, otherModelOptions, builtInOptions)
 
-      /*
-      schema_with_users_models[1].options = {
-        'A': {name: 'A'},
-        'B': {name: 'B'},
-        'C': {name: 'C'},
-        'D': {name: 'D'}
-      }
-      */
-
-      console.debug(
-        "schema_with_users_models", 
-        schema_with_users_models[1].options 
-      )
+      // Convert to select values to be read by SelectListObjects
+      schema_with_users_models[1].options = Object.keys(allOptions).map((k) => ({ text: k, value: allOptions[k] }))
       return schema_with_users_models;
     },
     _relationshipSchemaForApp: function() {
