@@ -11,7 +11,6 @@ import { template as rootTestHelpers } from "./django/python/test_helpers";
 import { template as rootRequirements } from "./django/requirements/requirements";
 import { template as rootRequirementsDev } from "./django/requirements/requirements_dev";
 import { template as rootPytestIni } from "./django/tests/pytest.ini";
-import { template as rootTestRequirements } from "./django/tests/test_requirements_txt";
 import { template as rootTestSettings } from "./django/tests/test_settings";
 
 import { template as baseHtml } from "./django/templates/base.html";
@@ -182,8 +181,6 @@ const CREATE = "create.html";
 const CONFIRM_DELETE = "confirm_delete.html";
 const DELETE_BUTTON = "delete_button.html";
 
-const TEST_REQUIREMENTS_TXT = "test_requirements.txt";
-
 const TEST_VIEWS = "test_views.py";
 
 export enum DjangoProjectFileResource {
@@ -217,7 +214,6 @@ export const ROOT_FILES = {
   [`${TEST_SETTINGS}`]: rootTestSettings,
   [`${REQUIREMENTS_TXT}`]: rootRequirements,
   [`${REQUIREMENTS_DEV_TXT}`]: rootRequirementsDev,
-  [`${TEST_REQUIREMENTS_TXT}`]: rootTestRequirements,
 };
 
 export const PROJECT_FILES = {
