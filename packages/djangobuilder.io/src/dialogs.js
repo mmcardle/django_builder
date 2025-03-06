@@ -44,7 +44,17 @@ const showFormDialog = function (headline, ok, schema, formdata, extra) {
     vuetify,
     propsData: {
       headline: headline,
-      ok: ok,
+      ok: (formdata2) => {
+        // Remove all undefined values
+        console.debug("Raw formdata", formdata2)
+        Object.keys(formdata2).forEach(key => {
+          if (formdata2[key] === undefined) {
+            delete formdata2[key];
+          }
+        });
+        console.debug("Cleaned formdata", JSON.parse(JSON.stringify(formdata2)))
+        return ok(formdata2)
+      },
       schema: schema,
       formdata: formdata || {},
       extra: extra

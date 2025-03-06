@@ -28,7 +28,7 @@
             <div>
               <div class="hljs-title text-h4 font-weight-medium red--text text--darken-4 text-capitalize">
                 <span class="grey--text text--lighten-1 font-weight-black">
-                  <span class="red--text text--darken-2">{{project.name.substring(0,1)}}</span>{{project.name.substring(1)}}
+                  <span class="red--text text--darken-2">{{project.data().name.substring(0,1)}}</span>{{project.data().name.substring(1)}}
                 </span>
               </div>
               <div>{{project.description || "..."}}</div>

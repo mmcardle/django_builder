@@ -9,7 +9,6 @@ from django.urls import reverse
 
 pytestmark = [pytest.mark.django_db]
 
-
 {{#app.models}}
 {{^abstract}}
 

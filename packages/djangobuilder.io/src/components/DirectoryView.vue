@@ -99,6 +99,19 @@ import { Renderer as DBCoreRenderer } from "@djangobuilder/core"
 import { DjangoProjectFileResource } from "@djangobuilder/core/src/rendering"
 const coreRenderer = new DBCoreRenderer();
 
+const recurseTreeToItems = (tree) => {
+  return tree.map((item) => {
+    return {
+      appName: item.appName,
+      name: item.name,
+      path: item.path,
+      folder: item.folder,
+      type: item.type,
+      children: item.children ? recurseTreeToItems(item.children) : undefined
+    }
+  })
+}
+
 export default {
     props: ['id'],
     data: () => ({
@@ -113,23 +126,26 @@ export default {
       },
       name: function () {
         if (this.$store.getters.projectData(this.id) === undefined) return ''
-        return this.$store.getters.projectData(this.id).name
+        return this.$store.getters.projectData(this.id).data().name
       },
       apps: function () {
         if (this.$store.getters.projectData(this.id) === undefined) return []
-        return this.$store.getters.projectData(this.id).apps
+        return this.$store.getters.projectData(this.id).data().apps
       },
       active_split: function () {
         return this.active.path.split('/')
       },
       items: function () {
-        const djangoCoreProject = this.$store.getters.projectData(this.id)
-        return coreRenderer.asTree(djangoCoreProject);
+        const project = this.$store.getters.projectData(this.id).data()
+        const djangoCoreProject = this.$store.getters.toCoreProject(this.id, project)
+        const projectTreeListing = coreRenderer.asTree(djangoCoreProject);
+        return recurseTreeToItems(projectTreeListing)
       }
     },
     mounted: function () {
-      const project = this.$store.getters.projectData(this.id)
-      const tree = coreRenderer.asTree(project);
+      const project = this.$store.getters.projectData(this.id).data()
+      const djangoCoreProject = this.$store.getters.toCoreProject(this.id, project)
+      const tree = coreRenderer.asTree(djangoCoreProject);
       if (project.apps.length > 0) {
         const appNode = tree.find(node => node.name == project.apps[0].name)
         if (appNode) {
@@ -147,7 +163,7 @@ export default {
       }
     },
     created: function () {
-      const project = this.$store.getters.projectData(this.id);
+      const project = this.$store.getters.projectData(this.id).data();
       const apps = Object.keys(project.apps).map((app) => {
         if (this.$store.getters.appData(app)) {
           return Object.assign(this.$store.getters.appData(app), {id: app})
@@ -164,12 +180,12 @@ export default {
     },
     methods: {
       render(active) {
-        const djangoCoreProject = this.$store.getters.projectData(this.id)
+        const project = this.$store.getters.projectData(this.id).data()
+        const djangoCoreProject = this.$store.getters.toCoreProject(this.id, project)
         if (active.type == DjangoProjectFileResource.PROJECT_FILE) {
           return coreRenderer.renderProjectFile(active.name, djangoCoreProject)
         } else if (active.type == DjangoProjectFileResource.APP_FILE) {
-          const [ appName,  ] = active.path.split("/");
-          const djangoCoreApp = djangoCoreProject.apps.find((app) => app.name == appName)
+          const djangoCoreApp = djangoCoreProject.apps.find((app) => app.name == active.appName)
           return coreRenderer.renderAppFile(active.name, djangoCoreApp)
         } else if (active.type == DjangoProjectFileResource.MODEL_FILE) {
           const djangoCoreApp = djangoCoreProject.apps.find((app) => app.name == active.appName)
@@ -186,7 +202,7 @@ export default {
         this.code_dialog = true
       },
       click(item) {
-        if (item.type !== "folder") {
+        if (!item.folder) {
           this.active = item
         }
       },

@@ -11,7 +11,6 @@ import { template as rootTestHelpers } from "./django/python/test_helpers";
 import { template as rootRequirements } from "./django/requirements/requirements";
 import { template as rootRequirementsDev } from "./django/requirements/requirements_dev";
 import { template as rootPytestIni } from "./django/tests/pytest.ini";
-import { template as rootTestRequirements } from "./django/tests/test_requirements_txt";
 import { template as rootTestSettings } from "./django/tests/test_settings";
 
 import { template as baseHtml } from "./django/templates/base.html";
@@ -134,8 +133,11 @@ Handlebars.registerHelper(
     if (relationship.to instanceof DjangoModel) {
       return `${relationship.to.app.name}_${relationship.to.name}()`;
     }
+    if (typeof relationship.to === "string") {
+      return relationship.to
+    }
     throw Error(
-      `Could not create test helper for ${relationship.name} ${relationship.type} ${relationship.to.name}`
+      `Could not create test helper for ${relationship.name} ${relationship.type} ${relationship.to.name} ${JSON.stringify(relationship.to)}`
     );
   }
 );
@@ -179,8 +181,6 @@ const CREATE = "create.html";
 const CONFIRM_DELETE = "confirm_delete.html";
 const DELETE_BUTTON = "delete_button.html";
 
-const TEST_REQUIREMENTS_TXT = "test_requirements.txt";
-
 const TEST_VIEWS = "test_views.py";
 
 export enum DjangoProjectFileResource {
@@ -214,7 +214,6 @@ export const ROOT_FILES = {
   [`${TEST_SETTINGS}`]: rootTestSettings,
   [`${REQUIREMENTS_TXT}`]: rootRequirements,
   [`${REQUIREMENTS_DEV_TXT}`]: rootRequirementsDev,
-  [`${TEST_REQUIREMENTS_TXT}`]: rootTestRequirements,
 };
 
 export const PROJECT_FILES = {
@@ -409,6 +408,7 @@ export default class Renderer {
       const model_children: DjangoProjectFile[] = Object.keys(APP_FILES).map(
         (render_name) => {
           return {
+            appName: app.name,
             resource: app as DjangoApp,
             type: DjangoProjectFileResource.APP_FILE,
             path: app.name + "/" + render_name,
@@ -481,6 +481,7 @@ export default class Renderer {
         folder: true,
         children: project.apps.map((app) => {
           return {
+            appName: app.name,
             resource: app as DjangoApp,
             type: DjangoProjectFileResource.APP_FILE,
             path: "tests/" + app.name,
@@ -488,18 +489,13 @@ export default class Renderer {
             folder: true,
             children: Object.keys(APP_TEST_FILES).map((render_name) => {
               return {
+                appName: app.name,
                 resource: app as DjangoApp,
                 type: DjangoProjectFileResource.APP_FILE,
                 path: "tests/" + app.name + "/" + render_name,
                 name: render_name,
                 folder: false,
               };
-            }).concat({
-              resource: app as DjangoApp,
-              type: DjangoProjectFileResource.APP_FILE,
-              path: "tests/" + app.name + "/__init__.py",
-              name: "__init__.py",
-              folder: false,
             }),
           };
         }),

@@ -12,11 +12,11 @@
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>
-              <h2>{{project.name}}</h2>
+              <h2>{{project.data().name}}</h2>
             </v-list-item-title>
             <v-list-item-title class="orange--text text--darken-1">
-              <template v-if="project.description">
-                {{project.description}}
+              <template v-if="project.data().description">
+                {{project.data().description}}
               </template>
             </v-list-item-title>
             <v-list-item-subtitle v-if="loaded && verified">

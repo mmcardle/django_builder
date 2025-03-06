@@ -117,7 +117,6 @@ console.log(renderer.renderProjectFile("htmx.html", zooProject));
 console.log(renderer.renderModelFile("list.html", badgerModel));
 
 console.log(renderer.renderProjectFile("pytest.ini", zooProject));
-console.log(renderer.renderProjectFile("test_requirements.txt", zooProject));
 console.log(renderer.renderProjectFile("test_settings.py", zooProject));
 console.log(renderer.renderProjectFile("test_helpers.py", zooProject));
 console.log(renderer.renderProjectFile("__init__.py", zooProject));

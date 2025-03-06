@@ -69,7 +69,7 @@
       <v-card class="ma-2 mb-5">
         <v-card-title class="pb-0 pt-2">
           <v-icon class="blue--text text--darken-4 mr-1">mdi-folder</v-icon>
-          <a class="blue--text text--darken-1" @click="showEditAppDialog(app)">{{app.name}}</a>
+          <a class="blue--text text--darken-1" @click="showEditAppDialog(appid)">{{app.name}}</a>
           <v-btn v-if="$store.getters.ordered_models(appid).length > 4" fab x-small color="info" dark @click="showModelDialog(appid)" class="ml-4">
             <v-icon>add</v-icon>
           </v-btn>
@@ -84,7 +84,7 @@
             <v-alert class="white--text" :value="true" color="primary" type=info>
               <v-btn class="mt-2" color="error" absolute right top fab x-small @click="clearMoveModel"><v-icon x-small>mdi-close</v-icon></v-btn>
               Click here to move
-              <span class="orange--text2 text--darken-3 font-weight-bold">{{movingModel.name}}</span>.<span class="orange--text">{{modelData(movingModel.model).name}}
+              <span class="orange--text2 text--darken-3 font-weight-bold">{{appData(movingModel.app).name}}</span>.<span class="orange--text">{{modelData(movingModel.model).name}}
               </span>
               to
               <span class="orange--text2 text--darken-3 font-weight-bold">{{app.name}}</span>.<span class="orange--text">{{modelData(movingModel.model).name}}
@@ -93,7 +93,7 @@
           </div>
 
           <v-card
-            v-for="model in app.models"
+            v-for="model in $store.getters.ordered_models(appid)"
             :key="model.name + appid"
             class="mb-2 pt-1 pb-1"
             elevation="0"
@@ -156,11 +156,11 @@
               </a>
             </v-card-title>
 
-            <v-list v-if="model.relationships.length > 0" class="py-0">
+            <v-list v-if="Object.keys(model.relationships).length > 0" class="py-0">
               <v-list-item
                 @click="showEditRelationshipDialog(relationshipid)"
                 class="mb-1"
-                v-for="(relationship, relationshipid) in model.relationships"
+                v-for="(_, relationshipid) in model.relationships"
                 ripple 
                 :key="relationshipid + appid"
               >
@@ -170,15 +170,15 @@
 
                 <v-list-item-content class="py-0">
                   <v-list-item-title class="subheading font-weight-medium">
-                    <span class="red--text">{{relationship.name}}</span>
+                    <span class="red--text">{{relationshipData(relationshipid).name}}</span>
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-body-2">
-                    {{relationship.type.split('.').pop()}}
+                    {{relationshipData(relationshipid).type.split('.').pop()}}
                     (
                     <span
                       class="green--text"
-                    >{{relationship.to.split('.').pop()}}</span>
-                    ,{{relationship.args}})
+                    >{{relationshipData(relationshipid).to.split('.').pop()}}</span>
+                    ,{{relationshipData(relationshipid).args}})
                   </v-list-item-subtitle>
                 </v-list-item-content>
 
@@ -190,26 +190,26 @@
               </v-list-item>
             </v-list>
 
-            <v-list v-if="app.models.length > 0" class="py-0">
+            <v-list v-if="Object.keys(model.fields).length > 0" class="py-0">
               <v-list-item
                 @click="showEditFieldDialog(fieldid)"
                 ripple
-                v-for="(field, fieldid) in model.fields"
+                v-for="(_, fieldid) in model.fields"
                 :key="fieldid + appid"
-              >
+                >
                 <v-list-item-avatar size="20" style="min-width: 30px" class="hidden-xs-only">
                   <v-icon small class="grey--text text--lighten-1">mdi-circle</v-icon>
                 </v-list-item-avatar>
 
                 <v-list-item-content class="py-0 subheading font-weight-medium">
                   <v-list-item-title>
-                    <span class="primary--text">{{field.name}}</span>
+                    <span class="primary--text">{{fieldData(fieldid).name}}</span>
                   </v-list-item-title>
                   <v-list-item-subtitle>
-                    {{field.type.name.split('.').pop()}}
+                    {{fieldData(fieldid).type.split('.').pop()}}
                     <span
                       class="hidden-xs-only"
-                    >({{field.args}})</span>
+                    >({{fieldData(fieldid).args}})</span>
                   </v-list-item-subtitle>
                 </v-list-item-content>
 
@@ -240,7 +240,7 @@
             </v-card-text>
           </v-card>
 
-          <div v-if="app.models.length === 0" class="mb-3">
+          <div v-if="$store.getters.ordered_models(appid).length == 0" class="mb-3">
             <v-subheader class="ma-2">Add some models.</v-subheader>
             <v-subheader class="ma-2">
               <v-btn color="info" block @click="showModelDialog(appid)">
@@ -291,7 +291,12 @@ export default {
   },
   computed: {
     apps: function() {
-      return this.$store.getters.projectData(this.id).apps
+      const appKeys = Object.keys(this.$store.getters.projectData(this.id).data().apps)
+      const apps = {}
+      appKeys.forEach(appKey => {
+        apps[appKey] = this.$store.getters.appData(appKey)
+      })
+      return apps
     }
   },
   methods: {
@@ -388,7 +393,8 @@ export default {
       })
     },
     modelsParents: function(model) {
-      return model.parents.join(" ");
+      console.debug("modelsParents", model.parents)
+      return model.parents.map(parent => parent.name).join(", ");
     },
     clearMoveModel: function (e) {
       e.preventDefault()
@@ -425,32 +431,43 @@ export default {
     fieldData: function(fieldid) {
       return this.$store.getters.fields()[fieldid] ? this.$store.getters.fields()[fieldid].data() : {name: '?', type: '?'};
     },
-    showEditAppDialog: function(app) {
+    showEditAppDialog: function(appid) {
+      const appData = this.$store.getters.appData(appid)
       showFormDialog(
         "Edit application",
         formdata => {
-          console.log("A", app.id)
+          console.debug("Edit app", JSON.parse(JSON.stringify(formdata)))
           this.$firestore
             .collection("apps")
-            .doc(app.id)
+            .doc(appid)
             .update(formdata).then(() => {
               // NOT REACTIVE
-              app.name = formdata.name
+              appData.name = formdata.name
             });
         },
         schemas.app(),
-        { name: app.name }
+        appData
       );
     },
     showEditModelDialog: function(app, modelid) {
       const modelData = this.$store.getters.modelData(modelid);
+
+      modelData.parents = modelData.parents.map(parent => ({ name: parent.name }))
+      
+      console.debug("modelData parents", modelData.parents)
       showFormDialog(
         "Edit model",
         formdata => {
+          console.debug("Edit model", JSON.parse(JSON.stringify(formdata)))
+          const formdataWithParentsAsLists = {
+            ...formdata,
+            parents: formdata.parents.map(parent => ({name: parent.name}))
+          }
+          console.debug("Edit model 2", JSON.parse(JSON.stringify(formdataWithParentsAsLists)))
           this.$firestore
             .collection("models")
             .doc(modelid)
-            .update(formdata);
+            .update(formdataWithParentsAsLists);
         },
         this._modelSchemaForApp(),
         {
@@ -465,6 +482,7 @@ export default {
       showFormDialog(
         "Edit Relationship",
         formdata => {
+          console.debug("Edit relationship", formdata)
           this.$firestore
             .collection("relationships")
             .doc(relationshipid)
@@ -481,9 +499,11 @@ export default {
     },
     showEditFieldDialog: function(fieldid) {
       const fieldData = this.$store.getters.fields()[fieldid].data();
+      console.debug("Edit field 1", JSON.parse(JSON.stringify(fieldData)))
       showFormDialog(
         "Edit field",
         formdata => {
+          console.debug("Edit field", JSON.parse(JSON.stringify(formdata)))
           this.$firestore
             .collection("fields")
             .doc(fieldid)
@@ -534,30 +554,31 @@ export default {
     },
     _modelSchemaForApp: function() {
       var schema_with_users_models = schemas.model();
-      const data = this.$store.getters.projectData(this.id);
-      const newOpts = {}
-      Object.values(data.apps).forEach(app => {
+      const data = this.$store.getters.projectData(this.id).data();
+      const otherModelOptions = {}
+      Object.keys(data.apps).forEach(appId => {
+        const app = this.appData(appId)
         Object.keys(app.models).forEach(modelid => {
-          console.log(modelid)
           const modelData = this.modelData(modelid);
           const rel = app.name + ".models." + modelData.name;
-          newOpts[rel] = {
-            type: "user",
-            model: modelid,
-            app: app
-          };
+          otherModelOptions[rel] = { name: rel };
         });
       });
+      
+      const builtInOptions = Object.values(schema_with_users_models[1].options).reduce((acc, opt) => {
+        acc[opt.name] = {name: opt.name}
+        return acc
+      }, {})
 
-      const baseOpts = Object.assign({}, schema_with_users_models[1].options)
-      const opts = Object.assign({}, baseOpts, newOpts)
+      const allOptions = Object.assign({}, otherModelOptions, builtInOptions)
 
-      schema_with_users_models[1].options = opts
+      // Convert to select values to be read by SelectListObjects
+      schema_with_users_models[1].options = Object.keys(allOptions).map((k) => ({ text: k, value: allOptions[k] }))
       return schema_with_users_models;
     },
     _relationshipSchemaForApp: function() {
       var schema_with_users_models = schemas.relationship();
-      const data = this.$store.getters.projectData(this.id);
+      const data = this.$store.getters.projectData(this.id).data();
       Object.keys(data.apps).map(app => {
         const appData = this.appData(app);
         Object.keys(appData.models).map(modelid => {
@@ -581,7 +602,7 @@ export default {
       showFormDialog(
         "Add new model",
         formdata => {
-          console.log("FORM", formdata)
+          console.debug("Add new model", JSON.parse(JSON.stringify(formdata)))
           this.addModel(
             app,
             formdata.name,
@@ -598,6 +619,7 @@ export default {
       showFormDialog(
         "Add new relationship",
         formdata => {
+          console.debug("Add new relationship", JSON.parse(JSON.stringify(formdata)))
           this.addRelationship(
             model,
             formdata.name,
@@ -613,6 +635,7 @@ export default {
       showFormDialog(
         "Add new field",
         formdata => {
+          console.debug("Add new field", JSON.parse(JSON.stringify(formdata)))
           this.addField(model, formdata.name, formdata.type, formdata.args);
         },
         schemas.field()
@@ -625,7 +648,6 @@ export default {
       abstract,
       add_default_fields = true
     ) {
-      console.log("PAR", parents)
       return this.$store.dispatch("addModel", {
         app: app,
         name: name,

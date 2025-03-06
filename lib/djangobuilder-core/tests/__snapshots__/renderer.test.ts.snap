@@ -368,36 +368,6 @@ def create_testapp3_TestModel3(**kwargs):
 
 exports[`Project file tests DjangoTestCase {
   project: [DjangoProject],
-  filename: 'test_requirements.txt'
-} 1`] = `
-"
-pytest
-pytest-django
-"
-`;
-
-exports[`Project file tests DjangoTestCase {
-  project: [DjangoProject],
-  filename: 'test_requirements.txt'
-} 2`] = `
-"
-pytest
-pytest-django
-"
-`;
-
-exports[`Project file tests DjangoTestCase {
-  project: [DjangoProject],
-  filename: 'test_requirements.txt'
-} 3`] = `
-"
-pytest
-pytest-django
-"
-`;
-
-exports[`Project file tests DjangoTestCase {
-  project: [DjangoProject],
   filename: 'test_settings.py'
 } 1`] = `
 "
@@ -1996,7 +1966,6 @@ from django.urls import reverse
 pytestmark = [pytest.mark.django_db]
 
 
-
 def tests_TestModel1_list_view(client):
     instance1 = test_helpers.create_testapp1_TestModel1()
     instance2 = test_helpers.create_testapp1_TestModel1()
@@ -2664,13 +2633,6 @@ def create_testapp1_TestModel1(**kwargs):
 "
 `;
 
-exports[`Render Basic Project Root Files test_requirements.txt 1`] = `
-"
-pytest
-pytest-django
-"
-`;
-
 exports[`Render Basic Project Root Files test_settings.py 1`] = `
 "
 from TestProject.settings import *  # noqa
@@ -2948,7 +2910,6 @@ from django.urls import reverse
 
 
 pytestmark = [pytest.mark.django_db]
-
 
 
 def tests_TestModel3_list_view(client):
@@ -3645,13 +3606,6 @@ def create_testapp3_TestModel3(**kwargs):
 "
 `;
 
-exports[`Render Channels Project Root Files test_requirements.txt 1`] = `
-"
-pytest
-pytest-django
-"
-`;
-
 exports[`Render Channels Project Root Files test_settings.py 1`] = `
 "
 from TestProject.settings import *  # noqa
@@ -4212,13 +4166,6 @@ def create_testapp2_TestModel2(**kwargs):
 "
 `;
 
-exports[`Render HTMX Project Root Files test_requirements.txt 1`] = `
-"
-pytest
-pytest-django
-"
-`;
-
 exports[`Render HTMX Project Root Files test_settings.py 1`] = `
 "
 from TestProject.settings import *  # noqa
@@ -4531,7 +4478,6 @@ from django.urls import reverse
 
 
 pytestmark = [pytest.mark.django_db]
-
 
 
 def tests_TestModel2_list_view(client):
