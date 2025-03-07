@@ -131,13 +131,8 @@ export default new Vuex.Store({
       })
 
       const models_with_parents_sorted = models_with_parents.sort((model, otherModel) => {
-        const otherModelParentClasses = otherModel.parents.filter((c) => {
-          return c.type !== 'django'
-        }).map((c) => {
-          return state.models[c.model].data().name
-        })
-        return otherModelParentClasses.indexOf(model.name) === -1 ? 1 : -1
-      })
+        return otherModel.parents.indexOf(model.name) === -1 ? 1 : -1
+      });
 
       return models_no_parents.concat(models_with_parents_sorted)
     },
@@ -200,7 +195,9 @@ export default new Vuex.Store({
         firestore.collection('projects').where(
           "owner", "==", userid
         ).orderBy("name").onSnapshot((projectData) => {
-          commit('set_state', {key: 'projects', values: keyByValue(projectData.docs, "id")})
+          const projects = keyByValue(projectData.docs, "id")
+          commit('set_state', {key: 'projects', values: projects})
+          console.debug('Loaded projects', JSON.parse(JSON.stringify(projectData.docs.map((p) => p.data()))))
           resolve(projectData)
         }, snapShotErrorHandler)
       })
@@ -208,7 +205,9 @@ export default new Vuex.Store({
         firestore.collection('apps').where(
           "owner", "==", userid
         ).onSnapshot((appData) => {
-          commit('set_state', {key: 'apps', values: keyByValue(appData.docs, "id")})
+          const apps = keyByValue(appData.docs, "id")
+          commit('set_state', {key: 'apps', values: apps})
+          console.debug('Loaded apps', JSON.parse(JSON.stringify(appData.docs.map((a) => a.data()))))
           resolve()
         }, snapShotErrorHandler)
       })
@@ -217,7 +216,9 @@ export default new Vuex.Store({
         firestore.collection('models').where(
           "owner", "==", userid
         ).onSnapshot((modelData) => {
-          commit('set_state', {key: 'models', values: keyByValue(modelData.docs, "id")})
+          const models = keyByValue(modelData.docs, "id")
+          commit('set_state', {key: 'models', values: models})
+          console.debug('Loaded models', JSON.parse(JSON.stringify(modelData.docs.map((m) => m.data()))))
           resolve()
         }, snapShotErrorHandler)
       })
@@ -226,7 +227,9 @@ export default new Vuex.Store({
         firestore.collection('fields').where(
           "owner", "==", userid
         ).onSnapshot((fieldsData) => {
-          commit('set_state', {key: 'fields', values: keyByValue(fieldsData.docs, "id")})
+          const fields = keyByValue(fieldsData.docs, "id")
+          commit('set_state', {key: 'fields', values: fields})
+          console.debug('Loaded fields', JSON.parse(JSON.stringify(fieldsData.docs.map((f) => f.data()))))
           resolve()
         }, snapShotErrorHandler)
       })
@@ -235,7 +238,9 @@ export default new Vuex.Store({
         firestore.collection('relationships').where(
           "owner", "==", userid
         ).onSnapshot((relationshipData) => {
-          commit('set_state', {key: 'relationships', values: keyByValue(relationshipData.docs, "id")})
+          const relationships = keyByValue(relationshipData.docs, "id")
+          commit('set_state', {key: 'relationships', values: relationships})
+          console.debug('Loaded relationships', JSON.parse(JSON.stringify(relationshipData.docs.map((r) => r.data()))))
           resolve()
         }, snapShotErrorHandler)
       })
