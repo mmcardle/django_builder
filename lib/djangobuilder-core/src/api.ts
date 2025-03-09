@@ -195,6 +195,10 @@ export class BuiltInModel implements IBuiltInModel {
     this.model = model;
     this.importModule = importModule;
   }
+
+  get fullPath  () {
+    return this.importModule + "." + this.model;
+  }
 }
 
 export const AuthUser = new BuiltInModel(
