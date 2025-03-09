@@ -268,7 +268,7 @@
 import firebase from 'firebase/compat/app';
 import { schemas } from "@/schemas";
 import ImportableModel from '@/components/ImportableModel.vue'
-import { ModelImporter } from "@djangobuilder/core"
+import { ParentModelTypes, ModelImporter } from "@djangobuilder/core"
 import { showDeleteDialog, showFormDialog, showMessageDialog } from "@/dialogs/";
 import { MAX_BATCH_IMPORTABLE_MODELS, MAX_MODELS } from '@/constants'
 import { batchModelsForTransaction } from '@/utils'
@@ -392,8 +392,33 @@ export default {
         this.importReady = true
       })
     },
+    parentsToStorageFormat: function(parents) {
+      return parents.map(parent => {
+        if (parent.name in ParentModelTypes) {
+          return {
+            class: ParentModelTypes[parent.name].fullPath,
+            type: 'django'
+          }
+        } else {
+          const [appName, ...rest] = parent.name.split('.');
+          const modelName = rest[rest.length - 1];
+          const appid = Object.keys(this.$store.getters.apps()).find(appid => this.appData(appid).name === appName);
+          const modelid = Object.keys(this.appData(appid).models).find(modelid => this.modelData(modelid).name === modelName);
+          return {
+            app: appid,
+            model: modelid,
+            type: 'user'
+          }
+        }
+        // Remove parents that are not in the app
+      }).filter(parent => parent.type === 'django' || parent.model !== undefined)
+    },
     modelsParents: function(model) {
-      return model.parents.map(parent => parent.name).join(", ");
+      const djangoParents = model.parents.filter(parent => parent.type === 'django');
+      const djangoParentsNames = djangoParents.map(parent => parent.class.split('.').pop());
+      const userParents = model.parents.filter(parent => parent.type === 'user');
+      const userParentsNames = userParents.map(parent => this.modelData(parent.model).name);
+      return [...djangoParentsNames, ...userParentsNames].join(", ");
     },
     clearMoveModel: function (e) {
       e.preventDefault()
@@ -450,19 +475,32 @@ export default {
     },
     showEditModelDialog: function(app, modelid) {
       const modelData = this.$store.getters.modelData(modelid);
+      const parentsStructured = modelData.parents.map(parent => {
+        if (parent.type === 'django') {
+          const djangoParent = Object.values(ParentModelTypes).find(p => p.fullPath === parent.class);
+          return {name: djangoParent.name}
+        } else {
+          const app = this.$store.getters.appData(parent.app);
+          const model = this.$store.getters.modelData(parent.model);
+          return {name: app.name + ".models." + model.name}
+        }
+      })
       showFormDialog(
         "Edit model",
         formdata => {
           console.debug("Edit model", JSON.parse(JSON.stringify(formdata)))
+          const parents = formdata.parents ? this.parentsToStorageFormat(formdata.parents) : [];
+          const newFormData = { ...formdata, parents: parents };
+          console.debug("Edit model with parents", JSON.parse(JSON.stringify(newFormData)))
           this.$firestore
             .collection("models")
             .doc(modelid)
-            .update(formdata);
+            .update(newFormData);
         },
         this._modelSchemaForApp(),
         {
           name: modelData.name,
-          parents: modelData.parents,
+          parents: parentsStructured,
           abstract: modelData.abstract
         }
       );
@@ -593,10 +631,11 @@ export default {
         "Add new model",
         formdata => {
           console.debug("Add new model", JSON.parse(JSON.stringify(formdata)))
+          const parents = formdata.parents ? this.parentsToStorageFormat(formdata.parents) : [];
           this.addModel(
             app,
             formdata.name,
-            formdata.parents.map(parent => ({name: parent.name})),
+            parents,
             formdata.abstract
           );
         },
@@ -686,11 +725,31 @@ export default {
         event_label: modelid,
         value: 1
       });
+      // find all models that have a parent that is this model
+      const models = this.$store.getters.models();
+      console.debug("Models", JSON.parse(JSON.stringify(models)))
+      const modelIds = Object.keys(models).filter(modelId => {
+        return this.modelData(modelId).parents.some(parent => parent.model === modelid);;
+      });
+      modelIds.forEach(otherModelId => {
+        console.debug(`Removing parent ${modelid} from model ${otherModelId}`)
+        this.removeParentFromModel(otherModelId, modelid);
+      });
       this.$firestore
         .collection("apps")
         .doc(appid)
         .update({
           [`models.${modelid}`]: firebase.firestore.FieldValue.delete()
+        });
+    },
+    removeParentFromModel: function(otherModelId, modelid) {
+      const currentModel = this.modelData(otherModelId);
+      const newParents = currentModel.parents.filter(parent => parent.model !== modelid);
+      this.$firestore
+        .collection("models")
+        .doc(otherModelId)
+        .update({
+          parents: newParents
         });
     },
     deleteRelationship: function(modelid, relationshipid) {
