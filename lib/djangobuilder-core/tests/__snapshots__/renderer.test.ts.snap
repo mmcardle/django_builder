@@ -767,9 +767,9 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
     <div class="row">
     <div class="col col-lg-6">
       <h5>Add A TestModel1</h5>
-      <div hx-get="{% url 'testapp1_TestModel1_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <div hx-get="{% url 'testapp1:TestModel1_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
       <h4>TestModel1 List</h4>
-      <div hx-get="{% url 'testapp1_TestModel1_htmx_list' %}" hx-trigger="load">
+      <div hx-get="{% url 'testapp1:TestModel1_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     </div>
@@ -795,9 +795,9 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
     <div class="row">
     <div class="col col-lg-6">
       <h5>Add A TestModel2</h5>
-      <div hx-get="{% url 'testapp2_TestModel2_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <div hx-get="{% url 'testapp2:TestModel2_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
       <h4>TestModel2 List</h4>
-      <div hx-get="{% url 'testapp2_TestModel2_htmx_list' %}" hx-trigger="load">
+      <div hx-get="{% url 'testapp2:TestModel2_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     </div>
@@ -823,9 +823,9 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
     <div class="row">
     <div class="col col-lg-6">
       <h5>Add A TestModel3</h5>
-      <div hx-get="{% url 'testapp3_TestModel3_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <div hx-get="{% url 'testapp3:TestModel3_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
       <h4>TestModel3 List</h4>
-      <div hx-get="{% url 'testapp3_TestModel3_htmx_list' %}" hx-trigger="load">
+      <div hx-get="{% url 'testapp3:TestModel3_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     </div>
@@ -847,7 +847,7 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
         <h4>testapp1</h4>
       </div>
       <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">TestModel1 Listing</a>
+      <a class="btn btn-light" href="{% url 'testapp1:TestModel1_list' %}">TestModel1 Listing</a>
       </div>
     </div>
   </div>
@@ -869,7 +869,7 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
         <h4>testapp2</h4>
       </div>
       <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">TestModel2 Listing</a>
+      <a class="btn btn-light" href="{% url 'testapp2:TestModel2_list' %}">TestModel2 Listing</a>
       </div>
     </div>
   </div>
@@ -900,7 +900,7 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
         <h4>testapp3</h4>
       </div>
       <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp3_TestModel3_list' %}">TestModel3 Listing</a>
+      <a class="btn btn-light" href="{% url 'testapp3:TestModel3_list' %}">TestModel3 Listing</a>
       </div>
     </div>
   </div>
@@ -1890,7 +1890,7 @@ class HTMXTestModel1CreateView(generic.CreateView):
 
 class HTMXTestModel1DeleteView(generic.DeleteView):
     model = models.TestModel1
-    success_url = reverse_lazy("testapp1_TestModel1_htmx_list")
+    success_url = reverse_lazy("testapp1:TestModel1_htmx_list")
     
     def form_valid(self, form):
         super().form_valid(form)
@@ -1919,16 +1919,16 @@ class TestModel1(models.Model):
 
     @staticmethod
     def get_create_url():
-        return reverse("testapp1_TestModel1_create")
+        return reverse("testapp1:TestModel1_create")
 
     def get_absolute_url(self):
-        return reverse("testapp1_TestModel1_detail", args=(self.pk,))
+        return reverse("testapp1:TestModel1_detail", args=(self.pk,))
 
     def get_update_url(self):
-        return reverse("testapp1_TestModel1_update", args=(self.pk,))
+        return reverse("testapp1:TestModel1_update", args=(self.pk,))
 
     def get_delete_url(self):
-        return reverse("testapp1_TestModel1_delete", args=(self.pk,))
+        return reverse("testapp1:TestModel1_delete", args=(self.pk,))
 
 
 
@@ -1969,7 +1969,7 @@ pytestmark = [pytest.mark.django_db]
 def tests_TestModel1_list_view(client):
     instance1 = test_helpers.create_testapp1_TestModel1()
     instance2 = test_helpers.create_testapp1_TestModel1()
-    url = reverse("testapp1_TestModel1_list")
+    url = reverse("testapp1:TestModel1_list")
     response = client.get(url)
     assert response.status_code == 200
     assert str(instance1) in response.content.decode("utf-8")
@@ -1977,7 +1977,7 @@ def tests_TestModel1_list_view(client):
 
 
 def tests_TestModel1_create_view(client):
-    url = reverse("testapp1_TestModel1_create")
+    url = reverse("testapp1:TestModel1_create")
     data = {
       'TestField1': 'text',
       "TestField1": test_helpers.create_User().pk,
@@ -1988,7 +1988,7 @@ def tests_TestModel1_create_view(client):
 
 def tests_TestModel1_detail_view(client):
     instance = test_helpers.create_testapp1_TestModel1()
-    url = reverse("testapp1_TestModel1_detail", args=[instance.pk, ])
+    url = reverse("testapp1:TestModel1_detail", args=[instance.pk, ])
     response = client.get(url)
     assert response.status_code == 200
     assert str(instance) in response.content.decode("utf-8")
@@ -1996,7 +1996,7 @@ def tests_TestModel1_detail_view(client):
     
 def tests_TestModel1_update_view(client):
     instance = test_helpers.create_testapp1_TestModel1()
-    url = reverse("testapp1_TestModel1_update", args=[instance.pk, ])
+    url = reverse("testapp1:TestModel1_update", args=[instance.pk, ])
     data = {
       'TestField1': 'text',
       "TestField1": test_helpers.create_User().pk,
@@ -2018,13 +2018,14 @@ from . import views
 router = routers.DefaultRouter()
 router.register("TestModel1", api.TestModel1ViewSet)
 
+app_name = "testapp1"
 urlpatterns = (
     path("api/v1/", include(router.urls)),
-    path("testapp1/TestModel1/", views.TestModel1ListView.as_view(), name="testapp1_TestModel1_list"),
-    path("testapp1/TestModel1/create/", views.TestModel1CreateView.as_view(), name="testapp1_TestModel1_create"),
-    path("testapp1/TestModel1/detail/<int:pk>/", views.TestModel1DetailView.as_view(), name="testapp1_TestModel1_detail"),
-    path("testapp1/TestModel1/update/<int:pk>/", views.TestModel1UpdateView.as_view(), name="testapp1_TestModel1_update"),
-    path("testapp1/TestModel1/delete/<int:pk>/", views.TestModel1DeleteView.as_view(), name="testapp1_TestModel1_delete"),
+    path("testapp1/TestModel1/", views.TestModel1ListView.as_view(), name="TestModel1_list"),
+    path("testapp1/TestModel1/create/", views.TestModel1CreateView.as_view(), name="TestModel1_create"),
+    path("testapp1/TestModel1/detail/<int:pk>/", views.TestModel1DetailView.as_view(), name="TestModel1_detail"),
+    path("testapp1/TestModel1/update/<int:pk>/", views.TestModel1UpdateView.as_view(), name="TestModel1_update"),
+    path("testapp1/TestModel1/delete/<int:pk>/", views.TestModel1DeleteView.as_view(), name="TestModel1_delete"),
 )
 "
 `;
@@ -2061,7 +2062,7 @@ class TestModel1UpdateView(generic.UpdateView):
 
 class TestModel1DeleteView(generic.DeleteView):
     model = models.TestModel1
-    success_url = reverse_lazy("testapp1_TestModel1_list")
+    success_url = reverse_lazy("testapp1:TestModel1_list")
 
 "
 `;
@@ -2088,7 +2089,7 @@ exports[`Render Basic Project Model Files detail.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp1:TestModel1_list' %}">
      Listing
     </a>
 </p>
@@ -2116,7 +2117,7 @@ exports[`Render Basic Project Model Files form.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp1:TestModel1_list' %}">
      Listing
     </a>
 </p>
@@ -2145,7 +2146,7 @@ exports[`Render Basic Project Model Files list.html 1`] = `
   </div>
 {% endfor %}
 <div>
-  <a class="btn btn-primary" href="{% url 'testapp1_TestModel1_create' %}">
+  <a class="btn btn-primary" href="{% url 'testapp1:TestModel1_create' %}">
   Create a new TestModel1
   </a>
 </div>
@@ -2286,9 +2287,9 @@ exports[`Render Basic Project Root Files htmx.html 1`] = `
     <div class="row">
     <div class="col col-lg-6">
       <h5>Add A TestModel1</h5>
-      <div hx-get="{% url 'testapp1_TestModel1_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <div hx-get="{% url 'testapp1:TestModel1_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
       <h4>TestModel1 List</h4>
-      <div hx-get="{% url 'testapp1_TestModel1_htmx_list' %}" hx-trigger="load">
+      <div hx-get="{% url 'testapp1:TestModel1_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     </div>
@@ -2310,7 +2311,7 @@ exports[`Render Basic Project Root Files index.html 1`] = `
         <h4>testapp1</h4>
       </div>
       <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp1_TestModel1_list' %}">TestModel1 Listing</a>
+      <a class="btn btn-light" href="{% url 'testapp1:TestModel1_list' %}">TestModel1 Listing</a>
       </div>
     </div>
   </div>
@@ -2840,7 +2841,7 @@ class HTMXTestModel3CreateView(generic.CreateView):
 
 class HTMXTestModel3DeleteView(generic.DeleteView):
     model = models.TestModel3
-    success_url = reverse_lazy("testapp3_TestModel3_htmx_list")
+    success_url = reverse_lazy("testapp3:TestModel3_htmx_list")
     
     def form_valid(self, form):
         super().form_valid(form)
@@ -2867,16 +2868,16 @@ class TestModel3(models.Model):
 
     @staticmethod
     def get_create_url():
-        return reverse("testapp3_TestModel3_create")
+        return reverse("testapp3:TestModel3_create")
 
     def get_absolute_url(self):
-        return reverse("testapp3_TestModel3_detail", args=(self.pk,))
+        return reverse("testapp3:TestModel3_detail", args=(self.pk,))
 
     def get_update_url(self):
-        return reverse("testapp3_TestModel3_update", args=(self.pk,))
+        return reverse("testapp3:TestModel3_update", args=(self.pk,))
 
     def get_delete_url(self):
-        return reverse("testapp3_TestModel3_delete", args=(self.pk,))
+        return reverse("testapp3:TestModel3_delete", args=(self.pk,))
 
 
 
@@ -2915,7 +2916,7 @@ pytestmark = [pytest.mark.django_db]
 def tests_TestModel3_list_view(client):
     instance1 = test_helpers.create_testapp3_TestModel3()
     instance2 = test_helpers.create_testapp3_TestModel3()
-    url = reverse("testapp3_TestModel3_list")
+    url = reverse("testapp3:TestModel3_list")
     response = client.get(url)
     assert response.status_code == 200
     assert str(instance1) in response.content.decode("utf-8")
@@ -2923,7 +2924,7 @@ def tests_TestModel3_list_view(client):
 
 
 def tests_TestModel3_create_view(client):
-    url = reverse("testapp3_TestModel3_create")
+    url = reverse("testapp3:TestModel3_create")
     data = {
     }
     response = client.post(url, data)
@@ -2932,7 +2933,7 @@ def tests_TestModel3_create_view(client):
 
 def tests_TestModel3_detail_view(client):
     instance = test_helpers.create_testapp3_TestModel3()
-    url = reverse("testapp3_TestModel3_detail", args=[instance.pk, ])
+    url = reverse("testapp3:TestModel3_detail", args=[instance.pk, ])
     response = client.get(url)
     assert response.status_code == 200
     assert str(instance) in response.content.decode("utf-8")
@@ -2940,7 +2941,7 @@ def tests_TestModel3_detail_view(client):
     
 def tests_TestModel3_update_view(client):
     instance = test_helpers.create_testapp3_TestModel3()
-    url = reverse("testapp3_TestModel3_update", args=[instance.pk, ])
+    url = reverse("testapp3:TestModel3_update", args=[instance.pk, ])
     data = {
     }
     response = client.post(url, data)
@@ -2960,13 +2961,14 @@ from . import views
 router = routers.DefaultRouter()
 router.register("TestModel3", api.TestModel3ViewSet)
 
+app_name = "testapp3"
 urlpatterns = (
     path("api/v1/", include(router.urls)),
-    path("testapp3/TestModel3/", views.TestModel3ListView.as_view(), name="testapp3_TestModel3_list"),
-    path("testapp3/TestModel3/create/", views.TestModel3CreateView.as_view(), name="testapp3_TestModel3_create"),
-    path("testapp3/TestModel3/detail/<int:pk>/", views.TestModel3DetailView.as_view(), name="testapp3_TestModel3_detail"),
-    path("testapp3/TestModel3/update/<int:pk>/", views.TestModel3UpdateView.as_view(), name="testapp3_TestModel3_update"),
-    path("testapp3/TestModel3/delete/<int:pk>/", views.TestModel3DeleteView.as_view(), name="testapp3_TestModel3_delete"),
+    path("testapp3/TestModel3/", views.TestModel3ListView.as_view(), name="TestModel3_list"),
+    path("testapp3/TestModel3/create/", views.TestModel3CreateView.as_view(), name="TestModel3_create"),
+    path("testapp3/TestModel3/detail/<int:pk>/", views.TestModel3DetailView.as_view(), name="TestModel3_detail"),
+    path("testapp3/TestModel3/update/<int:pk>/", views.TestModel3UpdateView.as_view(), name="TestModel3_update"),
+    path("testapp3/TestModel3/delete/<int:pk>/", views.TestModel3DeleteView.as_view(), name="TestModel3_delete"),
 )
 "
 `;
@@ -3003,7 +3005,7 @@ class TestModel3UpdateView(generic.UpdateView):
 
 class TestModel3DeleteView(generic.DeleteView):
     model = models.TestModel3
-    success_url = reverse_lazy("testapp3_TestModel3_list")
+    success_url = reverse_lazy("testapp3:TestModel3_list")
 
 "
 `;
@@ -3030,7 +3032,7 @@ exports[`Render Channels Project Model Files detail.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp3_TestModel3_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp3:TestModel3_list' %}">
      Listing
     </a>
 </p>
@@ -3052,7 +3054,7 @@ exports[`Render Channels Project Model Files form.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp3_TestModel3_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp3:TestModel3_list' %}">
      Listing
     </a>
 </p>
@@ -3081,7 +3083,7 @@ exports[`Render Channels Project Model Files list.html 1`] = `
   </div>
 {% endfor %}
 <div>
-  <a class="btn btn-primary" href="{% url 'testapp3_TestModel3_create' %}">
+  <a class="btn btn-primary" href="{% url 'testapp3:TestModel3_create' %}">
   Create a new TestModel3
   </a>
 </div>
@@ -3259,9 +3261,9 @@ exports[`Render Channels Project Root Files htmx.html 1`] = `
     <div class="row">
     <div class="col col-lg-6">
       <h5>Add A TestModel3</h5>
-      <div hx-get="{% url 'testapp3_TestModel3_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <div hx-get="{% url 'testapp3:TestModel3_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
       <h4>TestModel3 List</h4>
-      <div hx-get="{% url 'testapp3_TestModel3_htmx_list' %}" hx-trigger="load">
+      <div hx-get="{% url 'testapp3:TestModel3_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     </div>
@@ -3283,7 +3285,7 @@ exports[`Render Channels Project Root Files index.html 1`] = `
         <h4>testapp3</h4>
       </div>
       <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp3_TestModel3_list' %}">TestModel3 Listing</a>
+      <a class="btn btn-light" href="{% url 'testapp3:TestModel3_list' %}">TestModel3 Listing</a>
       </div>
     </div>
   </div>
@@ -3807,9 +3809,9 @@ exports[`Render HTMX Project Root Files htmx.html 1`] = `
     <div class="row">
     <div class="col col-lg-6">
       <h5>Add A TestModel2</h5>
-      <div hx-get="{% url 'testapp2_TestModel2_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <div hx-get="{% url 'testapp2:TestModel2_htmx_create' %}" hx-trigger="load" hx-swap="outerHTML"></div>
       <h4>TestModel2 List</h4>
-      <div hx-get="{% url 'testapp2_TestModel2_htmx_list' %}" hx-trigger="load">
+      <div hx-get="{% url 'testapp2:TestModel2_htmx_list' %}" hx-trigger="load">
       </div>
     </div>
     </div>
@@ -3831,7 +3833,7 @@ exports[`Render HTMX Project Root Files index.html 1`] = `
         <h4>testapp2</h4>
       </div>
       <div class="m-2">
-      <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">TestModel2 Listing</a>
+      <a class="btn btn-light" href="{% url 'testapp2:TestModel2_list' %}">TestModel2 Listing</a>
       </div>
     </div>
   </div>
@@ -4394,7 +4396,7 @@ class HTMXTestModel2CreateView(generic.CreateView):
 
 class HTMXTestModel2DeleteView(generic.DeleteView):
     model = models.TestModel2
-    success_url = reverse_lazy("testapp2_TestModel2_htmx_list")
+    success_url = reverse_lazy("testapp2:TestModel2_htmx_list")
     
     def form_valid(self, form):
         super().form_valid(form)
@@ -4425,23 +4427,23 @@ class TestModel2(models.Model):
 
     @staticmethod
     def get_create_url():
-        return reverse("testapp2_TestModel2_create")
+        return reverse("testapp2:TestModel2_create")
 
     def get_absolute_url(self):
-        return reverse("testapp2_TestModel2_detail", args=(self.pk,))
+        return reverse("testapp2:TestModel2_detail", args=(self.pk,))
 
     def get_update_url(self):
-        return reverse("testapp2_TestModel2_update", args=(self.pk,))
+        return reverse("testapp2:TestModel2_update", args=(self.pk,))
 
     def get_delete_url(self):
-        return reverse("testapp2_TestModel2_delete", args=(self.pk,))
+        return reverse("testapp2:TestModel2_delete", args=(self.pk,))
 
     @staticmethod
     def get_htmx_create_url():
-        return reverse("testapp2_TestModel2_htmx_create")
+        return reverse("testapp2:TestModel2_htmx_create")
 
     def get_htmx_delete_url(self):
-        return reverse("testapp2_TestModel2_htmx_delete", args=(self.pk,))
+        return reverse("testapp2:TestModel2_htmx_delete", args=(self.pk,))
 
 
 "
@@ -4483,7 +4485,7 @@ pytestmark = [pytest.mark.django_db]
 def tests_TestModel2_list_view(client):
     instance1 = test_helpers.create_testapp2_TestModel2()
     instance2 = test_helpers.create_testapp2_TestModel2()
-    url = reverse("testapp2_TestModel2_list")
+    url = reverse("testapp2:TestModel2_list")
     response = client.get(url)
     assert response.status_code == 200
     assert str(instance1) in response.content.decode("utf-8")
@@ -4491,7 +4493,7 @@ def tests_TestModel2_list_view(client):
 
 
 def tests_TestModel2_create_view(client):
-    url = reverse("testapp2_TestModel2_create")
+    url = reverse("testapp2:TestModel2_create")
     data = {
       'TestField2': 'text',
       'TestField3': 'text',
@@ -4504,7 +4506,7 @@ def tests_TestModel2_create_view(client):
 
 def tests_TestModel2_detail_view(client):
     instance = test_helpers.create_testapp2_TestModel2()
-    url = reverse("testapp2_TestModel2_detail", args=[instance.pk, ])
+    url = reverse("testapp2:TestModel2_detail", args=[instance.pk, ])
     response = client.get(url)
     assert response.status_code == 200
     assert str(instance) in response.content.decode("utf-8")
@@ -4512,7 +4514,7 @@ def tests_TestModel2_detail_view(client):
     
 def tests_TestModel2_update_view(client):
     instance = test_helpers.create_testapp2_TestModel2()
-    url = reverse("testapp2_TestModel2_update", args=[instance.pk, ])
+    url = reverse("testapp2:TestModel2_update", args=[instance.pk, ])
     data = {
       'TestField2': 'text',
       'TestField3': 'text',
@@ -4537,16 +4539,17 @@ from . import htmx
 router = routers.DefaultRouter()
 router.register("TestModel2", api.TestModel2ViewSet)
 
+app_name = "testapp2"
 urlpatterns = (
     path("api/v1/", include(router.urls)),
-    path("testapp2/TestModel2/", views.TestModel2ListView.as_view(), name="testapp2_TestModel2_list"),
-    path("testapp2/TestModel2/create/", views.TestModel2CreateView.as_view(), name="testapp2_TestModel2_create"),
-    path("testapp2/TestModel2/detail/<int:pk>/", views.TestModel2DetailView.as_view(), name="testapp2_TestModel2_detail"),
-    path("testapp2/TestModel2/update/<int:pk>/", views.TestModel2UpdateView.as_view(), name="testapp2_TestModel2_update"),
-    path("testapp2/TestModel2/delete/<int:pk>/", views.TestModel2DeleteView.as_view(), name="testapp2_TestModel2_delete"),
-    path("testapp2/htmx/TestModel2/", htmx.HTMXTestModel2ListView.as_view(), name="testapp2_TestModel2_htmx_list"),
-    path("testapp2/htmx/TestModel2/create/", htmx.HTMXTestModel2CreateView.as_view(), name="testapp2_TestModel2_htmx_create"),
-    path("testapp2/htmx/TestModel2/delete/<int:pk>/", htmx.HTMXTestModel2DeleteView.as_view(), name="testapp2_TestModel2_htmx_delete"),
+    path("testapp2/TestModel2/", views.TestModel2ListView.as_view(), name="TestModel2_list"),
+    path("testapp2/TestModel2/create/", views.TestModel2CreateView.as_view(), name="TestModel2_create"),
+    path("testapp2/TestModel2/detail/<int:pk>/", views.TestModel2DetailView.as_view(), name="TestModel2_detail"),
+    path("testapp2/TestModel2/update/<int:pk>/", views.TestModel2UpdateView.as_view(), name="TestModel2_update"),
+    path("testapp2/TestModel2/delete/<int:pk>/", views.TestModel2DeleteView.as_view(), name="TestModel2_delete"),
+    path("testapp2/htmx/TestModel2/", htmx.HTMXTestModel2ListView.as_view(), name="TestModel2_htmx_list"),
+    path("testapp2/htmx/TestModel2/create/", htmx.HTMXTestModel2CreateView.as_view(), name="TestModel2_htmx_create"),
+    path("testapp2/htmx/TestModel2/delete/<int:pk>/", htmx.HTMXTestModel2DeleteView.as_view(), name="TestModel2_htmx_delete"),
 )
 "
 `;
@@ -4583,7 +4586,7 @@ class TestModel2UpdateView(generic.UpdateView):
 
 class TestModel2DeleteView(generic.DeleteView):
     model = models.TestModel2
-    success_url = reverse_lazy("testapp2_TestModel2_list")
+    success_url = reverse_lazy("testapp2:TestModel2_list")
 
 "
 `;
@@ -4610,7 +4613,7 @@ exports[`Render HTMX ProjectModel Files detail.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp2:TestModel2_list' %}">
      Listing
     </a>
 </p>
@@ -4644,7 +4647,7 @@ exports[`Render HTMX ProjectModel Files form.html 1`] = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url 'testapp2_TestModel2_list' %}">
+    <a class="btn btn-light" href="{% url 'testapp2:TestModel2_list' %}">
      Listing
     </a>
 </p>
@@ -4673,7 +4676,7 @@ exports[`Render HTMX ProjectModel Files list.html 1`] = `
   </div>
 {% endfor %}
 <div>
-  <a class="btn btn-primary" href="{% url 'testapp2_TestModel2_create' %}">
+  <a class="btn btn-primary" href="{% url 'testapp2:TestModel2_create' %}">
   Create a new TestModel2
   </a>
 </div>

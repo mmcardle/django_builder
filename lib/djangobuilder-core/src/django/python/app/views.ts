@@ -31,7 +31,7 @@ class {{name}}UpdateView(generic.UpdateView):
 
 class {{name}}DeleteView(generic.DeleteView):
     model = models.{{name}}
-    success_url = reverse_lazy("{{app.name}}_{{name}}_list")
+    success_url = reverse_lazy("{{app.name}}:{{name}}_list")
 
 {{/abstract}}
 {{/app.models}}

@@ -15,7 +15,7 @@ pytestmark = [pytest.mark.django_db]
 def tests_{{name}}_list_view(client):
     instance1 = test_helpers.create_{{app.name}}_{{name}}()
     instance2 = test_helpers.create_{{app.name}}_{{name}}()
-    url = reverse("{{app.name}}_{{name}}_list")
+    url = reverse("{{app.name}}:{{name}}_list")
     response = client.get(url)
     assert response.status_code == 200
     assert str(instance1) in response.content.decode("utf-8")
@@ -23,7 +23,7 @@ def tests_{{name}}_list_view(client):
 
 
 def tests_{{name}}_create_view(client):
-    url = reverse("{{app.name}}_{{name}}_create")
+    url = reverse("{{app.name}}:{{name}}_create")
     data = {
       {{#fields}}
       {{{ testViewsCreateDefaultField . }}}
@@ -38,7 +38,7 @@ def tests_{{name}}_create_view(client):
 
 def tests_{{name}}_detail_view(client):
     instance = test_helpers.create_{{app.name}}_{{name}}()
-    url = reverse("{{app.name}}_{{name}}_detail", args=[instance.pk, ])
+    url = reverse("{{app.name}}:{{name}}_detail", args=[instance.pk, ])
     response = client.get(url)
     assert response.status_code == 200
     assert str(instance) in response.content.decode("utf-8")
@@ -46,7 +46,7 @@ def tests_{{name}}_detail_view(client):
     
 def tests_{{name}}_update_view(client):
     instance = test_helpers.create_{{app.name}}_{{name}}()
-    url = reverse("{{app.name}}_{{name}}_update", args=[instance.pk, ])
+    url = reverse("{{app.name}}:{{name}}_update", args=[instance.pk, ])
     data = {
       {{#fields}}
       {{{ testViewsCreateDefaultField . }}}

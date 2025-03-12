@@ -50,9 +50,16 @@ cd ${DIR}
 tar -xvf ${TEMP_TAR}
 cd ${DIR}/${PROJECT_NAME}
 
+echo "Project name: ${PROJECT_NAME}"
+echo "Temp dir: ${DIR}"
+echo "Temp tar: ${TEMP_TAR}"
+echo "Django port: ${DJANGO_PORT}"
+echo "Postgres host: ${POSTGRES_HOST}"
+echo "Postgres port: ${POSTGRES_PORT}"
+
 uv venv --python 3.13
 source .venv/bin/activate
-uv pip sync requirements.txt 
+uv pip sync requirements.txt
 uv run python manage.py makemigrations
 uv run python manage.py migrate
 uv run python manage.py runserver ${DJANGO_PORT} &
@@ -61,7 +68,7 @@ ID=$!
 curl --connect-timeout 5 \
     --retry-connrefused \
     --max-time 5 \
-    --retry 5 \
+    --retry 1 \
     --retry-delay 2 \
     --retry-max-time 10 \
     "http://127.0.0.1:${DJANGO_PORT}" || kill ${ID}
