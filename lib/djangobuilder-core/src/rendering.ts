@@ -497,41 +497,40 @@ export default class Renderer {
     );
 
     const test_items: DjangoProjectFile[] = [
-      ...Object.keys(ROOT_TEST_FILES).map((render_name) => {
-        return {
-          resource: project,
-          type: DjangoProjectFileResource.PROJECT_FILE,
-          path: render_name,
-          name: render_name,
-          folder: false,
-        };
-      }),
       {
         resource: project,
         type: DjangoProjectFileResource.FOLDER,
         path: "tests",
         name: "tests",
         folder: true,
-        children: project.apps.map((app) => {
-          return {
-            appName: app.name,
-            resource: app as DjangoApp,
-            type: DjangoProjectFileResource.APP_FILE,
-            path: "tests/" + app.name,
-            name: app.name,
-            folder: true,
-            children: Object.keys(APP_TEST_FILES).map((render_name) => {
-              return {
-                appName: app.name,
-                resource: app as DjangoApp,
-                type: DjangoProjectFileResource.APP_FILE,
-                path: "tests/" + app.name + "/" + render_name,
-                name: render_name,
-                folder: false,
-              };
-            }),
-          };
-        }),
+        children: [
+          {
+            resource: project,
+            type: DjangoProjectFileResource.PROJECT_FILE,
+            path: "tests/__init__.py",
+            name: "__init__.py",
+            folder: false,
+          }, ...project.apps.map((app) => {
+            return {
+              appName: app.name,
+              resource: app as DjangoApp,
+              type: DjangoProjectFileResource.APP_FILE,
+              path: "tests/" + app.name,
+              name: app.name,
+              folder: true,
+              children: Object.keys(APP_TEST_FILES).map((render_name) => {
+                return {
+                  appName: app.name,
+                  resource: app as DjangoApp,
+                  type: DjangoProjectFileResource.APP_FILE,
+                  path: "tests/" + app.name + "/" + render_name,
+                  name: render_name,
+                  folder: false,
+                };
+              }),
+            };
+          }),
+        ],
       },
     ];
 
