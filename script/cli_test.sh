@@ -62,6 +62,7 @@ source .venv/bin/activate
 uv pip sync requirements.txt
 uv run python manage.py makemigrations
 uv run python manage.py migrate
+uv run pytest
 uv run python manage.py runserver ${DJANGO_PORT} &
 ID=$!
 

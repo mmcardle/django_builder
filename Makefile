@@ -47,4 +47,6 @@ test_django: create
 	cd ${PROJECT_NAME_POSTGRES} && uv venv --python 3.13
 	cd ${PROJECT_NAME_POSTGRES} && . .venv/bin/activate
 	cd ${PROJECT_NAME_POSTGRES} && uv pip install -r requirements.txt -r requirements-dev.txt
+	cd ${PROJECT_NAME_POSTGRES} && uv run python manage.py makemigrations
+	cd ${PROJECT_NAME_POSTGRES} && uv run python manage.py migrate
 	cd ${PROJECT_NAME_POSTGRES} && uv run pytest
