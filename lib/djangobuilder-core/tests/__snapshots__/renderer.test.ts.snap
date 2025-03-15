@@ -1958,10 +1958,8 @@ exports[`Render Basic Project App Files test_views.py 1`] = `
 import uuid
 import pytest
 import test_helpers
-from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 from datetime import timedelta, time
 from django.urls import reverse
-
 
 pytestmark = [pytest.mark.django_db]
 
@@ -2905,10 +2903,8 @@ exports[`Render Channels Project App Files test_views.py 1`] = `
 import uuid
 import pytest
 import test_helpers
-from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 from datetime import timedelta, time
 from django.urls import reverse
-
 
 pytestmark = [pytest.mark.django_db]
 
@@ -4474,10 +4470,8 @@ exports[`Render HTMX ProjectApp Files test_views.py 1`] = `
 import uuid
 import pytest
 import test_helpers
-from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 from datetime import timedelta, time
 from django.urls import reverse
-
 
 pytestmark = [pytest.mark.django_db]
 
