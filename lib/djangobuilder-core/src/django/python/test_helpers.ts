@@ -10,7 +10,9 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
+{{#project.postgres}}
 from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
+{{/project.postgres}}
 
 {{#project.apps}}
 from {{name}} import models as {{name}}_models

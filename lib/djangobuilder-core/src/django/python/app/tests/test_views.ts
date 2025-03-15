@@ -2,10 +2,11 @@ export const template = `
 import uuid
 import pytest
 import test_helpers
-from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
 from datetime import timedelta, time
 from django.urls import reverse
-
+{{#project.postgres}}
+from psycopg2.extras import NumericRange, DateTimeTZRange, DateRange
+{{/project.postgres}}
 
 pytestmark = [pytest.mark.django_db]
 
