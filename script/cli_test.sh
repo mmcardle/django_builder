@@ -59,7 +59,7 @@ echo "Postgres port: ${POSTGRES_PORT}"
 
 uv venv --python 3.13
 source .venv/bin/activate
-uv pip sync requirements.txt
+uv pip install -r requirements.txt -r requirements-dev.txt
 uv run python manage.py makemigrations
 uv run python manage.py migrate
 uv run pytest
