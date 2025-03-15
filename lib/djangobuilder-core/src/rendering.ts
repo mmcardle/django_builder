@@ -339,7 +339,6 @@ export default class Renderer {
     const tarpath = filepath
       ? filepath
       : `${project.name}/${project.name}/${filename}`;
-    console.log("Adding project file", tarpath);
     tarball.append(tarpath, content);
   }
 

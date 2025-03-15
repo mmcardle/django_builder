@@ -69,7 +69,7 @@ ID=$!
 curl --connect-timeout 5 \
     --retry-connrefused \
     --max-time 5 \
-    --retry 1 \
+    --retry 5 \
     --retry-delay 2 \
     --retry-max-time 10 \
     "http://127.0.0.1:${DJANGO_PORT}" || kill ${ID}
