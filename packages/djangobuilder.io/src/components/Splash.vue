@@ -9,11 +9,15 @@
      </v-col>
     </v-row>
 
-    <!--v-layout row align-center justify-center fill-height class="text-xs-center">
-      <v-flex xs12>
-        <v-img :src="db1" gradient="to bottom, rgba(250,250,250,.8), rgba(250,250,250,.5), rgba(250,250,250,.8)"></v-img>
-     </v-flex>
-   </v-layout-->
+    <v-row align="center" justify="center" fill-height class="text-center">
+      <v-col cols="12">
+        <span class="text-h6 font-weight-bold red--text text--darken-1">
+          <v-icon large color="red darken-1">mdi-star</v-icon>
+          Now with Django 5 Support!
+          <v-icon large color="red darken-1">mdi-star</v-icon>
+          </span>
+      </v-col>
+    </v-row>
 
    <v-row reverse  align="center" justify="center" fill-height mt-5 class="text-center" >
      <v-col lg="6" md="6" cols="12" v-if="!$store.getters.user">
