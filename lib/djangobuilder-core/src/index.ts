@@ -5,7 +5,7 @@ import DjangoProject, {
 } from './api';
 import { DjangoVersion } from "./types";
 import ModelImporter from "./importer";
-const DEFAULT_DJANGO_VERSION = 4;
+const DEFAULT_DJANGO_VERSION = 5;
 
 export type { DjangoProjectFile } from "./rendering";
 

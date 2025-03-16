@@ -33,11 +33,11 @@ export default new Vuex.Store({
     },
     projectData: (state) => (id) => state.projects[id],
     toCoreProject: (state) => (projectId, project) => {
-      const coreVersion = String(project.django_version).startsWith("2")
-        ? DjangoVersion.DJANGO2
-        : String(project.django_version).startsWith("3")
+      const coreVersion = String(project.django_version).startsWith("3")
         ? DjangoVersion.DJANGO3
-        : DjangoVersion.DJANGO4;
+        : String(project.django_version).startsWith("4")
+        ? DjangoVersion.DJANGO4
+        : DjangoVersion.DJANGO5;
 
       const coreProject = new DjangoProject(
         project.name,

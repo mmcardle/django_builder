@@ -72,4 +72,5 @@ test_django_channels: create_channels
 	cd ${PROJECT_NAME_WITH_CHANNELS} && uv pip install -r requirements.txt -r requirements-dev.txt
 	cd ${PROJECT_NAME_WITH_CHANNELS} && uv run python manage.py makemigrations
 	cd ${PROJECT_NAME_WITH_CHANNELS} && uv run python manage.py migrate
+	cd ${PROJECT_NAME_WITH_CHANNELS} && uv run python manage.py check
 	cd ${PROJECT_NAME_WITH_CHANNELS} && uv run pytest
