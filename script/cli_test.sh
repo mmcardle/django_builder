@@ -21,6 +21,7 @@ PROJECT_NAME=`cat $1 | jq -r '.name'`
 DJANGO_PORT=${DJANGO_PORT:-9001}
 POSTGRES_HOST=${POSTGRES_HOST:-localhost}
 POSTGRES_PORT=${POSTGRES_PORT:-5432}
+PYTHON_VERSION=${PYTHON_VERSION:-3.13}
 
 echo "Config file: ${PROJECT_FILE}"
 echo "Temp dir: ${DIR}"
@@ -57,7 +58,7 @@ echo "Django port: ${DJANGO_PORT}"
 echo "Postgres host: ${POSTGRES_HOST}"
 echo "Postgres port: ${POSTGRES_PORT}"
 
-uv venv --python 3.13
+uv venv --python ${PYTHON_VERSION}
 source .venv/bin/activate
 uv pip install -r requirements.txt -r requirements-dev.txt
 uv run python manage.py makemigrations
