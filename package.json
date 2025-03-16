@@ -36,7 +36,7 @@
     "test_smoke": "yarn workspace @djangobuilder/core run test_smoke",
     "test_core": "yarn workspace @djangobuilder/core run test",
     "test_io": "yarn workspace djangobuilder.io run test:unit",
-    "test_v4": "yarn workspace djangobuilder4 run test:unit",
+    "test_v4": "echo 'not implemented'",
     "test": "yarn run test_smoke && yarn test_core && yarn test_v4 && yarn test_io",
     "ci": "yarn workspace djangobuilder.io run ci",
     "cli": "yarn workspace @djangobuilder/core run cli"

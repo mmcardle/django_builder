@@ -12,9 +12,9 @@ const props = defineProps<{
 }>();
 
 const DjangoVersionChoices = {
-  [`${DjangoVersion.DJANGO2}`]: DjangoVersion.DJANGO2.toString(),
   [`${DjangoVersion.DJANGO3}`]: DjangoVersion.DJANGO3.toString(),
   [`${DjangoVersion.DJANGO4}`]: DjangoVersion.DJANGO4.toString(),
+  [`${DjangoVersion.DJANGO5}`]: DjangoVersion.DJANGO5.toString(),
 };
 
 const userStore = useUserStore();
