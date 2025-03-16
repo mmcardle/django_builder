@@ -105,6 +105,7 @@ jobs:
     strategy:
       matrix:
         version: [3.11, 3.12, 3.13]
+        django_version: [3.2, 4.2]
     steps:
       - name: Install websocat
         uses: baptiste0928/cargo-install@v3
@@ -125,6 +126,7 @@ jobs:
         env:
           POSTGRES_URL: postgres://postgres:mysecretpassword@localhost:5432/postgres
           PYTHON_VERSION: ${{ matrix.version }}
+          DJANGO_VERSION: ${{ matrix.django_version }}
   
   io_tests:
     name: DB.io - Unit Tests
