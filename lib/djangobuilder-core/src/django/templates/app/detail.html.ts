@@ -4,7 +4,7 @@ export const template = `
 {% block content %}
     
 <p>
-    <a class="btn btn-light" href="{% url '{{model.app.name}}_{{model.name}}_list' %}">
+    <a class="btn btn-light" href="{% url '{{model.app.name}}:{{model.name}}_list' %}">
     {{name}} Listing
     </a>
 </p>

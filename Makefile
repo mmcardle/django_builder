@@ -4,7 +4,7 @@ EXAMPLE_TAR_OUTPUT = $(abspath ./example_project.tar)
 EXAMPLE_PROJECT_JSON = $(abspath ./example_projects/example-project.json)
 EXAMPLE_PROJECT_POSTGRES_JSON = $(abspath ./example_projects/example-project-postgres.json)
 
-PROJECT_NAME=`cat ${EXAMPLE_PROJECT_JSON}  | jq -r '.name'`
+PROJECT_NAME=`cat ${EXAMPLE_PROJECT_POSTGRES_JSON}  | jq -r '.name'`
 
 deploy:
 ifeq "$(name)" ""
@@ -30,6 +30,22 @@ smoke_test_postgres_ci:
 	./script/cli_test.sh ${EXAMPLE_PROJECT_POSTGRES_JSON}
 
 create:
-	yarn run cli ${EXAMPLE_PROJECT_JSON} ${EXAMPLE_TAR_OUTPUT}
+	yarn run cli ${EXAMPLE_PROJECT_POSTGRES_JSON} ${EXAMPLE_TAR_OUTPUT}
 	echo "Project created at ${PROJECT_NAME}"
 	tar -xvf ${EXAMPLE_TAR_OUTPUT}
+
+run_django: create
+	cd ${PROJECT_NAME} && uv venv --python 3.13
+	cd ${PROJECT_NAME} && . .venv/bin/activate
+	cd ${PROJECT_NAME} && uv pip install -r requirements.txt -r requirements-dev.txt
+	cd ${PROJECT_NAME} && uv run python manage.py makemigrations
+	cd ${PROJECT_NAME} && uv run python manage.py migrate
+	cd ${PROJECT_NAME} && uv run python manage.py runserver
+
+test_django: create
+	cd ${PROJECT_NAME} && uv venv --python 3.13
+	cd ${PROJECT_NAME} && . .venv/bin/activate
+	cd ${PROJECT_NAME} && uv pip install -r requirements.txt -r requirements-dev.txt
+	cd ${PROJECT_NAME} && uv run python manage.py makemigrations
+	cd ${PROJECT_NAME} && uv run python manage.py migrate
+	cd ${PROJECT_NAME} && uv run pytest

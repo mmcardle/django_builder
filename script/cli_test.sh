@@ -50,11 +50,19 @@ cd ${DIR}
 tar -xvf ${TEMP_TAR}
 cd ${DIR}/${PROJECT_NAME}
 
+echo "Project name: ${PROJECT_NAME}"
+echo "Temp dir: ${DIR}"
+echo "Temp tar: ${TEMP_TAR}"
+echo "Django port: ${DJANGO_PORT}"
+echo "Postgres host: ${POSTGRES_HOST}"
+echo "Postgres port: ${POSTGRES_PORT}"
+
 uv venv --python 3.13
 source .venv/bin/activate
-uv pip sync requirements.txt 
+uv pip install -r requirements.txt -r requirements-dev.txt
 uv run python manage.py makemigrations
 uv run python manage.py migrate
+uv run pytest
 uv run python manage.py runserver ${DJANGO_PORT} &
 ID=$!
 

@@ -12,7 +12,7 @@ export const template = `
 {% endfor %}
 {{{{/raw}}}}
 <div>
-  <a class="btn btn-primary" href="{% url '{{ model.app.name }}_{{ model.name }}_create' %}">
+  <a class="btn btn-primary" href="{% url '{{ model.app.name }}:{{ model.name }}_create' %}">
   Create a new {{ model.name }}
   </a>
 </div>

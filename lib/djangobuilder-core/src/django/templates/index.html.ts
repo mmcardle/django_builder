@@ -12,7 +12,7 @@ export const template = `
       {{#models}}
       {{^abstract}}
       <div class="m-2">
-      <a class="btn btn-light" href="{% url '{{app.name}}_{{name}}_list' %}">{{name}} Listing</a>
+      <a class="btn btn-light" href="{% url '{{app.name}}:{{name}}_list' %}">{{name}} Listing</a>
       </div>
       {{/abstract}}
       {{/models}}

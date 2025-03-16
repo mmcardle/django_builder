@@ -7,6 +7,8 @@ import { DjangoVersion } from "./types";
 import ModelImporter from "./importer";
 const DEFAULT_DJANGO_VERSION = 4;
 
+export type { DjangoProjectFile } from "./rendering";
+
 export {
   Renderer, DEFAULT_DJANGO_VERSION, DjangoProject,  DjangoApp, DjangoModel,
   DjangoField, DjangoRelationship, DjangoVersion, ParentModelTypes, FieldTypes,

@@ -182,6 +182,7 @@ const CONFIRM_DELETE = "confirm_delete.html";
 const DELETE_BUTTON = "delete_button.html";
 
 const TEST_VIEWS = "test_views.py";
+const TESTS_INIT = "tests/__init__.py";
 
 export enum DjangoProjectFileResource {
   FOLDER,
@@ -215,6 +216,11 @@ export const ROOT_FILES = {
   [`${REQUIREMENTS_TXT}`]: rootRequirements,
   [`${REQUIREMENTS_DEV_TXT}`]: rootRequirementsDev,
 };
+
+export const ROOT_TEST_FILES = {
+  [`${TESTS_INIT}`]: init,
+};
+
 
 export const PROJECT_FILES = {
   [`${SETTINGS}`]: projectSettings,
@@ -295,6 +301,14 @@ export default class Renderer {
     }
   }
 
+  renderTestRootFile(file: string, project: DjangoProject) {
+    const template = ROOT_TEST_FILES[file as keyof typeof ROOT_TEST_FILES];
+    if (template) {
+      return this.renderTemplate(template, { project });
+    } else {
+      throw Error(`No test root template for ${file}`);
+    }
+  }
   renderModelFile(file: string, model: DjangoModel) {
     const foundtemplate = Object.keys(MODEL_TEMPLATE_FILES).find((template_file) =>
       file.endsWith(template_file)
@@ -334,6 +348,15 @@ export default class Renderer {
     filename: string
   ) {
     const content = this.renderProjectFile(filename, project);
+    tarball.append(`${project.name}/${filename}`, content);
+  }
+
+  addRootTestFileToTarball(
+    tarball: Tarball,
+    project: DjangoProject,
+    filename: string
+  ) {
+    const content = this.renderTestRootFile(filename, project);
     tarball.append(`${project.name}/${filename}`, content);
   }
 
@@ -479,26 +502,34 @@ export default class Renderer {
         path: "tests",
         name: "tests",
         folder: true,
-        children: project.apps.map((app) => {
-          return {
-            appName: app.name,
-            resource: app as DjangoApp,
-            type: DjangoProjectFileResource.APP_FILE,
-            path: "tests/" + app.name,
-            name: app.name,
-            folder: true,
-            children: Object.keys(APP_TEST_FILES).map((render_name) => {
-              return {
-                appName: app.name,
-                resource: app as DjangoApp,
-                type: DjangoProjectFileResource.APP_FILE,
-                path: "tests/" + app.name + "/" + render_name,
-                name: render_name,
-                folder: false,
-              };
-            }),
-          };
-        }),
+        children: [
+          {
+            resource: project,
+            type: DjangoProjectFileResource.PROJECT_FILE,
+            path: "tests/__init__.py",
+            name: "__init__.py",
+            folder: false,
+          }, ...project.apps.map((app) => {
+            return {
+              appName: app.name,
+              resource: app as DjangoApp,
+              type: DjangoProjectFileResource.APP_FILE,
+              path: "tests/" + app.name,
+              name: app.name,
+              folder: true,
+              children: Object.keys(APP_TEST_FILES).map((render_name) => {
+                return {
+                  appName: app.name,
+                  resource: app as DjangoApp,
+                  type: DjangoProjectFileResource.APP_FILE,
+                  path: "tests/" + app.name + "/" + render_name,
+                  name: render_name,
+                  folder: false,
+                };
+              }),
+            };
+          }),
+        ],
       },
     ];
 
@@ -556,6 +587,10 @@ export default class Renderer {
 
     Object.keys(PROJECT_FILES).forEach((projectFile) => {
       this.addProjectFileToTarball(tarball, project, projectFile);
+    });
+
+    Object.keys(ROOT_TEST_FILES).forEach((rootTestFile) => {
+      this.addRootTestFileToTarball(tarball, project, rootTestFile);
     });
 
     Object.keys(PROJECT_TEMPLATE_FILES).forEach((projectTemplateFile) => {

@@ -54,7 +54,7 @@ class HTMX{{name}}CreateView(generic.CreateView):
 
 class HTMX{{name}}DeleteView(generic.DeleteView):
     model = models.{{name}}
-    success_url = reverse_lazy("{{app.name}}_{{name}}_htmx_list")
+    success_url = reverse_lazy("{{app.name}}:{{name}}_htmx_list")
     
     def form_valid(self, form):
         super().form_valid(form)
