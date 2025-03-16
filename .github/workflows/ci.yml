@@ -105,7 +105,7 @@ jobs:
     strategy:
       matrix:
         version: [3.11, 3.12, 3.13]
-        django_version: [3.2, 4.2]
+        django_version: [3.2, 4.2, 5.1]
         exclude:
           - version: 3.13
             django_version: 3.2
