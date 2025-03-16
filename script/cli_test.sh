@@ -21,14 +21,22 @@ PROJECT_NAME=`cat $1 | jq -r '.name'`
 DJANGO_PORT=${DJANGO_PORT:-9001}
 POSTGRES_HOST=${POSTGRES_HOST:-localhost}
 POSTGRES_PORT=${POSTGRES_PORT:-5432}
+PYTHON_VERSION=${PYTHON_VERSION:-3.13}
+DJANGO_VERSION=${DJANGO_VERSION:-4.2}
+UPDATED_PROJECT_FILE="${DIR}/project-python-${PYTHON_VERSION}-django-${DJANGO_VERSION}.json"
 
-echo "Config file: ${PROJECT_FILE}"
-echo "Temp dir: ${DIR}"
-echo "Temp tar: ${TEMP_TAR}"
-echo "Django port: ${DJANGO_PORT}"
-echo "Postgres host: ${POSTGRES_HOST}"
-echo "Postgres port: ${POSTGRES_PORT}"
-echo "Project name: ${PROJECT_NAME}"
+jq -s '.[0] * {"version": env.DJANGO_VERSION}' ${PROJECT_FILE} > ${UPDATED_PROJECT_FILE}
+
+echo "Base Config file    : ${PROJECT_FILE}"
+echo "Temp dir            : ${DIR}"
+echo "Temp tar            : ${TEMP_TAR}"
+echo "Updated Config file : ${UPDATED_PROJECT_FILE}"
+echo "Django port         : ${DJANGO_PORT}"
+echo "Postgres host       : ${POSTGRES_HOST}"
+echo "Postgres port       : ${POSTGRES_PORT}"
+echo "Project name        : ${PROJECT_NAME}"
+echo "Python version      : ${PYTHON_VERSION}"
+echo "Django version      : ${DJANGO_VERSION}"
 
 if [ -z "${PROJECT_NAME}" ]; then
     echo "Project name is required"
@@ -44,7 +52,7 @@ if [ -n "${START_DOCKER}" ]; then
     done
 fi
 
-yarn run cli ${PROJECT_FILE} ${TEMP_TAR}
+yarn run cli ${UPDATED_PROJECT_FILE} ${TEMP_TAR}
 
 cd ${DIR}
 tar -xvf ${TEMP_TAR}
@@ -57,7 +65,7 @@ echo "Django port: ${DJANGO_PORT}"
 echo "Postgres host: ${POSTGRES_HOST}"
 echo "Postgres port: ${POSTGRES_PORT}"
 
-uv venv --python 3.13
+uv venv --python ${PYTHON_VERSION}
 source .venv/bin/activate
 uv pip install -r requirements.txt -r requirements-dev.txt
 uv run python manage.py makemigrations
