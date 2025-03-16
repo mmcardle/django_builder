@@ -24,17 +24,12 @@ else
 endif
 
 smoke_test:
-	./script/cli_test.sh ${EXAMPLE_PROJECT_JSON}
+	jq -s '.[0] * .[1]' ${EXAMPLE_PROJECT_POSTGRES_JSON} ${PARTIAL_WITH_CHANNELS_JSON} > /tmp/project-with-channels.json
+	./script/cli_test.sh /tmp/project-with-channels.json start_docker
 
-smoke_test_postgres:
-	./script/cli_test.sh ${EXAMPLE_PROJECT_POSTGRES_JSON} start_docker
-
-smoke_test_postgres_channels:
+smoke_test_ci:
 	jq -s '.[0] * .[1]' ${EXAMPLE_PROJECT_POSTGRES_JSON} ${PARTIAL_WITH_CHANNELS_JSON} > /tmp/project-with-channels.json
 	./script/cli_test.sh /tmp/project-with-channels.json
-
-smoke_test_postgres_ci:
-	./script/cli_test.sh ${EXAMPLE_PROJECT_POSTGRES_JSON}
 
 create:
 	yarn run cli ${EXAMPLE_PROJECT_POSTGRES_JSON} ${EXAMPLE_TAR_OUTPUT}

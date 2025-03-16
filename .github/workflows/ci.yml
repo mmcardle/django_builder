@@ -82,24 +82,6 @@ jobs:
       - run: yarn test_core
 
   cli_tests:
-    name: DB.io - CLI Tests
-    needs: [build]
-    runs-on: ubuntu-24.04
-    steps:
-      - run: sudo apt-get install -y libsqlite3-dev
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          # Install a specific version of uv.
-          version: "0.5.6"
-      - run: yarn
-      - run: make smoke_test
-
-  cli_tests_postgres:
     name: DB.io - CLI Tests for Postgres
     needs: [build]
     runs-on: ubuntu-24.04
@@ -133,7 +115,7 @@ jobs:
           version: "0.5.6"
       - run: yarn
       - name: Run Smoke tests with Postgres
-        run: make smoke_test_postgres_ci
+        run: make smoke_test_ci
         env:
           POSTGRES_URL: postgres://postgres:mysecretpassword@localhost:5432/postgres
   
