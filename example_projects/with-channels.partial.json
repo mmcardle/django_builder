@@ -1,0 +1,5 @@
+{
+  "name": "DjangoProjectWithChannels",
+  "description": "A Django Project with Channels",
+  "channels": true
+}

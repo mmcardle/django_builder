@@ -82,7 +82,7 @@ exports[`Project file tests DjangoTestCase {
 Django==4.1
 djangorestframework
 asgiref
-channels
+channels[daphne]
 channels_redis
 psycopg2-binary
 sqlparse
@@ -420,14 +420,26 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
 ASGI entrypoint for TestProject. Configures Django and then runs the application
 defined in the ASGI_APPLICATION setting.
 """
-
 import os
-import django
-from channels.routing import get_default_application
+
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+from django.core.asgi import get_asgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TestProject.settings")
-django.setup()
-application = get_default_application()
+# Initialize Django ASGI application early to ensure the AppRegistry
+# is populated before importing code that may import ORM models.
+django_asgi_app = get_asgi_application()
+
+from .routing import websocket_urlpatterns
+
+application = ProtocolTypeRouter(
+    {
+        "http": django_asgi_app,
+        "websocket": URLRouter(websocket_urlpatterns)
+    }
+)
+
 "
 `;
 
@@ -437,14 +449,26 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
 ASGI entrypoint for TestProject. Configures Django and then runs the application
 defined in the ASGI_APPLICATION setting.
 """
-
 import os
-import django
-from channels.routing import get_default_application
+
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+from django.core.asgi import get_asgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TestProject.settings")
-django.setup()
-application = get_default_application()
+# Initialize Django ASGI application early to ensure the AppRegistry
+# is populated before importing code that may import ORM models.
+django_asgi_app = get_asgi_application()
+
+from .routing import websocket_urlpatterns
+
+application = ProtocolTypeRouter(
+    {
+        "http": django_asgi_app,
+        "websocket": URLRouter(websocket_urlpatterns)
+    }
+)
+
 "
 `;
 
@@ -454,14 +478,26 @@ exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename:
 ASGI entrypoint for TestProject. Configures Django and then runs the application
 defined in the ASGI_APPLICATION setting.
 """
-
 import os
-import django
-from channels.routing import get_default_application
+
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+from django.core.asgi import get_asgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TestProject.settings")
-django.setup()
-application = get_default_application()
+# Initialize Django ASGI application early to ensure the AppRegistry
+# is populated before importing code that may import ORM models.
+django_asgi_app = get_asgi_application()
+
+from .routing import websocket_urlpatterns
+
+application = ProtocolTypeRouter(
+    {
+        "http": django_asgi_app,
+        "websocket": URLRouter(websocket_urlpatterns)
+    }
+)
+
 "
 `;
 
@@ -599,10 +635,10 @@ class TestProjectWebSocketConsumer(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None):
         if text_data:
             print(f"Received text={text_data}")
-            self.send(text_data="Hello from TestProject WebSocketConsumer!")
+            self.send(text_data=f"Hello from TestProject WebSocketConsumer! {text_data}")
         if bytes_data:
             print(f"Received bytes={bytes_data}")
-            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer!")
+            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer! " + bytes_data)
 
     def disconnect(self, message):
         # Called when disconnected
@@ -623,10 +659,10 @@ class TestProjectWebSocketConsumer(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None):
         if text_data:
             print(f"Received text={text_data}")
-            self.send(text_data="Hello from TestProject WebSocketConsumer!")
+            self.send(text_data=f"Hello from TestProject WebSocketConsumer! {text_data}")
         if bytes_data:
             print(f"Received bytes={bytes_data}")
-            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer!")
+            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer! " + bytes_data)
 
     def disconnect(self, message):
         # Called when disconnected
@@ -647,10 +683,10 @@ class TestProjectWebSocketConsumer(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None):
         if text_data:
             print(f"Received text={text_data}")
-            self.send(text_data="Hello from TestProject WebSocketConsumer!")
+            self.send(text_data=f"Hello from TestProject WebSocketConsumer! {text_data}")
         if bytes_data:
             print(f"Received bytes={bytes_data}")
-            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer!")
+            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer! " + bytes_data)
 
     def disconnect(self, message):
         # Called when disconnected
@@ -1065,79 +1101,40 @@ addopts=-v -ra
 
 exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'routing.py' } 1`] = `
 "
-from django.conf.urls import url
+from django.urls import re_path
 
-from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
+from .consumers import TestProjectWebSocketConsumer
 
-from TestProject.consumers import TestProject_WebSocketConsumer
+websocket_urlpatterns = [
+    re_path(r"^ws/$", TestProjectWebSocketConsumer.as_asgi()),
+]
 
-from testapp1.consumers import Testapp1Consumer
-
-application = ProtocolTypeRouter({
-
-    # WebSocket handler
-    "websocket": AuthMiddlewareStack(
-        URLRouter([
-            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
-        ])
-    ),
-    "channel": ChannelNameRouter({
-        "testapp1": Testapp1Consumer,
-    })
-})
 "
 `;
 
 exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'routing.py' } 2`] = `
 "
-from django.conf.urls import url
+from django.urls import re_path
 
-from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
+from .consumers import TestProjectWebSocketConsumer
 
-from TestProject.consumers import TestProject_WebSocketConsumer
+websocket_urlpatterns = [
+    re_path(r"^ws/$", TestProjectWebSocketConsumer.as_asgi()),
+]
 
-from testapp2.consumers import Testapp2Consumer
-
-application = ProtocolTypeRouter({
-
-    # WebSocket handler
-    "websocket": AuthMiddlewareStack(
-        URLRouter([
-            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
-        ])
-    ),
-    "channel": ChannelNameRouter({
-        "testapp2": Testapp2Consumer,
-    })
-})
 "
 `;
 
 exports[`Project file tests DjangoTestCase { project: [DjangoProject], filename: 'routing.py' } 3`] = `
 "
-from django.conf.urls import url
+from django.urls import re_path
 
-from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
+from .consumers import TestProjectWebSocketConsumer
 
-from TestProject.consumers import TestProject_WebSocketConsumer
+websocket_urlpatterns = [
+    re_path(r"^ws/$", TestProjectWebSocketConsumer.as_asgi()),
+]
 
-from testapp3.consumers import Testapp3Consumer
-
-application = ProtocolTypeRouter({
-
-    # WebSocket handler
-    "websocket": AuthMiddlewareStack(
-        URLRouter([
-            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
-        ])
-    ),
-    "channel": ChannelNameRouter({
-        "testapp3": Testapp3Consumer,
-    })
-})
 "
 `;
 
@@ -1174,6 +1171,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -1181,7 +1179,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    
     
     'testapp1',
 ]
@@ -1313,6 +1310,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -1320,7 +1318,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    
     'django_htmx',
     'testapp2',
 ]
@@ -1452,6 +1449,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -1459,7 +1457,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'channels',
     
     'testapp3',
 ]
@@ -1495,7 +1492,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'TestProject.wsgi.application'
-
+ASGI_APPLICATION = "TestProject.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -2163,14 +2160,26 @@ exports[`Render Basic Project Root Files asgi.py 1`] = `
 ASGI entrypoint for TestProject. Configures Django and then runs the application
 defined in the ASGI_APPLICATION setting.
 """
-
 import os
-import django
-from channels.routing import get_default_application
+
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+from django.core.asgi import get_asgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TestProject.settings")
-django.setup()
-application = get_default_application()
+# Initialize Django ASGI application early to ensure the AppRegistry
+# is populated before importing code that may import ORM models.
+django_asgi_app = get_asgi_application()
+
+from .routing import websocket_urlpatterns
+
+application = ProtocolTypeRouter(
+    {
+        "http": django_asgi_app,
+        "websocket": URLRouter(websocket_urlpatterns)
+    }
+)
+
 "
 `;
 
@@ -2215,10 +2224,10 @@ class TestProjectWebSocketConsumer(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None):
         if text_data:
             print(f"Received text={text_data}")
-            self.send(text_data="Hello from TestProject WebSocketConsumer!")
+            self.send(text_data=f"Hello from TestProject WebSocketConsumer! {text_data}")
         if bytes_data:
             print(f"Received bytes={bytes_data}")
-            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer!")
+            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer! " + bytes_data)
 
     def disconnect(self, message):
         # Called when disconnected
@@ -2390,27 +2399,14 @@ pytest-django
 
 exports[`Render Basic Project Root Files routing.py 1`] = `
 "
-from django.conf.urls import url
+from django.urls import re_path
 
-from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
+from .consumers import TestProjectWebSocketConsumer
 
-from TestProject.consumers import TestProject_WebSocketConsumer
+websocket_urlpatterns = [
+    re_path(r"^ws/$", TestProjectWebSocketConsumer.as_asgi()),
+]
 
-from testapp1.consumers import Testapp1Consumer
-
-application = ProtocolTypeRouter({
-
-    # WebSocket handler
-    "websocket": AuthMiddlewareStack(
-        URLRouter([
-            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
-        ])
-    ),
-    "channel": ChannelNameRouter({
-        "testapp1": Testapp1Consumer,
-    })
-})
 "
 `;
 
@@ -2447,6 +2443,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -2454,7 +2451,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    
     
     'testapp1',
 ]
@@ -3098,14 +3094,26 @@ exports[`Render Channels Project Root Files asgi.py 1`] = `
 ASGI entrypoint for TestProject. Configures Django and then runs the application
 defined in the ASGI_APPLICATION setting.
 """
-
 import os
-import django
-from channels.routing import get_default_application
+
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+from django.core.asgi import get_asgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TestProject.settings")
-django.setup()
-application = get_default_application()
+# Initialize Django ASGI application early to ensure the AppRegistry
+# is populated before importing code that may import ORM models.
+django_asgi_app = get_asgi_application()
+
+from .routing import websocket_urlpatterns
+
+application = ProtocolTypeRouter(
+    {
+        "http": django_asgi_app,
+        "websocket": URLRouter(websocket_urlpatterns)
+    }
+)
+
 "
 `;
 
@@ -3187,10 +3195,10 @@ class TestProjectWebSocketConsumer(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None):
         if text_data:
             print(f"Received text={text_data}")
-            self.send(text_data="Hello from TestProject WebSocketConsumer!")
+            self.send(text_data=f"Hello from TestProject WebSocketConsumer! {text_data}")
         if bytes_data:
             print(f"Received bytes={bytes_data}")
-            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer!")
+            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer! " + bytes_data)
 
     def disconnect(self, message):
         # Called when disconnected
@@ -3347,7 +3355,7 @@ exports[`Render Channels Project Root Files requirements.txt 1`] = `
 Django==4.1
 djangorestframework
 asgiref
-channels
+channels[daphne]
 channels_redis
 psycopg2-binary
 sqlparse
@@ -3364,27 +3372,14 @@ pytest-django
 
 exports[`Render Channels Project Root Files routing.py 1`] = `
 "
-from django.conf.urls import url
+from django.urls import re_path
 
-from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
+from .consumers import TestProjectWebSocketConsumer
 
-from TestProject.consumers import TestProject_WebSocketConsumer
+websocket_urlpatterns = [
+    re_path(r"^ws/$", TestProjectWebSocketConsumer.as_asgi()),
+]
 
-from testapp3.consumers import Testapp3Consumer
-
-application = ProtocolTypeRouter({
-
-    # WebSocket handler
-    "websocket": AuthMiddlewareStack(
-        URLRouter([
-            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
-        ])
-    ),
-    "channel": ChannelNameRouter({
-        "testapp3": Testapp3Consumer,
-    })
-})
 "
 `;
 
@@ -3421,6 +3416,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -3428,7 +3424,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'channels',
     
     'testapp3',
 ]
@@ -3464,7 +3459,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'TestProject.wsgi.application'
-
+ASGI_APPLICATION = "TestProject.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -3683,14 +3678,26 @@ exports[`Render HTMX Project Root Files asgi.py 1`] = `
 ASGI entrypoint for TestProject. Configures Django and then runs the application
 defined in the ASGI_APPLICATION setting.
 """
-
 import os
-import django
-from channels.routing import get_default_application
+
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+from django.core.asgi import get_asgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TestProject.settings")
-django.setup()
-application = get_default_application()
+# Initialize Django ASGI application early to ensure the AppRegistry
+# is populated before importing code that may import ORM models.
+django_asgi_app = get_asgi_application()
+
+from .routing import websocket_urlpatterns
+
+application = ProtocolTypeRouter(
+    {
+        "http": django_asgi_app,
+        "websocket": URLRouter(websocket_urlpatterns)
+    }
+)
+
 "
 `;
 
@@ -3735,10 +3742,10 @@ class TestProjectWebSocketConsumer(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None):
         if text_data:
             print(f"Received text={text_data}")
-            self.send(text_data="Hello from TestProject WebSocketConsumer!")
+            self.send(text_data=f"Hello from TestProject WebSocketConsumer! {text_data}")
         if bytes_data:
             print(f"Received bytes={bytes_data}")
-            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer!")
+            self.send(bytes_data=b"Hello from TestProject WebSocketConsumer! " + bytes_data)
 
     def disconnect(self, message):
         # Called when disconnected
@@ -3920,27 +3927,14 @@ pytest-django
 
 exports[`Render HTMX Project Root Files routing.py 1`] = `
 "
-from django.conf.urls import url
+from django.urls import re_path
 
-from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
+from .consumers import TestProjectWebSocketConsumer
 
-from TestProject.consumers import TestProject_WebSocketConsumer
+websocket_urlpatterns = [
+    re_path(r"^ws/$", TestProjectWebSocketConsumer.as_asgi()),
+]
 
-from testapp2.consumers import Testapp2Consumer
-
-application = ProtocolTypeRouter({
-
-    # WebSocket handler
-    "websocket": AuthMiddlewareStack(
-        URLRouter([
-            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
-        ])
-    ),
-    "channel": ChannelNameRouter({
-        "testapp2": Testapp2Consumer,
-    })
-})
 "
 `;
 
@@ -3977,6 +3971,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -3984,7 +3979,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    
     'django_htmx',
     'testapp2',
 ]

@@ -3,7 +3,7 @@ Django=={{project.version}}
 djangorestframework
 asgiref
 {{#project.channels}}
-channels
+channels[daphne]
 channels_redis
 {{/project.channels}}
 {{#project.htmx}}
