@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    {{#project.channels}}'daphne',{{/project.channels}}
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    {{#project.channels}}'channels',{{/project.channels}}
     {{#project.htmx}}'django_htmx',{{/project.htmx}}
     {{#project.apps}}
     '{{name}}',
@@ -72,7 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = '{{project.name}}.wsgi.application'
-
+{{#project.channels}}ASGI_APPLICATION = "{{project.name}}.asgi.application"{{/project.channels}}
 
 # Database
 # https://docs.djangoproject.com/en/{{project.version}}/ref/settings/#databases

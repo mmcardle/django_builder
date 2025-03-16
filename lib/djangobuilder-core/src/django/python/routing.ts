@@ -1,27 +1,10 @@
 export const template = `
-from django.conf.urls import url
+from django.urls import re_path
 
-from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
+from .consumers import {{project.name}}WebSocketConsumer
 
-from {{project.name}}.consumers import {{project.name}}_WebSocketConsumer
+websocket_urlpatterns = [
+    re_path(r"^ws/$", {{project.name}}WebSocketConsumer.as_asgi()),
+]
 
-{{#project.apps}}
-from {{name}}.consumers import {{ camelCase name }}Consumer
-{{/project.apps}}
-
-application = ProtocolTypeRouter({
-
-    # WebSocket handler
-    "websocket": AuthMiddlewareStack(
-        URLRouter([
-            url(r"^ws/$", XXX_PROJECT_NAME_XXX_WebSocketConsumer.as_asgi()),
-        ])
-    ),
-    "channel": ChannelNameRouter({
-    {{#project.apps}}
-        "{{name}}": {{ camelCase name }}Consumer,
-    {{/project.apps}}
-    })
-})
 `

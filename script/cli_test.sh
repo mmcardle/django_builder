@@ -77,10 +77,13 @@ curl --connect-timeout 5 \
 curl "http://127.0.0.1:${DJANGO_PORT}" | grep "DjangoModel1 Listing"
 RESULT=$?
 
-echo "View Results at \e[32m${DIR}/${PROJECT_NAME}"
+echo "Test Message" | websocat ws://127.0.0.1:${DJANGO_PORT}/ws/ -1 | grep "Hello from DjangoProjectWithChannels WebSocketConsumer! Test Message"
+RESULT_WEBSOCKET=$?
+
+echo -e "View Results at \e[32m${DIR}/${PROJECT_NAME}\e[0m"
 
 kill ${ID}
-if [ $RESULT -eq 0 ]; then
+if [ $RESULT -eq 0 ] && [ $RESULT_WEBSOCKET -eq 0 ]; then
     echo -e "\e[32mTest passed\e[0m"
     exit 0
 else
