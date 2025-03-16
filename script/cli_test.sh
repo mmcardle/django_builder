@@ -70,6 +70,7 @@ source .venv/bin/activate
 uv pip install -r requirements.txt -r requirements-dev.txt
 uv run python manage.py makemigrations
 uv run python manage.py migrate
+uv run python manage.py check
 uv run pytest
 uv run python manage.py runserver ${DJANGO_PORT} &
 ID=$!
