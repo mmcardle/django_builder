@@ -82,7 +82,7 @@ jobs:
       - run: yarn test_core
 
   cli_tests:
-    name: DB.io - CLI Tests for Postgres
+    name: DB.io - CLI Tests
     needs: [build]
     runs-on: ubuntu-24.04
     # Service containers to run with `container-job`
@@ -103,7 +103,10 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      # - run: sudo apt-get install -y libsqlite3-dev
+      - name: Install websocat
+        uses: baptiste0928/cargo-install@v3
+        with:
+          crate: websocat
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
