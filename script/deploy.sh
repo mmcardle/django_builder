@@ -4,9 +4,9 @@ set -e
 
 NAME=$1
 
-if [ $1 == "" ] ; then
+if [ -z "$NAME" ] ; then
     echo 'Name not given as argument 1'
-    exit 0
+    exit 1
 fi
 
 firebase use ${NAME} || exit 1
