@@ -107,8 +107,14 @@ jobs:
         version: [3.11, 3.12, 3.13]
         django_version: [3.2, 4.2, 5.1]
         exclude:
+          - version: 3.11
+            django_version: 3.2
+          - version: 3.12
+            django_version: 3.2
           - version: 3.13
             django_version: 3.2
+          - version: 3.13
+            django_version: 4.2
     steps:
       - name: Install websocat
         uses: baptiste0928/cargo-install@v3
