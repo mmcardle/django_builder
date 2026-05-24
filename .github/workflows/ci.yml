@@ -24,7 +24,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-v4-
 
-      - run: yarn install
+      - run: yarn install --ignore-optional
       - run: yarn build
 
       - name: Upload djangobuilder4 dist directory
@@ -60,7 +60,7 @@ jobs:
           key: ${{ runner.os }}-yarn-v4-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-v4-
-      - run: yarn
+      - run: yarn install --ignore-optional
       - run: yarn lint
 
   smoke_tests:
@@ -72,7 +72,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: yarn
+      - run: yarn install --ignore-optional
       - run: yarn test_smoke
  
   core_tests:
@@ -84,7 +84,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: yarn
+      - run: yarn install --ignore-optional
       - run: yarn test_core
 
   cli_tests:
@@ -132,7 +132,7 @@ jobs:
         with:
           # Install a specific version of uv.
           version: "0.5.6"
-      - run: yarn
+      - run: yarn install --ignore-optional
       - name: Run Smoke tests
         run: make smoke_test_ci
         env:
@@ -149,5 +149,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: yarn
+      - run: yarn install --ignore-optional
       - run: yarn test_io
