@@ -24,7 +24,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-v4-
 
-      - run: yarn install --ignore-optional
+      - run: yarn install
       - run: yarn build
 
       - name: Upload djangobuilder4 dist directory
@@ -60,7 +60,7 @@ jobs:
           key: ${{ runner.os }}-yarn-v4-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-v4-
-      - run: yarn install --ignore-optional
+      - run: yarn
       - run: yarn lint
 
   smoke_tests:
@@ -72,7 +72,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: yarn install --ignore-optional
+      - run: yarn
       - run: yarn test_smoke
  
   core_tests:
@@ -84,7 +84,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: yarn install --ignore-optional
+      - run: yarn
       - run: yarn test_core
 
   cli_tests:
@@ -113,8 +113,14 @@ jobs:
         version: [3.11, 3.12, 3.13]
         django_version: [3.2, 4.2, 5.1]
         exclude:
+          - version: 3.11
+            django_version: 3.2
+          - version: 3.12
+            django_version: 3.2
           - version: 3.13
             django_version: 3.2
+          - version: 3.13
+            django_version: 4.2
     steps:
       - name: Install websocat
         uses: baptiste0928/cargo-install@v3
@@ -132,7 +138,7 @@ jobs:
         with:
           # Install a specific version of uv.
           version: "0.5.6"
-      - run: yarn install --ignore-optional
+      - run: yarn
       - name: Run Smoke tests
         run: make smoke_test_ci
         env:
@@ -149,5 +155,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: yarn install --ignore-optional
+      - run: yarn
       - run: yarn test_io
