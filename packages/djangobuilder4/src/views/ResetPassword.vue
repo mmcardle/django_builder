@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { sendPasswordResetEmail } from "@firebase/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase";
 import CenteredFormLayout from "@/layouts/CenteredFormLayout.vue";
 

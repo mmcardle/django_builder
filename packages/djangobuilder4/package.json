@@ -18,7 +18,7 @@
   "dependencies": {
     "@djangobuilder/core": "1.0.0",
     "@highlightjs/vue-plugin": "highlightjs/vue-plugin",
-    "firebase": "^9.9.3",
+    "firebase": "^11.1.0",
     "highlight.js": "^11.7.0",
     "pinia": "^2.0.17",
     "vue": "^3.2.37",
