@@ -5,6 +5,8 @@ import { fileURLToPath, URL } from "url";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Monorepo env files live at repo root (.env.development.local, etc.)
+  envDir: fileURLToPath(new URL('../..', import.meta.url)),
   plugins: [
     vue(),
     Components({

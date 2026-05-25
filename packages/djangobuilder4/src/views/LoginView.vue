@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import {
-  getAuth,
   signInWithEmailAndPassword,
   signInAnonymously,
-} from "@firebase/auth";
+} from "firebase/auth";
 import { useRouter } from "vue-router";
 import { auth } from "../firebase";
 import { useUserStore } from "../stores/user";

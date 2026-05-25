@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import LoginView from "../views/LoginView.vue";
 
 import { auth } from "../firebase";
-import type { User } from "@firebase/auth";
+import type { User } from "firebase/auth";
 import { useUserStore } from "@/stores/user";
 
 const router = createRouter({
