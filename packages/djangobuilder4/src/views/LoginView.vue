@@ -38,7 +38,7 @@ async function handleSignInAnonymously() {
 async function handleLogin() {
   if (!isLoading.value) {
     isLoading.value = true;
-    signInWithEmailAndPassword(getAuth(), username.value, password.value)
+    signInWithEmailAndPassword(auth, username.value, password.value)
       .then((userData) => {
         isLoading.value = false;
         userStore.loginUser(userData.user);
