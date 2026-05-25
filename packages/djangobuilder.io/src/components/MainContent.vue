@@ -191,15 +191,13 @@
       </v-dialog>
     </v-app-bar>
 
-    <v-main>
+    <v-main class="pa-0 pt-8 mt-8">
       <v-container fluid class="pa-0">
         <v-alert
           v-if="eol_banner"
           type="warning"
           dense
-          dismissible
-          prominent
-          class="ma-0 eol-banner"
+          class="ma-0 eol-banner pb-2 mb-2"
           @input="dismissEolBanner"
         >
           <div class="d-flex flex-column flex-sm-row align-sm-center">
