@@ -191,8 +191,34 @@
       </v-dialog>
     </v-app-bar>
 
-    <v-main>
+    <v-main class="pa-0 pt-8 mt-8">
       <v-container fluid class="pa-0">
+        <v-alert
+          v-if="eol_banner"
+          type="warning"
+          dense
+          class="ma-0 eol-banner pb-2 mb-2"
+          @input="dismissEolBanner"
+        >
+          <div class="d-flex flex-column flex-sm-row align-sm-center">
+            <span class="flex-grow-1">
+              <strong>Django Builder may be end-of-lifed soon.</strong>
+              If you are still using it and would like it to remain online, please
+              let us know by opening an issue on GitHub.
+            </span>
+            <v-btn
+              class="ml-sm-4 mt-2 mt-sm-0"
+              color="white"
+              outlined
+              href="https://github.com/mmcardle/django_builder/issues/new?title=Please+keep+Django+Builder+online"
+              target="_blank"
+              rel="noopener"
+            >
+              <v-icon left>mdi-github</v-icon>
+              Open an Issue
+            </v-btn>
+          </div>
+        </v-alert>
         <router-view/>
       </v-container>
     </v-main>
@@ -296,6 +322,9 @@
   color: inherit;
   text-decoration: none;
 }
+.eol-banner {
+  border-radius: 0 !important;
+}
 </style>
 
 <script>
@@ -332,6 +361,7 @@ export default {
       dialog: false,
       mdiDatabase: mdiDatabase,
       PACKAGE_VERSION,
+      eol_banner: localStorage.eol_banner_dismissed !== 'true',
     }
   },
   computed: {
@@ -368,6 +398,11 @@ export default {
     agreeAndClose: function () {
       this.cookie_snackbar = false
       localStorage.cookie_set_by_user = true
+    },
+    dismissEolBanner: function (value) {
+      if (value === false) {
+        localStorage.eol_banner_dismissed = 'true'
+      }
     },
     load: function () {
       if (this.user) {
