@@ -210,7 +210,7 @@
               class="ml-sm-4 mt-2 mt-sm-0"
               color="white"
               outlined
-              href="https://github.com/mmcardle/django_builder/issues/new?title=Please+keep+Django+Builder+online&body=I+am+still+using+Django+Builder+and+would+like+it+to+remain+online."
+              href="https://github.com/mmcardle/django_builder/issues/new?title=Please+keep+Django+Builder+online"
               target="_blank"
               rel="noopener"
             >
