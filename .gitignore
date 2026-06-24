@@ -39,3 +39,4 @@ coverage/
 
 # Build if changed
 .bic_cache
+.kanbots/
