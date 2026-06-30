@@ -45,7 +45,7 @@
     "start-server-and-test": "^1.14.0",
     "typescript": "~4.8.4",
     "typescript-eslint": "^8.18.1",
-    "vite": "^3.0.4",
+    "vite": "^6.4.3",
     "vue-tsc": "^0.39.5"
   }
 }
