@@ -29,8 +29,8 @@
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/jsdom": "^20.0.0",
     "@types/node": "^16.11.47",
-    "@vitejs/plugin-vue": "^3.0.1",
-    "@vitejs/plugin-vue-jsx": "^2.0.0",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vitejs/plugin-vue-jsx": "^5.1.6",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^11.0.0",
     "@vue/test-utils": "^2.0.2",
@@ -43,9 +43,9 @@
     "prettier": "^2.7.1",
     "sass": "^1.54.5",
     "start-server-and-test": "^1.14.0",
-    "typescript": "~4.8.4",
+    "typescript": "~5.7.2",
     "typescript-eslint": "^8.18.1",
-    "vite": "^3.0.4",
-    "vue-tsc": "^0.39.5"
+    "vite": "^6.4.3",
+    "vue-tsc": "^3.3.6"
   }
 }
