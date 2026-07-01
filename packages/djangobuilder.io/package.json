@@ -42,7 +42,7 @@
     "@vue/test-utils": "^1.3.0",
     "autoprefixer": "^10.4.8",
     "build-if-changed": "^1.5.5",
-    "eslint": "^9.17.0",
+    "eslint": "^9.39.4",
     "eslint-plugin-vue": "^9.32.0",
     "eslint-plugin-vuetify": "^1.0.0-beta.6",
     "jsdom": "^20.0.1",
