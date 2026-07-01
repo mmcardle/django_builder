@@ -1,6 +1,6 @@
 import {schemas} from '@/schemas'
-import {showFormDialog} from '@/dialogs/'
-import {showMessageDialog} from '@/dialogs/'
+import {showFormDialog} from '@/dialogs'
+import {showMessageDialog} from '@/dialogs'
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import { useMainStore } from '@/store'

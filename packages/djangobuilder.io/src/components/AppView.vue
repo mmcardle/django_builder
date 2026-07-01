@@ -220,29 +220,29 @@
             <v-card-text
               v-if="model.fields.length + model.relationships.length == 0"
             >
-              <v-subheader class="ma-1">Add some relationships or fields.</v-subheader>
-              <v-subheader class="ma-1">
+              <div class="ma-1">Add some relationships or fields.</div>
+              <div class="ma-1">
                 <v-btn color="info" block @click="showFieldDialog(model.id)">
                   <v-icon>add</v-icon>Add Field
                   <v-icon class="ml-1">fa fa-dot-circle</v-icon>
                 </v-btn>
-              </v-subheader>
-              <v-subheader class="ma-1">
+              </div>
+              <div class="ma-1">
                 <v-btn color="info" block @click="showRelationshipDialog(model.id)">
                   <v-icon>add</v-icon>Add Relationship
                   <v-icon class="ml-1">device_hub</v-icon>
                 </v-btn>
-              </v-subheader>
+              </div>
             </v-card-text>
           </v-card>
 
           <div v-if="mainStore.ordered_models(appid).length == 0" class="mb-3">
-            <v-subheader class="ma-2">Add some models.</v-subheader>
-            <v-subheader class="ma-2">
+            <div class="ma-2">Add some models.</div>
+            <div class="ma-2">
               <v-btn color="info" block @click="showModelDialog(appid)">
                 <v-icon>add</v-icon>Add model
               </v-btn>
-            </v-subheader>
+            </div>
           </div>
         </v-card-text>
         
@@ -265,7 +265,7 @@ import firebase from 'firebase/compat/app';
 import { schemas } from "@/schemas";
 import ImportableModel from '@/components/ImportableModel.vue'
 import { ParentModelTypes, ModelImporter } from "@djangobuilder/core"
-import { showDeleteDialog, showFormDialog, showMessageDialog } from "@/dialogs/";
+import { showDeleteDialog, showFormDialog, showMessageDialog } from "@/dialogs";
 import { MAX_BATCH_IMPORTABLE_MODELS, MAX_MODELS } from '@/constants'
 import { batchModelsForTransaction } from '@/utils'
 import "highlight.js/styles/a11y-light.css";

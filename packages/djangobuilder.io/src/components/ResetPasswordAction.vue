@@ -36,7 +36,7 @@
 
 <script>
 import firebase from 'firebase/compat/app';
-import {showMessageDialog} from '@/dialogs/'
+import {showMessageDialog} from '@/dialogs'
 
 export default {
   name: 'ResetPasswordAction',

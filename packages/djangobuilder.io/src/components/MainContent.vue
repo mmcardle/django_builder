@@ -3,7 +3,7 @@
     <v-navigation-drawer v-if="user" v-model="drawer"
       app clipped temporary>
       <v-list three-line>
-        <v-subheader>Switch to Project ...</v-subheader>
+        <v-list-subheader>Switch to Project ...</v-list-subheader>
         <v-list-item :to="{ name: 'Project', params: { id: i } }"
           v-for="(project, i) in mainStore.projects"
           :key="i" class="mb-3">
@@ -146,7 +146,7 @@
           </v-list>
           <v-list density="compact" v-if="user">
             <template v-if="has_projects">
-              <v-subheader>Switch to Project ...</v-subheader>
+              <v-list-subheader>Switch to Project ...</v-list-subheader>
               <v-list-item :to="{ name: 'Project', params: { id: project.id } }"
                 v-for="(project, i) in mainStore.projects" :key="i" class="mb-3" @click="dialog = false">
                 <template v-slot:prepend>
@@ -315,8 +315,8 @@
 import { mdiDatabase } from '@mdi/js'
 
 import addProjectMixin from '@/mixins/AddProject'
-import {userVerified} from '@/firebase_utils/'
-import {showConfirmDialog, showUpgradeDialog} from '@/dialogs/'
+import {userVerified} from '@/firebase_utils'
+import {showConfirmDialog, showUpgradeDialog} from '@/dialogs'
 
 import firebase from 'firebase/compat/app';
 import { config } from 'vue-gtag'

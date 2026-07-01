@@ -146,7 +146,7 @@ import DirectoryView from '@/components/DirectoryView.vue'
 import AppView from '@/components/AppView.vue'
 import firebase from 'firebase/compat/app';
 import {schemas} from '@/schemas'
-import {showDeleteDialog, showFormDialog} from '@/dialogs/'
+import {showDeleteDialog, showFormDialog} from '@/dialogs'
 import 'highlight.js/styles/a11y-light.css'
 import { useMainStore } from "../store";
 import { Renderer as DBCoreRenderer, ModelImporter, DEFAULT_DJANGO_VERSION} from "@djangobuilder/core"
