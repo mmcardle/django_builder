@@ -1,10 +1,10 @@
 <template>
   <div>
     <v-autocomplete
-      :rules="rules" :label="label" :value="value"
+      :rules="rules" :label="label" :model-value="value"
       :multiple="multi" :required="required"
       :items="Object.keys(options)"
-      @input="$emit('input', $event);">
+      @update:model-value="$emit('input', $event);">
     </v-autocomplete>
   </div>
 </template>

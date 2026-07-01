@@ -4,12 +4,12 @@
 
     <v-row align="center" justify="center" fill-height class="text-center">
       <v-col cols="12" >
-        <div class="text-h1 hidden-sm-and-down" ><django-builder-title /></div>
-        <div class="text-h3 hidden-md-and-up" ><django-builder-title /></div>
+        <div class="text-h1 d-none d-md-flex" ><django-builder-title /></div>
+        <div class="text-h3 d-flex d-md-none" ><django-builder-title /></div>
      </v-col>
     </v-row>
 
-    <v-col cols="12" md="12" lg="12" v-if="this.$store.getters.projects().length > 0"
+    <v-col cols="12" md="12" lg="12" v-if="Object.keys(mainStore.projects).length > 0"
       elevation="6" class="ma-3 text-center">
       <v-btn color="primary" @click="showAddProjectDialog" class="mb-4">
         <v-icon>add</v-icon> Create a New Project
@@ -17,18 +17,18 @@
     </v-col>
 
     <v-row align-content="space-around" justify="center" fill-height class="ma-1"
-      v-if="this.$store.getters.loaded()">
-      <v-col cols="12" md="6" lg="3" v-for="(project, projectid, index) in this.$store.getters.projects()"
+      v-if="mainStore.loaded">
+      <v-col cols="12" md="6" lg="3" v-for="(project, projectid, index) in mainStore.projects"
         :key="project.id" elevation="6"
         class="ma-2" >
 
         <v-card :to="{ name: 'Project', params: { id: projectid } }" min-height="250px">
 
-          <v-card-title primary-title>
+          <v-card-title>
             <div>
-              <div class="hljs-title text-h4 font-weight-medium red--text text--darken-4 text-capitalize">
-                <span class="grey--text text--lighten-1 font-weight-black">
-                  <span class="red--text text--darken-2">{{project.data().name.substring(0,1)}}</span>{{project.data().name.substring(1)}}
+              <div class="hljs-title text-h4 font-weight-medium text-red-darken-4 text-capitalize">
+                <span class="text-grey-lighten-1 font-weight-black">
+                  <span class="text-red-darken-2">{{project.data().name.substring(0,1)}}</span>{{project.data().name.substring(1)}}
                 </span>
               </div>
               <div>{{project.description || "..."}}</div>
@@ -37,27 +37,20 @@
 
           <v-img :src="images[index % images.length]" aspect-ratio="2.75" height="180"></v-img>
 
-          <!--template v-for="(d, app) in project.apps">
-            <v-card-text v-for="(dd, model) in $store.getters.appData(app).models">
-              <v-icon style="font-size:1.0em">fas fa-database</v-icon>
-              {{$store.getters.appData(app).name}}.{{$store.getters.modelData(model).name}}
-            </v-card-text>
-          </template-->
-
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="6" lg="3" v-if="this.$store.getters.projects().length === 0"
+      <v-col cols="12" md="6" lg="3" v-if="Object.keys(mainStore.projects).length === 0"
         class="ma-2 font-weight-medium">
         <v-card >
-          <v-card-title class="red--text text--darken-2">
+          <v-card-title class="text-red-darken-2">
             Welcome to Django Builder
           </v-card-title>
           <v-card-text class="">
             You dont seem to have any projects. To start just...
           </v-card-text>
           <v-card-text>
-            <v-btn x-large block color="primary" @click="showAddProjectDialog" class="mb-4">
+            <v-btn size="x-large" block color="primary" @click="showAddProjectDialog" class="mb-4">
               <v-icon>add</v-icon> Create a New Project
             </v-btn>
           </v-card-text>

@@ -1,5 +1,4 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import About from './components/About.vue'
 import Home from './components/Home.vue'
 import Login from '@/components/Login.vue'
@@ -15,12 +14,11 @@ import Error from '@/components/Error.vue'
 import firebase from 'firebase/compat/app';
 import {userVerified} from '@/firebase_utils'
 
-Vue.use(Router)
-
-let router = new Router({
+let router = createRouter({
+  history: createWebHistory(),
   routes: [
     {
-      path: '*',
+      path: '/:pathMatch(.*)*',
       redirect: { name: 'Splash' }
     },
     {

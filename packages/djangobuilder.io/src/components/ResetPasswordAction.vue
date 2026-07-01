@@ -7,7 +7,7 @@
             <v-toolbar-title>Reset your password!</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-alert :value="error" type="error" class="my-3">
+            <v-alert v-if="error" type="error" class="my-3">
               {{error}}
             </v-alert>
             <v-form>

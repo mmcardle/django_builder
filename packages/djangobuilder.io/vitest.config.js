@@ -1,15 +1,14 @@
 import path from 'path'
 import { defineConfig } from 'vite'
-import Vue2 from '@vitejs/plugin-vue2'
+import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [
-    Vue2(),
+    vue(),
   ],
   test: {
     globals: true,
     environment: 'jsdom',
-    alias: [{ find: /^vue$/, replacement: 'vue/dist/vue.runtime.common.js' }],
   },
   resolve: {
     alias: {

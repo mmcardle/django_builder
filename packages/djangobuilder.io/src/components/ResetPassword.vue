@@ -8,7 +8,7 @@
           </v-toolbar>
           <template v-if="!reset">
             <v-card-text>
-              <v-alert :value="error" type="error" class="my-3">
+              <v-alert v-if="error" type="error" class="my-3">
                 {{error}}
               </v-alert>
               <v-form>

@@ -1,9 +1,9 @@
 <template>
 <div style="display: contents;" class="order-sm-1 order-md-2">
-  <v-col order=2 cols=12 class="text-center ma-0 pa-3 hidden-md-and-up">
+  <v-col order=2 cols=12 class="text-center ma-0 pa-3 d-flex d-md-none">
     <div class="float-md-right">
       <a class="text-body-2" @click="full_screen_code_dialog" v-if="active">
-        <v-icon small class="blue--text text--darken-4 mr-2">mdi-eye</v-icon>View {{active.name}} full screen.
+        <v-icon size="small" class="text-blue-darken-4 mr-2">mdi-eye</v-icon>View {{active.name}} full screen.
       </a>
     </div>
   </v-col>
@@ -11,10 +11,10 @@
     <v-row no-gutters>
       <v-col cols=6 md=4 lg=3 class="pr-0">
         <h2 class="mx-2">
-          <span class="grey--text text--lighten-1 font-weight-black">
-            <v-icon class="red--text text--darken-4 mr-2" large>mdi-file-tree</v-icon>
-            <span class="red--text text--darken-2 text-capitalize">
-              <span class="hidden-sm-and-down">Project</span> Files</span>
+          <span class="text-grey-lighten-1 font-weight-black">
+            <v-icon class="text-red-darken-4 mr-2" size="large">mdi-file-tree</v-icon>
+            <span class="text-red-darken-2 text-capitalize">
+              <span class="d-none d-md-flex">Project</span> Files</span>
           </span>
         </h2>
         <v-card class="ma-2 mr-0" elevation="2">
@@ -22,15 +22,15 @@
             <v-treeview dense :items="items" v-model:open="open" :open-all="false" item-key="path" open-on-click return-object
               style="min-height: 800px;">
               <template v-slot:prepend="{ item, open }">
-                <v-icon class="blue--text text--darken-4" v-if="item.folder && open" small>mdi-folder-open</v-icon>
-                <v-icon class="blue--text text--darken-4" v-else-if="item.folder" small>mdi-folder</v-icon>
-                <v-icon class="blue--text text--darken-4" v-else small>{{icon(item.name)}}</v-icon>
+                <v-icon class="text-blue-darken-4" v-if="item.folder && open" size="small">mdi-folder-open</v-icon>
+                <v-icon class="text-blue-darken-4" v-else-if="item.folder" size="small">mdi-folder</v-icon>
+                <v-icon class="text-blue-darken-4" v-else size="small">{{icon(item.name)}}</v-icon>
               </template>
               <template v-slot:label="{ item }" >
-                <div @click="click(item)" :class="active !== undefined && active.path === item.path ? 'red--text text--darken-4 font-weight-bold hidden-md-and-up' : 'hidden-md-and-up'">
+                <div @click="click(item)" :class="active !== undefined && active.path === item.path ? 'text-red-darken-4 font-weight-bold d-flex d-md-none' : 'd-flex d-md-none'">
                   {{ item.name }}
                 </div>
-                <div @click="click(item, true)" :class="active !== undefined && active.path === item.path ? 'red--text text--darken-4 font-weight-bold hidden-sm-and-down' : 'hidden-sm-and-down'">
+                <div @click="click(item, true)" :class="active !== undefined && active.path === item.path ? 'text-red-darken-4 font-weight-bold d-none d-md-flex' : 'd-none d-md-flex'">
                   {{ item.name }}
                 </div>
               </template>
@@ -40,24 +40,23 @@
       </v-col>
       <v-col cols=6 md=8 lg=9 class="pl-1">
         <template v-if="active">
-          <h2 class="blue--text text--darken-4 mx-2">
-            <v-icon class="blue--text text--darken-4 mr-2">{{icon(active.name)}}</v-icon>
+          <h2 class="text-blue-darken-4 mx-2">
+            <v-icon class="text-blue-darken-4 mr-2">{{icon(active.name)}}</v-icon>
             <span v-for="(part, i) in active_split" v-bind:key="i">
-              <span hidden-sm-and-down class="blue-grey--text text--lighten-4 hidden-sm-and-down" v-if="i !== 0" > / </span>
-              <span :class="i === active_split.length - 1 ? ['orange--text' , 'text--darken-1'] : ['blue--text', 'text--darken-1', 'hidden-sm-and-down']">
+              <span d-none d-md-flex class="text-blue-grey-lighten-4 d-none d-md-flex" v-if="i !== 0" > / </span>
+              <span :class="i === active_split.length - 1 ? ['text-orange' , 'text--darken-1'] : ['text-blue', 'text--darken-1', 'd-none d-md-flex']">
               {{ part }}
               </span>
             </span>
-            <div class="float-md-right hidden-sm-and-down">
+            <div class="float-md-right d-none d-md-flex">
               <a class="text-body-2" @click="full_screen_code_dialog">
-                <v-icon small class="blue--text text--darken-4 mr-2">mdi-eye</v-icon>Full screen
+                <v-icon size="small" class="text-blue-darken-4 mr-2">mdi-eye</v-icon>Full screen
               </a>
             </div>
           </h2>
           <v-card class="ma-2" elevation="2">
             <v-card-text class="ma-0 pt-1">
-              <!-- Important this the next line is all one line! -->
-              <highlight-code :lang="lang(active.name)" style="min-height: 783px; max-height:800px; overflow-y:auto">{{render(active)}}</highlight-code>
+              <highlightjs :language="lang(active.name)" :code="render(active)" style="min-height: 783px; max-height:800px; overflow-y:auto" />
             </v-card-text>
           </v-card>
 
@@ -65,11 +64,11 @@
             <v-card>
               <v-toolbar dark color="primary">
                 <v-toolbar-title>
-                  <h2 class="blue--text text--darken-4 mx-2">
-                    <v-icon class="white--text text--darken-4 mr-2">{{icon(active.name)}}</v-icon>
+                  <h2 class="text-blue-darken-4 mx-2">
+                    <v-icon class="text-white-darken-4 mr-2">{{icon(active.name)}}</v-icon>
                     <span v-for="(part, i) in active_split" v-bind:key="i">
-                      <span class="blue-grey--text text--lighten-4 hidden-sm-and-down" v-if="i !== 0" > / </span>
-                      <span :class="i === active_split.length - 1 ? ['white--text'] : ['white--text', 'hidden-sm-and-down']">
+                      <span class="text-blue-grey-lighten-4 d-none d-md-flex" v-if="i !== 0" > / </span>
+                      <span :class="i === active_split.length - 1 ? ['text-white'] : ['text-white', 'd-none d-md-flex']">
                       {{ part }}
                       </span>
                     </span>
@@ -77,12 +76,12 @@
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
-                  <v-btn dark text @click="code_dialog = false">Close</v-btn>
+                  <v-btn dark variant="text" @click="code_dialog = false">Close</v-btn>
                 </v-toolbar-items>
               </v-toolbar>
 
               <div class="pa-1">
-                <highlight-code :lang="lang(active.name)" style="min-height: 800px; max-height:800px; overflow-y:auto">{{render(active)}}</highlight-code>
+                <highlightjs :language="lang(active.name)" :code="render(active)" style="min-height: 800px; max-height:800px; overflow-y:auto" />
               </div>
 
             </v-card>
@@ -97,6 +96,7 @@
 <script>
 import { Renderer as DBCoreRenderer } from "@djangobuilder/core"
 import { DjangoProjectFileResource } from "@djangobuilder/core/src/rendering"
+import { useMainStore } from '@/store'
 const coreRenderer = new DBCoreRenderer();
 
 const recurseTreeToItems = (tree) => {
@@ -121,30 +121,33 @@ export default {
       code_dialog: undefined,
     }),
     computed: {
+      mainStore() {
+        return useMainStore()
+      },
       isloaded: function () {
-        return this.$store.getters.loaded()
+        return this.mainStore.loaded
       },
       name: function () {
-        if (this.$store.getters.projectData(this.id) === undefined) return ''
-        return this.$store.getters.projectData(this.id).data().name
+        if (this.mainStore.projectData(this.id) === undefined) return ''
+        return this.mainStore.projectData(this.id).data().name
       },
       apps: function () {
-        if (this.$store.getters.projectData(this.id) === undefined) return []
-        return this.$store.getters.projectData(this.id).data().apps
+        if (this.mainStore.projectData(this.id) === undefined) return []
+        return this.mainStore.projectData(this.id).data().apps
       },
       active_split: function () {
         return this.active.path.split('/')
       },
       items: function () {
-        const project = this.$store.getters.projectData(this.id).data()
-        const djangoCoreProject = this.$store.getters.toCoreProject(this.id, project)
+        const project = this.mainStore.projectData(this.id).data()
+        const djangoCoreProject = this.mainStore.toCoreProject(this.id, project)
         const projectTreeListing = coreRenderer.asTree(djangoCoreProject);
         return recurseTreeToItems(projectTreeListing)
       }
     },
     mounted: function () {
-      const project = this.$store.getters.projectData(this.id).data()
-      const djangoCoreProject = this.$store.getters.toCoreProject(this.id, project)
+      const project = this.mainStore.projectData(this.id).data()
+      const djangoCoreProject = this.mainStore.toCoreProject(this.id, project)
       const tree = coreRenderer.asTree(djangoCoreProject);
       if (project.apps.length > 0) {
         const appNode = tree.find(node => node.name == project.apps[0].name)
@@ -163,15 +166,15 @@ export default {
       }
     },
     created: function () {
-      const project = this.$store.getters.projectData(this.id).data();
+      const project = this.mainStore.projectData(this.id).data();
       const apps = Object.keys(project.apps).map((app) => {
-        if (this.$store.getters.appData(app)) {
-          return Object.assign(this.$store.getters.appData(app), {id: app})
+        if (this.mainStore.appData(app)) {
+          return Object.assign(this.mainStore.appData(app), {id: app})
         } else {
           return {}
         }
       })
-      if (apps.length > 0 && this.$store.getters.appData(apps[0].id) !== undefined ) {
+      if (apps.length > 0 && this.mainStore.appData(apps[0].id) !== undefined ) {
         const app = apps[0]
         this.open = [project.name, app.name]
       } else {
@@ -180,8 +183,8 @@ export default {
     },
     methods: {
       render(active) {
-        const project = this.$store.getters.projectData(this.id).data()
-        const djangoCoreProject = this.$store.getters.toCoreProject(this.id, project)
+        const project = this.mainStore.projectData(this.id).data()
+        const djangoCoreProject = this.mainStore.toCoreProject(this.id, project)
         if (active.type == DjangoProjectFileResource.PROJECT_FILE) {
           return coreRenderer.renderProjectFile(active.name, djangoCoreProject)
         } else if (active.type == DjangoProjectFileResource.APP_FILE) {

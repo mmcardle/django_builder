@@ -7,7 +7,7 @@
             <v-toolbar-title>Create a new account!</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-alert :value="error" type="error">
+            <v-alert v-if="error" type="error">
               {{error}}
             </v-alert>
             <v-form>

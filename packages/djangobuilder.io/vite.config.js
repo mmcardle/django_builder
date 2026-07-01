@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
-import { createVuePlugin as vue } from "vite-plugin-vue2";
-import Components from 'unplugin-vue-components/vite'
+import vue from '@vitejs/plugin-vue'
+import vuetify from 'vite-plugin-vuetify'
 import { fileURLToPath, URL } from "url";
 
 // https://vitejs.dev/config/
@@ -9,20 +9,7 @@ export default defineConfig({
   envDir: fileURLToPath(new URL('../..', import.meta.url)),
   plugins: [
     vue(),
-    Components({
-      resolvers: [
-        {
-          type: 'component',
-          resolve: (name) => {
-            const blackList = ['VChart', 'VHeadCard']
-            if (name.match(/^V[A-Z]/) && !blackList.includes(name))
-              return { name, from: 'vuetify/lib' }
-          },
-        },
-      ],
-      dts: false,
-      types: [],
-    }),
+    vuetify({ autoImport: true }),
   ],
   define: {
     'import.meta.env.PACKAGE_VERSION': JSON.stringify(process.env.npm_package_version),

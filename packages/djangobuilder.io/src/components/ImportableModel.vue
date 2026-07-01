@@ -3,7 +3,7 @@
 
     <v-card-title>
       <span class="hljs-title">{{name}}</span>(<span class="hljs-params">{{type}}</span>)
-      <v-chip small v-if="abstract">Abstract</v-chip>
+      <v-chip size="small" v-if="abstract">Abstract</v-chip>
     </v-card-title>
 
     <!--div v-for="relationship in relationships">
@@ -12,18 +12,18 @@
 
     <v-card-text v-if="relationships.length + fields.length > 0">
       <div v-for="(relationship, j) in relationships" class="px-2" v-bind:key="j + '_' + relationship.name" >
-        <span class="primary--text">{{relationship.name}} = </span>
+        <span class="text-primary">{{relationship.name}} = </span>
         {{relationship.type.name}}
-        (<span class="hidden-xs-only">{{relationship.opts}}</span>)
+        (<span class="d-none d-sm-flex">{{relationship.opts}}</span>)
       </div>
       
       <!--div v-for="field in fields">
         F {{field}}
       </div-->
       <div v-for="(field, i) in fields" class="px-2" v-bind:key="i + '_' + field.name">
-        <span class="primary--text">{{field.name}} = </span>
+        <span class="text-primary">{{field.name}} = </span>
         {{field.type.name}}
-        <span class="hidden-xs-only">({{field.args}})</span>
+        <span class="d-none d-sm-flex">({{field.args}})</span>
       </div>
     </v-card-text>
     <v-card-text v-else class="text-center">

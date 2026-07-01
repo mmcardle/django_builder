@@ -2,31 +2,31 @@
   <v-container fluid class="text-center">
     <v-row  align="center" justify="center" fill-height >
       <v-col cols="12" >
-        <div class="text-h1 hidden-sm-and-down" ><django-builder-title /></div>
-        <div class="text-h3 hidden-md-and-up" ><django-builder-title /></div>
+        <div class="text-h1 d-none d-md-flex" ><django-builder-title /></div>
+        <div class="text-h3 d-flex d-md-none" ><django-builder-title /></div>
         <p style="color: gray">building things....</p>
         <div class="ma-3">
-          <div class="ma-1 text-h3 label label-success">Django 5.X <v-icon x-large class="green--text">mdi-checkbox-marked-circle</v-icon></div>
-          <div class="ma-1 text-h4 label label-success">Django 4.X <v-icon large class="green--text">mdi-checkbox-marked-circle</v-icon></div>
-          <div class="ma-1 text-h5 label label-success">Django 3.X <v-icon class="green--text">mdi-checkbox-marked-circle</v-icon></div>
+          <div class="ma-1 text-h3 label label-success">Django 5.X <v-icon size="x-large" class="text-green">mdi-checkbox-marked-circle</v-icon></div>
+          <div class="ma-1 text-h4 label label-success">Django 4.X <v-icon size="large" class="text-green">mdi-checkbox-marked-circle</v-icon></div>
+          <div class="ma-1 text-h5 label label-success">Django 3.X <v-icon class="text-green">mdi-checkbox-marked-circle</v-icon></div>
         </div>
         <div class="text-body-2">
             <div class="ma-2">
-              <v-icon class="red--text text-darken-3" >mdi-github-circle</v-icon>
+              <v-icon class="text-red-darken-3" >mdi-github-circle</v-icon>
               <a href="https://github.com/mmcardle/django_builder" target="_blank">
                 Django Builder on Github
               </a>
             </div>
 
             <div class="ma-2">
-              <v-icon class="red--text text-darken-3" >mdi-github-circle</v-icon>
+              <v-icon class="text-red-darken-3" >mdi-github-circle</v-icon>
               <a href="https://github.com/mmcardle/" target="_blank">
                 mmcardle
               </a>
             </div>
 
             <div class="ma-2">
-              <v-icon class="red--text text-darken-3" >mdi-twitter</v-icon>
+              <v-icon class="text-red-darken-3" >mdi-twitter</v-icon>
               <a href="https://twitter.com/mmc4rdle" target="_blank">
                 @mmc4rdle
               </a>
@@ -41,7 +41,7 @@
             <div class="pt-1">
               <div class="pa-1">
                 Bitcoin Address:
-                <span class="red--text">
+                <span class="text-red">
                   1J7JaUA5YhowVNtWCEoSh2tUD7pVJQfwcx
                 </span>
               </div>

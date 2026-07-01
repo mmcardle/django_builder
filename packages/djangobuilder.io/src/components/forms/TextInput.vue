@@ -1,9 +1,8 @@
 <template>
   <v-text-field
-    :value="default_value" :rules="rules" :required="required"
+    :model-value="default_value" :rules="rules" :required="required"
     :label="label" :placeholder="placeholder" :autofocus="autofocus"
-    :default="default_value" @input="$emit('input', $event);">
-    >
+    :default="default_value" @update:model-value="$emit('input', $event);">
   </v-text-field>
 </template>
 <script>

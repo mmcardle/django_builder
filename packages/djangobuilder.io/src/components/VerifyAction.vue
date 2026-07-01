@@ -7,12 +7,12 @@
             <v-toolbar-title>Verify?</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-alert :value="error" type="error">
+            <v-alert v-if="error" type="error">
               {{error}}
             </v-alert>
           </v-card-text>
           <v-card-text v-if="!error" class="text-center">
-            <v-icon size="90" color="red" class="red--text text--darken-4" spin>mdi-cached mdi-spin</v-icon>
+            <v-icon size="90" color="red" class="text-red-darken-4" spin>mdi-cached mdi-spin</v-icon>
           </v-card-text>
           <v-card-actions v-if="error">
             <v-btn block color="info" v-on:click="verify">Try Again?</v-btn>

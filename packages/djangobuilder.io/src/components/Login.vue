@@ -34,7 +34,7 @@
             Continue without an account and stay anonymous.
           </v-card-text>
           <v-card-actions class="justify-center pa-4">
-            <v-btn width="200" large v-on:click="signInAnonymously">
+            <v-btn width="200" size="large" v-on:click="signInAnonymously">
               <v-icon class="mr-2">mdi-account-circle</v-icon> Continue
             </v-btn>
           </v-card-actions>
@@ -55,7 +55,7 @@
             <v-btn color="default" v-on:click="signInWithGithub" class="mr-4">
                Continue
             </v-btn>
-            <v-icon class="red--text text-darken-3" >mdi-github-circle</v-icon>
+            <v-icon class="text-red-darken-3" >mdi-github-circle</v-icon>
           </v-card-actions>
         </v-card-->
       </v-col>
@@ -65,6 +65,7 @@
 
 <script>
   import firebase from 'firebase/compat/app';
+  import { useMainStore } from '@/store'
 
   export default {
     name: 'login',
@@ -74,6 +75,11 @@
         email_error: false,
         password: '',
         error: undefined
+      }
+    },
+    computed: {
+      mainStore() {
+        return useMainStore()
       }
     },
     methods: {
@@ -86,7 +92,7 @@
             } else {
               this.$router.replace({name: 'UnVerified'})
             }
-            this.$store.dispatch('load', userData.user.uid)
+            this.mainStore.load(userData.user.uid)
           },
           (err) => {
             console.log(err)
@@ -105,7 +111,7 @@
         firebase.auth().signInAnonymously().then((userData) => {
           console.log('signInAnonymously', userData)
           this.$router.replace('home')
-          this.$store.dispatch('load', userData.user.uid)
+          this.mainStore.load(userData.user.uid)
         }).catch(function(error) {
           // Handle Errors here.
           // var _errorCode = error.code;
@@ -124,7 +130,7 @@
           // ...
           console.log('signInWithGithub', userData)
           this.$router.replace('home')
-          this.$store.dispatch('load', userData.user.uid)
+          this.mainStore.load(userData.user.uid)
         }).catch(function(error) {
           // Handle Errors here.
           // var _errorCode = error.code;

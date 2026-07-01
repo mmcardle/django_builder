@@ -3,12 +3,12 @@
     <v-autocomplete
       :rules="rules"
       :label="label"
-      :value="value"
+      :model-value="value"
       :multiple="multi"
       :required="required"
       :items="options"
       chips
-      @input="$emit('input', $event);">
+      @update:model-value="$emit('input', $event);">
     </v-autocomplete>
   </div>
 </template>

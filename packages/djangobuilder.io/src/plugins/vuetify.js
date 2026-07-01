@@ -1,21 +1,23 @@
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
-import 'vuetify/dist/vuetify.min.css'
-import colors from 'vuetify/es5/util/colors'
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
+import colors from 'vuetify/util/colors'
 
-Vue.use(Vuetify)
-
-const opts = {
-  dark: true,
-  icons: {
-    iconfont: 'mdiSvg',
-  },
+export default createVuetify({
   theme: {
-    primary: colors.blue.darken3,
-    secondary: colors.grey.darken1,
-    accent: colors.shades.black,
-    error: colors.red.darken3,
-  }
-}
-
-export default new Vuetify(opts);
+    defaultTheme: 'dark',
+    themes: {
+      dark: {
+        dark: true,
+        colors: {
+          primary: colors.blue.darken3,
+          secondary: colors.grey.darken1,
+          accent: colors.shades.black,
+          error: colors.red.darken3,
+        },
+      },
+    },
+  },
+  icons: {
+    defaultSet: 'mdi',
+  },
+})
