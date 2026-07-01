@@ -4,8 +4,8 @@
 
     <v-row align="center" justify="center" fill-height class="text-center">
       <v-col cols="12">
-        <div class="text-h1 d-none d-md-flex" ><django-builder-title /></div>
-        <div class="text-h3 d-flex d-md-none" ><django-builder-title /></div>
+        <div class="text-h1 d-none d-md-block" ><django-builder-title /></div>
+        <div class="text-h3 d-block d-md-none" ><django-builder-title /></div>
      </v-col>
     </v-row>
 
@@ -20,12 +20,8 @@
     </v-row>
 
    <v-row reverse  align="center" justify="center" fill-height mt-5 class="text-center" >
-     <v-col lg="6" md="6" cols="12" v-if="!mainStore.user">
-       <v-btn size="large" color="primary" :to="{name: 'Login'}">Login</v-btn>
-       or <v-btn size="large" color="primary" :to="{name: 'SignUp'}">Sign Up</v-btn>
-     </v-col>
      <v-col lg="6" md="6" cols="12">
-       <div class="mt-4 d-flex d-lg-none"></div>
+       <div class="mt-4 d-block d-lg-none"></div>
         <v-btn size="x-large" color="primary" @click="showAddProjectDialog" class="ma-4" v-if="mainStore.user">
           <v-icon>add</v-icon> Create a New Project
         </v-btn>
@@ -71,7 +67,7 @@
         <v-img class="mb-4" :src="field1" gradient="to bottom, rgba(250,250,250,.4), rgba(250,250,250,.6), rgba(250,250,250,.8)"></v-img>
       </v-col>
 
-      <v-col cols="12" align-self="center" class="text-grey d-none d-lg-flex">
+      <v-col cols="12" align-self="center" class="text-grey d-none d-lg-block">
         <v-icon size="large" color="gray">mdi-dots-horizontal</v-icon>
       </v-col>
 
@@ -93,7 +89,7 @@
         <v-img class="mb-4" :src="models1" gradient="to bottom, rgba(250,250,250,.1), rgba(250,250,250,.6), rgba(250,250,250,.8)"></v-img>
       </v-col>
 
-      <v-col cols="12" align-self="center" class="text-grey d-none d-lg-flex">
+      <v-col cols="12" align-self="center" class="text-grey d-none d-lg-block">
         <v-icon size="large" color="gray">mdi-dots-horizontal</v-icon>
       </v-col>
 
@@ -115,10 +111,6 @@
     <v-row  fill-height class="text-center mx-0 mt-5">
       <v-col cols="12">
         <v-img :src="db2" gradient="to bottom, rgba(250,250,250,.8), rgba(250,250,250,.5), rgba(250,250,250,.8)"></v-img>
-      </v-col>
-      <v-col cols="12" ma-5 v-if="!mainStore.user">
-        <v-btn size="large" color="primary" :to="{name: 'Login'}">Login</v-btn>
-        or <v-btn size="large" color="primary" :to="{name: 'SignUp'}">Sign Up</v-btn>
       </v-col>
     </v-row>
 

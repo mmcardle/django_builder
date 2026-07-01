@@ -14,7 +14,7 @@
       <div v-for="(relationship, j) in relationships" class="px-2" v-bind:key="j + '_' + relationship.name" >
         <span class="text-primary">{{relationship.name}} = </span>
         {{relationship.type.name}}
-        (<span class="d-none d-sm-flex">{{relationship.opts}}</span>)
+        (<span class="d-none d-sm-inline">{{relationship.opts}}</span>)
       </div>
       
       <!--div v-for="field in fields">
@@ -23,7 +23,7 @@
       <div v-for="(field, i) in fields" class="px-2" v-bind:key="i + '_' + field.name">
         <span class="text-primary">{{field.name}} = </span>
         {{field.type.name}}
-        <span class="d-none d-sm-flex">({{field.args}})</span>
+        <span class="d-none d-sm-inline">({{field.args}})</span>
       </div>
     </v-card-text>
     <v-card-text v-else class="text-center">

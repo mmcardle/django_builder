@@ -3,19 +3,28 @@
     <v-autocomplete
       :rules="rules"
       :label="label"
-      :model-value="value"
+      v-model="model"
       :multiple="multi"
       :required="required"
       :items="options"
-      chips
-      @update:model-value="$emit('input', $event);">
+      chips>
     </v-autocomplete>
   </div>
 </template>
 <script>
 export default {
   name: 'SelectListObjects',
+  emits: ['input'],
   props: ['multi', 'options', 'name', 'label', 'value', 'required', 'nospaces'],
+  data() {
+    return {
+      model: this.value,
+    }
+  },
+  watch: {
+    value(v) { if (v !== this.model) this.model = v },
+    model(v) { this.$emit('input', v) },
+  },
   computed: {
     rules () {
       const rules = []

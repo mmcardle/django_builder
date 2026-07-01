@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import About from './components/About.vue'
 import Home from './components/Home.vue'
 import Login from '@/components/Login.vue'
@@ -15,7 +15,7 @@ import firebase from 'firebase/compat/app';
 import {userVerified} from '@/firebase_utils'
 
 let router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/:pathMatch(.*)*',

@@ -99,49 +99,28 @@
             elevation="0"
           >
 
-            <v-speed-dial absolute right direction="left" open-on-hover transition="slide-x-reverse-transition">
-              <template v-slot:activator>
-                <v-btn size="x-small" color="info" right icon>
-                  <v-icon>mdi-cogs</v-icon>
+            <div style="position: absolute; top: 4px; right: 4px; z-index: 1">
+              <v-speed-dial location="left center" open-on-hover transition="slide-x-reverse-transition">
+                <template v-slot:activator="{ props: activatorProps }">
+                  <v-btn v-bind="activatorProps" size="x-small" color="info" icon>
+                    <v-icon>mdi-cogs</v-icon>
+                  </v-btn>
+                </template>
+
+                <v-btn size="x-small" icon color="green" title="Add Field" @click="showFieldDialog(model.id)">
+                  <v-icon>add</v-icon>
                 </v-btn>
-              </template>
-
-              <v-tooltip top>
-                <template v-slot:activator="{ props }">
-                  <v-btn size="x-small" icon color="green" @click="showFieldDialog(model.id)" v-bind="props">
-                    <v-icon>add</v-icon>
-                  </v-btn>
-                </template>
-                <span>Add Field</span>
-              </v-tooltip>
-
-              <v-tooltip top>
-                <template v-slot:activator="{ props }">
-                  <v-btn size="x-small" icon color="warning" @click="showRelationshipDialog(model.id)" v-bind="props">
-                    <v-icon>share</v-icon>
-                  </v-btn>
-                </template>
-                <span>Add Relationship</span>
-              </v-tooltip>
-
-              <v-tooltip top>
-                <template v-slot:activator="{ props }">
-                  <v-btn size="x-small" icon color="info" @click="moveModel(appid, model.id)" v-bind="props">
-                    <v-icon>mdi-folder-move</v-icon>
-                  </v-btn>
-                </template>
-                <span>Move Model</span>
-              </v-tooltip>
-
-              <v-tooltip top>
-                <template v-slot:activator="{ props }">
-                  <v-btn size="x-small" icon color="error" @click="showDeleteModelDialog(appid, model.id)" v-bind="props">
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-                <span>Delete Model</span>
-              </v-tooltip>
-            </v-speed-dial>
+                <v-btn size="x-small" icon color="warning" title="Add Relationship" @click="showRelationshipDialog(model.id)">
+                  <v-icon>share</v-icon>
+                </v-btn>
+                <v-btn size="x-small" icon color="info" title="Move Model" @click="moveModel(appid, model.id)">
+                  <v-icon>mdi-folder-move</v-icon>
+                </v-btn>
+                <v-btn size="x-small" icon color="error" title="Delete Model" @click="showDeleteModelDialog(appid, model.id)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </v-speed-dial>
+            </div>
 
             <v-card-title class="py-0">
               <v-icon class="text-red-darken-4 mr-1">mdi-database</v-icon>
@@ -205,7 +184,7 @@
                 <v-list-item-subtitle>
                   {{fieldData(fieldid).type.split('.').pop()}}
                   <span
-                    class="d-none d-sm-flex"
+                    class="d-none d-sm-inline"
                   >({{fieldData(fieldid).args}})</span>
                 </v-list-item-subtitle>
 

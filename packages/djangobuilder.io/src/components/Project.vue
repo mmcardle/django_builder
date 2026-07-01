@@ -6,7 +6,7 @@
       <v-row  align="center" justify="center" class="text-center">
         <v-col cols="12" md=5 lg=4 v-if="isloaded">
           <!-- Desktop -->
-          <div @click="showEditProjectDialog()" class="d-none d-sm-flex">
+          <div @click="showEditProjectDialog()" class="d-none d-sm-block">
             <a class="hljs-title text-h2 font-weight-medium text-red-darken-4 text-capitalize">
               <span class="text-grey-lighten-1 font-weight-black">
                 <span class="text-red-darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
@@ -14,7 +14,7 @@
             </a>
           </div>
           <!-- Mobile -->
-          <div class="d-flex d-sm-none mt-2">
+          <div class="d-block d-sm-none mt-2">
             <a class="hljs-title text-h3 font-weight-medium text-red-darken-4 text-capitalize"
               @click="showEditProjectDialog()">
               <v-icon size=50 class="text-red-darken-4 mr-3 mt-n3" >mdi-file-tree</v-icon>

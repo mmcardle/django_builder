@@ -4,8 +4,8 @@
 
     <v-row align="center" justify="center" fill-height class="text-center">
       <v-col cols="12" >
-        <div class="text-h1 d-none d-md-flex" ><django-builder-title /></div>
-        <div class="text-h3 d-flex d-md-none" ><django-builder-title /></div>
+        <div class="text-h1 d-none d-md-block" ><django-builder-title /></div>
+        <div class="text-h3 d-block d-md-none" ><django-builder-title /></div>
      </v-col>
     </v-row>
 

@@ -207,7 +207,7 @@
       </v-container>
     </v-main>
 
-    <v-snackbar class="d-none d-sm-flex" color="white" v-model="cookie_snackbar" bottom right timeout="-1">
+    <v-snackbar class="d-none d-sm-flex" color="white" v-model="cookie_snackbar" location="bottom right" :timeout="-1">
       <v-switch v-model="cookie_value" color="blue" :label="cookie_label">
         <template v-slot:label>
           <span style="color: blue">{{cookie_label}}</span>
@@ -301,6 +301,9 @@
 <style>
 .small-caps {
   font-variant: small-caps;
+}
+.toolbar-title {
+  flex: 0 1 auto;
 }
 .toolbar-title a {
   color: inherit;

@@ -2,8 +2,8 @@
   <v-container fluid class="text-center">
     <v-row  align="center" justify="center" fill-height >
       <v-col cols="12" >
-        <div class="text-h1 d-none d-md-flex" ><django-builder-title /></div>
-        <div class="text-h3 d-flex d-md-none" ><django-builder-title /></div>
+        <div class="text-h1 d-none d-md-block" ><django-builder-title /></div>
+        <div class="text-h3 d-block d-md-none" ><django-builder-title /></div>
         <p style="color: gray">building things....</p>
         <div class="ma-3">
           <div class="ma-1 text-h3 label label-success">Django 5.X <v-icon size="x-large" class="text-green">mdi-checkbox-marked-circle</v-icon></div>

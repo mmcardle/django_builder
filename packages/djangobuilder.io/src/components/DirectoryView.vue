@@ -1,6 +1,6 @@
 <template>
 <div style="display: contents;" class="order-sm-1 order-md-2">
-  <v-col order=2 cols=12 class="text-center ma-0 pa-3 d-flex d-md-none">
+  <v-col order=2 cols=12 class="text-center ma-0 pa-3 d-block d-md-none">
     <div class="float-md-right">
       <a class="text-body-2" @click="full_screen_code_dialog" v-if="active">
         <v-icon size="small" class="text-blue-darken-4 mr-2">mdi-eye</v-icon>View {{active.name}} full screen.
@@ -14,7 +14,7 @@
           <span class="text-grey-lighten-1 font-weight-black">
             <v-icon class="text-red-darken-4 mr-2" size="large">mdi-file-tree</v-icon>
             <span class="text-red-darken-2 text-capitalize">
-              <span class="d-none d-md-flex">Project</span> Files</span>
+              <span class="d-none d-md-inline">Project</span> Files</span>
           </span>
         </h2>
         <v-card class="ma-2 mr-0" elevation="2">
@@ -27,10 +27,10 @@
                 <v-icon class="text-blue-darken-4" v-else size="small">{{icon(item.name)}}</v-icon>
               </template>
               <template v-slot:label="{ item }" >
-                <div @click="click(item)" :class="active !== undefined && active.path === item.path ? 'text-red-darken-4 font-weight-bold d-flex d-md-none' : 'd-flex d-md-none'">
+                <div @click="click(item)" :class="active !== undefined && active.path === item.path ? 'text-red-darken-4 font-weight-bold d-block d-md-none' : 'd-block d-md-none'">
                   {{ item.name }}
                 </div>
-                <div @click="click(item, true)" :class="active !== undefined && active.path === item.path ? 'text-red-darken-4 font-weight-bold d-none d-md-flex' : 'd-none d-md-flex'">
+                <div @click="click(item, true)" :class="active !== undefined && active.path === item.path ? 'text-red-darken-4 font-weight-bold d-none d-md-block' : 'd-none d-md-block'">
                   {{ item.name }}
                 </div>
               </template>
@@ -43,12 +43,12 @@
           <h2 class="text-blue-darken-4 mx-2">
             <v-icon class="text-blue-darken-4 mr-2">{{icon(active.name)}}</v-icon>
             <span v-for="(part, i) in active_split" v-bind:key="i">
-              <span d-none d-md-flex class="text-blue-grey-lighten-4 d-none d-md-flex" v-if="i !== 0" > / </span>
-              <span :class="i === active_split.length - 1 ? ['text-orange' , 'text--darken-1'] : ['text-blue', 'text--darken-1', 'd-none d-md-flex']">
+              <span class="text-blue-grey-lighten-4 d-none d-md-inline" v-if="i !== 0" > / </span>
+              <span :class="i === active_split.length - 1 ? ['text-orange-darken-1'] : ['text-blue-darken-1', 'd-none d-md-inline']">
               {{ part }}
               </span>
             </span>
-            <div class="float-md-right d-none d-md-flex">
+            <div class="float-md-right d-none d-md-block">
               <a class="text-body-2" @click="full_screen_code_dialog">
                 <v-icon size="small" class="text-blue-darken-4 mr-2">mdi-eye</v-icon>Full screen
               </a>
@@ -67,8 +67,8 @@
                   <h2 class="text-blue-darken-4 mx-2">
                     <v-icon class="text-white-darken-4 mr-2">{{icon(active.name)}}</v-icon>
                     <span v-for="(part, i) in active_split" v-bind:key="i">
-                      <span class="text-blue-grey-lighten-4 d-none d-md-flex" v-if="i !== 0" > / </span>
-                      <span :class="i === active_split.length - 1 ? ['text-white'] : ['text-white', 'd-none d-md-flex']">
+                      <span class="text-blue-grey-lighten-4 d-none d-md-inline" v-if="i !== 0" > / </span>
+                      <span :class="i === active_split.length - 1 ? ['text-white'] : ['text-white', 'd-none d-md-inline']">
                       {{ part }}
                       </span>
                     </span>
