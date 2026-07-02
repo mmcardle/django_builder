@@ -55,7 +55,7 @@
             <v-btn color="default" v-on:click="signInWithGithub" class="mr-4">
                Continue
             </v-btn>
-            <v-icon class="text-red-darken-3" >mdi-github-circle</v-icon>
+            <v-icon class="text-red-darken-3" >mdi-github</v-icon>
           </v-card-actions>
         </v-card-->
       </v-col>

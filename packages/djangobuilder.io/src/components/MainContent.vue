@@ -70,12 +70,12 @@
             <span v-if="user.email" class="text-blue pl-1 pr-1">
               {{user.email}}
             </span>
-            <v-avatar :size="40" color="grey lighten-4" v-if="user.photoURL">
+            <v-avatar :size="40" color="grey-lighten-4" v-if="user.photoURL">
               <img :src="user.photoURL" alt="avatar">
             </v-avatar>
           </v-btn>
           <v-btn variant="text" v-on:click="logout">
-            <v-avatar :size="40" color="grey lighten-4" v-if="user.photoURL">
+            <v-avatar :size="40" color="grey-lighten-4" v-if="user.photoURL">
               <img :src="user.photoURL" alt="avatar">
             </v-avatar>
             <v-icon class="mr-1">mdi-logout</v-icon>

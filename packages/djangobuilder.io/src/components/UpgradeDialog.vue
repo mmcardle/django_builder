@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="upgradedialog" max-width="600" persistent>
     <v-card>
-      <v-card-title class="primary text-white">
+      <v-card-title class="bg-primary text-white">
         <span class="text-white text-h5">
           <v-icon color="white" size="large">mdi-information</v-icon> Create Account
         </span>

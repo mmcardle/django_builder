@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="confirmdialog" max-width="600">
     <v-card>
-      <v-card-title class="primary text-white">
+      <v-card-title class="bg-primary text-white">
         <span class="text-white text-h5">
           <v-icon size="large" color="white" class="mr-2">mdi-information</v-icon> {{headline}}
         </span>

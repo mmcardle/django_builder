@@ -45,9 +45,7 @@
             </template>
           </v-col>
           <v-col>
-            <v-icon class="ma-4" color="primary">
-              fas fa-circle-notch fa-4x fa-spin
-            </v-icon>
+            <v-progress-circular class="ma-4" color="primary" indeterminate size="64"></v-progress-circular>
           </v-col>
         </v-row>
 
@@ -203,7 +201,7 @@
               <div class="ma-1">
                 <v-btn color="info" block @click="showFieldDialog(model.id)">
                   <v-icon>mdi-plus</v-icon>Add Field
-                  <v-icon class="ml-1">fa fa-dot-circle</v-icon>
+                  <v-icon class="ml-1">mdi-record-circle-outline</v-icon>
                 </v-btn>
               </div>
               <div class="ma-1">

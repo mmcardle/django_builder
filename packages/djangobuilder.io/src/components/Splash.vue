@@ -12,9 +12,9 @@
     <v-row align="center" justify="center" fill-height class="text-center">
       <v-col cols="12">
         <span class="text-h6 font-weight-bold text-red-darken-1">
-          <v-icon size="large" color="red darken-1">mdi-star</v-icon>
+          <v-icon size="large" color="red-darken-1">mdi-star</v-icon>
           Now with Django 5 Support!
-          <v-icon size="large" color="red darken-1">mdi-star</v-icon>
+          <v-icon size="large" color="red-darken-1">mdi-star</v-icon>
           </span>
       </v-col>
     </v-row>

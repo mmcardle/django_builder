@@ -12,14 +12,14 @@
         </div>
         <div class="text-body-2">
             <div class="ma-2">
-              <v-icon class="text-red-darken-3" >mdi-github-circle</v-icon>
+              <v-icon class="text-red-darken-3" >mdi-github</v-icon>
               <a href="https://github.com/mmcardle/django_builder" target="_blank">
                 Django Builder on Github
               </a>
             </div>
 
             <div class="ma-2">
-              <v-icon class="text-red-darken-3" >mdi-github-circle</v-icon>
+              <v-icon class="text-red-darken-3" >mdi-github</v-icon>
               <a href="https://github.com/mmcardle/" target="_blank">
                 mmcardle
               </a>

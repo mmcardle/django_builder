@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="formdialog" max-width="600" @keydown.enter="do_ok">
     <v-card>
-      <v-card-title class="primary text-white">
+      <v-card-title class="bg-primary text-white">
         <span class="text-white text-h5">
           <v-icon style="font-size:1.2em" color="white">{{icon}}</v-icon> {{headline}}
         </span>
@@ -66,14 +66,14 @@ export default {
     }
   },
   created: function () {
-    this.icon = Object.keys(this.formdata).length === 0 ? 'add' : 'edit'
+    this.icon = Object.keys(this.formdata).length === 0 ? 'mdi-plus' : 'mdi-pencil'
   },
   data: function() {
     return {
       active: true,
       form: undefined,
       formdialog: true,
-      icon: 'add',
+      icon: 'mdi-plus',
     }
   },
   mounted: function () {

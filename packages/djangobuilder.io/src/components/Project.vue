@@ -107,7 +107,7 @@
   <v-container v-else-if="error">
     <v-dialog v-model="error_dialog" max-width="600" persistent>
       <v-card>
-        <v-card-title class="primary text-white">
+        <v-card-title class="bg-primary text-white">
           <span class="text-white text-h5">
             <v-icon size="large" color="white" class="mr-2">mdi-information</v-icon>
             Sorry there has been an error loading.
