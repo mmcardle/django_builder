@@ -37,12 +37,12 @@ export default {
         if (fieldSchema.updated){
           const updatedData = fieldSchema.updated(this.$refs, fieldName, value)
           if (updatedData) {
-            this.$set(this.formData, updatedData.field, updatedData.value)
+            this.formData[updatedData.field] = updatedData.value
             this.$emit("input", this.formData)
           }
         }
       })
-      this.$set(this.formData, fieldName, value)
+      this.formData[fieldName] = value
       this.$emit("input", this.formData)
     }
   }

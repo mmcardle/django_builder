@@ -1,22 +1,25 @@
 <template>
   <v-text-field
-    :value="default_value" :rules="rules" :required="required"
-    :label="label" :placeholder="placeholder" :autofocus="autofocus"
-    :default="default_value" @input="$emit('input', $event);">
-    >
+    v-model="model" :rules="rules" :required="required"
+    :label="label" :placeholder="placeholder" :autofocus="autofocus">
   </v-text-field>
 </template>
 <script>
 export default {
   name: 'TextInput',
+  emits: ['input'],
   props: [
     'placeholder', 'label', 'name', 'value', 'required',
     'max', 'nospaces', 'autofocus'
   ],
   data() {
     return {
-      default_value: this.value,
+      model: this.value,
     }
+  },
+  watch: {
+    value(v) { if (v !== this.model) this.model = v },
+    model(v) { this.$emit('input', v) },
   },
   computed: {
     rules () {

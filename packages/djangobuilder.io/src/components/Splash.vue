@@ -4,36 +4,32 @@
 
     <v-row align="center" justify="center" fill-height class="text-center">
       <v-col cols="12">
-        <div class="text-h1 hidden-sm-and-down" ><django-builder-title /></div>
-        <div class="text-h3 hidden-md-and-up" ><django-builder-title /></div>
+        <div class="text-h1 d-none d-md-block" ><django-builder-title /></div>
+        <div class="text-h3 d-block d-md-none" ><django-builder-title /></div>
      </v-col>
     </v-row>
 
     <v-row align="center" justify="center" fill-height class="text-center">
       <v-col cols="12">
-        <span class="text-h6 font-weight-bold red--text text--darken-1">
-          <v-icon large color="red darken-1">mdi-star</v-icon>
+        <span class="text-h6 font-weight-bold text-red-darken-1">
+          <v-icon size="large" color="red-darken-1">mdi-star</v-icon>
           Now with Django 5 Support!
-          <v-icon large color="red darken-1">mdi-star</v-icon>
+          <v-icon size="large" color="red-darken-1">mdi-star</v-icon>
           </span>
       </v-col>
     </v-row>
 
    <v-row reverse  align="center" justify="center" fill-height mt-5 class="text-center" >
-     <v-col lg="6" md="6" cols="12" v-if="!$store.getters.user">
-       <v-btn large color="primary" :to="{name: 'Login'}">Login</v-btn>
-       or <v-btn large color="primary" :to="{name: 'SignUp'}">Sign Up</v-btn>
-     </v-col>
      <v-col lg="6" md="6" cols="12">
-       <div class="mt-4 hidden-lg-and-up"></div>
-        <v-btn x-large color="primary" @click="showAddProjectDialog" class="ma-4" v-if="this.$store.getters.user()">
-          <v-icon>add</v-icon> Create a New Project
+       <div class="mt-4 d-block d-lg-none"></div>
+        <v-btn size="x-large" color="primary" @click="showAddProjectDialog" class="ma-4" v-if="mainStore.user">
+          <v-icon>mdi-plus</v-icon> Create a New Project
         </v-btn>
-        <v-btn x-large id="splash_login" color="primary" :to="{name: 'Login'}" class="ma-4" v-else>
+        <v-btn size="x-large" id="splash_login" color="primary" :to="{name: 'Login'}" class="ma-4" v-else>
           <v-icon>mdi-login</v-icon> Sign In
         </v-btn>
-        <h1 class="red--text text--darken-3">How does it work?</h1>
-        <div class="grey--text pa-2">Scroll down to see what you can create ...</div>
+        <h1 class="text-red-darken-3">How does it work?</h1>
+        <div class="text-grey pa-2">Scroll down to see what you can create ...</div>
      </v-col>
    </v-row>
 
@@ -41,60 +37,60 @@
 
       <v-col lg="3" md="6" cols="8">
         <h1 class="text-h6 font-weight-regular ma-2">
-          Create a <span class="red--text font-weight-medium">Project</span>, add
-          <span class="blue--text font-weight-medium">apps</span> and
-          <span class="green--text font-weight-medium">models</span>
+          Create a <span class="text-red font-weight-medium">Project</span>, add
+          <span class="text-blue font-weight-medium">apps</span> and
+          <span class="text-green font-weight-medium">models</span>
         </h1>
         <v-img class="mb-4" :src="app1" gradient="to bottom, rgba(250,250,250,.1), rgba(250,250,250,.6), rgba(250,250,250,.8)"></v-img>
       </v-col>
 
-      <v-col lg="1" md="12" cols="12" align-self="center" class="red--text text--darken-3">
-        <v-icon large color="red" class="hidden-md-and-down">mdi-arrow-right-thick</v-icon>
+      <v-col lg="1" md="12" cols="12" align-self="center" class="text-red-darken-3">
+        <v-icon size="large" color="red" class="d-none d-lg-flex">mdi-arrow-right-thick</v-icon>
       </v-col>
 
       <v-col lg="3" md="6" cols="8">
         <h4 class="text-h6 font-weight-regular ma-2">
           Or, Import from an existing
-          <span class="purple--text font-weight-medium">models.py</span>
+          <span class="text-purple font-weight-medium">models.py</span>
         </h4>
         <v-img class="mb-4" :src="import1" gradient="to bottom, rgba(250,250,250,.1), rgba(250,250,250,.6), rgba(250,250,250,.8)"></v-img>
       </v-col>
 
-      <v-col lg="1" md="12" cols="12" align-self="center" class="red--text text--darken-3">
-        <v-icon large color="red" class="hidden-md-and-down">mdi-arrow-right-thick</v-icon>
+      <v-col lg="1" md="12" cols="12" align-self="center" class="text-red-darken-3">
+        <v-icon size="large" color="red" class="d-none d-lg-flex">mdi-arrow-right-thick</v-icon>
       </v-col>
 
       <v-col lg="3" md="7" cols="10">
         <h4 class="xxx text-h6 font-weight-regular ma-2">
-          Add <span class="green--text font-weight-medium">Fields</span>
+          Add <span class="text-green font-weight-medium">Fields</span>
         </h4>
         <v-img class="mb-4" :src="field1" gradient="to bottom, rgba(250,250,250,.4), rgba(250,250,250,.6), rgba(250,250,250,.8)"></v-img>
       </v-col>
 
-      <v-col cols="12" align-self="center" class="grey--text hidden-md-and-down">
-        <v-icon large color="gray">mdi-dots-horizontal</v-icon>
+      <v-col cols="12" align-self="center" class="text-grey d-none d-lg-block">
+        <v-icon size="large" color="gray">mdi-dots-horizontal</v-icon>
       </v-col>
 
       <v-col lg="3" md="7" cols="10">
         <h4 class="text-h6 font-weight-regular ma-2">
-          Add <span class="green--text font-weight-medium">Relationships</span>
+          Add <span class="text-green font-weight-medium">Relationships</span>
         </h4>
         <v-img class="mb-4" :src="rel1" gradient="to bottom, rgba(250,250,250,.4), rgba(250,250,250,.6), rgba(250,250,250,.8)"></v-img>
       </v-col>
 
-      <v-col lg="1" md="12" cols="12" align-self="center" class="red--text text--darken-3">
-        <v-icon large color="red" class="hidden-md-and-down">mdi-arrow-right-thick</v-icon>
+      <v-col lg="1" md="12" cols="12" align-self="center" class="text-red-darken-3">
+        <v-icon size="large" color="red" class="d-none d-lg-flex">mdi-arrow-right-thick</v-icon>
       </v-col>
 
       <v-col lg="3" md="6" cols="10">
         <h4 class="text-h6 font-weight-regular ma-2">
-          Inspect your new <span class="red--text font-weight-medium">application</span>
+          Inspect your new <span class="text-red font-weight-medium">application</span>
         </h4>
         <v-img class="mb-4" :src="models1" gradient="to bottom, rgba(250,250,250,.1), rgba(250,250,250,.6), rgba(250,250,250,.8)"></v-img>
       </v-col>
 
-      <v-col cols="12" align-self="center" class="grey--text hidden-md-and-down">
-        <v-icon large color="gray">mdi-dots-horizontal</v-icon>
+      <v-col cols="12" align-self="center" class="text-grey d-none d-lg-block">
+        <v-icon size="large" color="gray">mdi-dots-horizontal</v-icon>
       </v-col>
 
     </v-row>
@@ -102,12 +98,12 @@
     <v-row align-top justify="space-around" fill-height class="text-center mt-5 mx-0">
       <v-col cols="6">
         <h4 class="text-h6 font-weight-regular">
-          <span class="blue--text text--darken-3 font-weight-medium">Download</span> and
-          <span class="green--text text--darken-3 font-weight-medium">run</span> your complete
-          <span class="red--text font-weight-medium">project</span>
+          <span class="text-blue-darken-3 font-weight-medium">Download</span> and
+          <span class="text-green-darken-3 font-weight-medium">run</span> your complete
+          <span class="text-red font-weight-medium">project</span>
         </h4>
-        <div class="mt-5 red--text text--darken-3">
-          <v-icon large color="red">mdi-arrow-down-thick</v-icon>
+        <div class="mt-5 text-red-darken-3">
+          <v-icon size="large" color="red">mdi-arrow-down-thick</v-icon>
         </div>
       </v-col>
     </v-row>
@@ -115,10 +111,6 @@
     <v-row  fill-height class="text-center mx-0 mt-5">
       <v-col cols="12">
         <v-img :src="db2" gradient="to bottom, rgba(250,250,250,.8), rgba(250,250,250,.5), rgba(250,250,250,.8)"></v-img>
-      </v-col>
-      <v-col cols="12" ma-5 v-if="!$store.getters.user">
-        <v-btn large color="primary" :to="{name: 'Login'}">Login</v-btn>
-        or <v-btn large color="primary" :to="{name: 'SignUp'}">Sign Up</v-btn>
       </v-col>
     </v-row>
 

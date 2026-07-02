@@ -1,9 +1,9 @@
 <template>
   <v-dialog v-model="confirmdialog" max-width="600">
     <v-card>
-      <v-card-title class="primary white--text">
-        <span class="white--text text-h5">
-          <v-icon large color="white" class="mr-2">mdi-information</v-icon> {{headline}}
+      <v-card-title class="bg-primary text-white">
+        <span class="text-white text-h5">
+          <v-icon size="large" color="white" class="mr-2">mdi-information</v-icon> {{headline}}
         </span>
       </v-card-title>
       <v-card-text>
@@ -11,10 +11,10 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary" variant="secondary" @click="do_ok">
+        <v-btn color="primary" @click="do_ok">
           {{ok_text()}}
         </v-btn>
-        <v-btn color="darken-1" @click="do_cancel">
+        <v-btn color="grey-darken-1" @click="do_cancel">
           {{cancel_text()}}
         </v-btn>
       </v-card-actions>

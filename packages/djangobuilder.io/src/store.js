@@ -1,5 +1,4 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { defineStore } from 'pinia'
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import {keyByValue} from './utils'
@@ -8,10 +7,8 @@ import {
   DjangoProject, DjangoApp, DjangoModel, DjangoField, DjangoRelationship, DjangoVersion, FieldTypes, BuiltInModelTypes
 } from "@djangobuilder/core";
 
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-  state: {
+export const useMainStore = defineStore('main', {
+  state: () => ({
     user: undefined,
     loaded: false,
     error: false,
@@ -20,12 +17,11 @@ export default new Vuex.Store({
     models: {},
     fields: {},
     relationships: {},
-  },
+  }),
   getters: {
-    user: (state) => () => state.user,
-    loaded: (state) => () => state.loaded,
-    error: (state) => () => state.error,
-    projects: (state) => () => state.projects,
+    // user/loaded/error/projects/apps/models/fields/relationships are read
+    // directly as reactive state (store.user, store.projects, etc.) since a
+    // Pinia getter can't share a name with a state property.
     projectsData: (state) => () => {
       return Object.keys(state.projects).map((pid) => {
         return Object.assign(state.projects[pid].data(), {id: pid})
@@ -95,7 +91,7 @@ export default new Vuex.Store({
           Object.keys(modelData.relationships).forEach(relationshipId => {
             const relationshipData = state.relationships[relationshipId].data();
             const coreRelationship = new DjangoRelationship(
-              coreModel, 
+              coreModel,
               relationshipData.name,
               relationshipData.type,
               relationshipData.to,
@@ -108,12 +104,8 @@ export default new Vuex.Store({
       });
       return coreProject
     },
-    apps: (state) => () => state.apps,
     appData: (state) => (id) => state.apps[id] ? state.apps[id].data() : undefined,
-    models: (state) => () => state.models,
     modelData: (state) => (id) => state.models[id] ? state.models[id].data() : undefined,
-    fields: (state) => () => state.fields,
-    relationships: (state) => () => state.relationships,
     ordered_models: (state) => (appid) => {
       const appData = state.apps[appid] ? state.apps[appid].data() : undefined;
       if (appData === undefined) { return [] }
@@ -137,17 +129,17 @@ export default new Vuex.Store({
       return models_no_parents.concat(models_with_parents_sorted)
     },
   },
-  mutations: {
-    set_state (state, payload) {
-      Vue.set(state, payload.key, payload.values)
+  actions: {
+    set_state (payload) {
+      this[payload.key] = payload.values
     },
-    set_error (state, error) {
-      state.error = error
+    set_error (error) {
+      this.error = error
     },
-    set_user (state, user) {
+    set_user (user) {
       console.log('Loaded', !user.isAnonymous ? user.display_name : 'Anonymous User ' + user.uid)
-      state.loaded = true
-      state.user = user
+      this.loaded = true
+      this.user = user
 
       if (user.isAnonymous){
         event('user-login', {
@@ -163,28 +155,26 @@ export default new Vuex.Store({
         })
       }
     },
-    logout (state) {
+    logout () {
       event('user-logout', {
         event_category: 'auth',
         event_label: 'UserLogout',
         value: 1
       })
-      state.user = undefined
-      state.loaded = false
-      state.projects = {}
-      state.apps = {}
-      state.models = {}
-      state.fields = {}
-      state.relationships = {}
+      this.user = undefined
+      this.loaded = false
+      this.projects = {}
+      this.apps = {}
+      this.models = {}
+      this.fields = {}
+      this.relationships = {}
     },
-  },
-  actions: {
-    load : function ({commit}, userid) {
+    load : function (userid) {
       var firestore = firebase.firestore()
 
-      const snapShotErrorHandler = function (error) {
+      const snapShotErrorHandler = (error) => {
         if (firebase.auth().currentUser) {
-          commit('set_error', error)
+          this.set_error(error)
           throw error
         } else {
           // This is OK user as no longer logged in
@@ -196,7 +186,7 @@ export default new Vuex.Store({
           "owner", "==", userid
         ).orderBy("name").onSnapshot((projectData) => {
           const projects = keyByValue(projectData.docs, "id")
-          commit('set_state', {key: 'projects', values: projects})
+          this.set_state({key: 'projects', values: projects})
           console.debug('Loaded projects', JSON.parse(JSON.stringify(projectData.docs.map((p) => p.data()))))
           resolve(projectData)
         }, snapShotErrorHandler)
@@ -206,7 +196,7 @@ export default new Vuex.Store({
           "owner", "==", userid
         ).onSnapshot((appData) => {
           const apps = keyByValue(appData.docs, "id")
-          commit('set_state', {key: 'apps', values: apps})
+          this.set_state({key: 'apps', values: apps})
           console.debug('Loaded apps', JSON.parse(JSON.stringify(appData.docs.map((a) => a.data()))))
           resolve()
         }, snapShotErrorHandler)
@@ -217,7 +207,7 @@ export default new Vuex.Store({
           "owner", "==", userid
         ).onSnapshot((modelData) => {
           const models = keyByValue(modelData.docs, "id")
-          commit('set_state', {key: 'models', values: models})
+          this.set_state({key: 'models', values: models})
           console.debug('Loaded models', JSON.parse(JSON.stringify(modelData.docs.map((m) => m.data()))))
           resolve()
         }, snapShotErrorHandler)
@@ -228,7 +218,7 @@ export default new Vuex.Store({
           "owner", "==", userid
         ).onSnapshot((fieldsData) => {
           const fields = keyByValue(fieldsData.docs, "id")
-          commit('set_state', {key: 'fields', values: fields})
+          this.set_state({key: 'fields', values: fields})
           console.debug('Loaded fields', JSON.parse(JSON.stringify(fieldsData.docs.map((f) => f.data()))))
           resolve()
         }, snapShotErrorHandler)
@@ -239,7 +229,7 @@ export default new Vuex.Store({
           "owner", "==", userid
         ).onSnapshot((relationshipData) => {
           const relationships = keyByValue(relationshipData.docs, "id")
-          commit('set_state', {key: 'relationships', values: relationships})
+          this.set_state({key: 'relationships', values: relationships})
           console.debug('Loaded relationships', JSON.parse(JSON.stringify(relationshipData.docs.map((r) => r.data()))))
           resolve()
         }, snapShotErrorHandler)
@@ -247,10 +237,10 @@ export default new Vuex.Store({
 
       const promises = [projectPromise, appPromise, modelsPromise, fieldsPromise, relationshipPromise]
       return Promise.all(promises).then(async () => {
-        commit('set_user', firebase.auth().currentUser)
+        this.set_user(firebase.auth().currentUser)
       })
     },
-    addProject: function (_, payload) {
+    addProject: function (payload) {
       event('add-project', {
         event_category: 'project',
         event_label: payload.name,
@@ -266,7 +256,7 @@ export default new Vuex.Store({
         apps: {}
       })
     },
-    addApp: function (_, payload) {
+    addApp: function (payload) {
       event('add-app', {
         event_category: 'app',
         event_label: payload.name,
@@ -282,7 +272,7 @@ export default new Vuex.Store({
         )
       })
     },
-    addModels: function (_, payload) {
+    addModels: function (payload) {
       event('add-models', {
         event_category: 'model',
         event_label: 'multiple-models',
@@ -332,7 +322,7 @@ export default new Vuex.Store({
         console.debug('Added batch of ', payload.length, 'models')
       });
     },
-    addModel: function ({dispatch}, payload) {
+    addModel: function (payload) {
       event('add-model', {
         event_category: 'model',
         event_label: payload.name,
@@ -348,7 +338,7 @@ export default new Vuex.Store({
         relationships: {}
       }).then((model) => {
         if (payload.add_default_fields) {
-          return dispatch('addDefaultFields', model).then(() => {
+          return this.addDefaultFields(model).then(() => {
             return firebase.firestore().collection('apps').doc(payload.app).update(
               {[`models.${model.id}`]: true}
             ).then(() => model)
@@ -360,14 +350,14 @@ export default new Vuex.Store({
         }
       })
     },
-    addDefaultFields: function ({dispatch}, model) {
+    addDefaultFields: function (model) {
       const created_field_payload = {
         model: model.id,
         name: 'created',
         type: 'DateTimeField',
         args: 'auto_now_add=True, editable=False'
       }
-      return dispatch('addField', created_field_payload).then(() => {
+      return this.addField(created_field_payload).then(() => {
 
         const last_updated_field_payload = {
           model: model.id,
@@ -376,10 +366,10 @@ export default new Vuex.Store({
           args: 'auto_now=True, editable=False'
         }
 
-        return dispatch('addField', last_updated_field_payload)
+        return this.addField(last_updated_field_payload)
       })
     },
-    addField: function (_, payload) {
+    addField: function (payload) {
       event('add-field', {
         event_category: 'field',
         event_label: payload.name,
@@ -396,7 +386,7 @@ export default new Vuex.Store({
         )
       })
     },
-    addFieldsAndRelationships: function (_ , payload) {
+    addFieldsAndRelationships: function (payload) {
       console.log('addFieldsAndRelationships', payload)
 
       const db = firebase.firestore()
@@ -440,7 +430,7 @@ export default new Vuex.Store({
           return modelDoc.update(updatedModelData)
       });
     },
-    addRelationship: function (_, payload) {
+    addRelationship: function (payload) {
       event('add-relationship', {
         event_category: 'relationship',
         event_label: payload.name,
@@ -458,7 +448,7 @@ export default new Vuex.Store({
         )
       })
     },
-    moveModelToApp: function (_, payload) {
+    moveModelToApp: function (payload) {
       event('move-model', {
         event_category: 'model',
         event_label: payload.name,

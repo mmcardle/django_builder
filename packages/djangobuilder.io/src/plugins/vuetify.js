@@ -1,21 +1,15 @@
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
-import 'vuetify/dist/vuetify.min.css'
-import colors from 'vuetify/es5/util/colors'
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
 
-Vue.use(Vuetify)
-
-const opts = {
-  dark: true,
-  icons: {
-    iconfont: 'mdiSvg',
-  },
+// NOTE: The Vue 2 config set `dark: true` at the root of the options object
+// (and colors directly under `theme:`), but neither was a valid Vuetify 2
+// location, so both were ignored and production has always rendered with the
+// default light theme. We keep that behaviour here to match production.
+export default createVuetify({
   theme: {
-    primary: colors.blue.darken3,
-    secondary: colors.grey.darken1,
-    accent: colors.shades.black,
-    error: colors.red.darken3,
-  }
-}
-
-export default new Vuetify(opts);
+    defaultTheme: 'light',
+  },
+  icons: {
+    defaultSet: 'mdi',
+  },
+})

@@ -6,72 +6,72 @@
       <v-row  align="center" justify="center" class="text-center">
         <v-col cols="12" md=5 lg=4 v-if="isloaded">
           <!-- Desktop -->
-          <div @click="showEditProjectDialog()" class="hidden-xs-only">
-            <a class="hljs-title text-h2 font-weight-medium red--text text--darken-4 text-capitalize">
-              <span class="grey--text text--lighten-1 font-weight-black">
-                <span class="red--text text--darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
+          <div @click="showEditProjectDialog()" class="d-none d-sm-block">
+            <a class="hljs-title text-h2 font-weight-medium text-red-darken-4 text-capitalize">
+              <span class="text-grey-lighten-1 font-weight-black">
+                <span class="text-red-darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
               </span>
             </a>
           </div>
           <!-- Mobile -->
-          <div class="hidden-sm-and-up mt-2">
-            <a class="hljs-title text-h3 font-weight-medium red--text text--darken-4 text-capitalize"
+          <div class="d-block d-sm-none mt-2">
+            <a class="hljs-title text-h3 font-weight-medium text-red-darken-4 text-capitalize"
               @click="showEditProjectDialog()">
-              <v-icon size=50 class="red--text text--darken-4 mr-3 mt-n3" >mdi-file-tree</v-icon>
-              <span class="grey--text text--lighten-1 font-weight-black">
-                <span class="red--text text--darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
+              <v-icon size=50 class="text-red-darken-4 mr-3 mt-n3" >mdi-file-tree</v-icon>
+              <span class="text-grey-lighten-1 font-weight-black">
+                <span class="text-red-darken-2">{{name.substring(0,1)}}</span>{{name.substring(1)}}
               </span>
             </a>
           </div>
-          <a class="d-block orange--text" @click="showEditProjectDialog()">
+          <a class="d-block text-orange" @click="showEditProjectDialog()">
             <span >
               Django Version: {{django_version}}
             </span>
           </a>
-          <a class="d-block orange--text" @click="showEditProjectDialog()">
+          <a class="d-block text-orange" @click="showEditProjectDialog()">
             <span v-if="channels">
-              Django Channels <v-icon class="green--text" >mdi-toggle-switch</v-icon>
+              Django Channels <v-icon class="text-green" >mdi-toggle-switch</v-icon>
             </span>
-            <span v-else class="grey--text">
-              Django Channels <v-icon class="gray--text" >mdi-toggle-switch-off</v-icon>
+            <span v-else class="text-grey">
+              Django Channels <v-icon class="text-gray" >mdi-toggle-switch-off</v-icon>
             </span>
           </a>
-          <a class="d-block orange--text" @click="showEditProjectDialog()">
+          <a class="d-block text-orange" @click="showEditProjectDialog()">
             <span v-if="htmx">
-              HTMX <v-icon class="green--text" >mdi-toggle-switch</v-icon>
+              HTMX <v-icon class="text-green" >mdi-toggle-switch</v-icon>
             </span>
-            <span v-else class="grey--text">
-              HTMX <v-icon class="gray--text" >mdi-toggle-switch-off</v-icon>
+            <span v-else class="text-grey">
+              HTMX <v-icon class="text-gray" >mdi-toggle-switch-off</v-icon>
             </span>
           </a>
         </v-col>
         <template v-if="Object.keys(this.apps).length > 0">
           <v-col cols=12 sm=4 md=2 lg=2>
-            <v-btn style="width:95%" large ripple @click="showAppDialog()" class="mx-2">
-              <v-icon>add</v-icon> Add App
+            <v-btn style="width:95%" size="large" ripple @click="showAppDialog()" class="mx-2">
+              <v-icon>mdi-plus</v-icon> Add App
             </v-btn>
           </v-col>
           <v-col cols=12 sm=4 md=3 lg=2>
-            <v-btn style="width:95%" large ripple @click.stop="downloadProject()" class="mx-2">
+            <v-btn style="width:95%" size="large" ripple @click.stop="downloadProject()" class="mx-2">
               <v-icon class=mr-1 color=blue>mdi-cloud-download</v-icon>  Download
             </v-btn>
           </v-col>
           <v-col cols=12 sm=4 md=2 lg=2 >
-            <v-btn style="width:95%" large ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
-              <v-icon>delete</v-icon> Delete
+            <v-btn style="width:95%" size="large" ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
+              <v-icon>mdi-delete</v-icon> Delete
             </v-btn>
           </v-col>
         </template>
         <template v-else>
           <!--v-col cols=12 sm=5 md=4 lg=3 xl=2>
-            <v-btn style="width:95%" v-if="importReady" large ripple color="success" type="file" class="mx-2"
+            <v-btn style="width:95%" v-if="importReady" size="large" ripple color="success" type="file" class="mx-2"
               @click="$refs.inputUpload !== undefined ? $refs.inputUpload.click() : () => {}" >
               <v-icon class=mr-1 color=white>mdi-cloud-upload</v-icon> Upload models.py
             </v-btn>
           </v-col-->
           <v-col cols=12 sm=5 md=4 lg=3 xl=2 >
-            <v-btn style="width:95%" large ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
-              <v-icon>delete</v-icon> Delete
+            <v-btn style="width:95%" size="large" ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
+              <v-icon>mdi-delete</v-icon> Delete
             </v-btn>
           </v-col>
         </template>
@@ -86,8 +86,8 @@
               Start your project by adding an App.
             </v-card-text>
             <v-card-text>
-              <v-btn large ripple color="primary" @click="showAppDialog()">
-                <v-icon>add</v-icon> Add App
+              <v-btn size="large" ripple color="primary" @click="showAppDialog()">
+                <v-icon>mdi-plus</v-icon> Add App
               </v-btn>
             </v-card-text>
           </v-card>
@@ -107,9 +107,9 @@
   <v-container v-else-if="error">
     <v-dialog v-model="error_dialog" max-width="600" persistent>
       <v-card>
-        <v-card-title class="primary white--text">
-          <span class="white--text text-h5">
-            <v-icon large color="white" class="mr-2">mdi-information</v-icon>
+        <v-card-title class="bg-primary text-white">
+          <span class="text-white text-h5">
+            <v-icon size="large" color="white" class="mr-2">mdi-information</v-icon>
             Sorry there has been an error loading.
           </span>
         </v-card-title>
@@ -146,9 +146,9 @@ import DirectoryView from '@/components/DirectoryView.vue'
 import AppView from '@/components/AppView.vue'
 import firebase from 'firebase/compat/app';
 import {schemas} from '@/schemas'
-import {showDeleteDialog, showFormDialog} from '@/dialogs/'
+import {showDeleteDialog, showFormDialog} from '@/dialogs'
 import 'highlight.js/styles/a11y-light.css'
-import store from "../store";
+import { useMainStore } from "../store";
 import { Renderer as DBCoreRenderer, ModelImporter, DEFAULT_DJANGO_VERSION} from "@djangobuilder/core"
 
 export default {
@@ -164,31 +164,34 @@ export default {
     }
   },
   computed: {
+    mainStore() {
+      return useMainStore()
+    },
     isloaded: function () {
-      return this.$store.getters.loaded()
+      return this.mainStore.loaded
     },
     error: function () {
-      return this.$store.getters.error()
+      return this.mainStore.error
     },
     name: function () {
-      if (this.$store.getters.projectData(this.id) === undefined) return ''
-      return this.$store.getters.projectData(this.id).data().name
+      if (this.mainStore.projectData(this.id) === undefined) return ''
+      return this.mainStore.projectData(this.id).data().name
     },
     channels: function () {
-      if (this.$store.getters.projectData(this.id) === undefined) return false
-      return this.$store.getters.projectData(this.id).data().channels
+      if (this.mainStore.projectData(this.id) === undefined) return false
+      return this.mainStore.projectData(this.id).data().channels
     },
     htmx: function () {
-      if (this.$store.getters.projectData(this.id) === undefined) return false
-      return this.$store.getters.projectData(this.id).data().htmx
+      if (this.mainStore.projectData(this.id) === undefined) return false
+      return this.mainStore.projectData(this.id).data().htmx
     },
     django_version: function () {
-      if (this.$store.getters.projectData(this.id) === undefined) return '?'
-      return this.$store.getters.projectData(this.id).data().django_version || DEFAULT_DJANGO_VERSION
+      if (this.mainStore.projectData(this.id) === undefined) return '?'
+      return this.mainStore.projectData(this.id).data().django_version || DEFAULT_DJANGO_VERSION
     },
     apps: function () {
-      if (this.$store.getters.projectData(this.id) === undefined) return []
-      return this.$store.getters.projectData(this.id).data().apps
+      if (this.mainStore.projectData(this.id) === undefined) return []
+      return this.mainStore.projectData(this.id).data().apps
     },
   },
   methods: {
@@ -198,9 +201,9 @@ export default {
         event_label: this.name,
         value: 1
       })
-      const coreRenderer = new DBCoreRenderer(store)
-      const project = this.$store.getters.projectData(this.id).data()
-      const djangoCoreProject = this.$store.getters.toCoreProject(this.id, project)
+      const coreRenderer = new DBCoreRenderer()
+      const project = this.mainStore.projectData(this.id).data()
+      const djangoCoreProject = this.mainStore.toCoreProject(this.id, project)
       const url = coreRenderer.tarballURL(djangoCoreProject)
       const link = document.createElement("a")
       link.download = this.name + '.tar'
@@ -221,23 +224,23 @@ export default {
             modelList.push(model)
           })
         })
-        this.$store.commit('add_imported_models', modelList)
+        this.mainStore.add_imported_models(modelList)
         this.$nextTick(() => {
           this.importReady = true
         })
       })
     },
     appData: function (appid) {
-      return this.$store.getters.apps()[appid].data()
+      return this.mainStore.apps[appid].data()
     },
     modelData:  function (modelid) {
-      return this.$store.getters.modelData(modelid)
+      return this.mainStore.modelData(modelid)
     },
     relationshipData:  function (relationshipid) {
-      return this.$store.getters.relationships()[relationshipid].data()
+      return this.mainStore.relationships[relationshipid].data()
     },
     fieldData:  function (fieldid) {
-      return this.$store.getters.fields()[fieldid].data()
+      return this.mainStore.fields[fieldid].data()
     },
     showEditProjectDialog: function () {
       showFormDialog(
@@ -253,7 +256,7 @@ export default {
           this.$firestore.collection('projects').doc(this.id).update(firebaseData)
         },
         schemas.project(),
-        this.$store.getters.projectData(this.id).data()
+        this.mainStore.projectData(this.id).data()
       )
     },
     showDeleteProjectDialog: function () {
@@ -272,12 +275,10 @@ export default {
       )
     },
     addApp: function (name) {
-      this.$store.dispatch(
-        'addApp', {
-          project: this.id,
-          name: name
-        }
-      )
+      this.mainStore.addApp({
+        project: this.id,
+        name: name
+      })
     },
     deleteProject: function (pid) {
       this.$firestore.collection("projects").doc(pid).delete()

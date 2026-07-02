@@ -15,7 +15,7 @@ describe('DeleteDialog.vue', () => {
     const headline = 'Delete dialog headline'
     const text = 'Delete dialog text'
     const wrapper = shallowMount(DeleteDialog, {
-      propsData: {
+      props: {
         'headline': headline,
         'text': text
       }
@@ -28,7 +28,7 @@ describe('DeleteDialog.vue', () => {
   test('has ok method', () => {
     const ok = vi.fn()
     const wrapper = shallowMount(DeleteDialog, {
-      propsData: {ok: ok}
+      props: {ok: ok}
     })
     expect(ok).not.toHaveBeenCalled()
     expect(wrapper.vm.deletedialog).toBeTruthy()
@@ -40,7 +40,7 @@ describe('DeleteDialog.vue', () => {
   test('has cancel method', () => {
     const cancel = vi.fn()
     const wrapper = shallowMount(DeleteDialog, {
-      propsData: {cancel: cancel}
+      props: {cancel: cancel}
     })
     expect(cancel).not.toHaveBeenCalled()
     expect(wrapper.vm.deletedialog).toBeTruthy()

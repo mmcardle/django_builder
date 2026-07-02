@@ -1,12 +1,18 @@
 import {schemas} from '@/schemas'
-import {showFormDialog} from '@/dialogs/'
-import {showMessageDialog} from '@/dialogs/'
+import {showFormDialog} from '@/dialogs'
+import {showMessageDialog} from '@/dialogs'
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
+import { useMainStore } from '@/store'
 
 import {MAX_PROJECTS} from '@/constants'
 
 var addProjectMixin = {
+  computed: {
+    mainStore() {
+      return useMainStore()
+    }
+  },
   methods: {
     showAddProjectDialog: function () {
       return firebase.firestore().collection('projects').where(
@@ -31,8 +37,8 @@ var addProjectMixin = {
                 django_version: formdata.django_version,
               };
               console.log('Add project', project_data);
-              this.$store.dispatch(
-                'addProject', project_data
+              this.mainStore.addProject(
+                project_data
               ).then((newProject) => {
                 console.log('NewProject', newProject)
                 this.$router.push({ name: 'Project', params: { id: newProject.id } })

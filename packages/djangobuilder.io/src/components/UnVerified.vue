@@ -7,10 +7,10 @@
             <v-toolbar-title>Verify Email</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-alert :value="success" type="info" v-if="success">
+            <v-alert type="info" v-if="success">
               {{success}}
             </v-alert>
-            <v-alert :value="error" type="error" v-if="error">
+            <v-alert type="error" v-if="error">
               {{error}}
             </v-alert>
           </v-card-text>

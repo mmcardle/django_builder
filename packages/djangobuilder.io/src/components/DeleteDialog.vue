@@ -1,9 +1,9 @@
 <template>
   <v-dialog v-model="deletedialog" max-width="600">
     <v-card>
-      <v-card-title class="primary white--text">
-        <span class="white--text text-h5">
-          <v-icon class="white--text" large>mdi-delete</v-icon> {{headline}}
+      <v-card-title class="bg-primary text-white">
+        <span class="text-white text-h5">
+          <v-icon class="text-white" size="large">mdi-delete</v-icon> {{headline}}
         </span>
       </v-card-title>
       <v-card-text class="pt-5">
@@ -11,10 +11,10 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="darken-1" text @click="do_cancel">
+        <v-btn color="grey-darken-1" variant="text" @click="do_cancel">
           Cancel
         </v-btn>
-        <v-btn color="error darken-1" @click="do_ok">
+        <v-btn color="error" @click="do_ok">
           Delete
         </v-btn>
       </v-card-actions>

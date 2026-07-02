@@ -7,21 +7,21 @@
           <v-toolbar-title>
             <django-builder-title />
             -
-            <span class="grey--text text--lighten-1 small-caps font-weight-black">
-              <span class="blue--text text--darken-2">I</span>mported
-              <span class="blue--text text--darken-2">M</span>odels
+            <span class="text-grey-lighten-1 small-caps font-weight-black">
+              <span class="text-blue-darken-2">I</span>mported
+              <span class="text-blue-darken-2">M</span>odels
             </span>
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon @click="import_dialog = false">
-            <v-icon>close</v-icon>
+            <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-app-bar>
 
         <v-row fill-height v-if="!importing">
           <v-col pa-4 cols="2" class="mb-3">
             <v-btn block color="primary" @click="addAllModelsToApp()" class="ma-2">
-              <v-icon>add</v-icon> Add All {{imported_models.length}} Models
+              <v-icon>mdi-plus</v-icon> Add All {{imported_models.length}} Models
             </v-btn>
           </v-col>
         </v-row>
@@ -40,22 +40,20 @@
               Importing Models - {{num_imported}}/{{imported_models.length}} complete ...
             </h4>
             <template v-slot:extension>
-              <v-progress-linear  :value="importing_percent" class="ma-2">
+              <v-progress-linear  :model-value="importing_percent" class="ma-2">
               </v-progress-linear>
             </template>
           </v-col>
           <v-col>
-            <v-icon class="ma-4" color="primary">
-              fas fa-circle-notch fa-4x fa-spin
-            </v-icon>
+            <v-progress-circular class="ma-4" color="primary" indeterminate size="64"></v-progress-circular>
           </v-col>
         </v-row>
 
       </v-card>
     </v-dialog>
 
-    <h2 class="red--text text--darken-4 mx-3">
-      <v-icon class="red--text text--darken-4">mdi-database</v-icon>Project Models
+    <h2 class="text-red-darken-4 mx-3">
+      <v-icon class="text-red-darken-4">mdi-database</v-icon>Project Models
     </h2>
 
     <v-card class="ma-2 mb-5 mr-5" v-if="Object.keys(this.apps).length == 0">
@@ -68,12 +66,12 @@
     <div v-for="(app, appid) in this.apps" class="overflow-hidden" :key="appid">
       <v-card class="ma-2 mb-5">
         <v-card-title class="pb-0 pt-2">
-          <v-icon class="blue--text text--darken-4 mr-1">mdi-folder</v-icon>
-          <a class="blue--text text--darken-1" @click="showEditAppDialog(appid)">{{app.name}}</a>
-          <v-btn v-if="$store.getters.ordered_models(appid).length > 4" fab x-small color="info" dark @click="showModelDialog(appid)" class="ml-4">
-            <v-icon>add</v-icon>
+          <v-icon class="text-blue-darken-4 mr-1">mdi-folder</v-icon>
+          <a class="text-blue-darken-1" @click="showEditAppDialog(appid)">{{app.name}}</a>
+          <v-btn v-if="mainStore.ordered_models(appid).length > 4" icon size="x-small" color="info" @click="showModelDialog(appid)" class="ml-4">
+            <v-icon>mdi-plus</v-icon>
           </v-btn>
-          <v-btn v-if="$store.getters.ordered_models(appid).length > 4" fab x-small absolute right color="error" @click="showDeleteAppDialog(appid)" class="mb-2 mr-5">
+          <v-btn v-if="mainStore.ordered_models(appid).length > 4" icon size="x-small" style="position: absolute; right: 8px" color="error" @click="showDeleteAppDialog(appid)" class="mb-2 mr-5">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
         </v-card-title>
@@ -81,78 +79,57 @@
         <v-card-text class="mb-5 pt-2 pb-4">
 
           <div v-if="movingModel !== undefined && movingModel.app !== appid" @click="moveModelToApp(appid)" style="cursor: pointer">
-            <v-alert class="white--text" :value="true" color="primary" type=info>
-              <v-btn class="mt-2" color="error" absolute right top fab x-small @click="clearMoveModel"><v-icon x-small>mdi-close</v-icon></v-btn>
+            <v-alert class="text-white" :value="true" color="primary" type=info>
+              <v-btn class="mt-2" color="error" absolute right top icon size="x-small" @click="clearMoveModel"><v-icon size="x-small">mdi-close</v-icon></v-btn>
               Click here to move
-              <span class="orange--text2 text--darken-3 font-weight-bold">{{appData(movingModel.app).name}}</span>.<span class="orange--text">{{modelData(movingModel.model).name}}
+              <span class="text-orange-darken-3 font-weight-bold">{{appData(movingModel.app).name}}</span>.<span class="text-orange">{{modelData(movingModel.model).name}}
               </span>
               to
-              <span class="orange--text2 text--darken-3 font-weight-bold">{{app.name}}</span>.<span class="orange--text">{{modelData(movingModel.model).name}}
+              <span class="text-orange-darken-3 font-weight-bold">{{app.name}}</span>.<span class="text-orange">{{modelData(movingModel.model).name}}
               </span>
             </v-alert>
           </div>
 
           <v-card
-            v-for="model in $store.getters.ordered_models(appid)"
+            v-for="model in mainStore.ordered_models(appid)"
             :key="model.name + appid"
             class="mb-2 pt-1 pb-1"
             elevation="0"
           >
 
-            <v-speed-dial absolute right direction="left" open-on-hover transition="slide-x-reverse-transition">
-              <template v-slot:activator>
-                <v-btn x-small color="info" right dark fab>
-                  <v-icon>mdi-cogs</v-icon>
+            <div style="position: absolute; top: 4px; right: 4px; z-index: 1">
+              <v-speed-dial location="left center" open-on-hover transition="slide-x-reverse-transition">
+                <template v-slot:activator="{ props: activatorProps }">
+                  <v-btn v-bind="activatorProps" size="x-small" color="info" icon>
+                    <v-icon>mdi-cogs</v-icon>
+                  </v-btn>
+                </template>
+
+                <v-btn size="x-small" icon color="green" title="Add Field" @click="showFieldDialog(model.id)">
+                  <v-icon>mdi-plus</v-icon>
                 </v-btn>
-              </template>
-
-              <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                  <v-btn x-small fab dark color="green" @click="showFieldDialog(model.id)" v-on="on">
-                    <v-icon>add</v-icon>
-                  </v-btn>
-                </template>
-                <span>Add Field</span>
-              </v-tooltip>
-
-              <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                  <v-btn x-small fab dark color="warning" @click="showRelationshipDialog(model.id)" v-on="on">
-                    <v-icon>share</v-icon>
-                  </v-btn>
-                </template>
-                <span>Add Relationship</span>
-              </v-tooltip>
-
-              <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                  <v-btn x-small fab dark color="info" @click="moveModel(appid, model.id)" v-on="on">
-                    <v-icon>mdi-folder-move</v-icon>
-                  </v-btn>
-                </template>
-                <span>Move Model</span>
-              </v-tooltip>
-
-              <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                  <v-btn x-small fab dark color="error" @click="showDeleteModelDialog(appid, model.id)" v-on="on">
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-                <span>Delete Model</span>
-              </v-tooltip>
-            </v-speed-dial>
+                <v-btn size="x-small" icon color="warning" title="Add Relationship" @click="showRelationshipDialog(model.id)">
+                  <v-icon>mdi-share-variant</v-icon>
+                </v-btn>
+                <v-btn size="x-small" icon color="info" title="Move Model" @click="moveModel(appid, model.id)">
+                  <v-icon>mdi-folder-move</v-icon>
+                </v-btn>
+                <v-btn size="x-small" icon color="error" title="Delete Model" @click="showDeleteModelDialog(appid, model.id)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </v-speed-dial>
+            </div>
 
             <v-card-title class="py-0">
-              <v-icon class="red--text text--darken-4 mr-1">mdi-database</v-icon>
-              <a class="orange--text text--darken-3" @click="showEditModelDialog(appid, model.id)">
+              <v-icon class="text-red-darken-4 mr-1">mdi-database</v-icon>
+              <a class="text-orange-darken-3" @click="showEditModelDialog(appid, model.id)">
                 {{model.name}}
                 <span
                   class="hljs-params"
                   v-if="model.parents && model.parents.length > 0"
                 >({{modelsParents(model)}})</span>
                 <span v-else></span>
-                <v-chip small v-if="model.abstract">Abstract</v-chip>
+                <v-chip size="small" v-if="model.abstract">Abstract</v-chip>
               </a>
             </v-card-title>
 
@@ -164,29 +141,27 @@
                 ripple 
                 :key="relationshipid + appid"
               >
-                <v-list-item-avatar size="20" style="min-width: 30px">
-                  <v-icon>device_hub</v-icon>
-                </v-list-item-avatar>
+                <template v-slot:prepend>
+                  <v-icon>mdi-vector-triangle</v-icon>
+                </template>
 
-                <v-list-item-content class="py-0">
-                  <v-list-item-title class="subheading font-weight-medium">
-                    <span class="red--text">{{relationshipData(relationshipid).name}}</span>
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-body-2">
-                    {{relationshipData(relationshipid).type.split('.').pop()}}
-                    (
-                    <span
-                      class="green--text"
-                    >{{relationshipData(relationshipid).to.split('.').pop()}}</span>
-                    ,{{relationshipData(relationshipid).args}})
-                  </v-list-item-subtitle>
-                </v-list-item-content>
+                <v-list-item-title class="subheading font-weight-medium">
+                  <span class="text-red">{{relationshipData(relationshipid).name}}</span>
+                </v-list-item-title>
+                <v-list-item-subtitle class="text-body-2">
+                  {{relationshipData(relationshipid).type.split('.').pop()}}
+                  (
+                  <span
+                    class="text-green"
+                  >{{relationshipData(relationshipid).to.split('.').pop()}}</span>
+                  ,{{relationshipData(relationshipid).args}})
+                </v-list-item-subtitle>
 
-                <v-list-item-action>
+                <template v-slot:append>
                   <v-btn icon ripple @click.stop="showDeleteRelationshipDialog(model.id, relationshipid)">
-                    <v-icon small class="red--text text--darken-4">mdi-delete</v-icon>
+                    <v-icon size="small" class="text-red-darken-4">mdi-delete</v-icon>
                   </v-btn>
-                </v-list-item-action>
+                </template>
               </v-list-item>
             </v-list>
 
@@ -197,65 +172,63 @@
                 v-for="(_, fieldid) in model.fields"
                 :key="fieldid + appid"
                 >
-                <v-list-item-avatar size="20" style="min-width: 30px" class="hidden-xs-only">
-                  <v-icon small class="grey--text text--lighten-1">mdi-circle</v-icon>
-                </v-list-item-avatar>
+                <template v-slot:prepend>
+                  <v-icon size="small" class="text-grey-lighten-1 d-none d-sm-flex">mdi-circle</v-icon>
+                </template>
 
-                <v-list-item-content class="py-0 subheading font-weight-medium">
-                  <v-list-item-title>
-                    <span class="primary--text">{{fieldData(fieldid).name}}</span>
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{fieldData(fieldid).type.split('.').pop()}}
-                    <span
-                      class="hidden-xs-only"
-                    >({{fieldData(fieldid).args}})</span>
-                  </v-list-item-subtitle>
-                </v-list-item-content>
+                <v-list-item-title>
+                  <span class="text-primary">{{fieldData(fieldid).name}}</span>
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{fieldData(fieldid).type.split('.').pop()}}
+                  <span
+                    class="d-none d-sm-inline"
+                  >({{fieldData(fieldid).args}})</span>
+                </v-list-item-subtitle>
 
-                <v-list-item-action>
-                  <v-btn icon ripple red @click.stop="showDeleteFieldDialog(model.id, fieldid)">
-                    <v-icon small class="red--text text--darken-4">mdi-delete</v-icon>
+                <template v-slot:append>
+                  <v-btn icon ripple @click.stop="showDeleteFieldDialog(model.id, fieldid)">
+                    <v-icon size="small" class="text-red-darken-4">mdi-delete</v-icon>
                   </v-btn>
-                </v-list-item-action>
+                </template>
               </v-list-item>
             </v-list>
 
             <v-card-text
               v-if="model.fields.length + model.relationships.length == 0"
             >
-              <v-subheader class="ma-1">Add some relationships or fields.</v-subheader>
-              <v-subheader class="ma-1">
+              <div class="ma-1">Add some relationships or fields.</div>
+              <div class="ma-1">
                 <v-btn color="info" block @click="showFieldDialog(model.id)">
-                  <v-icon>add</v-icon>Add Field
-                  <v-icon class="ml-1">fa fa-dot-circle</v-icon>
+                  <v-icon>mdi-plus</v-icon>Add Field
+                  <v-icon class="ml-1">mdi-record-circle-outline</v-icon>
                 </v-btn>
-              </v-subheader>
-              <v-subheader class="ma-1">
+              </div>
+              <div class="ma-1">
                 <v-btn color="info" block @click="showRelationshipDialog(model.id)">
-                  <v-icon>add</v-icon>Add Relationship
-                  <v-icon class="ml-1">device_hub</v-icon>
+                  <v-icon>mdi-plus</v-icon>Add Relationship
+                  <v-icon class="ml-1">mdi-vector-triangle</v-icon>
                 </v-btn>
-              </v-subheader>
+              </div>
             </v-card-text>
           </v-card>
 
-          <div v-if="$store.getters.ordered_models(appid).length == 0" class="mb-3">
-            <v-subheader class="ma-2">Add some models.</v-subheader>
-            <v-subheader class="ma-2">
+          <div v-if="mainStore.ordered_models(appid).length == 0" class="mb-3">
+            <div class="ma-2">Add some models.</div>
+            <div class="ma-2">
               <v-btn color="info" block @click="showModelDialog(appid)">
-                <v-icon>add</v-icon>Add model
+                <v-icon>mdi-plus</v-icon>Add model
               </v-btn>
-            </v-subheader>
+            </div>
           </div>
         </v-card-text>
         
         <input ref="inputUpload" v-show="false" type="file" @change="importModels" multiple>
         
-        <v-btn fab x-small absolute bottom right color="info" dark @click="showModelDialog(appid)" class="mb-1 mr-4">
-          <v-icon>add</v-icon>
+        <v-btn icon size="x-small" style="position: absolute; bottom: 4px; right: 16px" color="info" @click="showModelDialog(appid)" class="mb-1 mr-4">
+          <v-icon>mdi-plus</v-icon>
         </v-btn>
-        <v-btn fab x-small absolute bottom left color="error" @click="showDeleteAppDialog(appid)" class="mb-1">
+        <v-btn icon size="x-small" style="position: absolute; bottom: 4px; left: 8px" color="error" @click="showDeleteAppDialog(appid)" class="mb-1">
           <v-icon>mdi-delete</v-icon>
         </v-btn>
       </v-card>
@@ -269,10 +242,11 @@ import firebase from 'firebase/compat/app';
 import { schemas } from "@/schemas";
 import ImportableModel from '@/components/ImportableModel.vue'
 import { ParentModelTypes, ModelImporter } from "@djangobuilder/core"
-import { showDeleteDialog, showFormDialog, showMessageDialog } from "@/dialogs/";
+import { showDeleteDialog, showFormDialog, showMessageDialog } from "@/dialogs";
 import { MAX_BATCH_IMPORTABLE_MODELS, MAX_MODELS } from '@/constants'
 import { batchModelsForTransaction } from '@/utils'
 import "highlight.js/styles/a11y-light.css";
+import { useMainStore } from '@/store'
 
 export default {
   props: ["id"],
@@ -290,21 +264,24 @@ export default {
     };
   },
   computed: {
+    mainStore() {
+      return useMainStore()
+    },
     apps: function() {
-      const appKeys = Object.keys(this.$store.getters.projectData(this.id).data().apps)
+      const appKeys = Object.keys(this.mainStore.projectData(this.id).data().apps)
       const apps = {}
       appKeys.forEach(appKey => {
-        apps[appKey] = this.$store.getters.appData(appKey)
+        apps[appKey] = this.mainStore.appData(appKey)
       })
       return apps
     }
   },
   methods: {
     appId: function(app) {
-      return this.$store.getters.appIdMap()[app];
+      return this.mainStore.appIdMap()[app];
     },
     checkCanAddNModels: function (n) {
-      return this.$store.getters.ordered_models(this.importingForApp).length + n < MAX_MODELS
+      return this.mainStore.ordered_models(this.importingForApp).length + n < MAX_MODELS
     },
     tooManyModels: function () {
       showMessageDialog(
@@ -322,7 +299,7 @@ export default {
       const batchOfModels = batchModelsForTransaction(this.imported_models, MAX_BATCH_IMPORTABLE_MODELS);
       const promises = batchOfModels.map((modelBatch, i) => {
         console.debug('Started import models batch number', i)
-        return this.$store.dispatch("addModels", modelBatch).then(() => {
+        return this.mainStore.addModels(modelBatch).then(() => {
           this.num_imported += modelBatch.length;
           this.importing_percent = (this.num_imported / this.imported_models.length) * 100;
           console.debug('Completed import models batch number', i, ',', modelBatch.length, 'models', this.num_imported, this.importing_percent)
@@ -348,8 +325,7 @@ export default {
         modelData.app, modelData.name, [], modelData.abstract,
         false
       ).then((model) => {
-        return this.$store.dispatch(
-          'addFieldsAndRelationships', {
+        return this.mainStore.addFieldsAndRelationships({
             model: model,
             fields: modelData.fields,
             relationships: modelData.relationships
@@ -402,7 +378,7 @@ export default {
         } else {
           const [appName, ...rest] = parent.name.split('.');
           const modelName = rest[rest.length - 1];
-          const appid = Object.keys(this.$store.getters.apps()).find(appid => this.appData(appid).name === appName);
+          const appid = Object.keys(this.mainStore.apps).find(appid => this.appData(appid).name === appName);
           const modelid = Object.keys(this.appData(appid).models).find(modelid => this.modelData(modelid).name === modelName);
           return {
             app: appid,
@@ -437,26 +413,26 @@ export default {
         console.error("Not Moving ", model, "to same app", toApp);
         return;
       }
-      this.$store.dispatch("moveModelToApp", {
+      this.mainStore.moveModelToApp({
         fromApp: fromApp,
         toApp: toApp,
         model: model
       });
     },
     appData: function(appid) {
-      return this.$store.getters.apps()[appid] ? this.$store.getters.apps()[appid].data() : undefined;
+      return this.mainStore.apps[appid] ? this.mainStore.apps[appid].data() : undefined;
     },
     modelData: function(modelid) {
-      return this.$store.getters.modelData(modelid);
+      return this.mainStore.modelData(modelid);
     },
     relationshipData: function(relationshipid) {
-      return this.$store.getters.relationships()[relationshipid].data();
+      return this.mainStore.relationships[relationshipid].data();
     },
     fieldData: function(fieldid) {
-      return this.$store.getters.fields()[fieldid] ? this.$store.getters.fields()[fieldid].data() : {name: '?', type: '?'};
+      return this.mainStore.fields[fieldid] ? this.mainStore.fields[fieldid].data() : {name: '?', type: '?'};
     },
     showEditAppDialog: function(appid) {
-      const appData = this.$store.getters.appData(appid)
+      const appData = this.mainStore.appData(appid)
       showFormDialog(
         "Edit application",
         formdata => {
@@ -474,14 +450,14 @@ export default {
       );
     },
     showEditModelDialog: function(app, modelid) {
-      const modelData = this.$store.getters.modelData(modelid);
+      const modelData = this.mainStore.modelData(modelid);
       const parentsStructured = modelData.parents.map(parent => {
         if (parent.type === 'django') {
           const djangoParent = Object.values(ParentModelTypes).find(p => p.fullPath === parent.class);
           return {name: djangoParent.name}
         } else {
-          const app = this.$store.getters.appData(parent.app);
-          const model = this.$store.getters.modelData(parent.model);
+          const app = this.mainStore.appData(parent.app);
+          const model = this.mainStore.modelData(parent.model);
           return {name: app.name + ".models." + model.name}
         }
       })
@@ -506,7 +482,7 @@ export default {
       );
     },
     showEditRelationshipDialog: function(relationshipid) {
-      const relationshipData = this.$store.getters.relationships()[relationshipid].data();
+      const relationshipData = this.mainStore.relationships[relationshipid].data();
       showFormDialog(
         "Edit Relationship",
         formdata => {
@@ -526,7 +502,7 @@ export default {
       );
     },
     showEditFieldDialog: function(fieldid) {
-      const fieldData = this.$store.getters.fields()[fieldid].data();
+      const fieldData = this.mainStore.fields[fieldid].data();
       console.debug("Edit field 1", JSON.parse(JSON.stringify(fieldData)))
       showFormDialog(
         "Edit field",
@@ -582,7 +558,7 @@ export default {
     },
     _modelSchemaForApp: function() {
       var schema_with_users_models = schemas.model();
-      const data = this.$store.getters.projectData(this.id).data();
+      const data = this.mainStore.projectData(this.id).data();
       const otherModelOptions = {}
       Object.keys(data.apps).forEach(appId => {
         const app = this.appData(appId)
@@ -606,7 +582,7 @@ export default {
     },
     _relationshipSchemaForApp: function() {
       var schema_with_users_models = schemas.relationship();
-      const data = this.$store.getters.projectData(this.id).data();
+      const data = this.mainStore.projectData(this.id).data();
       Object.keys(data.apps).map(app => {
         const appData = this.appData(app);
         Object.keys(appData.models).map(modelid => {
@@ -677,7 +653,7 @@ export default {
       abstract,
       add_default_fields = true
     ) {
-      return this.$store.dispatch("addModel", {
+      return this.mainStore.addModel({
         app: app,
         name: name,
         parents: parents,
@@ -686,7 +662,7 @@ export default {
       });
     },
     addField: function(model, name, type, args) {
-      return this.$store.dispatch("addField", {
+      return this.mainStore.addField({
         model: model,
         name: name,
         type: type,
@@ -694,7 +670,7 @@ export default {
       });
     },
     addRelationship: function(model, name, to, type, args) {
-      this.$store.dispatch("addRelationship", {
+      this.mainStore.addRelationship({
         model: model,
         name: name,
         to: to,
@@ -726,7 +702,7 @@ export default {
         value: 1
       });
       // find all models that have a parent that is this model
-      const models = this.$store.getters.models();
+      const models = this.mainStore.models;
       console.debug("Models", JSON.parse(JSON.stringify(models)))
       const modelIds = Object.keys(models).filter(modelId => {
         return this.modelData(modelId).parents.some(parent => parent.model === modelid);;
