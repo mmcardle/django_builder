@@ -32,7 +32,7 @@
 
     <v-card-text>
       <v-btn block color="primary" @click="do_add()">
-        <v-icon>add</v-icon> Add
+        <v-icon>mdi-plus</v-icon> Add
       </v-btn>
     </v-card-text>
 

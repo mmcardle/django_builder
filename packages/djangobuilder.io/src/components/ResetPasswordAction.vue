@@ -11,13 +11,13 @@
               {{error}}
             </v-alert>
             <v-form>
-              <v-text-field prepend-icon="person" name="login" label="Email" type="email" v-model="email" autocomplete="email"
+              <v-text-field prepend-icon="mdi-account" name="login" label="Email" type="email" v-model="email" autocomplete="email"
                 disabled>
               </v-text-field>
-              <v-text-field id="password" autocomplete="new-password" prepend-icon="lock" name="password"
+              <v-text-field id="password" autocomplete="new-password" prepend-icon="mdi-lock" name="password"
                 label="Password" type="password" v-model="password" :error="errors.password !== undefined">
               </v-text-field>
-              <v-text-field id="password2"  prepend-icon="lock" name="password2"
+              <v-text-field id="password2"  prepend-icon="mdi-lock" name="password2"
                 label="Verify Password" autocomplete="new-password" type="password" v-model="password2"
                 :error="errors.password2 !== undefined"
                ></v-text-field>

@@ -11,8 +11,8 @@
               {{error}}
             </v-alert>
             <v-form>
-              <v-text-field prepend-icon="person" name="login" label="Email" type="text" v-model="email"></v-text-field>
-              <v-text-field id="password" prepend-icon="lock" name="password" label="Password" type="password" v-model="password"></v-text-field>
+              <v-text-field prepend-icon="mdi-account" name="login" label="Email" type="text" v-model="email"></v-text-field>
+              <v-text-field id="password" prepend-icon="mdi-lock" name="password" label="Password" type="password" v-model="password"></v-text-field>
             </v-form>
           </v-card-text>
           <v-card-actions class="px-3">

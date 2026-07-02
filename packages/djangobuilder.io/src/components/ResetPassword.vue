@@ -12,7 +12,7 @@
                 {{error}}
               </v-alert>
               <v-form>
-                <v-text-field prepend-icon="person" name="login" label="Email" type="text" v-model="email" autocomplete="email">
+                <v-text-field prepend-icon="mdi-account" name="login" label="Email" type="text" v-model="email" autocomplete="email">
                 </v-text-field>
               </v-form>
             </v-card-text>

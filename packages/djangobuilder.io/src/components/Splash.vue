@@ -23,7 +23,7 @@
      <v-col lg="6" md="6" cols="12">
        <div class="mt-4 d-block d-lg-none"></div>
         <v-btn size="x-large" color="primary" @click="showAddProjectDialog" class="ma-4" v-if="mainStore.user">
-          <v-icon>add</v-icon> Create a New Project
+          <v-icon>mdi-plus</v-icon> Create a New Project
         </v-btn>
         <v-btn size="x-large" id="splash_login" color="primary" :to="{name: 'Login'}" class="ma-4" v-else>
           <v-icon>mdi-login</v-icon> Sign In

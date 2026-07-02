@@ -7,7 +7,7 @@
       </a>
     </div>
   </v-col>
-  <v-col order=2 class="py-0" >
+  <v-col order=2 cols="12" md="8" class="py-0" >
     <v-row no-gutters>
       <v-col cols=6 md=4 lg=3 class="pr-0">
         <h2 class="mx-2">
@@ -19,20 +19,18 @@
         </h2>
         <v-card class="ma-2 mr-0" elevation="2">
           <v-card-text class="ma-0 pa-0">
-            <v-treeview dense :items="items" v-model:open="open" :open-all="false" item-key="path" open-on-click return-object
+            <v-treeview density="compact" :items="items" item-title="name" item-value="path"
+              open-on-click activatable return-object @update:activated="onActivated"
               style="min-height: 800px;">
-              <template v-slot:prepend="{ item, open }">
-                <v-icon class="text-blue-darken-4" v-if="item.folder && open" size="small">mdi-folder-open</v-icon>
+              <template v-slot:prepend="{ item, isOpen }">
+                <v-icon class="text-blue-darken-4" v-if="item.folder && isOpen" size="small">mdi-folder-open</v-icon>
                 <v-icon class="text-blue-darken-4" v-else-if="item.folder" size="small">mdi-folder</v-icon>
                 <v-icon class="text-blue-darken-4" v-else size="small">{{icon(item.name)}}</v-icon>
               </template>
-              <template v-slot:label="{ item }" >
-                <div @click="click(item)" :class="active !== undefined && active.path === item.path ? 'text-red-darken-4 font-weight-bold d-block d-md-none' : 'd-block d-md-none'">
+              <template v-slot:title="{ item }">
+                <span :class="active !== undefined && active.path === item.path ? 'text-red-darken-4 font-weight-bold' : ''">
                   {{ item.name }}
-                </div>
-                <div @click="click(item, true)" :class="active !== undefined && active.path === item.path ? 'text-red-darken-4 font-weight-bold d-none d-md-block' : 'd-none d-md-block'">
-                  {{ item.name }}
-                </div>
+                </span>
               </template>
             </v-treeview>
           </v-card-text>
@@ -204,8 +202,11 @@ export default {
       full_screen_code_dialog() {
         this.code_dialog = true
       },
-      click(item) {
-        if (!item.folder) {
+      onActivated(activated) {
+        // With return-object + activatable, this is an array of the activated
+        // raw item objects. Show the file (leaf) that was clicked.
+        const item = Array.isArray(activated) ? activated[0] : activated
+        if (item && !item.folder) {
           this.active = item
         }
       },

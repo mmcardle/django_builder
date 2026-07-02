@@ -14,14 +14,14 @@
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon @click="import_dialog = false">
-            <v-icon>close</v-icon>
+            <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-app-bar>
 
         <v-row fill-height v-if="!importing">
           <v-col pa-4 cols="2" class="mb-3">
             <v-btn block color="primary" @click="addAllModelsToApp()" class="ma-2">
-              <v-icon>add</v-icon> Add All {{imported_models.length}} Models
+              <v-icon>mdi-plus</v-icon> Add All {{imported_models.length}} Models
             </v-btn>
           </v-col>
         </v-row>
@@ -71,7 +71,7 @@
           <v-icon class="text-blue-darken-4 mr-1">mdi-folder</v-icon>
           <a class="text-blue-darken-1" @click="showEditAppDialog(appid)">{{app.name}}</a>
           <v-btn v-if="mainStore.ordered_models(appid).length > 4" icon size="x-small" color="info" @click="showModelDialog(appid)" class="ml-4">
-            <v-icon>add</v-icon>
+            <v-icon>mdi-plus</v-icon>
           </v-btn>
           <v-btn v-if="mainStore.ordered_models(appid).length > 4" icon size="x-small" style="position: absolute; right: 8px" color="error" @click="showDeleteAppDialog(appid)" class="mb-2 mr-5">
             <v-icon>mdi-delete</v-icon>
@@ -108,10 +108,10 @@
                 </template>
 
                 <v-btn size="x-small" icon color="green" title="Add Field" @click="showFieldDialog(model.id)">
-                  <v-icon>add</v-icon>
+                  <v-icon>mdi-plus</v-icon>
                 </v-btn>
                 <v-btn size="x-small" icon color="warning" title="Add Relationship" @click="showRelationshipDialog(model.id)">
-                  <v-icon>share</v-icon>
+                  <v-icon>mdi-share-variant</v-icon>
                 </v-btn>
                 <v-btn size="x-small" icon color="info" title="Move Model" @click="moveModel(appid, model.id)">
                   <v-icon>mdi-folder-move</v-icon>
@@ -144,7 +144,7 @@
                 :key="relationshipid + appid"
               >
                 <template v-slot:prepend>
-                  <v-icon>device_hub</v-icon>
+                  <v-icon>mdi-vector-triangle</v-icon>
                 </template>
 
                 <v-list-item-title class="subheading font-weight-medium">
@@ -202,14 +202,14 @@
               <div class="ma-1">Add some relationships or fields.</div>
               <div class="ma-1">
                 <v-btn color="info" block @click="showFieldDialog(model.id)">
-                  <v-icon>add</v-icon>Add Field
+                  <v-icon>mdi-plus</v-icon>Add Field
                   <v-icon class="ml-1">fa fa-dot-circle</v-icon>
                 </v-btn>
               </div>
               <div class="ma-1">
                 <v-btn color="info" block @click="showRelationshipDialog(model.id)">
-                  <v-icon>add</v-icon>Add Relationship
-                  <v-icon class="ml-1">device_hub</v-icon>
+                  <v-icon>mdi-plus</v-icon>Add Relationship
+                  <v-icon class="ml-1">mdi-vector-triangle</v-icon>
                 </v-btn>
               </div>
             </v-card-text>
@@ -219,7 +219,7 @@
             <div class="ma-2">Add some models.</div>
             <div class="ma-2">
               <v-btn color="info" block @click="showModelDialog(appid)">
-                <v-icon>add</v-icon>Add model
+                <v-icon>mdi-plus</v-icon>Add model
               </v-btn>
             </div>
           </div>
@@ -228,7 +228,7 @@
         <input ref="inputUpload" v-show="false" type="file" @change="importModels" multiple>
         
         <v-btn icon size="x-small" style="position: absolute; bottom: 4px; right: 16px" color="info" @click="showModelDialog(appid)" class="mb-1 mr-4">
-          <v-icon>add</v-icon>
+          <v-icon>mdi-plus</v-icon>
         </v-btn>
         <v-btn icon size="x-small" style="position: absolute; bottom: 4px; left: 8px" color="error" @click="showDeleteAppDialog(appid)" class="mb-1">
           <v-icon>mdi-delete</v-icon>

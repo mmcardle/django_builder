@@ -48,7 +48,7 @@
         <template v-if="Object.keys(this.apps).length > 0">
           <v-col cols=12 sm=4 md=2 lg=2>
             <v-btn style="width:95%" size="large" ripple @click="showAppDialog()" class="mx-2">
-              <v-icon>add</v-icon> Add App
+              <v-icon>mdi-plus</v-icon> Add App
             </v-btn>
           </v-col>
           <v-col cols=12 sm=4 md=3 lg=2>
@@ -58,7 +58,7 @@
           </v-col>
           <v-col cols=12 sm=4 md=2 lg=2 >
             <v-btn style="width:95%" size="large" ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
-              <v-icon>delete</v-icon> Delete
+              <v-icon>mdi-delete</v-icon> Delete
             </v-btn>
           </v-col>
         </template>
@@ -71,7 +71,7 @@
           </v-col-->
           <v-col cols=12 sm=5 md=4 lg=3 xl=2 >
             <v-btn style="width:95%" size="large" ripple @click="showDeleteProjectDialog()" color="error" class="mx-2">
-              <v-icon>delete</v-icon> Delete
+              <v-icon>mdi-delete</v-icon> Delete
             </v-btn>
           </v-col>
         </template>
@@ -87,7 +87,7 @@
             </v-card-text>
             <v-card-text>
               <v-btn size="large" ripple color="primary" @click="showAppDialog()">
-                <v-icon>add</v-icon> Add App
+                <v-icon>mdi-plus</v-icon> Add App
               </v-btn>
             </v-card-text>
           </v-card>

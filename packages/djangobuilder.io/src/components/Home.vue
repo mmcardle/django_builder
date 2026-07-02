@@ -12,7 +12,7 @@
     <v-col cols="12" md="12" lg="12" v-if="Object.keys(mainStore.projects).length > 0"
       elevation="6" class="ma-3 text-center">
       <v-btn color="primary" @click="showAddProjectDialog" class="mb-4">
-        <v-icon>add</v-icon> Create a New Project
+        <v-icon>mdi-plus</v-icon> Create a New Project
       </v-btn>
     </v-col>
 
@@ -51,7 +51,7 @@
           </v-card-text>
           <v-card-text>
             <v-btn size="x-large" block color="primary" @click="showAddProjectDialog" class="mb-4">
-              <v-icon>add</v-icon> Create a New Project
+              <v-icon>mdi-plus</v-icon> Create a New Project
             </v-btn>
           </v-card-text>
           <v-img :src="images[0]" aspect-ratio="2.75" height="180"></v-img>

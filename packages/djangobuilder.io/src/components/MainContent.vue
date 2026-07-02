@@ -31,7 +31,7 @@
         </v-list-item>
         <v-list-item v-if="user">
           <v-btn size="small" color="primary" @click="showAddProjectDialog">
-            <v-icon>add</v-icon> New Project
+            <v-icon>mdi-plus</v-icon> New Project
           </v-btn>
         </v-list-item>
       </v-list>
@@ -47,7 +47,7 @@
         <template v-if="user">
           <v-btn variant="text" :to="{name: 'Home'}">
             <v-icon class="mr-2 text-red-darken-4" size="small">
-              info
+              mdi-information
             </v-icon>
             Projects
           </v-btn>
@@ -110,7 +110,7 @@
             <v-toolbar-title><django-builder-title /></v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon @click="dialog = false">
-              <v-icon>close</v-icon>
+              <v-icon>mdi-close</v-icon>
             </v-btn>
           </v-toolbar>
 
@@ -118,14 +118,14 @@
 
             <v-list-item :to="{name: 'Home'}" @click="dialog = false">
               <template v-slot:prepend>
-                <v-icon class="text-red-darken-4">home</v-icon>
+                <v-icon class="text-red-darken-4">mdi-home</v-icon>
               </template>
               <v-list-item-title>Home</v-list-item-title>
             </v-list-item>
 
             <v-list-item :to="{name: 'About'}" @click="dialog = false">
               <template v-slot:prepend>
-                <v-icon class="text-red-darken-4">info</v-icon>
+                <v-icon class="text-red-darken-4">mdi-information</v-icon>
               </template>
               <v-list-item-title>About</v-list-item-title>
             </v-list-item>
@@ -167,7 +167,7 @@
             </template>
             <v-list-item v-if="user">
               <v-btn color="primary" @click="showAddProjectDialog">
-                <v-icon>add</v-icon> New Project
+                <v-icon>mdi-plus</v-icon> New Project
               </v-btn>
             </v-list-item>
           </v-list>
@@ -207,7 +207,7 @@
       </v-container>
     </v-main>
 
-    <v-snackbar class="d-none d-sm-flex" color="white" v-model="cookie_snackbar" location="bottom right" :timeout="-1">
+    <v-snackbar class="cookie-snackbar d-none d-sm-flex" color="white" v-model="cookie_snackbar" location="bottom right" :timeout="-1">
       <v-switch v-model="cookie_value" color="blue" :label="cookie_label">
         <template v-slot:label>
           <span style="color: blue">{{cookie_label}}</span>
@@ -311,6 +311,14 @@
 }
 .eol-banner {
   border-radius: 0 !important;
+}
+/* Pin the cookie snackbar flush to the bottom-right corner (Vuetify 3 otherwise
+   offsets it above the app footer, unlike the Vuetify 2 original). */
+.cookie-snackbar .v-snackbar__wrapper {
+  position: fixed !important;
+  right: 8px !important;
+  bottom: 8px !important;
+  margin: 0 !important;
 }
 </style>
 
