@@ -15,11 +15,11 @@ Start by identifying which workspace owns the change:
 
 ## Useful commands
 
-- Root lint: `yarn lint`
-- Root tests: `yarn test`
-- Vue 2 app dev server: `yarn dev`
-- Vue 3 app dev server: `yarn dev4`
-- Production-style builds: `yarn build`, `yarn build_development`, `yarn build_staging`, `yarn build_production`
+- Root lint: `bun run lint`
+- Root tests: `bun run test`
+- Vue 2 app dev server: `bun run dev`
+- Vue 3 app dev server: `bun run dev4`
+- Production-style builds: `bun run build`, `bun run build_development`, `bun run build_staging`, `bun run build_production`
 
 ## Rules of thumb
 

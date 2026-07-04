@@ -1,4 +1,6 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
+// Usage: django-builder <input.json> <output.tar>
+// Delegates to the core CLI's `render` command.
+import { main } from "../lib/djangobuilder-core/src/cli";
 
-require = require('esm')(module /*, options*/);
-require('../lib/djangobuilder-core/src/cli').cli(process.argv);
+main(["render", ...process.argv.slice(2)]);

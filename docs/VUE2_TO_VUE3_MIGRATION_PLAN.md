@@ -118,7 +118,7 @@ Estimated effort assumes a single engineer familiar with the codebase.
 - [ ] Drop `@typescript-eslint/eslint-plugin@5` and
       `@typescript-eslint/parser@5` (already unused in the flat
       `eslint.config.js`).
-- [ ] Verify `yarn test_io` passes against the Vue-2 source running through
+- [ ] Verify `bun run test_io` passes against the Vue-2 source running through
       `@vue/compat`.
 
 ### Phase 2 — Vuetify 2 → 3 (≈5–10 days, the bulk of the work)
@@ -172,7 +172,7 @@ Vuetify 3 is a near-complete rewrite. Plan to walk the component tree once.
 
 - [ ] Remove `@vue/compat`, the alias in `vite.config.js`, and every
       `compat:` config flag from individual components.
-- [ ] Re-run `yarn lint`, `yarn test_io`, `yarn build_io_production`, and
+- [ ] Re-run `bun run lint`, `bun run test_io`, `bun run build_io_production`, and
       `make smoke_test_ci`.
 - [ ] Deploy to the `staging` Firebase project, run a manual smoke test on
       every route, then promote to `production`.

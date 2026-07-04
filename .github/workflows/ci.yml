@@ -1,38 +1,26 @@
 name: CI
 on: [pull_request]
 jobs:
-  
+
   build:
     name: Build
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 22
+          bun-version: 1.3.14
 
       - run: sudo apt-get install -y jq
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v3
-        id: yarn-cache  # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-v4-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-v4-
-
-      - run: yarn install
-      - run: yarn build
+      - run: bun install --frozen-lockfile
+      - run: bun run build
 
       - name: Upload djangobuilder4 dist directory
         uses: actions/upload-artifact@v4
         with:
           name: djangobuilder4_dist
           path: ./packages/djangobuilder4/dist
-      
+
       - name: Upload djangobuilder.io dist directory
         uses: actions/upload-artifact@v4
         with:
@@ -45,23 +33,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 22
+          bun-version: 1.3.14
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-  
-      - uses: actions/cache@v3
-        id: yarn-cache  # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-v4-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-v4-
-      - run: yarn
-      - run: yarn lint
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
 
   smoke_tests:
     name: Core - Smoke tests
@@ -69,17 +46,23 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - run: yarn
-      - run: yarn test_smoke
- 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - run: bun run test_smoke
+
   core_tests:
     name: Core - Unit tests
     needs: [smoke_tests]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - run: yarn
-      - run: yarn test_core
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - run: bun run test_core
 
   cli_tests:
     name: DB.io - CLI Tests
@@ -121,6 +104,9 @@ jobs:
         with:
           crate: websocat
       - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.version }}
@@ -129,19 +115,22 @@ jobs:
         with:
           # Install a specific version of uv.
           version: "0.5.6"
-      - run: yarn
+      - run: bun install --frozen-lockfile
       - name: Run Smoke tests
         run: make smoke_test_ci
         env:
           POSTGRES_URL: postgres://postgres:mysecretpassword@localhost:5432/postgres
           PYTHON_VERSION: ${{ matrix.version }}
           DJANGO_VERSION: ${{ matrix.django_version }}
-  
+
   io_tests:
     name: DB.io - Unit Tests
     needs: [build]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - run: yarn
-      - run: yarn test_io
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - run: bun run test_io

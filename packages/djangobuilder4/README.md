@@ -23,31 +23,33 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 
 ## Project Setup
 
+Dependencies are installed from the repo root with [Bun](https://bun.sh):
+
 ```sh
-npm install
+bun install
 ```
 
 ### Compile and Hot-Reload for Development
 
 ```sh
-npm run dev
+bun run dev
 ```
 
 ### Type-Check, Compile and Minify for Production
 
 ```sh
-npm run build
+bun run build
 ```
 
 ### Run End-to-End Tests with [Cypress](https://www.cypress.io/)
 
 ```sh
-npm run build
-npm run test:e2e # or `npm run test:e2e:ci` for headless testing
+bun run build
+bun run test:e2e # or `bun run test:e2e:ci` for headless testing
 ```
 
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
-npm run lint
+bun run lint
 ```

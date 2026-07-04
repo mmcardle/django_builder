@@ -1,0 +1,4 @@
+# Use a flat, hoisted node_modules layout (like Yarn/npm) so bundlers such as
+# Vite/Rollup resolve deep transitive imports (e.g. firebase -> @firebase/app).
+[install]
+linker = "hoisted"

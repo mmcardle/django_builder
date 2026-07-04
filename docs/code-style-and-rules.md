@@ -12,9 +12,9 @@ Follow the style already established in the package you are editing.
 ## Verification
 
 - Run the smallest relevant lint command first, then the broader repo command if the change crosses packages.
-- Root lint: `yarn lint`
-- Root lint fix: `yarn lint_fix`
-- `djangobuilder4` also has type-checking in its build flow: `yarn workspace djangobuilder4 type-check`
+- Root lint: `bun run lint`
+- Root lint fix: `bun run lint_fix`
+- `djangobuilder4` also has type-checking in its build flow: `bun run --filter=djangobuilder4 type-check`
 
 ## Notes by package
 

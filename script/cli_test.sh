@@ -52,7 +52,7 @@ if [ -n "${START_DOCKER}" ]; then
     done
 fi
 
-yarn run cli ${UPDATED_PROJECT_FILE} ${TEMP_TAR}
+bun run cli ${UPDATED_PROJECT_FILE} ${TEMP_TAR}
 
 cd ${DIR}
 tar -xvf ${TEMP_TAR}
