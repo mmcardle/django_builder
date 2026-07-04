@@ -1,9 +1,9 @@
 <template>
   <v-dialog v-model="upgradedialog" max-width="600" persistent>
     <v-card>
-      <v-card-title class="primary white--text">
-        <span class="white--text text-h5">
-          <v-icon color="white" large>mdi-information</v-icon> Create Account
+      <v-card-title class="bg-primary text-white">
+        <span class="text-white text-h5">
+          <v-icon color="white" size="large">mdi-information</v-icon> Create Account
         </span>
       </v-card-title>
       <v-card-text>
@@ -36,13 +36,13 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary" variant="secondary" @click="do_upgrade">
+        <v-btn color="primary" @click="do_upgrade">
           Create Account
         </v-btn>
-        <v-btn color="error" variant="secondary" @click="do_ok">
+        <v-btn color="error" @click="do_ok">
           No, Just Logout
         </v-btn>
-        <v-btn color="darken-1" @click="do_cancel">
+        <v-btn color="grey-darken-1" @click="do_cancel">
           Cancel
         </v-btn>
       </v-card-actions>

@@ -1,17 +1,26 @@
 <template>
   <div>
     <v-autocomplete
-      :rules="rules" :label="label" :value="value"
+      :rules="rules" :label="label" v-model="model"
       :multiple="multi" :required="required"
-      :items="Object.keys(options)"
-      @input="$emit('input', $event);">
+      :items="Object.keys(options)">
     </v-autocomplete>
   </div>
 </template>
 <script>
 export default {
   name: 'SelectList',
+  emits: ['input'],
   props: ['multi', 'options', 'name', 'label', 'value', 'required', 'nospaces'],
+  data() {
+    return {
+      model: this.value,
+    }
+  },
+  watch: {
+    value(v) { if (v !== this.model) this.model = v },
+    model(v) { this.$emit('input', v) },
+  },
   computed: {
     rules () {
       const rules = []

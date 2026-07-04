@@ -1,6 +1,12 @@
 # djangobuilder.io: Vue 2 → Vue 3 / Vuetify 2 → 3 Migration Plan
 
-> Status: **planned, not started**. This document captures the work needed to
+> Status: **done**. `packages/djangobuilder.io` has been migrated to Vue 3 /
+> Vuetify 3 (build, lint, and tests pass on both apps). Visual QA of every
+> route was not done in the migrating session (no browser available) — do a
+> manual pass over the app's routes before/after deploying to confirm layout
+> and icon rendering, then archive or delete this document.
+>
+> This document captures the work needed to
 > migrate `packages/djangobuilder.io` off Vue 2 + Vuetify 2 onto Vue 3 +
 > Vuetify 3 so it can stay on a supported toolchain alongside
 > `packages/djangobuilder4`.

@@ -13,11 +13,13 @@
 <script>
 export default {
   name: 'ButtonGroupSelect',
+  emits: ['input'],
   props: ['options', 'name', 'label', 'value', 'required', 'default_value'],
   data () {
-    const selected_value = this.value || this.default_value;
-    this.$emit("input", selected_value);
-    return { selected_value }
+    return { selected_value: this.value || this.default_value }
+  },
+  created () {
+    this.$emit("input", this.selected_value);
   },
   methods: {
     setValue(v) {

@@ -1,13 +1,13 @@
 <template>
   <v-dialog v-model="formdialog" max-width="600" @keydown.enter="do_ok">
     <v-card>
-      <v-card-title class="primary white--text">
-        <span class="white--text text-h5">
+      <v-card-title class="bg-primary text-white">
+        <span class="text-white text-h5">
           <v-icon style="font-size:1.2em" color="white">{{icon}}</v-icon> {{headline}}
         </span>
       </v-card-title>
       <v-card-text class="pt-3 text-center" v-if="extra">
-        <v-btn small ripple color="success" type="file" style="width:50%"
+        <v-btn size="small" ripple color="success" type="file" style="width:50%"
           @click="extra_callback()">
           <v-icon class=mr-1 color=white>mdi-cloud-upload</v-icon> {{extra_name()}}
         </v-btn>
@@ -17,7 +17,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="darken-1" text @click="do_cancel">
+        <v-btn color="darken-1" variant="text" @click="do_cancel">
           Cancel
         </v-btn>
         <v-btn @click="do_ok">
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import { createApp } from 'vue'
 import vuetify from '@/plugins/vuetify';
 import FormGenerator from '@/components/forms/FormGenerator.vue'
 
@@ -66,22 +66,20 @@ export default {
     }
   },
   created: function () {
-    this.icon = Object.keys(this.formdata).length === 0 ? 'add' : 'edit'
+    this.icon = Object.keys(this.formdata).length === 0 ? 'mdi-plus' : 'mdi-pencil'
   },
   data: function() {
     return {
       active: true,
       form: undefined,
       formdialog: true,
-      icon: 'add',
+      icon: 'mdi-plus',
     }
   },
   mounted: function () {
-    const FormGeneratorClass = Vue.extend(FormGenerator)
-    this.form = new FormGeneratorClass({
-      vuetify, propsData: {schema: this.schema, value: this.formdata}
-    })
-    this.$refs.formcontainer.appendChild(this.form.$mount().$el)
+    const formApp = createApp(FormGenerator, {schema: this.schema, value: this.formdata})
+    formApp.use(vuetify)
+    this.form = formApp.mount(this.$refs.formcontainer)
   },
   methods: {
     extra_name() {
@@ -91,8 +89,9 @@ export default {
       this.do_cancel()
       this.extra.callback();
     },
-    do_ok: function() {
-      if (this.form.$refs.form.validate()) {
+    do_ok: async function() {
+      const {valid} = await this.form.$refs.form.validate()
+      if (valid) {
         this.formdialog = false
         this.ok(this.formdata)
       }

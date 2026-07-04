@@ -3,45 +3,41 @@
     <v-navigation-drawer v-if="user" v-model="drawer"
       app clipped temporary>
       <v-list three-line>
-        <v-subheader>Switch to Project ...</v-subheader>
+        <v-list-subheader>Switch to Project ...</v-list-subheader>
         <v-list-item :to="{ name: 'Project', params: { id: i } }"
-          v-for="(project, i) in this.$store.getters.projects()"
+          v-for="(project, i) in mainStore.projects"
           :key="i" class="mb-3">
-          <v-list-item-action>
-            <v-icon class="red--text text--darken-4" large>mdi-file-tree</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>
-              <h2>{{project.data().name}}</h2>
-            </v-list-item-title>
-            <v-list-item-title class="orange--text text--darken-1">
-              <template v-if="project.data().description">
-                {{project.data().description}}
-              </template>
-            </v-list-item-title>
-            <v-list-item-subtitle v-if="loaded && verified">
-              <div v-for="(d, app) in project.apps" v-bind:key="app" class="mt-2">
-                <div v-if="$store.getters.appData(app)">
-                  <div v-for="(d, model) in $store.getters.appData(app).models" v-bind:key="app+model" >
-                    <v-icon class="red--text text--darken-4" >mdi-database</v-icon>
-                    {{$store.getters.appData(app).name}}.{{$store.getters.modelData(model) ? $store.getters.modelData(model).name : 'loading'}}
-                  </div>
+          <template v-slot:prepend>
+            <v-icon class="text-red-darken-4" size="large">mdi-file-tree</v-icon>
+          </template>
+          <v-list-item-title>
+            <h2>{{project.data().name}}</h2>
+          </v-list-item-title>
+          <v-list-item-title class="text-orange-darken-1">
+            <template v-if="project.data().description">
+              {{project.data().description}}
+            </template>
+          </v-list-item-title>
+          <v-list-item-subtitle v-if="loaded && verified">
+            <div v-for="(d, app) in project.apps" v-bind:key="app" class="mt-2">
+              <div v-if="mainStore.appData(app)">
+                <div v-for="(d, model) in mainStore.appData(app).models" v-bind:key="app+model" >
+                  <v-icon class="text-red-darken-4" >mdi-database</v-icon>
+                  {{mainStore.appData(app).name}}.{{mainStore.modelData(model) ? mainStore.modelData(model).name : 'loading'}}
                 </div>
               </div>
-            </v-list-item-subtitle>
-          </v-list-item-content>
+            </div>
+          </v-list-item-subtitle>
         </v-list-item>
         <v-list-item v-if="user">
-          <v-list-item-content>
-            <v-btn small color="primary" @click="showAddProjectDialog">
-              <v-icon>add</v-icon> New Project
-            </v-btn>
-          </v-list-item-content>
+          <v-btn size="small" color="primary" @click="showAddProjectDialog">
+            <v-icon>mdi-plus</v-icon> New Project
+          </v-btn>
         </v-list-item>
       </v-list>
     </v-navigation-drawer >
 
-    <v-app-bar app fixed clipped-left class="hidden-xs-only" extension-height="0">
+    <v-app-bar app fixed clipped-left class="d-none d-sm-flex" extension-height="0">
       <v-toolbar-title class="toolbar-title pr-3">
         <router-link :to="{name: 'Splash'}">
           <h2><django-builder-title /></h2>
@@ -49,19 +45,19 @@
       </v-toolbar-title>
       <v-toolbar-items >
         <template v-if="user">
-          <v-btn text :to="{name: 'Home'}">
-            <v-icon class="mr-2 red--text text--darken-4" small>
-              info
+          <v-btn variant="text" :to="{name: 'Home'}">
+            <v-icon class="mr-2 text-red-darken-4" size="small">
+              mdi-information
             </v-icon>
             Projects
           </v-btn>
-          <v-btn text @click.stop="drawer = !drawer" v-if="loaded && verified && has_projects">
-            <v-icon class="red--text text--darken-4" style="font-size:2em" large>mdi-file-tree</v-icon>
+          <v-btn variant="text" @click.stop="drawer = !drawer" v-if="loaded && verified && has_projects">
+            <v-icon class="text-red-darken-4" style="font-size:2em" size="large">mdi-file-tree</v-icon>
             Switch Project
           </v-btn>
         </template>
-        <v-btn text :to="{name: 'About'}">
-          <v-icon class="mr-2 red--text text--darken-4">
+        <v-btn variant="text" :to="{name: 'About'}">
+          <v-icon class="mr-2 text-red-darken-4">
             mdi-information
           </v-icon>
           About
@@ -70,16 +66,16 @@
       <v-spacer />
       <v-toolbar-items>
         <template v-if="user">
-          <v-btn text>
-            <span v-if="user.email" class="blue--text pl-1 pr-1">
+          <v-btn variant="text">
+            <span v-if="user.email" class="text-blue pl-1 pr-1">
               {{user.email}}
             </span>
-            <v-avatar :size="40" color="grey lighten-4" v-if="user.photoURL">
+            <v-avatar :size="40" color="grey-lighten-4" v-if="user.photoURL">
               <img :src="user.photoURL" alt="avatar">
             </v-avatar>
           </v-btn>
-          <v-btn text v-on:click="logout">
-            <v-avatar :size="40" color="grey lighten-4" v-if="user.photoURL">
+          <v-btn variant="text" v-on:click="logout">
+            <v-avatar :size="40" color="grey-lighten-4" v-if="user.photoURL">
               <img :src="user.photoURL" alt="avatar">
             </v-avatar>
             <v-icon class="mr-1">mdi-logout</v-icon>
@@ -88,7 +84,7 @@
         </template>
         <template v-else>
           <v-spacer></v-spacer>
-          <v-btn text id="navbar_login" :to="{name: 'Login'}" active-class="">
+          <v-btn variant="text" id="navbar_login" :to="{name: 'Login'}" active-class="">
             <v-icon class="mr-1">mdi-login</v-icon>
             Sign In
           </v-btn>
@@ -96,7 +92,7 @@
       </v-toolbar-items>
     </v-app-bar >
 
-    <v-app-bar app class="hidden-sm-and-up" extension-height="0">
+    <v-app-bar app class="d-flex d-sm-none" extension-height="0">
       <!-- Mobile Menu -->
       <v-toolbar-title class="toolbar-title pr-3">
         <router-link :to="{name: 'Home'}">
@@ -106,85 +102,73 @@
       <v-spacer></v-spacer>
 
       <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
-        <template v-slot:activator="{ on }">
-          <v-app-bar-nav-icon v-on="on"></v-app-bar-nav-icon>
+        <template v-slot:activator="{ props }">
+          <v-app-bar-nav-icon v-bind="props"></v-app-bar-nav-icon>
         </template>
         <v-card>
           <v-toolbar text>
             <v-toolbar-title><django-builder-title /></v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon @click="dialog = false">
-              <v-icon>close</v-icon>
+              <v-icon>mdi-close</v-icon>
             </v-btn>
           </v-toolbar>
 
           <v-list>
 
             <v-list-item :to="{name: 'Home'}" @click="dialog = false">
-              <v-list-item-action>
-                <v-icon class="red--text text--darken-4">home</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>Home</v-list-item-title>
-              </v-list-item-content>
+              <template v-slot:prepend>
+                <v-icon class="text-red-darken-4">mdi-home</v-icon>
+              </template>
+              <v-list-item-title>Home</v-list-item-title>
             </v-list-item>
 
             <v-list-item :to="{name: 'About'}" @click="dialog = false">
-              <v-list-item-action>
-                <v-icon class="red--text text--darken-4">info</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>About</v-list-item-title>
-              </v-list-item-content>
+              <template v-slot:prepend>
+                <v-icon class="text-red-darken-4">mdi-information</v-icon>
+              </template>
+              <v-list-item-title>About</v-list-item-title>
             </v-list-item>
 
             <v-list-item v-if="user" @click="logout">
-              <v-list-item-action>
+              <template v-slot:prepend>
                 <v-icon class="ml-1">mdi-logout</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>Sign Out</v-list-item-title>
-              </v-list-item-content>
+              </template>
+              <v-list-item-title>Sign Out</v-list-item-title>
             </v-list-item>
             <v-list-item v-else :to="{name: 'Login', params: { id: 'main_login'}}" @click="dialog = false">
-              <v-list-item-action>
+              <template v-slot:prepend>
                 <v-icon class="ml-1">mdi-login</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>Sign In</v-list-item-title>
-              </v-list-item-content>
+              </template>
+              <v-list-item-title>Sign In</v-list-item-title>
             </v-list-item>
 
           </v-list>
-          <v-list dense two-line v-if="user">
+          <v-list density="compact" v-if="user">
             <template v-if="has_projects">
-              <v-subheader>Switch to Project ...</v-subheader>
+              <v-list-subheader>Switch to Project ...</v-list-subheader>
               <v-list-item :to="{ name: 'Project', params: { id: project.id } }"
-                v-for="(project, i) in $store.getters.projects()" :key="i" class="mb-3" @click="dialog = false">
-                <v-list-item-action>
-                  <v-icon class="red--text text--darken-4" style="font-size:2em" large>mdi-file-tree</v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    <h2>{{project.name}}</h2>
-                  </v-list-item-title>
-                  <v-list-item-title class="orange--text text--darken-1">
-                    <template v-if="project.description">
-                      {{project.description}}
-                    </template>
-                    <template v-else>
-                      ---
-                    </template>
-                  </v-list-item-title>
-                </v-list-item-content>
+                v-for="(project, i) in mainStore.projects" :key="i" class="mb-3" @click="dialog = false">
+                <template v-slot:prepend>
+                  <v-icon class="text-red-darken-4" style="font-size:2em" size="large">mdi-file-tree</v-icon>
+                </template>
+                <v-list-item-title>
+                  <h2>{{project.name}}</h2>
+                </v-list-item-title>
+                <v-list-item-title class="text-orange-darken-1">
+                  <template v-if="project.description">
+                    {{project.description}}
+                  </template>
+                  <template v-else>
+                    ---
+                  </template>
+                </v-list-item-title>
               </v-list-item>
             </template>
             <v-list-item v-if="user">
-              <v-list-item-content>
-                <v-btn color="primary" @click="showAddProjectDialog">
-                  <v-icon>add</v-icon> New Project
-                </v-btn>
-              </v-list-item-content>
+              <v-btn color="primary" @click="showAddProjectDialog">
+                <v-icon>mdi-plus</v-icon> New Project
+              </v-btn>
             </v-list-item>
           </v-list>
         </v-card>
@@ -209,7 +193,7 @@
             <v-btn
               class="ml-sm-4 mt-2 mt-sm-0"
               color="white"
-              outlined
+              variant="outlined"
               href="https://github.com/mmcardle/django_builder/issues/new?title=Please+keep+Django+Builder+online"
               target="_blank"
               rel="noopener"
@@ -223,26 +207,26 @@
       </v-container>
     </v-main>
 
-    <v-snackbar class="hidden-xs-only" color="white" v-model="cookie_snackbar" bottom right timeout="-1">
+    <v-snackbar class="cookie-snackbar d-none d-sm-flex" color="white" v-model="cookie_snackbar" location="bottom right" :timeout="-1">
       <v-switch v-model="cookie_value" color="blue" :label="cookie_label">
         <template v-slot:label>
           <span style="color: blue">{{cookie_label}}</span>
         </template>
       </v-switch>
       <v-dialog v-model="privacy_dialog" width="500">
-        <template v-slot:activator="{ on }">
-          <v-btn class="primary" v-on="on">Privacy Policy</v-btn>
+        <template v-slot:activator="{ props }">
+          <v-btn class="bg-primary" v-bind="props">Privacy Policy</v-btn>
         </template>
         <template>
           <v-card dense>
-            <v-card-title class="text-h5 grey lighten-2" primary-title>
+            <v-card-title class="text-h5 bg-grey-lighten-2">
               Privacy Policy
-              <v-btn outlined absolute right text @click="privacy_dialog = false">
+              <v-btn variant="outlined" style="position: absolute; right: 8px" @click="privacy_dialog = false">
                 Close
               </v-btn>
             </v-card-title>
 
-            <v-card-title class="text-body-2 pb-1 pt-3" primary-title>
+            <v-card-title class="text-body-2 pb-1 pt-3">
               What data we collect and how we use it.
             </v-card-title>
 
@@ -253,7 +237,7 @@
               when logging in if you do not want to do this.
             </v-card-text>
 
-            <v-card-title class="text-body-2 py-1" primary-title>
+            <v-card-title class="text-body-2 py-1">
               How we use your data
             </v-card-title>
 
@@ -262,7 +246,7 @@
               address.
             </v-card-text>
 
-            <v-card-title class="text-body-2 py-1" primary-title>
+            <v-card-title class="text-body-2 py-1">
               Cookies
             </v-card-title>
 
@@ -271,7 +255,7 @@
               for the site to function.
             </v-card-text>
 
-            <v-card-text class="text-body-2 py-1" primary-title>
+            <v-card-text class="text-body-2 py-1">
               Analytics Cookies
             </v-card-text>
 
@@ -281,34 +265,34 @@
               <v-switch v-model="cookie_value" color="blue" :label="cookie_label"></v-switch>
             </v-card-text>
 
-            <v-card-text class="text-body-2 py-1" primary-title>
+            <v-card-text class="text-body-2 py-1">
               Contact
             </v-card-text>
 
             <v-card-text class="">
               If you wish to contact us please see the
-              <v-btn outlined color="info" :to="{name: 'About'}" @click="privacy_dialog = false">About</v-btn> page
+              <v-btn variant="outlined" color="info" :to="{name: 'About'}" @click="privacy_dialog = false">About</v-btn> page
             </v-card-text>
 
             <v-divider></v-divider>
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="primary" text @click="privacy_dialog = false">
+              <v-btn color="primary" variant="text" @click="privacy_dialog = false">
                 Close
               </v-btn>
             </v-card-actions>
           </v-card>
         </template>
       </v-dialog>
-      <v-btn class="info" @click="agreeAndClose">Agree &amp; Close</v-btn>
+      <v-btn class="bg-info" @click="agreeAndClose">Agree &amp; Close</v-btn>
     </v-snackbar>
 
     <v-footer app fixed style="z-index:5">
       <span>&copy; {{year}} Version {{ PACKAGE_VERSION }}</span>
       <v-spacer />
-      <v-btn class="hidden-xs-only" text @click.stop="cookie_snackbar = !cookie_snackbar">Privacy Settings</v-btn>
-      <v-btn class="hidden-sm-and-up" text @click.stop="privacy_dialog = true">Privacy Policy</v-btn>
+      <v-btn class="d-none d-sm-flex" variant="text" @click.stop="cookie_snackbar = !cookie_snackbar">Privacy Settings</v-btn>
+      <v-btn class="d-flex d-sm-none" variant="text" @click.stop="privacy_dialog = true">Privacy Policy</v-btn>
     </v-footer>
 
   </v-app>
@@ -318,6 +302,9 @@
 .small-caps {
   font-variant: small-caps;
 }
+.toolbar-title {
+  flex: 0 1 auto;
+}
 .toolbar-title a {
   color: inherit;
   text-decoration: none;
@@ -325,14 +312,22 @@
 .eol-banner {
   border-radius: 0 !important;
 }
+/* Pin the cookie snackbar flush to the bottom-right corner (Vuetify 3 otherwise
+   offsets it above the app footer, unlike the Vuetify 2 original). */
+.cookie-snackbar .v-snackbar__wrapper {
+  position: fixed !important;
+  right: 8px !important;
+  bottom: 8px !important;
+  margin: 0 !important;
+}
 </style>
 
 <script>
 import { mdiDatabase } from '@mdi/js'
 
 import addProjectMixin from '@/mixins/AddProject'
-import {userVerified} from '@/firebase_utils/'
-import {showConfirmDialog, showUpgradeDialog} from '@/dialogs/'
+import {userVerified} from '@/firebase_utils'
+import {showConfirmDialog, showUpgradeDialog} from '@/dialogs'
 
 import firebase from 'firebase/compat/app';
 import { config } from 'vue-gtag'
@@ -366,10 +361,10 @@ export default {
   },
   computed: {
     loaded: function () {
-      return this.$store.getters.loaded()
+      return this.mainStore.loaded
     },
     has_projects: function () {
-      return this.loaded && this.$store.getters.projects() && Object.keys(this.$store.getters.projects()).length > 0
+      return this.loaded && Object.keys(this.mainStore.projects).length > 0
     },
     year: () => {return new Date().getFullYear()}
   },
@@ -407,14 +402,14 @@ export default {
     load: function () {
       if (this.user) {
         this.verified = userVerified(firebase.auth().currentUser)
-        this.$store.dispatch('load', this.user.uid)
+        this.mainStore.load(this.user.uid)
       } else {
         this.verified = false
       }
     },
     doLogout: function () {
       firebase.auth().signOut().then(() => {
-        this.$store.commit('logout')
+        this.mainStore.logout()
         this.$router.replace('/')
         this.dialog = false
         this.user = undefined
