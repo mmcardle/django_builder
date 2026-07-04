@@ -10,10 +10,10 @@ Prefer targeted tests in the package you changed.
 
 ## Commands
 
-- Run all current tests: `yarn test`
-- Run core tests: `yarn test_core`
-- Run core smoke test: `yarn test_smoke`
-- Run `djangobuilder.io` tests: `yarn test_io`
+- Run all current tests: `bun run test`
+- Run core tests: `bun run test_core`
+- Run core smoke test: `bun run test_smoke`
+- Run `djangobuilder.io` tests: `bun run test_io`
 
 ## Expectations
 

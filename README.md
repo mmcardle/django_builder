@@ -8,8 +8,12 @@ The original Django Builder v1 is deployed at:
 http://mmcardle.github.io/django_builder/
 
 ## Project setup
+
+This repo uses [Bun](https://bun.sh) as its package manager and task runner
+(Vite remains the bundler/dev-server). Install dependencies with:
+
 ```
-yarn install
+bun install
 ```
 
 ### CLI interface
@@ -35,9 +39,11 @@ python manage.py runserver
 Head to http://127.0.0.1:8000
 
 #### Firebase
+
+`firebase-tools` ships as a dev dependency, so run the Firebase CLI through Bun:
+
 ```
-npm install -g firebase-tools
-firebase login
+bunx firebase login
 ```
 
 ## Setup Firebase Environment
@@ -51,13 +57,13 @@ cp .env.example .env.development.local
 Edit this file with your firebase setup and run the development server.
 
 ```
-yarn serve
+bun run dev
 ```
 
 ### Compiles and minifies for different modes
 ```
-yarn build --mode=development
-yarn build --mode=production
+bun run build_development
+bun run build_production
 ```
 
 ### Initial setup
@@ -65,44 +71,39 @@ yarn build --mode=production
 When a fresh checkout is done aliases must be setup for each project, e.g. development
 
 ```
-firebase use --add
+bunx firebase use --add
 ```
 
 Follow the instructions to link to your Firebase application, choose the alias 'development' and your firebase project
 
 ### Deploy development
 ```
-firebase use development
-yarn build --mode=development --dest=dist_development
-firebase deploy --public=dist_development
+bunx firebase use development
+bun run build_development
+bunx firebase deploy --public=dist_development
 ```
 
 ### Run unit tests
 ```
-yarn test:unit
-```
-
-### Run e2e tests
-```
-yarn test:e2e
+bun run test_io
 ```
 
 ### Lints and fixes files
 ```
-yarn lint
+bun run lint
 ```
 
 ### Firebase get indexes
 Useful after creating an index
 ```
-firebase firestore:indexes
+bunx firebase firestore:indexes
 ```
 
 ### Firebase use project
 ```
-firebase use development
-firebase use production
+bunx firebase use development
+bunx firebase use production
 ```
 
 ### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+See [Vite Configuration Reference](https://vite.dev/config/).

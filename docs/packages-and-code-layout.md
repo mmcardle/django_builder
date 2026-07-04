@@ -1,6 +1,6 @@
 # Packages And Code Layout
 
-This repo is a Yarn workspace split between shared library code and app packages.
+This repo is a Bun workspace split between shared library code and app packages.
 
 ## Top level
 

@@ -13,14 +13,14 @@ deploy:
 ifeq "$(name)" ""
 	@echo "Specify name e.g. make deploy name=staging" && exit 1
 else
-	firebase use $(name)
-	yarn run build_$(name)
+	bunx firebase use $(name)
+	bun run build_$(name)
 	rm -rf dist_$(name)
 	mkdir -p dist_$(name)
 	cp -r packages/djangobuilder.io/dist/* dist_$(name)/
 	mkdir -p dist_$(name)/db4/
 	cp -r packages/djangobuilder4/dist/* dist_$(name)/db4/
-	firebase deploy --public=dist_$(name)
+	bunx firebase deploy --public=dist_$(name)
 endif
 
 smoke_test:
@@ -32,7 +32,7 @@ smoke_test_ci:
 	./script/cli_test.sh /tmp/project-with-channels.json
 
 create:
-	yarn run cli ${EXAMPLE_PROJECT_POSTGRES_JSON} ${EXAMPLE_TAR_OUTPUT}
+	bun run cli ${EXAMPLE_PROJECT_POSTGRES_JSON} ${EXAMPLE_TAR_OUTPUT}
 	echo "Project created at ${PROJECT_NAME}"
 	tar -xvf ${EXAMPLE_TAR_OUTPUT}
 
@@ -62,7 +62,7 @@ run_django_channels: create_channels
 
 create_channels:
 	jq -s '.[0] * .[1]' ${EXAMPLE_PROJECT_POSTGRES_JSON} ${PARTIAL_WITH_CHANNELS_JSON} > /tmp/project-with-channels.json
-	yarn run cli /tmp/project-with-channels.json ${EXAMPLE_TAR_OUTPUT}
+	bun run cli /tmp/project-with-channels.json ${EXAMPLE_TAR_OUTPUT}
 	echo "Project created at ${PROJECT_NAME_WITH_CHANNELS}"
 	tar -xvf ${EXAMPLE_TAR_OUTPUT}
 

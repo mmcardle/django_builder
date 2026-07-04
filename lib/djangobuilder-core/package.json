@@ -20,15 +20,14 @@
     "globals": "^15.14.0",
     "jest": "^29.3.1",
     "ts-jest": "^29.0.3",
-    "ts-node": "^10.9.1",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.1"
   },
   "scripts": {
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
-    "test_smoke": "npx tsc && npx ts-node src/smoketest.ts",
+    "test_smoke": "bunx tsc && bun src/smoketest.ts",
     "test": "jest .",
-    "cli": "tsc -t es5 src/cli.ts --outDir dist --esModuleInterop && node dist/cli.js render"
+    "cli": "bun src/cli-run.ts render"
   }
 }
