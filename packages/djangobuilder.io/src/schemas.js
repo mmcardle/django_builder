@@ -27,8 +27,6 @@ const project = () => [
     options: [
       {text: "Django 6", value: DjangoVersion.DJANGO6},
       {text: "Django 5", value: DjangoVersion.DJANGO5},
-      {text: "Django 4", value: DjangoVersion.DJANGO4},
-      {text: "Django 3", value: DjangoVersion.DJANGO3},
     ],
     required: true,
   },
