@@ -3,9 +3,13 @@ import "@fontsource-variable/jetbrains-mono";
 import "./index.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { App } from "@/app/App";
+import { applyTheme, getInitialTheme } from "@/lib/theme";
+
+applyTheme(getInitialTheme());
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <h1 className="p-8 text-accent">djangobuilder5</h1>
+    <App />
   </StrictMode>,
 );
