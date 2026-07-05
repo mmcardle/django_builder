@@ -29,6 +29,7 @@ const DjangoVersionChoices = {
   [`${DjangoVersion.DJANGO3}`]: DjangoVersion.DJANGO3.toString(),
   [`${DjangoVersion.DJANGO4}`]: DjangoVersion.DJANGO4.toString(),
   [`${DjangoVersion.DJANGO5}`]: DjangoVersion.DJANGO5.toString(),
+  [`${DjangoVersion.DJANGO6}`]: DjangoVersion.DJANGO6.toString(),
 };
 
 async function handleCreateProject() {
