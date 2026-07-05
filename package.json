@@ -27,6 +27,7 @@
   "scripts": {
     "dev": "bun run --filter=djangobuilder.io dev",
     "dev4": "bun run --filter=djangobuilder4 dev",
+    "dev5": "bun run --filter=djangobuilder5 dev",
     "build": "bun run build_io && bun run build_v4",
     "build_development": "bun run build_io_development && bun run build_v4_development",
     "build_io_development": "bun run --filter=djangobuilder.io build --mode=development",
@@ -39,10 +40,12 @@
     "build_v4_production": "bun run --filter=djangobuilder4 build",
     "build_io": "bun run --filter=djangobuilder.io build",
     "build_v4": "bun run --filter=djangobuilder4 build",
-    "lint": "bun run lint_core && bun run lint_io && bun run lint_v4",
+    "build_v5": "bun run --filter=djangobuilder5 build",
+    "lint": "bun run lint_core && bun run lint_io && bun run lint_v4 && bun run lint_v5",
     "lint_core": "bun run --filter=@djangobuilder/core lint",
     "lint_io": "bun run --filter=djangobuilder.io lint",
     "lint_v4": "bun run --filter=djangobuilder4 lint",
+    "lint_v5": "bun run --filter=djangobuilder5 lint",
     "lint_fix": "bun run lint_fix_core && bun run lint_fix_io && bun run lint_fix_v4",
     "lint_fix_core": "bun run --filter=@djangobuilder/core lint:fix",
     "lint_fix_io": "bun run --filter=djangobuilder.io lint:fix",
@@ -51,7 +54,8 @@
     "test_core": "bun run --filter=@djangobuilder/core test",
     "test_io": "bun run --filter=djangobuilder.io test:unit",
     "test_v4": "echo 'not implemented'",
-    "test": "bun run test_smoke && bun run test_core && bun run test_v4 && bun run test_io",
+    "test_v5": "bun run --filter=djangobuilder5 test",
+    "test": "bun run test_smoke && bun run test_core && bun run test_v4 && bun run test_io && bun run test_v5",
     "ci": "bun run --filter=djangobuilder.io ci",
     "cli": "bun run --filter=@djangobuilder/core cli"
   }
