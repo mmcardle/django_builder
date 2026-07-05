@@ -10,7 +10,7 @@ export function Splash() {
   const files = renderAppPreview(makeSeedProject(), "app_blog");
 
   return (
-    <section className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 md:grid-cols-2">
+    <section className="mx-auto grid max-w-7xl items-start gap-10 px-6 py-16 md:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
       <div>
         <h1 className="text-4xl font-extrabold leading-tight tracking-tight md:text-5xl">
           Design your models.
