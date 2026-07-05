@@ -65,6 +65,7 @@ enum DjangoVersion {
   DJANGO3 = 3.2,
   DJANGO4 = 4.1,
   DJANGO5 = 5.1,
+  DJANGO6 = 6.0,
 }
 
 interface IDjangoProject extends Identifiable {

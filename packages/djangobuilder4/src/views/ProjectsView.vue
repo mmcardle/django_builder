@@ -18,17 +18,21 @@ const creatingProject = ref(false);
 const nameDefault = "NewProject";
 
 const name = ref(nameDefault);
-const django_version = ref(DjangoVersion.DJANGO4.toString());
+const django_version = ref(DjangoVersion.DJANGO6.toString());
 const description = ref("");
 const htmx = ref(true);
 const channels = ref(true);
 
 const error = ref("");
 
+// Newest first. Whole-number keys like "6" are hoisted ahead of decimal
+// keys ("5.1", "4.1", "3.2") by JS object ordering, so keep the rest
+// listed descending to render as 6 / 5 / 4 / 3.
 const DjangoVersionChoices = {
-  [`${DjangoVersion.DJANGO3}`]: DjangoVersion.DJANGO3.toString(),
-  [`${DjangoVersion.DJANGO4}`]: DjangoVersion.DJANGO4.toString(),
+  [`${DjangoVersion.DJANGO6}`]: DjangoVersion.DJANGO6.toString(),
   [`${DjangoVersion.DJANGO5}`]: DjangoVersion.DJANGO5.toString(),
+  [`${DjangoVersion.DJANGO4}`]: DjangoVersion.DJANGO4.toString(),
+  [`${DjangoVersion.DJANGO3}`]: DjangoVersion.DJANGO3.toString(),
 };
 
 async function handleCreateProject() {
@@ -49,7 +53,7 @@ async function handleCreateProject() {
   description.value = "";
   htmx.value = true;
   channels.value = true;
-  django_version.value = DjangoVersion.DJANGO4.toString();
+  django_version.value = DjangoVersion.DJANGO6.toString();
 }
 </script>
 

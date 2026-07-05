@@ -33,7 +33,9 @@ export const useMainStore = defineStore('main', {
         ? DjangoVersion.DJANGO3
         : String(project.django_version).startsWith("4")
         ? DjangoVersion.DJANGO4
-        : DjangoVersion.DJANGO5;
+        : String(project.django_version).startsWith("5")
+        ? DjangoVersion.DJANGO5
+        : DjangoVersion.DJANGO6;
 
       const coreProject = new DjangoProject(
         project.name,

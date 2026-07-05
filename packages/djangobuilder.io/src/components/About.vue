@@ -6,9 +6,8 @@
         <div class="text-h3 d-block d-md-none" ><django-builder-title /></div>
         <p style="color: gray">building things....</p>
         <div class="ma-3">
-          <div class="ma-1 text-h3 label label-success">Django 5.X <v-icon size="x-large" class="text-green">mdi-checkbox-marked-circle</v-icon></div>
-          <div class="ma-1 text-h4 label label-success">Django 4.X <v-icon size="large" class="text-green">mdi-checkbox-marked-circle</v-icon></div>
-          <div class="ma-1 text-h5 label label-success">Django 3.X <v-icon class="text-green">mdi-checkbox-marked-circle</v-icon></div>
+          <div class="ma-1 text-h3 label label-success">Django 6.X <v-icon size="x-large" class="text-green">mdi-checkbox-marked-circle</v-icon></div>
+          <div class="ma-1 text-h4 label label-success">Django 5.X <v-icon size="large" class="text-green">mdi-checkbox-marked-circle</v-icon></div>
         </div>
         <div class="text-body-2">
             <div class="ma-2">
