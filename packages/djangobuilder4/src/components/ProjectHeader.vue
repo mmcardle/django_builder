@@ -11,11 +11,14 @@ const props = defineProps<{
   project: DjangoProject;
 }>();
 
+// Newest first. Whole-number keys like "6" are hoisted ahead of decimal
+// keys ("5.1", "4.1", "3.2") by JS object ordering, so keep the rest
+// listed descending to render as 6 / 5 / 4 / 3.
 const DjangoVersionChoices = {
-  [`${DjangoVersion.DJANGO3}`]: DjangoVersion.DJANGO3.toString(),
-  [`${DjangoVersion.DJANGO4}`]: DjangoVersion.DJANGO4.toString(),
-  [`${DjangoVersion.DJANGO5}`]: DjangoVersion.DJANGO5.toString(),
   [`${DjangoVersion.DJANGO6}`]: DjangoVersion.DJANGO6.toString(),
+  [`${DjangoVersion.DJANGO5}`]: DjangoVersion.DJANGO5.toString(),
+  [`${DjangoVersion.DJANGO4}`]: DjangoVersion.DJANGO4.toString(),
+  [`${DjangoVersion.DJANGO3}`]: DjangoVersion.DJANGO3.toString(),
 };
 
 const userStore = useUserStore();
