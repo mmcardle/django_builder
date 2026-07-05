@@ -6,7 +6,7 @@ import {
   FieldTypes,
   RelationshipTypes,
 } from "@djangobuilder/core";
-import type { LocalProject } from "./types";
+import type { LocalModel, LocalProject } from "./types";
 
 function toDjangoVersion(v: 3 | 4 | 5): DjangoVersion {
   if (v === 3) return DjangoVersion.DJANGO3;
@@ -24,7 +24,12 @@ export function buildCoreProject(project: LocalProject): DjangoProject {
     project.id,
   );
 
+  // "app.Model" -> core model, used to resolve relationship targets by name.
   const modelIndex = new Map<string, DjangoModel>();
+  // Local model paired with the core model it produced, so pass 2 wires
+  // relationships onto the right owner by identity (not by re-looking-up name,
+  // which would mis-wire if two models shared a name).
+  const built: Array<{ localModel: LocalModel; coreModel: DjangoModel }> = [];
 
   // Pass 1: apps, models, fields (relationship targets must exist first).
   for (const app of project.apps) {
@@ -38,28 +43,25 @@ export function buildCoreProject(project: LocalProject): DjangoProject {
         coreModel.addField(field.name, fieldType, field.args, editable, field.id);
       }
       modelIndex.set(`${app.name}.${model.name}`, coreModel);
+      built.push({ localModel: model, coreModel });
     }
   }
 
-  // Pass 2: relationships.
-  for (const app of project.apps) {
-    const coreApp = core.apps.find((a) => a.name === app.name)!;
-    for (const model of app.models) {
-      const coreModel = coreApp.models.find((m) => m.name === model.name)!;
-      for (const rel of model.relationships) {
-        const relType = RelationshipTypes[rel.type];
-        if (!relType) throw new Error(`Unknown relationship type: ${rel.type}`);
-        const target =
-          rel.to === "auth.User" ? BuiltInModelTypes["auth.User"] : modelIndex.get(rel.to);
-        if (!target) throw new Error(`Unknown relationship target: ${rel.to}`);
-        coreModel.addRelationship(
-          rel.name,
-          relType,
-          target as Parameters<DjangoModel["addRelationship"]>[2],
-          rel.args,
-          rel.id,
-        );
-      }
+  // Pass 2: relationships (all targets now exist).
+  for (const { localModel, coreModel } of built) {
+    for (const rel of localModel.relationships) {
+      const relType = RelationshipTypes[rel.type];
+      if (!relType) throw new Error(`Unknown relationship type: ${rel.type}`);
+      const target =
+        rel.to === "auth.User" ? BuiltInModelTypes["auth.User"] : modelIndex.get(rel.to);
+      if (!target) throw new Error(`Unknown relationship target: ${rel.to}`);
+      coreModel.addRelationship(
+        rel.name,
+        relType,
+        target as Parameters<DjangoModel["addRelationship"]>[2],
+        rel.args,
+        rel.id,
+      );
     }
   }
 

@@ -18,9 +18,14 @@ export function CodeBlock({ files, className }: { files: CodeFile[]; className?:
   }, [files.length, active]);
 
   async function copy() {
-    await navigator.clipboard.writeText(current.code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    if (!navigator.clipboard) return;
+    try {
+      await navigator.clipboard.writeText(current.code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard unavailable (e.g. non-secure origin) — fail silently.
+    }
   }
 
   return (
