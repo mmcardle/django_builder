@@ -67,3 +67,38 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
+
+/* ---- highlight.js theme, driven by coding-palette tokens ---- */
+.hljs {
+  color: var(--code-text);
+  background: transparent;
+}
+.hljs-comment,
+.hljs-quote {
+  color: var(--code-comment);
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in {
+  color: var(--code-keyword);
+}
+.hljs-title,
+.hljs-title.class_,
+.hljs-section {
+  color: var(--code-class);
+}
+.hljs-type,
+.hljs-title.function_,
+.hljs-attr,
+.hljs-attribute {
+  color: var(--code-type);
+}
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: var(--code-string);
+}
+.hljs-number,
+.hljs-literal {
+  color: var(--code-number);
+}
