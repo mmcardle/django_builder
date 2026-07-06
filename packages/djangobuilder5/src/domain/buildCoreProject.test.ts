@@ -40,7 +40,6 @@ test("wires a relationship onto its own model even when two models share a name"
     djangoVersion: 5,
     channels: false,
     htmx: false,
-    postgres: false,
     apps: [
       {
         id: "a",

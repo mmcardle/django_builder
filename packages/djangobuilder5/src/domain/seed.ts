@@ -8,7 +8,6 @@ export function makeSeedProject(): LocalProject {
     djangoVersion: 5,
     channels: false,
     htmx: true,
-    postgres: false,
     apps: [
       {
         id: "app_blog",

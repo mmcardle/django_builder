@@ -20,7 +20,7 @@ export function buildCoreProject(project: LocalProject): DjangoProject {
     project.name,
     project.description,
     toDjangoVersion(project.djangoVersion),
-    { htmx: project.htmx, channels: project.channels, postgres: project.postgres },
+    { htmx: project.htmx, channels: project.channels },
     project.id,
   );
 

@@ -18,7 +18,7 @@ interface ProjectState {
   select: (appId: string, modelId: string | null) => void;
   setProjectName: (name: string) => void;
   setDjangoVersion: (v: 3 | 4 | 5) => void;
-  setFlag: (flag: "channels" | "htmx" | "postgres", value: boolean) => void;
+  setFlag: (flag: "channels" | "htmx", value: boolean) => void;
 
   addApp: (name: string) => void;
   addModel: (appId: string, name: string) => void;

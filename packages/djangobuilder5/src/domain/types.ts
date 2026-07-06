@@ -36,6 +36,5 @@ export interface LocalProject {
   djangoVersion: 3 | 4 | 5;
   channels: boolean;
   htmx: boolean;
-  postgres: boolean;
   apps: LocalApp[];
 }
