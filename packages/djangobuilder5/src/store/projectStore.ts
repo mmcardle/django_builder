@@ -1,128 +1,120 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { immer } from "zustand/middleware/immer";
-import type { LocalField, LocalProject, RelationshipTypeName } from "@/domain/types";
-import { makeSeedProject } from "@/domain/seed";
-
-let seq = 0;
-function uid(prefix: string): string {
-  seq += 1;
-  return `${prefix}_${Date.now().toString(36)}_${seq.toString(36)}`;
-}
+import type { User } from "firebase/auth";
+import type { LocalProject, RelationshipTypeName } from "@/domain/types";
+import { emptyFlatData, type FlatData, type ProjectSummary } from "@/domain/firestore/types";
+import { renestProject, projectSummary } from "@/domain/firestore/mapper";
+import { subscribeAll } from "@/domain/firestore/data";
+import * as fs from "@/domain/firestore/writes";
+import { toVersionNumber, type DjangoVersionNumber } from "@/domain/firestore/version";
 
 interface ProjectState {
-  project: LocalProject;
+  user: User | null;
+  data: FlatData;
+  dataLoaded: boolean;
+  currentProjectId: string | null;
   selectedAppId: string | null;
   selectedModelId: string | null;
 
-  select: (appId: string, modelId: string | null) => void;
-  setProjectName: (name: string) => void;
-  setDjangoVersion: (v: 3 | 4 | 5) => void;
-  setFlag: (flag: "channels" | "htmx", value: boolean) => void;
+  // derived, recomputed on every snapshot / open:
+  project: LocalProject | null;
+  summaries: ProjectSummary[];
 
+  // lifecycle
+  start: (user: User) => void;
+  stop: () => void;
+  openProject: (projectId: string) => void;
+  select: (appId: string, modelId: string | null) => void;
+
+  // dashboard writes
+  createProject: (name: string, description: string, v: DjangoVersionNumber, htmx: boolean, channels: boolean) => Promise<string | null>;
+  deleteProject: (projectId: string) => Promise<void>;
+
+  // builder write-through
+  setProjectName: (name: string) => void;
+  setDjangoVersion: (v: DjangoVersionNumber) => void;
+  setFlag: (flag: "channels" | "htmx", value: boolean) => void;
   addApp: (name: string) => void;
   addModel: (appId: string, name: string) => void;
   removeModel: (appId: string, modelId: string) => void;
-
   addField: (appId: string, modelId: string) => void;
-  updateField: (appId: string, modelId: string, fieldId: string, patch: Partial<LocalField>) => void;
+  updateField: (appId: string, modelId: string, fieldId: string, patch: Partial<{ name: string; type: string; args: string }>) => void;
   removeField: (appId: string, modelId: string, fieldId: string) => void;
-
   addRelationship: (appId: string, modelId: string) => void;
-  updateRelationship: (
-    appId: string,
-    modelId: string,
-    relId: string,
-    patch: Partial<{ name: string; type: RelationshipTypeName; to: string; args: string }>,
-  ) => void;
+  updateRelationship: (appId: string, modelId: string, relId: string, patch: Partial<{ name: string; type: RelationshipTypeName; to: string; args: string }>) => void;
   removeRelationship: (appId: string, modelId: string, relId: string) => void;
 }
 
-function findModel(project: LocalProject, appId: string, modelId: string) {
-  return project.apps.find((a) => a.id === appId)?.models.find((m) => m.id === modelId);
+let unsubscribe: (() => void) | null = null;
+
+function recompute(state: ProjectState): Partial<ProjectState> {
+  return {
+    project: state.currentProjectId ? renestProject(state.data, state.currentProjectId) : null,
+    summaries: Object.keys(state.data.projects)
+      .map((id) => projectSummary(state.data, id))
+      .filter((s): s is ProjectSummary => s !== null)
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  };
 }
 
-export const useProjectStore = create<ProjectState>()(
-  persist(
-    immer((set) => ({
-      project: makeSeedProject(),
-      selectedAppId: "app_blog",
-      selectedModelId: "model_post",
+function findModel(project: LocalProject | null, appId: string, modelId: string) {
+  return project?.apps.find((a) => a.id === appId)?.models.find((m) => m.id === modelId) ?? null;
+}
 
-      select: (appId, modelId) =>
-        set((s) => {
-          s.selectedAppId = appId;
-          s.selectedModelId = modelId;
-        }),
-      setProjectName: (name) => set((s) => void (s.project.name = name)),
-      setDjangoVersion: (v) => set((s) => void (s.project.djangoVersion = v)),
-      setFlag: (flag, value) => set((s) => void (s.project[flag] = value)),
+export const useProjectStore = create<ProjectState>()((set, get) => ({
+  user: null,
+  data: emptyFlatData(),
+  dataLoaded: false,
+  currentProjectId: null,
+  selectedAppId: null,
+  selectedModelId: null,
+  project: null,
+  summaries: [],
 
-      addApp: (name) =>
-        set((s) => {
-          s.project.apps.push({ id: uid("app"), name, models: [] });
-        }),
+  start: (user) => {
+    unsubscribe?.();
+    set({ user, data: emptyFlatData(), dataLoaded: false });
+    unsubscribe = subscribeAll(user, (data) => {
+      set((s) => ({ data, dataLoaded: true, ...recompute({ ...s, data }) }));
+    });
+  },
+  stop: () => {
+    unsubscribe?.();
+    unsubscribe = null;
+    set({ user: null, data: emptyFlatData(), dataLoaded: false, currentProjectId: null, project: null, summaries: [] });
+  },
+  openProject: (projectId) =>
+    set((s) => {
+      const next = { ...s, currentProjectId: projectId };
+      const project = renestProject(s.data, projectId);
+      const app = project?.apps[0] ?? null;
+      return { currentProjectId: projectId, ...recompute(next), selectedAppId: app?.id ?? null, selectedModelId: app?.models[0]?.id ?? null };
+    }),
+  select: (appId, modelId) => set({ selectedAppId: appId, selectedModelId: modelId }),
 
-      addModel: (appId, name) =>
-        set((s) => {
-          const app = s.project.apps.find((a) => a.id === appId);
-          if (!app) return;
-          const id = uid("model");
-          app.models.push({ id, name, abstract: false, fields: [], relationships: [] });
-          s.selectedAppId = appId;
-          s.selectedModelId = id;
-        }),
+  createProject: async (name, description, v, htmx, channels) => {
+    const user = get().user;
+    if (!user) return null;
+    return fs.createProject(user, name, description, v, htmx, channels);
+  },
+  deleteProject: async (projectId) => {
+    const project = renestProject(get().data, projectId);
+    if (project) await fs.deleteProjectCascade(project);
+  },
 
-      removeModel: (appId, modelId) =>
-        set((s) => {
-          const app = s.project.apps.find((a) => a.id === appId);
-          if (!app) return;
-          app.models = app.models.filter((m) => m.id !== modelId);
-          if (s.selectedModelId === modelId) s.selectedModelId = app.models[0]?.id ?? null;
-        }),
+  setProjectName: (name) => { const id = get().currentProjectId; if (id) void fs.updateProject(id, { name }); },
+  setDjangoVersion: (v) => { const id = get().currentProjectId; if (id) void fs.updateProject(id, { django_version: toVersionNumber(v) }); },
+  setFlag: (flag, value) => { const id = get().currentProjectId; if (id) void fs.updateProject(id, { [flag]: value }); },
 
-      addField: (appId, modelId) =>
-        set((s) => {
-          const model = findModel(s.project, appId, modelId);
-          model?.fields.push({ id: uid("f"), name: "new_field", type: "CharField", args: "max_length=100" });
-        }),
-
-      updateField: (appId, modelId, fieldId, patch) =>
-        set((s) => {
-          const field = findModel(s.project, appId, modelId)?.fields.find((f) => f.id === fieldId);
-          if (field) Object.assign(field, patch);
-        }),
-
-      removeField: (appId, modelId, fieldId) =>
-        set((s) => {
-          const model = findModel(s.project, appId, modelId);
-          if (model) model.fields = model.fields.filter((f) => f.id !== fieldId);
-        }),
-
-      addRelationship: (appId, modelId) =>
-        set((s) => {
-          const model = findModel(s.project, appId, modelId);
-          model?.relationships.push({
-            id: uid("r"),
-            name: "related",
-            type: "ForeignKey",
-            to: "auth.User",
-            args: "on_delete=models.CASCADE",
-          });
-        }),
-
-      updateRelationship: (appId, modelId, relId, patch) =>
-        set((s) => {
-          const rel = findModel(s.project, appId, modelId)?.relationships.find((r) => r.id === relId);
-          if (rel) Object.assign(rel, patch);
-        }),
-
-      removeRelationship: (appId, modelId, relId) =>
-        set((s) => {
-          const model = findModel(s.project, appId, modelId);
-          if (model) model.relationships = model.relationships.filter((r) => r.id !== relId);
-        }),
-    })),
-    { name: "db5-project" },
-  ),
-);
+  addApp: (name) => { const { user, currentProjectId } = get(); if (user && currentProjectId) void fs.addApp(user, currentProjectId, name); },
+  addModel: (appId, name) => { const user = get().user; if (user) void fs.addModel(user, appId, name); },
+  removeModel: (appId, modelId) => {
+    const model = findModel(get().project, appId, modelId);
+    if (model) void fs.removeModel(appId, model);
+  },
+  addField: (_appId, modelId) => { const user = get().user; if (user) void fs.addField(user, modelId, "new_field", "CharField", "max_length=100"); },
+  updateField: (_appId, _modelId, fieldId, patch) => void fs.updateField(fieldId, patch),
+  removeField: (_appId, modelId, fieldId) => void fs.removeField(modelId, fieldId),
+  addRelationship: (_appId, modelId) => { const user = get().user; if (user) void fs.addRelationship(user, modelId, "related", "ForeignKey", "auth.User", "on_delete=models.CASCADE"); },
+  updateRelationship: (_appId, _modelId, relId, patch) => void fs.updateRelationship(relId, patch),
+  removeRelationship: (_appId, modelId, relId) => void fs.removeRelationship(modelId, relId),
+}));
