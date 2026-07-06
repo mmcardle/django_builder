@@ -9,7 +9,7 @@ export function CodePane() {
   const files = appId ? renderAppPreview(project, appId) : [];
 
   return (
-    <aside className="flex w-[380px] shrink-0 flex-col border-l border-border">
+    <aside className="flex min-w-[360px] flex-1 flex-col border-l border-border">
       <div className="flex items-center justify-between border-b border-border px-3 py-2">
         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">
           Generated
