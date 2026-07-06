@@ -1,13 +1,20 @@
-import { Link } from "react-router-dom";
-import { buttonVariants } from "@/components/ui/Button";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/Button";
 import { CodeBlock } from "@/components/CodeBlock";
 import { makeSeedProject } from "@/domain/seed";
 import { renderAppPreview } from "@/domain/generate";
+import { signInAnon } from "@/domain/firestore/auth";
 
 const CHIPS = ["Django 5", "DRF", "HTMX", "Channels"];
 
 export function Splash() {
+  const navigate = useNavigate();
   const files = renderAppPreview(makeSeedProject(), "app_blog");
+
+  async function tryIt() {
+    await signInAnon();
+    navigate("/projects");
+  }
 
   return (
     <section className="mx-auto grid max-w-7xl items-start gap-10 px-6 py-16 md:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
@@ -24,12 +31,12 @@ export function Splash() {
           serializers, views, URLs — in seconds.
         </p>
         <div className="mt-6 flex items-center gap-3">
-          <Link to="/build" className={buttonVariants({ size: "lg" })}>
+          <Button size="lg" onClick={tryIt}>
             Start building — free
-          </Link>
-          <Link to="/build" className={buttonVariants({ variant: "ghost", size: "lg" })}>
+          </Button>
+          <Button variant="ghost" size="lg" onClick={tryIt}>
             Live demo
-          </Link>
+          </Button>
         </div>
         <div className="mt-6 flex flex-wrap gap-2">
           {CHIPS.map((c) => (

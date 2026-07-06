@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -5,15 +6,47 @@ import { fieldTypeNames, relationshipTargets, relationshipTypeNames } from "@/do
 import type { RelationshipTypeName } from "@/domain/types";
 import { useProjectStore } from "@/store/projectStore";
 
+function DebouncedInput({
+  value,
+  onCommit,
+  ...props
+}: { value: string; onCommit: (v: string) => void } & Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "value" | "onChange"
+>) {
+  const [local, setLocal] = useState(value);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // adopt external value when it changes and we're not mid-edit
+  useEffect(() => {
+    setLocal(value);
+  }, [value]);
+  return (
+    <Input
+      {...props}
+      value={local}
+      onChange={(e) => {
+        const v = e.target.value;
+        setLocal(v);
+        if (timer.current) clearTimeout(timer.current);
+        timer.current = setTimeout(() => onCommit(v), 400);
+      }}
+      onBlur={() => {
+        if (timer.current) clearTimeout(timer.current);
+        onCommit(local);
+      }}
+    />
+  );
+}
+
 export function EditorPane() {
   const project = useProjectStore((s) => s.project);
   const appId = useProjectStore((s) => s.selectedAppId);
   const modelId = useProjectStore((s) => s.selectedModelId);
   const store = useProjectStore();
 
-  const app = project.apps.find((a) => a.id === appId);
+  const app = project?.apps.find((a) => a.id === appId);
   const model = app?.models.find((m) => m.id === modelId);
-  const targets = relationshipTargets(project.apps);
+  const targets = relationshipTargets(project?.apps ?? []);
 
   if (!app || !model) {
     return <div className="flex-1 p-8 text-muted">Select a model to edit.</div>;
@@ -35,11 +68,11 @@ export function EditorPane() {
       <div className="space-y-2">
         {model.fields.map((field) => (
           <div key={field.id} className="flex items-center gap-2">
-            <Input
+            <DebouncedInput
               aria-label={`field ${field.id} name`}
               className="w-40 font-mono"
               value={field.name}
-              onChange={(e) => store.updateField(app.id, model.id, field.id, { name: e.target.value })}
+              onCommit={(v) => store.updateField(app.id, model.id, field.id, { name: v })}
             />
             <Select
               aria-label={`field ${field.id} type`}
@@ -50,12 +83,12 @@ export function EditorPane() {
                 <option key={t} value={t}>{t}</option>
               ))}
             </Select>
-            <Input
+            <DebouncedInput
               aria-label={`field ${field.id} args`}
               className="flex-1 font-mono"
               placeholder="args (e.g. max_length=200)"
               value={field.args}
-              onChange={(e) => store.updateField(app.id, model.id, field.id, { args: e.target.value })}
+              onCommit={(v) => store.updateField(app.id, model.id, field.id, { args: v })}
             />
             <Button
               size="icon"
@@ -78,11 +111,11 @@ export function EditorPane() {
       <div className="space-y-2">
         {model.relationships.map((rel) => (
           <div key={rel.id} className="flex items-center gap-2">
-            <Input
+            <DebouncedInput
               aria-label={`rel ${rel.id} name`}
               className="w-40 font-mono"
               value={rel.name}
-              onChange={(e) => store.updateRelationship(app.id, model.id, rel.id, { name: e.target.value })}
+              onCommit={(v) => store.updateRelationship(app.id, model.id, rel.id, { name: v })}
             />
             <Select
               aria-label={`rel ${rel.id} type`}

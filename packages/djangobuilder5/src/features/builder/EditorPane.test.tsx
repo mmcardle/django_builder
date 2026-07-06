@@ -1,17 +1,26 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, expect, test } from "vitest";
+import { beforeEach, expect, test, vi } from "vitest";
+vi.mock("@/lib/firebase", () => ({
+  auth: {},
+  db: {},
+  firebaseApp: {},
+  snapshotErrorHandler: () => {},
+}));
 import { EditorPane } from "./EditorPane";
 import { useProjectStore } from "@/store/projectStore";
 import { makeSeedProject } from "@/domain/seed";
 
+const addField = vi.fn();
 beforeEach(() => {
   localStorage.clear();
+  addField.mockClear();
   useProjectStore.setState({
     project: makeSeedProject(),
     selectedAppId: "app_blog",
     selectedModelId: "model_post",
-  });
+    addField,
+  } as never);
 });
 
 test("renders the selected model's fields", () => {
@@ -20,9 +29,8 @@ test("renders the selected model's fields", () => {
   expect(screen.getByDisplayValue("max_length=200")).toBeInTheDocument();
 });
 
-test("adding a field grows the store's field list", async () => {
+test("adding a field routes to the store action", async () => {
   render(<EditorPane />);
-  const before = useProjectStore.getState().project.apps[0].models[0].fields.length;
   await userEvent.click(screen.getByRole("button", { name: "+ field" }));
-  expect(useProjectStore.getState().project.apps[0].models[0].fields.length).toBe(before + 1);
+  expect(addField).toHaveBeenCalledWith("app_blog", "model_post");
 });

@@ -11,6 +11,8 @@ export function TreePane() {
   const addApp = useProjectStore((s) => s.addApp);
   const [newModel, setNewModel] = useState<Record<string, string>>({});
 
+  if (!project) return null;
+
   return (
     <aside className="w-56 shrink-0 overflow-y-auto border-r border-border p-3">
       <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted">

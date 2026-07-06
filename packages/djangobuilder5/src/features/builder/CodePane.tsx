@@ -6,6 +6,9 @@ import { useProjectStore } from "@/store/projectStore";
 export function CodePane() {
   const project = useProjectStore((s) => s.project);
   const appId = useProjectStore((s) => s.selectedAppId);
+
+  if (!project) return null;
+
   const files = appId ? renderAppPreview(project, appId) : [];
 
   return (
