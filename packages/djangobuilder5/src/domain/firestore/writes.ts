@@ -41,18 +41,25 @@ export async function addApp(user: User, projectId: string, name: string): Promi
 }
 
 /** Create a model plus the two default DateTimeField fields (created/last_updated). */
+/** Create a model + its two default DateTimeField fields atomically in one batch. */
 export async function addModel(user: User, appId: string, name: string): Promise<string> {
-  const modelRef = await addDoc(collection(db, "models"), {
-    owner: user.uid,
-    name,
-    abstract: false,
-    parents: [],
-    fields: {},
-    relationships: {},
-  });
-  await updateDoc(doc(db, "apps", appId), { [`models.${modelRef.id}`]: true });
-  await addField(user, modelRef.id, "created", "DateTimeField", "auto_now_add=True, editable=False");
-  await addField(user, modelRef.id, "last_updated", "DateTimeField", "auto_now=True, editable=False");
+  const batch = writeBatch(db);
+  const modelRef = doc(collection(db, "models"));
+  const defaults = [
+    { name: "created", args: "auto_now_add=True, editable=False" },
+    { name: "last_updated", args: "auto_now=True, editable=False" },
+  ];
+  const fieldsMap: Record<string, boolean> = {};
+  const fieldOps: { ref: ReturnType<typeof doc>; data: object }[] = [];
+  for (const d of defaults) {
+    const fieldRef = doc(collection(db, "fields"));
+    fieldsMap[fieldRef.id] = true;
+    fieldOps.push({ ref: fieldRef, data: { owner: user.uid, name: d.name, type: "DateTimeField", args: d.args } });
+  }
+  batch.set(modelRef, { owner: user.uid, name, abstract: false, parents: [], fields: fieldsMap, relationships: {} });
+  batch.update(doc(db, "apps", appId), { [`models.${modelRef.id}`]: true });
+  fieldOps.forEach((op) => batch.set(op.ref, op.data));
+  await batch.commit();
   return modelRef.id;
 }
 
