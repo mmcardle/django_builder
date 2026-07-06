@@ -47,6 +47,14 @@ export function signOutUser(): Promise<void> {
   return signOut(auth);
 }
 
+/** Refresh the current user from the server (e.g. after they click the email
+ * verification link) and return the updated user. onAuthStateChanged does NOT
+ * fire on an emailVerified change, so callers must push this into the store. */
+export async function reloadUser(): Promise<User | null> {
+  if (auth.currentUser) await auth.currentUser.reload();
+  return auth.currentUser;
+}
+
 export function sendReset(email: string): Promise<void> {
   return sendPasswordResetEmail(auth, email);
 }
