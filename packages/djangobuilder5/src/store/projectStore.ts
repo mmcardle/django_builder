@@ -83,8 +83,8 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
   start: (user) => {
     unsubscribe?.();
     set({ user, data: emptyFlatData(), dataLoaded: false });
-    unsubscribe = subscribeAll(user, (data) => {
-      set((s) => ({ data, dataLoaded: true, ...recompute({ ...s, data }) }));
+    unsubscribe = subscribeAll(user, (data, allLoaded) => {
+      set((s) => ({ data, dataLoaded: allLoaded, ...recompute({ ...s, data }) }));
     });
   },
   stop: () => {

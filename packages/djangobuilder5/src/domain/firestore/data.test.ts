@@ -38,3 +38,12 @@ test("accumulates added docs and drops removed ones, stamping id", () => {
   latest = seen.at(-1) as { projects: Record<string, unknown> };
   expect(latest.projects.p1).toBeUndefined();
 });
+
+test("reports allLoaded only after all five collections' initial snapshots", () => {
+  const flags: boolean[] = [];
+  subscribeAll({ uid: "u1" } as never, (_d, all) => flags.push(all));
+  ["projects", "apps", "models", "fields"].forEach((c) => snapCbs[c](change("added", "x", {})));
+  expect(flags.at(-1)).toBe(false); // 4 of 5
+  snapCbs.relationships(change("added", "y", {}));
+  expect(flags.at(-1)).toBe(true); // all 5
+});

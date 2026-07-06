@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi } from "vitest";
 
-let snapshotCb: ((d: unknown) => void) | null = null;
+let snapshotCb: ((d: unknown, allLoaded: boolean) => void) | null = null;
 vi.mock("@/domain/firestore/data", () => ({
-  subscribeAll: (_u: unknown, cb: (d: unknown) => void) => { snapshotCb = cb; return () => {}; },
+  subscribeAll: (_u: unknown, cb: (d: unknown, allLoaded: boolean) => void) => { snapshotCb = cb; return () => {}; },
 }));
 const writes = vi.hoisted(() => ({
   createProject: vi.fn().mockResolvedValue("p1"), deleteProjectCascade: vi.fn(),
@@ -26,7 +26,7 @@ beforeEach(() => {
   Object.values(writes).forEach((f) => f.mockClear());
   useProjectStore.getState().stop();
   useProjectStore.getState().start({ uid: "u" } as never);
-  snapshotCb!(FLAT);
+  snapshotCb!(FLAT, true);
 });
 
 test("a snapshot builds summaries and (after open) the current project", () => {

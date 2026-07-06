@@ -16,8 +16,12 @@ const COLLECTIONS: Array<keyof FlatData> = ["projects", "apps", "models", "field
  * Subscribe to all five owner-scoped collections. Rebuilds a FlatData snapshot on
  * every change and invokes `onData` with a fresh copy. Returns an unsubscribe fn.
  */
-export function subscribeAll(user: User, onData: (data: FlatData) => void): () => void {
+export function subscribeAll(
+  user: User,
+  onData: (data: FlatData, allLoaded: boolean) => void,
+): () => void {
   const data = emptyFlatData();
+  const loaded = new Set<string>();
 
   const unsubs = COLLECTIONS.map((name) => {
     const extra: QueryConstraint[] = name === "projects" ? [orderBy("name")] : [];
@@ -31,7 +35,8 @@ export function subscribeAll(user: User, onData: (data: FlatData) => void): () =
           if (change.type === "removed") delete bucket[id];
           else bucket[id] = { ...change.doc.data(), id };
         });
-        onData(structuredClone(data));
+        loaded.add(name);
+        onData(structuredClone(data), loaded.size === COLLECTIONS.length);
       },
       (err) => snapshotErrorHandler(err),
     );
