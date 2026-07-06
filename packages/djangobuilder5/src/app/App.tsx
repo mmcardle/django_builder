@@ -1,13 +1,42 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useEffect, type ReactNode } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
 import { Splash } from "@/features/splash/Splash";
 import { BuilderPage } from "@/features/builder/BuilderPage";
+import { DashboardView } from "@/features/dashboard/DashboardView";
+import { LoginView } from "@/features/auth/LoginView";
+import { SignUpView } from "@/features/auth/SignUpView";
+import { ResetPasswordView } from "@/features/auth/ResetPasswordView";
+import { ActionView } from "@/features/auth/ActionView";
+import { UnverifiedView } from "@/features/auth/UnverifiedView";
+import { useAuthStore } from "@/store/authStore";
+import { useProjectStore } from "@/store/projectStore";
+import { isVerified } from "@/domain/firestore/auth";
 
-// Vite sets BASE_URL to the build --base (e.g. "/db5/") so client routing works
-// when the app is served under a subpath; "/" in dev.
 const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
 
+function Gate({ children }: { children: ReactNode }) {
+  const user = useAuthStore((s) => s.user);
+  const location = useLocation();
+  if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
+  if (!isVerified(user)) return <Navigate to="/unverified" replace />;
+  return <>{children}</>;
+}
+
 export function App() {
+  const authLoaded = useAuthStore((s) => s.authLoaded);
+  const user = useAuthStore((s) => s.user);
+  const start = useProjectStore((s) => s.start);
+  const stop = useProjectStore((s) => s.stop);
+
+  // start/stop the Firestore data subscription with the signed-in user
+  useEffect(() => {
+    if (user) start(user);
+    else stop();
+  }, [user, start, stop]);
+
+  if (!authLoaded) return <div className="flex h-full items-center justify-center text-muted">Loading…</div>;
+
   return (
     <BrowserRouter basename={basename}>
       <div className="flex h-full flex-col">
@@ -15,7 +44,13 @@ export function App() {
         <main className="min-h-0 flex-1">
           <Routes>
             <Route path="/" element={<Splash />} />
-            <Route path="/build" element={<BuilderPage />} />
+            <Route path="/login" element={<LoginView />} />
+            <Route path="/signup" element={<SignUpView />} />
+            <Route path="/reset" element={<ResetPasswordView />} />
+            <Route path="/action" element={<ActionView />} />
+            <Route path="/unverified" element={<UnverifiedView />} />
+            <Route path="/projects" element={<Gate><DashboardView /></Gate>} />
+            <Route path="/project/:id" element={<Gate><BuilderPage /></Gate>} />
           </Routes>
         </main>
       </div>
