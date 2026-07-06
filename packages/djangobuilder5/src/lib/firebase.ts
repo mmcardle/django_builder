@@ -18,7 +18,9 @@ export const db = getFirestore(firebaseApp);
 // db5 keeps users signed in across sessions (the live db4 uses session-only).
 void setPersistence(auth, browserLocalPersistence);
 
-/** Swallow snapshot permission errors that fire right after sign-out. */
+/** Log genuine snapshot errors; stay silent for the permission error that fires
+ * right after sign-out (currentUser already null). Never throws into Firestore's
+ * async onSnapshot machinery. */
 export function snapshotErrorHandler(error: unknown): void {
-  if (auth.currentUser) throw error;
+  if (auth.currentUser) console.error("[db5] snapshot error", error);
 }
