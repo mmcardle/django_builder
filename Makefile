@@ -20,6 +20,8 @@ else
 	cp -r packages/djangobuilder.io/dist/* dist_$(name)/
 	mkdir -p dist_$(name)/db4/
 	cp -r packages/djangobuilder4/dist/* dist_$(name)/db4/
+	mkdir -p dist_$(name)/db5/
+	cp -r packages/djangobuilder5/dist/* dist_$(name)/db5/
 	bunx firebase deploy --public=dist_$(name)
 endif
 
