@@ -60,6 +60,16 @@ function findModel(project: LocalProject | null, appId: string, modelId: string)
   return project?.apps.find((a) => a.id === appId)?.models.find((m) => m.id === modelId) ?? null;
 }
 
+function reportWriteError(err: unknown): void {
+  console.error("[db5] Firestore write failed", err);
+}
+
+/** Fire a write-through op and surface (log) failures instead of leaving an
+ * unhandled rejection. Tolerates a mocked op that returns a non-promise. */
+function guardWrite(op: unknown): void {
+  Promise.resolve(op).catch(reportWriteError);
+}
+
 export const useProjectStore = create<ProjectState>()((set, get) => ({
   user: null,
   data: emptyFlatData(),
@@ -94,27 +104,32 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
   createProject: async (name, description, v, htmx, channels) => {
     const user = get().user;
     if (!user) return null;
-    return fs.createProject(user, name, description, v, htmx, channels);
+    try {
+      return await fs.createProject(user, name, description, v, htmx, channels);
+    } catch (err) {
+      reportWriteError(err);
+      return null;
+    }
   },
   deleteProject: async (projectId) => {
     const project = renestProject(get().data, projectId);
-    if (project) await fs.deleteProjectCascade(project);
+    if (project) await Promise.resolve(fs.deleteProjectCascade(project)).catch(reportWriteError);
   },
 
-  setProjectName: (name) => { const id = get().currentProjectId; if (id) void fs.updateProject(id, { name }); },
-  setDjangoVersion: (v) => { const id = get().currentProjectId; if (id) void fs.updateProject(id, { django_version: toVersionNumber(v) }); },
-  setFlag: (flag, value) => { const id = get().currentProjectId; if (id) void fs.updateProject(id, { [flag]: value }); },
+  setProjectName: (name) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { name })); },
+  setDjangoVersion: (v) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { django_version: toVersionNumber(v) })); },
+  setFlag: (flag, value) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { [flag]: value })); },
 
-  addApp: (name) => { const { user, currentProjectId } = get(); if (user && currentProjectId) void fs.addApp(user, currentProjectId, name); },
-  addModel: (appId, name) => { const user = get().user; if (user) void fs.addModel(user, appId, name); },
+  addApp: (name) => { const { user, currentProjectId } = get(); if (user && currentProjectId) guardWrite(fs.addApp(user, currentProjectId, name)); },
+  addModel: (appId, name) => { const user = get().user; if (user) guardWrite(fs.addModel(user, appId, name)); },
   removeModel: (appId, modelId) => {
     const model = findModel(get().project, appId, modelId);
-    if (model) void fs.removeModel(appId, model);
+    if (model) guardWrite(fs.removeModel(appId, model));
   },
-  addField: (_appId, modelId) => { const user = get().user; if (user) void fs.addField(user, modelId, "new_field", "CharField", "max_length=100"); },
-  updateField: (_appId, _modelId, fieldId, patch) => void fs.updateField(fieldId, patch),
-  removeField: (_appId, modelId, fieldId) => void fs.removeField(modelId, fieldId),
-  addRelationship: (_appId, modelId) => { const user = get().user; if (user) void fs.addRelationship(user, modelId, "related", "ForeignKey", "auth.User", "on_delete=models.CASCADE"); },
-  updateRelationship: (_appId, _modelId, relId, patch) => void fs.updateRelationship(relId, patch),
-  removeRelationship: (_appId, modelId, relId) => void fs.removeRelationship(modelId, relId),
+  addField: (_appId, modelId) => { const user = get().user; if (user) guardWrite(fs.addField(user, modelId, "new_field", "CharField", "max_length=100")); },
+  updateField: (_appId, _modelId, fieldId, patch) => guardWrite(fs.updateField(fieldId, patch)),
+  removeField: (_appId, modelId, fieldId) => guardWrite(fs.removeField(modelId, fieldId)),
+  addRelationship: (_appId, modelId) => { const user = get().user; if (user) guardWrite(fs.addRelationship(user, modelId, "related", "ForeignKey", "auth.User", "on_delete=models.CASCADE")); },
+  updateRelationship: (_appId, _modelId, relId, patch) => guardWrite(fs.updateRelationship(relId, patch)),
+  removeRelationship: (_appId, modelId, relId) => guardWrite(fs.removeRelationship(modelId, relId)),
 }));

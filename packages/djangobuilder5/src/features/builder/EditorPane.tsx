@@ -16,14 +16,25 @@ function DebouncedInput({
 >) {
   const [local, setLocal] = useState(value);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // adopt external value when it changes and we're not mid-edit
+  const focused = useRef(false);
+  // Adopt an external value only when we're NOT actively editing, so the
+  // snapshot echo of our own just-committed value can't clobber in-progress
+  // keystrokes / reset the cursor.
   useEffect(() => {
-    setLocal(value);
+    if (!focused.current) setLocal(value);
   }, [value]);
+  // Cancel any pending commit on unmount (e.g. the row was deleted mid-edit) so
+  // it can't fire updateDoc against a now-missing document.
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
   return (
     <Input
       {...props}
       value={local}
+      onFocus={() => {
+        focused.current = true;
+      }}
       onChange={(e) => {
         const v = e.target.value;
         setLocal(v);
@@ -31,6 +42,7 @@ function DebouncedInput({
         timer.current = setTimeout(() => onCommit(v), 400);
       }}
       onBlur={() => {
+        focused.current = false;
         if (timer.current) clearTimeout(timer.current);
         onCommit(local);
       }}
