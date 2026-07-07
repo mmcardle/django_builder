@@ -5,12 +5,14 @@ import { TreePane } from "./TreePane";
 import { EditorPane } from "./EditorPane";
 import { CodePane } from "./CodePane";
 
-type MobileTab = "edit" | "code";
+type MainTab = "design" | "code";
 
-/** Builder layout. `lg+`: Tree | Editor | Code side by side. Below `lg`: the
- * Tree is an off-canvas drawer and Editor/Code become a two-tab switcher. */
+/** Builder layout (Option A — tabbed workspace). A persistent models tree on
+ * the left (an off-canvas drawer below `lg`), and a main area that tabs between
+ * Design (the model editor) and Code (the file tree + generated code). Only one
+ * content pane shows at a time, at every width, so nothing gets cramped. */
 export function BuilderShell() {
-  const [tab, setTab] = useState<MobileTab>("edit");
+  const [tab, setTab] = useState<MainTab>("design");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -18,7 +20,7 @@ export function BuilderShell() {
       <ProjectHeader onToggleTree={() => setDrawerOpen((o) => !o)} />
 
       <div className="relative flex min-h-0 flex-1">
-        {/* Persistent tree on large screens */}
+        {/* Persistent models tree on large screens */}
         <div className="hidden lg:block">
           <TreePane />
         </div>
@@ -30,7 +32,7 @@ export function BuilderShell() {
               <TreePane
                 onNavigate={() => {
                   setDrawerOpen(false);
-                  setTab("edit");
+                  setTab("design");
                 }}
               />
             </div>
@@ -43,22 +45,21 @@ export function BuilderShell() {
           </div>
         ) : null}
 
-        {/* Editor + Code */}
+        {/* Main area: Design / Code tab switcher */}
         <div className="flex min-w-0 flex-1 flex-col">
-          {/* Mobile tab bar */}
-          <div role="tablist" className="flex shrink-0 border-b border-border lg:hidden">
-            {(["edit", "code"] as const).map((t) => (
+          <div role="tablist" className="flex shrink-0 border-b border-border">
+            {(["design", "code"] as const).map((t) => (
               <button
                 key={t}
                 role="tab"
                 aria-selected={tab === t}
                 onClick={() => setTab(t)}
                 className={cn(
-                  "flex-1 px-4 py-2 text-sm font-medium capitalize transition-colors",
+                  "px-5 py-2 text-sm font-medium transition-colors",
                   tab === t ? "border-b-2 border-accent text-accent" : "text-muted hover:text-text",
                 )}
               >
-                {t === "edit" ? "Edit" : "Code"}
+                {t === "design" ? "Design" : "Code"}
               </button>
             ))}
           </div>
@@ -66,17 +67,13 @@ export function BuilderShell() {
           <div className="flex min-h-0 flex-1">
             <div
               data-testid="editor-pane"
-              className={cn("min-w-0 flex-1", tab !== "edit" && "hidden", "lg:flex")}
+              className={cn("flex min-w-0 flex-1", tab !== "design" && "hidden")}
             >
               <EditorPane />
             </div>
             <div
               data-testid="code-pane"
-              className={cn(
-                "min-w-0 flex-1 border-l border-border",
-                tab !== "code" && "hidden",
-                "lg:flex",
-              )}
+              className={cn("flex min-w-0 flex-1", tab !== "code" && "hidden")}
             >
               <CodePane />
             </div>
