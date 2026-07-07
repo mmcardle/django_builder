@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 import { Input } from "@/components/ui/Input";
 import { useProjectStore } from "@/store/projectStore";
 
-export function TreePane() {
+export function TreePane({ onNavigate }: { onNavigate?: () => void } = {}) {
   const project = useProjectStore((s) => s.project);
   const selectedModelId = useProjectStore((s) => s.selectedModelId);
   const select = useProjectStore((s) => s.select);
@@ -28,7 +28,10 @@ export function TreePane() {
             {app.models.map((model) => (
               <li key={model.id}>
                 <button
-                  onClick={() => select(app.id, model.id)}
+                  onClick={() => {
+                    select(app.id, model.id);
+                    onNavigate?.();
+                  }}
                   className={cn(
                     "ml-3 flex w-[calc(100%-0.75rem)] items-center rounded-md px-2 py-1 text-left text-sm text-muted hover:text-text",
                     model.id === selectedModelId && "bg-accent/15 text-accent",

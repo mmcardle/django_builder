@@ -15,6 +15,7 @@ export function TopNav() {
       </Link>
       <nav className="flex items-center gap-3 text-sm text-muted">
         {user && <Link to="/projects" className="hover:text-text">Projects</Link>}
+        <Link to="/about" className="hover:text-text">About</Link>
         <a href="https://docs.djangoproject.com" target="_blank" rel="noopener noreferrer" title="Opens in a new tab" className="inline-flex items-center gap-1 hover:text-text">
           Docs
           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

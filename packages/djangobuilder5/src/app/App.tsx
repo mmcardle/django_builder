@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
 import { Splash } from "@/features/splash/Splash";
+import { AboutView } from "@/features/about/AboutView";
 import { BuilderPage } from "@/features/builder/BuilderPage";
 import { DashboardView } from "@/features/dashboard/DashboardView";
 import { LoginView } from "@/features/auth/LoginView";
@@ -44,6 +45,7 @@ export function App() {
         <main className="min-h-0 flex-1">
           <Routes>
             <Route path="/" element={<Splash />} />
+            <Route path="/about" element={<AboutView />} />
             <Route path="/login" element={<LoginView />} />
             <Route path="/signup" element={<SignUpView />} />
             <Route path="/reset" element={<ResetPasswordView />} />

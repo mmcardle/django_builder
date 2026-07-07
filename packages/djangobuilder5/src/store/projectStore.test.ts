@@ -47,6 +47,12 @@ test("updateField write-through forwards the patch by field id", () => {
   expect(writes.updateField).toHaveBeenCalledWith("f1", { name: "headline" });
 });
 
+test("setDescription write-through updates the current project's description", () => {
+  useProjectStore.getState().openProject("p1");
+  useProjectStore.getState().setDescription("A blog about cats");
+  expect(writes.updateProject).toHaveBeenCalledWith("p1", { description: "A blog about cats" });
+});
+
 test("createProject delegates to the service with the current user", async () => {
   await useProjectStore.getState().createProject("Shop", "d", 5, false, false);
   expect(writes.createProject).toHaveBeenCalledWith({ uid: "u" }, "Shop", "d", 5, false, false);

@@ -31,6 +31,7 @@ interface ProjectState {
 
   // builder write-through
   setProjectName: (name: string) => void;
+  setDescription: (description: string) => void;
   setDjangoVersion: (v: DjangoVersionNumber) => void;
   setFlag: (flag: "channels" | "htmx", value: boolean) => void;
   addApp: (name: string) => void;
@@ -117,6 +118,7 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
   },
 
   setProjectName: (name) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { name })); },
+  setDescription: (description) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { description })); },
   setDjangoVersion: (v) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { django_version: toVersionNumber(v) })); },
   setFlag: (flag, value) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { [flag]: value })); },
 
