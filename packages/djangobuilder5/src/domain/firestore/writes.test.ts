@@ -62,6 +62,23 @@ test("removeField deletes the field doc and clears the parent map key", async ()
   expect(batch.commit).toHaveBeenCalledOnce();
 });
 
+test("removeApp batches the app's descendants, the app doc, and the project map key", async () => {
+  await w.removeApp("p1", {
+    id: "a1",
+    models: [
+      { id: "m1", name: "Post", abstract: false,
+        fields: [{ id: "f1", name: "t", type: "CharField", args: "" }],
+        relationships: [{ id: "r1", name: "a", type: "ForeignKey", to: "auth.User", args: "" }] },
+    ],
+  });
+  expect(batch.delete).toHaveBeenCalledWith({ coll: "relationships", id: "r1" });
+  expect(batch.delete).toHaveBeenCalledWith({ coll: "fields", id: "f1" });
+  expect(batch.delete).toHaveBeenCalledWith({ coll: "models", id: "m1" });
+  expect(batch.delete).toHaveBeenCalledWith({ coll: "apps", id: "a1" });
+  expect(batch.update).toHaveBeenCalledWith({ coll: "projects", id: "p1" }, { "apps.a1": "DELETE" });
+  expect(batch.commit).toHaveBeenCalledOnce();
+});
+
 test("deleteProjectCascade batches every descendant using the plural relationships collection", async () => {
   await w.deleteProjectCascade({
     id: "p1",

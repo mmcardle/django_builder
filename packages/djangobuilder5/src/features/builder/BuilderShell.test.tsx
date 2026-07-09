@@ -2,45 +2,60 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vitest";
 
-vi.mock("./TreePane", () => ({ TreePane: () => <div>TREE</div> }));
-vi.mock("./EditorPane", () => ({ EditorPane: () => <div>EDITOR</div> }));
-vi.mock("./CodePane", () => ({ CodePane: () => <div>CODE</div> }));
+vi.mock("@/domain/generate", () => ({ projectFileTree: () => [], renderNodeByPath: () => null }));
 vi.mock("./ProjectHeader", () => ({
   ProjectHeader: ({ onToggleTree }: { onToggleTree?: () => void }) => (
     <button onClick={onToggleTree}>HEADER-TOGGLE</button>
   ),
 }));
+vi.mock("./FileTree", () => ({
+  FileTree: ({ onEditModels }: { onEditModels?: (a: string) => void }) => (
+    <div>FILETREE<button onClick={() => onEditModels?.("blog")}>TREE-EDIT</button></div>
+  ),
+}));
+vi.mock("./CodeView", () => ({
+  CodeView: ({ onEditModels }: { onEditModels: (a: string) => void }) => (
+    <button onClick={() => onEditModels("blog")}>CODEVIEW-EDIT</button>
+  ),
+}));
+vi.mock("./ModelsModal", () => ({
+  ModelsModal: ({ appId, onClose }: { appId: string; onClose: () => void }) => (
+    <div>MODAL:{appId}<button onClick={onClose}>close-modal</button></div>
+  ),
+}));
+
+const state = {
+  project: { name: "Shop", apps: [{ id: "a1", name: "blog", models: [] }] },
+  selectedAppId: "a1",
+  addApp: vi.fn(),
+};
+vi.mock("@/store/projectStore", () => ({
+  useProjectStore: (sel: (s: typeof state) => unknown) => sel(state),
+}));
 
 import { BuilderShell } from "./BuilderShell";
 
-test("main area defaults to the Design tab with Code hidden", () => {
+test("shows the file tree + code, with no Design/Code tabs", () => {
   render(<BuilderShell />);
-  expect(screen.getByRole("tab", { name: "Design" })).toHaveAttribute("aria-selected", "true");
-  expect(screen.getByTestId("editor-pane").className).not.toContain("hidden");
-  expect(screen.getByTestId("code-pane").className).toContain("hidden");
+  expect(screen.getByText("FILETREE")).toBeInTheDocument();
+  expect(screen.getByText("CODEVIEW-EDIT")).toBeInTheDocument();
+  expect(screen.queryByRole("tab")).not.toBeInTheDocument();
 });
 
-test("Design/Code tabs swap the visible pane at every width", async () => {
-  render(<BuilderShell />);
-  const editWrap = screen.getByTestId("editor-pane");
-  const codeWrap = screen.getByTestId("code-pane");
-
-  await userEvent.click(screen.getByRole("tab", { name: "Code" }));
-  expect(editWrap.className).toContain("hidden");
-  expect(codeWrap.className).not.toContain("hidden");
-
-  await userEvent.click(screen.getByRole("tab", { name: "Design" }));
-  expect(editWrap.className).not.toContain("hidden");
-  expect(codeWrap.className).toContain("hidden");
-});
-
-test("the header toggle opens and the scrim closes the tree drawer", async () => {
+test("the header toggle opens and the scrim closes the file-tree drawer", async () => {
   render(<BuilderShell />);
   expect(screen.queryByTestId("tree-drawer")).not.toBeInTheDocument();
-
   await userEvent.click(screen.getByText("HEADER-TOGGLE"));
   expect(screen.getByTestId("tree-drawer")).toBeInTheDocument();
-
   await userEvent.click(screen.getByLabelText("Close file tree"));
   expect(screen.queryByTestId("tree-drawer")).not.toBeInTheDocument();
+});
+
+test("editing models opens the modal for the resolved app id", async () => {
+  render(<BuilderShell />);
+  expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument();
+  await userEvent.click(screen.getByText("CODEVIEW-EDIT"));
+  expect(screen.getByText("MODAL:a1")).toBeInTheDocument();
+  await userEvent.click(screen.getByText("close-modal"));
+  expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument();
 });

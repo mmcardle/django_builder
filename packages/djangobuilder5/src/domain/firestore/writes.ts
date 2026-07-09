@@ -116,6 +116,23 @@ export async function removeModel(appId: string, model: { id: string; fields: { 
   await batch.commit();
 }
 
+/** Cascade-delete an app: its models (+ their fields/relationships), the app
+ * doc, and the app's key in the parent project's `apps` map — one batch. */
+export async function removeApp(
+  projectId: string,
+  app: { id: string; models: Array<LocalApp["models"][number]> },
+): Promise<void> {
+  const batch = writeBatch(db);
+  for (const model of app.models) {
+    model.fields.forEach((f) => batch.delete(doc(db, "fields", f.id)));
+    model.relationships.forEach((r) => batch.delete(doc(db, "relationships", r.id)));
+    batch.delete(doc(db, "models", model.id));
+  }
+  batch.delete(doc(db, "apps", app.id));
+  batch.update(doc(db, "projects", projectId), { [`apps.${app.id}`]: deleteField() });
+  await batch.commit();
+}
+
 /** Cascade-delete a project and every descendant (uses the correct `relationships`). */
 export async function deleteProjectCascade(project: {
   id: string;

@@ -6,7 +6,7 @@ vi.mock("@/domain/firestore/data", () => ({
 }));
 const writes = vi.hoisted(() => ({
   createProject: vi.fn().mockResolvedValue("p1"), deleteProjectCascade: vi.fn(),
-  addApp: vi.fn(), addModel: vi.fn(), removeModel: vi.fn(),
+  addApp: vi.fn(), removeApp: vi.fn(), addModel: vi.fn(), updateModel: vi.fn(), removeModel: vi.fn(),
   addField: vi.fn(), updateField: vi.fn(), removeField: vi.fn(),
   addRelationship: vi.fn(), updateRelationship: vi.fn(), removeRelationship: vi.fn(),
   updateProject: vi.fn(),
@@ -51,6 +51,18 @@ test("setDescription write-through updates the current project's description", (
   useProjectStore.getState().openProject("p1");
   useProjectStore.getState().setDescription("A blog about cats");
   expect(writes.updateProject).toHaveBeenCalledWith("p1", { description: "A blog about cats" });
+});
+
+test("updateModel write-through forwards the patch by model id", () => {
+  useProjectStore.getState().openProject("p1");
+  useProjectStore.getState().updateModel("a1", "m1", { name: "Article", abstract: true });
+  expect(writes.updateModel).toHaveBeenCalledWith("m1", { name: "Article", abstract: true });
+});
+
+test("removeApp cascades the current project's app", () => {
+  useProjectStore.getState().openProject("p1");
+  useProjectStore.getState().removeApp("a1");
+  expect(writes.removeApp).toHaveBeenCalledWith("p1", expect.objectContaining({ id: "a1", name: "blog" }));
 });
 
 test("createProject delegates to the service with the current user", async () => {

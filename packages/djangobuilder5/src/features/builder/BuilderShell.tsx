@@ -1,38 +1,76 @@
-import { useState } from "react";
-import { cn } from "@/lib/cn";
+import { useEffect, useMemo, useState } from "react";
+import { projectFileTree, renderNodeByPath } from "@/domain/generate";
+import { useProjectStore } from "@/store/projectStore";
 import { ProjectHeader } from "./ProjectHeader";
-import { TreePane } from "./TreePane";
-import { EditorPane } from "./EditorPane";
-import { CodePane } from "./CodePane";
+import { FileTree } from "./FileTree";
+import { CodeView } from "./CodeView";
+import { ModelsModal } from "./ModelsModal";
 
-type MainTab = "design" | "code";
-
-/** Builder layout (Option A — tabbed workspace). A persistent models tree on
- * the left (an off-canvas drawer below `lg`), and a main area that tabs between
- * Design (the model editor) and Code (the file tree + generated code). Only one
- * content pane shows at a time, at every width, so nothing gets cramped. */
+/** Builder layout: a single generated-file tree (the only navigation) + the
+ * selected file's code. Model editing happens in a per-app modal opened from
+ * the tree's ✎ control or the code header's "Edit models" button. On narrow
+ * screens the tree is an off-canvas drawer toggled from the header. */
 export function BuilderShell() {
-  const [tab, setTab] = useState<MainTab>("design");
+  const project = useProjectStore((s) => s.project);
+  const appId = useProjectStore((s) => s.selectedAppId);
+  const addApp = useProjectStore((s) => s.addApp);
+
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingAppId, setEditingAppId] = useState<string | null>(null);
+
+  const tree = useMemo(() => (project ? projectFileTree(project) : []), [project]);
+  const defaultPath = useMemo(() => {
+    if (!project) return "";
+    const app = project.apps.find((a) => a.id === appId) ?? project.apps[0];
+    return app ? `${app.name}/models.py` : `${project.name}/settings.py`;
+  }, [project, appId]);
+
+  const [path, setPath] = useState(defaultPath);
+  useEffect(() => setPath(defaultPath), [defaultPath]);
+
+  const rendered = useMemo(
+    () =>
+      project ? (renderNodeByPath(project, path) ?? renderNodeByPath(project, defaultPath)) : null,
+    [project, path, defaultPath],
+  );
+
+  if (!project) return null;
+
+  const editModels = (appName: string) => {
+    const app = project.apps.find((a) => a.name === appName);
+    if (app) setEditingAppId(app.id);
+  };
+
+  const treeProps = {
+    nodes: tree,
+    selectedPath: rendered?.path ?? "",
+    onEditModels: editModels,
+    onAddApp: addApp,
+  };
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <ProjectHeader onToggleTree={() => setDrawerOpen((o) => !o)} />
 
       <div className="relative flex min-h-0 flex-1">
-        {/* Persistent models tree on large screens */}
-        <div className="hidden lg:block">
-          <TreePane />
+        {/* Persistent tree on large screens */}
+        <div className="hidden w-64 shrink-0 overflow-y-auto border-r border-border p-2 lg:block">
+          <FileTree {...treeProps} onSelect={setPath} />
         </div>
 
         {/* Off-canvas tree drawer on small screens */}
         {drawerOpen ? (
           <div data-testid="tree-drawer" className="absolute inset-0 z-10 flex lg:hidden">
-            <div className="overflow-y-auto bg-bg shadow-xl">
-              <TreePane
-                onNavigate={() => {
+            <div className="w-64 overflow-y-auto bg-bg p-2 shadow-xl">
+              <FileTree
+                {...treeProps}
+                onSelect={(p) => {
+                  setPath(p);
                   setDrawerOpen(false);
-                  setTab("design");
+                }}
+                onEditModels={(a) => {
+                  editModels(a);
+                  setDrawerOpen(false);
                 }}
               />
             </div>
@@ -45,41 +83,12 @@ export function BuilderShell() {
           </div>
         ) : null}
 
-        {/* Main area: Design / Code tab switcher */}
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div role="tablist" className="flex shrink-0 border-b border-border">
-            {(["design", "code"] as const).map((t) => (
-              <button
-                key={t}
-                role="tab"
-                aria-selected={tab === t}
-                onClick={() => setTab(t)}
-                className={cn(
-                  "px-5 py-2 text-sm font-medium transition-colors",
-                  tab === t ? "border-b-2 border-accent text-accent" : "text-muted hover:text-text",
-                )}
-              >
-                {t === "design" ? "Design" : "Code"}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex min-h-0 flex-1">
-            <div
-              data-testid="editor-pane"
-              className={cn("flex min-w-0 flex-1", tab !== "design" && "hidden")}
-            >
-              <EditorPane />
-            </div>
-            <div
-              data-testid="code-pane"
-              className={cn("flex min-w-0 flex-1", tab !== "code" && "hidden")}
-            >
-              <CodePane />
-            </div>
-          </div>
-        </div>
+        <CodeView rendered={rendered} onEditModels={editModels} />
       </div>
+
+      {editingAppId ? (
+        <ModelsModal appId={editingAppId} onClose={() => setEditingAppId(null)} />
+      ) : null}
     </div>
   );
 }

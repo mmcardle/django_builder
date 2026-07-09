@@ -13,7 +13,6 @@ interface ProjectState {
   dataLoaded: boolean;
   currentProjectId: string | null;
   selectedAppId: string | null;
-  selectedModelId: string | null;
 
   // derived, recomputed on every snapshot / open:
   project: LocalProject | null;
@@ -23,7 +22,6 @@ interface ProjectState {
   start: (user: User) => void;
   stop: () => void;
   openProject: (projectId: string) => void;
-  select: (appId: string, modelId: string | null) => void;
 
   // dashboard writes
   createProject: (name: string, description: string, v: DjangoVersionNumber, htmx: boolean, channels: boolean) => Promise<string | null>;
@@ -35,7 +33,9 @@ interface ProjectState {
   setDjangoVersion: (v: DjangoVersionNumber) => void;
   setFlag: (flag: "channels" | "htmx", value: boolean) => void;
   addApp: (name: string) => void;
+  removeApp: (appId: string) => void;
   addModel: (appId: string, name: string) => void;
+  updateModel: (appId: string, modelId: string, patch: Partial<{ name: string; abstract: boolean }>) => void;
   removeModel: (appId: string, modelId: string) => void;
   addField: (appId: string, modelId: string) => void;
   updateField: (appId: string, modelId: string, fieldId: string, patch: Partial<{ name: string; type: string; args: string }>) => void;
@@ -77,7 +77,6 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
   dataLoaded: false,
   currentProjectId: null,
   selectedAppId: null,
-  selectedModelId: null,
   project: null,
   summaries: [],
 
@@ -98,9 +97,8 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
       const next = { ...s, currentProjectId: projectId };
       const project = renestProject(s.data, projectId);
       const app = project?.apps[0] ?? null;
-      return { currentProjectId: projectId, ...recompute(next), selectedAppId: app?.id ?? null, selectedModelId: app?.models[0]?.id ?? null };
+      return { currentProjectId: projectId, ...recompute(next), selectedAppId: app?.id ?? null };
     }),
-  select: (appId, modelId) => set({ selectedAppId: appId, selectedModelId: modelId }),
 
   createProject: async (name, description, v, htmx, channels) => {
     const user = get().user;
@@ -123,7 +121,13 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
   setFlag: (flag, value) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { [flag]: value })); },
 
   addApp: (name) => { const { user, currentProjectId } = get(); if (user && currentProjectId) guardWrite(fs.addApp(user, currentProjectId, name)); },
+  removeApp: (appId) => {
+    const { project, currentProjectId } = get();
+    const app = project?.apps.find((a) => a.id === appId);
+    if (app && currentProjectId) guardWrite(fs.removeApp(currentProjectId, app));
+  },
   addModel: (appId, name) => { const user = get().user; if (user) guardWrite(fs.addModel(user, appId, name)); },
+  updateModel: (_appId, modelId, patch) => guardWrite(fs.updateModel(modelId, patch)),
   removeModel: (appId, modelId) => {
     const model = findModel(get().project, appId, modelId);
     if (model) guardWrite(fs.removeModel(appId, model));

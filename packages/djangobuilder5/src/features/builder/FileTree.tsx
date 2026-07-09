@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { DjangoProjectFile } from "@djangobuilder/core";
 import { cn } from "@/lib/cn";
+import { Input } from "@/components/ui/Input";
 
 /** Folder paths on the branch that leads to `target` (its ancestor folders). */
 function folderChain(
@@ -39,14 +40,19 @@ export function FileTree({
   nodes,
   selectedPath,
   onSelect,
+  onEditModels,
+  onAddApp,
 }: {
   nodes: DjangoProjectFile[];
   selectedPath: string;
   onSelect: (path: string) => void;
+  onEditModels?: (appName: string) => void;
+  onAddApp?: (name: string) => void;
 }) {
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(folderChain(nodes, selectedPath) ?? []),
   );
+  const [newApp, setNewApp] = useState("");
 
   // Keep the selected file's folder chain open when selection changes. Return
   // the previous Set unchanged when nothing is new so we don't loop on the
@@ -90,24 +96,67 @@ export function FileTree({
         );
       }
       const selected = node.path === selectedPath;
+      const isModels = node.name === "models.py";
       return (
-        <button
+        <div
           key={node.path}
-          type="button"
-          onClick={() => onSelect(node.path)}
-          style={pad}
-          aria-current={selected ? "true" : undefined}
           className={cn(
-            "flex w-full items-center gap-1.5 rounded-md py-1 pr-2 text-left font-mono text-[13px] transition-colors",
-            selected ? "bg-accent/15 text-accent" : "text-muted hover:bg-surface-2 hover:text-text",
+            "flex items-center rounded-md transition-colors",
+            selected ? "bg-accent/15" : "hover:bg-surface-2",
           )}
         >
-          <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-50" />
-          <span className="truncate">{node.name}</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => onSelect(node.path)}
+            style={pad}
+            aria-current={selected ? "true" : undefined}
+            className={cn(
+              "flex min-w-0 flex-1 items-center gap-1.5 py-1 pr-2 text-left font-mono text-[13px]",
+              selected ? "text-accent" : "text-muted hover:text-text",
+            )}
+          >
+            <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-50" />
+            <span className="truncate">{node.name}</span>
+          </button>
+          {isModels && onEditModels ? (
+            <button
+              type="button"
+              aria-label={`edit models ${node.path}`}
+              title="Edit models"
+              onClick={() => onEditModels(node.path.split("/")[0])}
+              className="mr-1 shrink-0 rounded px-1.5 py-0.5 text-xs text-accent hover:bg-accent/20"
+            >
+              ✎
+            </button>
+          ) : null}
+        </div>
       );
     });
   }
 
-  return <div className="select-none">{renderNodes(nodes, 0)}</div>;
+  return (
+    <div className="select-none">
+      {onAddApp ? (
+        <form
+          className="mb-2 px-1"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const name = newApp.trim();
+            if (name) {
+              onAddApp(name);
+              setNewApp("");
+            }
+          }}
+        >
+          <Input
+            aria-label="Add app"
+            placeholder="＋ app name…"
+            value={newApp}
+            onChange={(e) => setNewApp(e.target.value)}
+          />
+        </form>
+      ) : null}
+      {renderNodes(nodes, 0)}
+    </div>
+  );
 }

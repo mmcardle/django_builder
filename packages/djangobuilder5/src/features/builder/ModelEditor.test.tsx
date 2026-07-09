@@ -1,0 +1,54 @@
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { expect, test, vi } from "vitest";
+import type { LocalModel } from "@/domain/types";
+
+const model: LocalModel = {
+  id: "m1",
+  name: "Post",
+  abstract: false,
+  fields: [{ id: "f1", name: "title", type: "CharField", args: "max_length=200" }],
+  relationships: [{ id: "r1", name: "author", type: "ForeignKey", to: "auth.User", args: "" }],
+};
+
+const state = {
+  project: { apps: [{ id: "a1", name: "blog", models: [model] }] },
+  updateModel: vi.fn(), addField: vi.fn(), updateField: vi.fn(), removeField: vi.fn(),
+  addRelationship: vi.fn(), updateRelationship: vi.fn(), removeRelationship: vi.fn(), removeModel: vi.fn(),
+};
+vi.mock("@/store/projectStore", () => ({
+  useProjectStore: (sel?: (s: typeof state) => unknown) => (sel ? sel(state) : state),
+}));
+
+import { ModelEditor } from "./ModelEditor";
+
+test("renders the model's name, fields and relationships", () => {
+  render(<ModelEditor appId="a1" model={model} />);
+  expect((screen.getByLabelText("model m1 name") as HTMLInputElement).value).toBe("Post");
+  expect((screen.getByLabelText("field f1 name") as HTMLInputElement).value).toBe("title");
+  expect((screen.getByLabelText("rel r1 name") as HTMLInputElement).value).toBe("author");
+});
+
+test("toggling abstract and adding a field call the store", async () => {
+  render(<ModelEditor appId="a1" model={model} />);
+  await userEvent.click(screen.getByRole("checkbox", { name: /abstract/i }));
+  expect(state.updateModel).toHaveBeenCalledWith("a1", "m1", { abstract: true });
+  await userEvent.click(screen.getByRole("button", { name: "+ field" }));
+  expect(state.addField).toHaveBeenCalledWith("a1", "m1");
+});
+
+test("renaming the model commits updateModel with the trimmed name", async () => {
+  render(<ModelEditor appId="a1" model={model} />);
+  const name = screen.getByLabelText("model m1 name");
+  await userEvent.clear(name);
+  await userEvent.type(name, "Article");
+  await userEvent.tab();
+  expect(state.updateModel).toHaveBeenCalledWith("a1", "m1", { name: "Article" });
+});
+
+test("deleting a model asks to confirm, then calls removeModel", async () => {
+  render(<ModelEditor appId="a1" model={model} />);
+  await userEvent.click(screen.getByRole("button", { name: /delete model/i }));
+  await userEvent.click(screen.getByRole("button", { name: /^delete$/i }));
+  expect(state.removeModel).toHaveBeenCalledWith("a1", "m1");
+});

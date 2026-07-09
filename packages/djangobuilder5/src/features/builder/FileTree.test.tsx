@@ -41,3 +41,19 @@ test("auto-expands the folder chain leading to the selected file", () => {
   render(<FileTree nodes={NODES} selectedPath="blog/models.py" onSelect={() => {}} />);
   expect(screen.getByText("models.py")).toBeInTheDocument();
 });
+
+test("the models.py row exposes an edit-models control that reports its app", async () => {
+  const onEditModels = vi.fn();
+  render(
+    <FileTree nodes={NODES} selectedPath="blog/models.py" onSelect={() => {}} onEditModels={onEditModels} />,
+  );
+  await userEvent.click(screen.getByRole("button", { name: /edit models/i }));
+  expect(onEditModels).toHaveBeenCalledWith("blog");
+});
+
+test("the add-app input fires onAddApp on submit", async () => {
+  const onAddApp = vi.fn();
+  render(<FileTree nodes={NODES} selectedPath="" onSelect={() => {}} onAddApp={onAddApp} />);
+  await userEvent.type(screen.getByLabelText("Add app"), "shop{Enter}");
+  expect(onAddApp).toHaveBeenCalledWith("shop");
+});
