@@ -46,7 +46,7 @@ export interface ProjectSummary {
   id: string;
   name: string;
   description: string;
-  djangoVersion: 3 | 4 | 5;
+  djangoVersion: 3 | 4 | 5 | 6;
   channels: boolean;
   htmx: boolean;
   appCount: number;

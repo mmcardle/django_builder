@@ -24,6 +24,13 @@ test("rendered models.py contains the generated Django class + field", () => {
   expect(models).toContain("max_length=200");
 });
 
+test("maps djangoVersion 6 to the core Django-6 version", () => {
+  const core = buildCoreProject({ ...makeSeedProject(), djangoVersion: 6 });
+  expect(core.version).toBe(6.0); // === 6 in JS
+  const reqs = new Renderer().renderProjectFile("requirements.txt", core);
+  expect(reqs).toContain("Django==6"); // numeric enum drops the trailing .0
+});
+
 test("resolves a relationship targeting another user model", () => {
   const core = buildCoreProject(makeSeedProject());
   const comment = core.apps[0].models[1];

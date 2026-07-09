@@ -17,7 +17,7 @@ export function ProjectSettingsDialog({ onClose }: { onClose: () => void }) {
 
   const [name, setName] = useState(project?.name ?? "");
   const [description, setDesc] = useState(project?.description ?? "");
-  const [version, setVersion] = useState<DjangoVersionNumber>(project?.djangoVersion ?? 5);
+  const [version, setVersion] = useState<DjangoVersionNumber>(project?.djangoVersion ?? 6);
   const [htmx, setHtmx] = useState(project?.htmx ?? false);
   const [channels, setChannels] = useState(project?.channels ?? false);
   const [confirming, setConfirming] = useState(false);
@@ -68,6 +68,7 @@ export function ProjectSettingsDialog({ onClose }: { onClose: () => void }) {
           value={version}
           onChange={(e) => setVersion(Number(e.target.value) as DjangoVersionNumber)}
         >
+          <option value={6}>Django 6</option>
           <option value={5}>Django 5</option>
           <option value={4}>Django 4</option>
           <option value={3}>Django 3</option>

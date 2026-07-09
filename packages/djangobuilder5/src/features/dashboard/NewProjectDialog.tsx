@@ -11,7 +11,7 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
   const createProject = useProjectStore((s) => s.createProject);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [version, setVersion] = useState<DjangoVersionNumber>(5);
+  const [version, setVersion] = useState<DjangoVersionNumber>(6);
   const [htmx, setHtmx] = useState(true);
   const [channels, setChannels] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -33,7 +33,7 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
         <Input required placeholder="Project name" aria-label="Project name" value={name} onChange={(e) => setName(e.target.value)} />
         <Input placeholder="Description" aria-label="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
         <Select aria-label="Django version" value={version} onChange={(e) => setVersion(Number(e.target.value) as DjangoVersionNumber)}>
-          <option value={5}>Django 5</option><option value={4}>Django 4</option><option value={3}>Django 3</option>
+          <option value={6}>Django 6</option><option value={5}>Django 5</option><option value={4}>Django 4</option><option value={3}>Django 3</option>
         </Select>
         <div className="flex gap-4 text-sm text-muted">
           <label className="flex items-center gap-2"><input type="checkbox" checked={htmx} onChange={(e) => setHtmx(e.target.checked)} /> HTMX</label>

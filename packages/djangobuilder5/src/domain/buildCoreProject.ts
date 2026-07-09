@@ -8,10 +8,11 @@ import {
 } from "@djangobuilder/core";
 import type { LocalModel, LocalProject } from "./types";
 
-function toDjangoVersion(v: 3 | 4 | 5): DjangoVersion {
+function toDjangoVersion(v: 3 | 4 | 5 | 6): DjangoVersion {
   if (v === 3) return DjangoVersion.DJANGO3;
   if (v === 4) return DjangoVersion.DJANGO4;
-  return DjangoVersion.DJANGO5;
+  if (v === 5) return DjangoVersion.DJANGO5;
+  return DjangoVersion.DJANGO6;
 }
 
 /** Convert editable local state into a generation-ready core DjangoProject. */
