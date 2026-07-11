@@ -18,6 +18,10 @@ export function renestProject(data: FlatData, projectId: string): LocalProject |
           id: model.id,
           name: model.name,
           abstract: Boolean(model.abstract),
+          // Keep django bases; drop user parents whose app/model no longer exist.
+          parents: (model.parents ?? []).filter(
+            (p) => p.type === "django" || (Boolean(data.apps[p.app]) && Boolean(data.models[p.model])),
+          ),
           fields: Object.keys(model.fields)
             .map((fieldId) => data.fields[fieldId])
             .filter(Boolean)

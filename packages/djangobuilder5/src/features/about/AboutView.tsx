@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 
 export function AboutView() {
@@ -41,6 +42,9 @@ export function AboutView() {
         >
           @mmc4rdle
         </a>
+        <Link to="/privacy" className="text-accent hover:text-text">
+          Privacy Policy
+        </Link>
       </div>
 
       <div className="mx-auto mt-10 max-w-xl rounded-[10px] border border-border bg-surface p-6 text-left">

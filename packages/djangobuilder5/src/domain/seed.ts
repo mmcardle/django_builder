@@ -17,6 +17,7 @@ export function makeSeedProject(): LocalProject {
             id: "model_post",
             name: "Post",
             abstract: false,
+            parents: [],
             fields: [
               { id: "f_title", name: "title", type: "CharField", args: "max_length=200" },
               { id: "f_body", name: "body", type: "TextField", args: "blank=True" },
@@ -30,6 +31,7 @@ export function makeSeedProject(): LocalProject {
             id: "model_comment",
             name: "Comment",
             abstract: false,
+            parents: [],
             fields: [{ id: "f_text", name: "text", type: "TextField", args: "" }],
             relationships: [
               { id: "r_post", name: "post", type: "ForeignKey", to: "blog.Post", args: "on_delete=models.CASCADE" },

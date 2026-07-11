@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { ModelEditor } from "./ModelEditor";
+import { ImportModelsDialog } from "./ImportModelsDialog";
 import { useProjectStore } from "@/store/projectStore";
 
 export function ModelsModal({ appId, onClose }: { appId: string; onClose: () => void }) {
@@ -9,6 +10,7 @@ export function ModelsModal({ appId, onClose }: { appId: string; onClose: () => 
   const removeApp = useProjectStore((s) => s.removeApp);
   const app = project?.apps.find((a) => a.id === appId);
   const [confirmDeleteApp, setConfirmDeleteApp] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   // If the app disappears (deleted here or in another tab), close.
   useEffect(() => {
@@ -31,6 +33,14 @@ export function ModelsModal({ appId, onClose }: { appId: string; onClose: () => 
             Edit models · <span className="font-mono text-accent">{app.name}</span>
           </h2>
           <div className="ml-auto flex items-center gap-3">
+            {!confirmDeleteApp ? (
+              <button
+                className="text-xs font-semibold text-accent hover:text-accent-hover"
+                onClick={() => setImporting(true)}
+              >
+                Import
+              </button>
+            ) : null}
             {confirmDeleteApp ? (
               <span className="flex items-center gap-2 text-xs">
                 <span className="text-muted">Delete app {app.name}?</span>
@@ -80,6 +90,8 @@ export function ModelsModal({ appId, onClose }: { appId: string; onClose: () => 
           <Button onClick={onClose}>Done</Button>
         </div>
       </div>
+
+      {importing ? <ImportModelsDialog appId={appId} onClose={() => setImporting(false)} /> : null}
     </div>
   );
 }

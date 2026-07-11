@@ -7,14 +7,21 @@ const model: LocalModel = {
   id: "m1",
   name: "Post",
   abstract: false,
+  parents: [],
   fields: [{ id: "f1", name: "title", type: "CharField", args: "max_length=200" }],
   relationships: [{ id: "r1", name: "author", type: "ForeignKey", to: "auth.User", args: "" }],
 };
 
 const state = {
-  project: { apps: [{ id: "a1", name: "blog", models: [model] }] },
+  project: {
+    apps: [
+      { id: "a1", name: "blog", models: [model] },
+      { id: "a2", name: "shop", models: [] },
+    ],
+  },
   updateModel: vi.fn(), addField: vi.fn(), updateField: vi.fn(), removeField: vi.fn(),
   addRelationship: vi.fn(), updateRelationship: vi.fn(), removeRelationship: vi.fn(), removeModel: vi.fn(),
+  setModelParents: vi.fn(), moveModel: vi.fn(),
 };
 vi.mock("@/store/projectStore", () => ({
   useProjectStore: (sel?: (s: typeof state) => unknown) => (sel ? sel(state) : state),
@@ -44,6 +51,20 @@ test("renaming the model commits updateModel with the trimmed name", async () =>
   await userEvent.type(name, "Article");
   await userEvent.tab();
   expect(state.updateModel).toHaveBeenCalledWith("a1", "m1", { name: "Article" });
+});
+
+test("adding a built-in parent commits setModelParents with its full class path", async () => {
+  render(<ModelEditor appId="a1" model={model} />);
+  await userEvent.selectOptions(screen.getByLabelText("model m1 add parent"), "auth.User");
+  expect(state.setModelParents).toHaveBeenCalledWith("a1", "m1", [
+    { type: "django", class: "django.contrib.auth.models.User" },
+  ]);
+});
+
+test("Move to… re-parents the model to the chosen app", async () => {
+  render(<ModelEditor appId="a1" model={model} />);
+  await userEvent.selectOptions(screen.getByLabelText("move model m1"), "shop");
+  expect(state.moveModel).toHaveBeenCalledWith("a1", "a2", "m1");
 });
 
 test("deleting a model asks to confirm, then calls removeModel", async () => {

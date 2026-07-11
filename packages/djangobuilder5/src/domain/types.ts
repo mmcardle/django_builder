@@ -15,10 +15,17 @@ export interface LocalRelationship {
   args: string;
 }
 
+/** A model's superclass: a Django built-in base, or another user model.
+ * Matches the Firestore `models.parents` format shared with djangobuilder.io. */
+export type LocalParent =
+  | { type: "django"; class: string }
+  | { type: "user"; app: string; model: string };
+
 export interface LocalModel {
   id: string;
   name: string;
   abstract: boolean;
+  parents: LocalParent[];
   fields: LocalField[];
   relationships: LocalRelationship[];
 }

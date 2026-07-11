@@ -27,6 +27,8 @@ export function buildCoreProject(project: LocalProject): DjangoProject {
 
   // "app.Model" -> core model, used to resolve relationship targets by name.
   const modelIndex = new Map<string, DjangoModel>();
+  // model id -> core model, used to resolve user-model parents by id.
+  const coreModelById = new Map<string, DjangoModel>();
   // Local model paired with the core model it produced, so pass 2 wires
   // relationships onto the right owner by identity (not by re-looking-up name,
   // which would mis-wire if two models shared a name).
@@ -44,17 +46,32 @@ export function buildCoreProject(project: LocalProject): DjangoProject {
         coreModel.addField(field.name, fieldType, field.args, editable, field.id);
       }
       modelIndex.set(`${app.name}.${model.name}`, coreModel);
+      coreModelById.set(model.id, coreModel);
       built.push({ localModel: model, coreModel });
     }
   }
 
-  // Pass 2: relationships (all targets now exist).
+  // Pass 2: parents (all user-model bases now exist). django parents resolve to
+  // a built-in base by class name; user parents to the core model built above.
+  for (const { localModel, coreModel } of built) {
+    coreModel.parents = localModel.parents
+      .map((p) => {
+        if (p.type === "django") {
+          const modelName = p.class.split(".").pop();
+          return Object.values(BuiltInModelTypes).find((v) => v.model === modelName);
+        }
+        return coreModelById.get(p.model);
+      })
+      .filter((v): v is NonNullable<typeof v> => Boolean(v)) as DjangoModel["parents"];
+  }
+
+  // Pass 3: relationships (all targets now exist).
   for (const { localModel, coreModel } of built) {
     for (const rel of localModel.relationships) {
       const relType = RelationshipTypes[rel.type];
       if (!relType) throw new Error(`Unknown relationship type: ${rel.type}`);
       const target =
-        rel.to === "auth.User" ? BuiltInModelTypes["auth.User"] : modelIndex.get(rel.to);
+        BuiltInModelTypes[rel.to as keyof typeof BuiltInModelTypes] ?? modelIndex.get(rel.to);
       if (!target) throw new Error(`Unknown relationship target: ${rel.to}`);
       coreModel.addRelationship(
         rel.name,

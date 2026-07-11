@@ -6,7 +6,8 @@ vi.mock("@/domain/firestore/data", () => ({
 }));
 const writes = vi.hoisted(() => ({
   createProject: vi.fn().mockResolvedValue("p1"), deleteProjectCascade: vi.fn(),
-  addApp: vi.fn(), removeApp: vi.fn(), addModel: vi.fn(), updateModel: vi.fn(), removeModel: vi.fn(),
+  addApp: vi.fn(), removeApp: vi.fn(), addModel: vi.fn(), importModels: vi.fn(), updateModel: vi.fn(),
+  setModelParents: vi.fn(), moveModel: vi.fn(), removeModel: vi.fn(),
   addField: vi.fn(), updateField: vi.fn(), removeField: vi.fn(),
   addRelationship: vi.fn(), updateRelationship: vi.fn(), removeRelationship: vi.fn(),
   updateProject: vi.fn(),
@@ -57,6 +58,26 @@ test("updateModel write-through forwards the patch by model id", () => {
   useProjectStore.getState().openProject("p1");
   useProjectStore.getState().updateModel("a1", "m1", { name: "Article", abstract: true });
   expect(writes.updateModel).toHaveBeenCalledWith("m1", { name: "Article", abstract: true });
+});
+
+test("setModelParents write-through forwards the parents by model id", () => {
+  useProjectStore.getState().openProject("p1");
+  const parents = [{ type: "django", class: "django.contrib.auth.models.User" }] as never;
+  useProjectStore.getState().setModelParents("a1", "m1", parents);
+  expect(writes.setModelParents).toHaveBeenCalledWith("m1", parents);
+});
+
+test("importModels delegates to the service for the current user", () => {
+  useProjectStore.getState().openProject("p1");
+  const models = [{ name: "X", abstract: false, fields: [], relationships: [] }];
+  useProjectStore.getState().importModels("a1", models);
+  expect(writes.importModels).toHaveBeenCalledWith({ uid: "u" }, "a1", models);
+});
+
+test("moveModel delegates the re-parent to the service", () => {
+  useProjectStore.getState().openProject("p1");
+  useProjectStore.getState().moveModel("a1", "a2", "m1");
+  expect(writes.moveModel).toHaveBeenCalledWith("a1", "a2", "m1");
 });
 
 test("removeApp cascades the current project's app", () => {

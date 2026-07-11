@@ -8,6 +8,8 @@ import {
   applyActionCode,
   confirmPasswordReset,
   onAuthStateChanged,
+  EmailAuthProvider,
+  linkWithCredential,
   type User,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -41,6 +43,16 @@ export async function signUp(email: string, password: string): Promise<User> {
 export async function signInAnon(): Promise<User> {
   const cred = await signInAnonymously(auth);
   return cred.user;
+}
+
+/** Upgrade the current anonymous user into a permanent email/password account,
+ * keeping the same uid (and all their data). Sends a verification email. */
+export async function upgradeAnonymous(email: string, password: string): Promise<User> {
+  if (!auth.currentUser) throw new Error("Not signed in");
+  const cred = EmailAuthProvider.credential(email, password);
+  const result = await linkWithCredential(auth.currentUser, cred);
+  await sendEmailVerification(result.user, verifyActionSettings());
+  return result.user;
 }
 
 export function signOutUser(): Promise<void> {

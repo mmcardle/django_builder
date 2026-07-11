@@ -62,11 +62,34 @@ test("removeField deletes the field doc and clears the parent map key", async ()
   expect(batch.commit).toHaveBeenCalledOnce();
 });
 
+test("importModels batches each model with its fields/relationships and links them to the app", async () => {
+  await w.importModels(U, "a1", [
+    {
+      name: "Post", abstract: false,
+      fields: [{ name: "title", type: "CharField", args: "max_length=200" }],
+      relationships: [{ name: "author", type: "ForeignKey", to: "auth.User", args: "" }],
+    },
+  ]);
+  const modelSet = batch.set.mock.calls.find((c) => c[1].name === "Post");
+  expect(modelSet![1]).toMatchObject({ owner: "u1", name: "Post", abstract: false, parents: [] });
+  expect(batch.set.mock.calls.find((c) => c[1].name === "title")![1]).toMatchObject({ owner: "u1", type: "CharField" });
+  expect(batch.set.mock.calls.find((c) => c[1].name === "author")![1]).toMatchObject({ owner: "u1", to: "auth.User" });
+  expect(batch.update).toHaveBeenCalled(); // app link
+  expect(batch.commit).toHaveBeenCalledOnce();
+});
+
+test("moveModel flips the model key between the source and target apps", async () => {
+  await w.moveModel("a1", "a2", "m1");
+  expect(batch.update).toHaveBeenCalledWith({ coll: "apps", id: "a1" }, { "models.m1": "DELETE" });
+  expect(batch.update).toHaveBeenCalledWith({ coll: "apps", id: "a2" }, { "models.m1": true });
+  expect(batch.commit).toHaveBeenCalledOnce();
+});
+
 test("removeApp batches the app's descendants, the app doc, and the project map key", async () => {
   await w.removeApp("p1", {
     id: "a1",
     models: [
-      { id: "m1", name: "Post", abstract: false,
+      { id: "m1", name: "Post", abstract: false, parents: [],
         fields: [{ id: "f1", name: "t", type: "CharField", args: "" }],
         relationships: [{ id: "r1", name: "a", type: "ForeignKey", to: "auth.User", args: "" }] },
     ],
@@ -82,7 +105,7 @@ test("removeApp batches the app's descendants, the app doc, and the project map 
 test("deleteProjectCascade batches every descendant using the plural relationships collection", async () => {
   await w.deleteProjectCascade({
     id: "p1",
-    apps: [{ id: "a1", name: "blog", models: [{ id: "m1", name: "Post", abstract: false,
+    apps: [{ id: "a1", name: "blog", models: [{ id: "m1", name: "Post", abstract: false, parents: [],
       fields: [{ id: "f1", name: "t", type: "CharField", args: "" }],
       relationships: [{ id: "r1", name: "a", type: "ForeignKey", to: "auth.User", args: "" }] }] }],
   });

@@ -6,7 +6,7 @@ vi.mock("./ModelEditor", () => ({
   ModelEditor: ({ model }: { model: { name: string } }) => <div>model:{model.name}</div>,
 }));
 
-const mk = (id: string, name: string) => ({ id, name, abstract: false, fields: [], relationships: [] });
+const mk = (id: string, name: string) => ({ id, name, abstract: false, parents: [], fields: [], relationships: [] });
 const state = {
   project: { apps: [{ id: "a1", name: "blog", models: [mk("m1", "Post"), mk("m2", "Comment")] }] },
   addModel: vi.fn(),

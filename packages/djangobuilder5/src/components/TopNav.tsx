@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { UpgradeAccountDialog } from "@/features/auth/UpgradeAccountDialog";
 import { useAuthStore } from "@/store/authStore";
 import { signOutUser } from "@/domain/firestore/auth";
 
 export function TopNav() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
+  const [upgrading, setUpgrading] = useState(false);
   async function out() { await signOutUser(); navigate("/"); }
 
   return (
@@ -16,6 +19,7 @@ export function TopNav() {
       <nav className="flex items-center gap-3 text-sm text-muted">
         {user && <Link to="/projects" className="hover:text-text">Projects</Link>}
         <Link to="/about" className="hover:text-text">About</Link>
+        <Link to="/privacy" className="hover:text-text">Privacy</Link>
         <a href="https://docs.djangoproject.com" target="_blank" rel="noopener noreferrer" title="Opens in a new tab" className="inline-flex items-center gap-1 hover:text-text">
           Docs
           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -24,6 +28,11 @@ export function TopNav() {
         </a>
         {user ? (
           <>
+            {user.isAnonymous && (
+              <button className="font-semibold text-accent" onClick={() => setUpgrading(true)}>
+                Save your account
+              </button>
+            )}
             {!user.isAnonymous && <span className="hidden text-muted sm:inline">{user.email}</span>}
             <button className="font-semibold text-accent" onClick={out}>Sign out</button>
           </>
@@ -32,6 +41,7 @@ export function TopNav() {
         )}
         <ThemeToggle />
       </nav>
+      {upgrading && <UpgradeAccountDialog onClose={() => setUpgrading(false)} />}
     </header>
   );
 }

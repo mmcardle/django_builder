@@ -10,7 +10,8 @@ import type { User } from "firebase/auth";
 import { db } from "@/lib/firebase";
 import { toVersionNumber } from "./version";
 import type { DjangoVersionNumber } from "./version";
-import type { LocalApp } from "@/domain/types";
+import type { LocalApp, LocalParent } from "@/domain/types";
+import type { ParsedModel } from "@/domain/import";
 
 type Args = Record<string, string | boolean | number>;
 
@@ -90,6 +91,8 @@ export async function addRelationship(
 
 export const updateProject = (id: string, args: Args) => updateDoc(doc(db, "projects", id), args);
 export const updateModel = (id: string, args: Args) => updateDoc(doc(db, "models", id), args);
+export const setModelParents = (id: string, parents: LocalParent[]) =>
+  updateDoc(doc(db, "models", id), { parents });
 export const updateField = (id: string, args: Args) => updateDoc(doc(db, "fields", id), args);
 export const updateRelationship = (id: string, args: Args) => updateDoc(doc(db, "relationships", id), args);
 
@@ -113,6 +116,48 @@ export async function removeModel(appId: string, model: { id: string; fields: { 
   model.relationships.forEach((r) => batch.delete(doc(db, "relationships", r.id)));
   batch.delete(doc(db, "models", model.id));
   batch.update(doc(db, "apps", appId), { [`models.${model.id}`]: deleteField() });
+  await batch.commit();
+}
+
+/** Add parsed (imported) models — each with its fields/relationships — to an
+ * app, all in one batch. Imported models come as-authored (no default fields). */
+export async function importModels(user: User, appId: string, models: ParsedModel[]): Promise<void> {
+  const batch = writeBatch(db);
+  const appLink: Record<string, boolean> = {};
+  for (const m of models) {
+    const modelRef = doc(collection(db, "models"));
+    const fieldsMap: Record<string, boolean> = {};
+    const relsMap: Record<string, boolean> = {};
+    for (const f of m.fields) {
+      const fieldRef = doc(collection(db, "fields"));
+      fieldsMap[fieldRef.id] = true;
+      batch.set(fieldRef, { owner: user.uid, name: f.name, type: f.type, args: f.args });
+    }
+    for (const r of m.relationships) {
+      const relRef = doc(collection(db, "relationships"));
+      relsMap[relRef.id] = true;
+      batch.set(relRef, { owner: user.uid, name: r.name, type: r.type, to: r.to, args: r.args });
+    }
+    batch.set(modelRef, {
+      owner: user.uid,
+      name: m.name,
+      abstract: m.abstract,
+      parents: [],
+      fields: fieldsMap,
+      relationships: relsMap,
+    });
+    appLink[`models.${modelRef.id}`] = true;
+  }
+  batch.update(doc(db, "apps", appId), appLink);
+  await batch.commit();
+}
+
+/** Re-parent a model to another app: flip the model's key in the two apps'
+ * `models` maps (the model/field/relationship docs are unchanged). */
+export async function moveModel(fromAppId: string, toAppId: string, modelId: string): Promise<void> {
+  const batch = writeBatch(db);
+  batch.update(doc(db, "apps", fromAppId), { [`models.${modelId}`]: deleteField() });
+  batch.update(doc(db, "apps", toAppId), { [`models.${modelId}`]: true });
   await batch.commit();
 }
 

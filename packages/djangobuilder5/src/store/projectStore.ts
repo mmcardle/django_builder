@@ -1,11 +1,12 @@
 import { create } from "zustand";
 import type { User } from "firebase/auth";
-import type { LocalProject, RelationshipTypeName } from "@/domain/types";
+import type { LocalParent, LocalProject, RelationshipTypeName } from "@/domain/types";
 import { emptyFlatData, type FlatData, type ProjectSummary } from "@/domain/firestore/types";
 import { renestProject, projectSummary } from "@/domain/firestore/mapper";
 import { subscribeAll } from "@/domain/firestore/data";
 import * as fs from "@/domain/firestore/writes";
 import { toVersionNumber, type DjangoVersionNumber } from "@/domain/firestore/version";
+import type { ParsedModel } from "@/domain/import";
 
 interface ProjectState {
   user: User | null;
@@ -35,7 +36,10 @@ interface ProjectState {
   addApp: (name: string) => void;
   removeApp: (appId: string) => void;
   addModel: (appId: string, name: string) => void;
+  importModels: (appId: string, models: ParsedModel[]) => void;
   updateModel: (appId: string, modelId: string, patch: Partial<{ name: string; abstract: boolean }>) => void;
+  setModelParents: (appId: string, modelId: string, parents: LocalParent[]) => void;
+  moveModel: (fromAppId: string, toAppId: string, modelId: string) => void;
   removeModel: (appId: string, modelId: string) => void;
   addField: (appId: string, modelId: string) => void;
   updateField: (appId: string, modelId: string, fieldId: string, patch: Partial<{ name: string; type: string; args: string }>) => void;
@@ -127,7 +131,10 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     if (app && currentProjectId) guardWrite(fs.removeApp(currentProjectId, app));
   },
   addModel: (appId, name) => { const user = get().user; if (user) guardWrite(fs.addModel(user, appId, name)); },
+  importModels: (appId, models) => { const user = get().user; if (user) guardWrite(fs.importModels(user, appId, models)); },
   updateModel: (_appId, modelId, patch) => guardWrite(fs.updateModel(modelId, patch)),
+  setModelParents: (_appId, modelId, parents) => guardWrite(fs.setModelParents(modelId, parents)),
+  moveModel: (fromAppId, toAppId, modelId) => guardWrite(fs.moveModel(fromAppId, toAppId, modelId)),
   removeModel: (appId, modelId) => {
     const model = findModel(get().project, appId, modelId);
     if (model) guardWrite(fs.removeModel(appId, model));

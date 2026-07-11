@@ -2,8 +2,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { DebouncedInput } from "@/components/ui/DebouncedInput";
-import { fieldTypeNames, relationshipTargets, relationshipTypeNames } from "@/domain/options";
-import type { LocalModel, RelationshipTypeName } from "@/domain/types";
+import {
+  builtInClass,
+  builtInParentTargets,
+  fieldTypeNames,
+  relationshipTargets,
+  relationshipTypeNames,
+} from "@/domain/options";
+import type { LocalModel, LocalParent, RelationshipTypeName } from "@/domain/types";
 import { useProjectStore } from "@/store/projectStore";
 
 export function ModelEditor({ appId, model }: { appId: string; model: LocalModel }) {
@@ -11,6 +17,50 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
   const project = useProjectStore((s) => s.project);
   const targets = relationshipTargets(project?.apps ?? []);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const appName = project?.apps.find((a) => a.id === appId)?.name ?? "";
+  const self = `${appName}.${model.name}`;
+  const userModelTargets = (project?.apps ?? [])
+    .flatMap((a) => a.models.map((m) => `${a.name}.${m.name}`))
+    .filter((t) => t !== self);
+  const parentAddOptions = [...builtInParentTargets, ...userModelTargets];
+  const otherApps = (project?.apps ?? []).filter((a) => a.id !== appId);
+
+  function parentLabel(p: LocalParent): string {
+    if (p.type === "django") return p.class.split(".").pop() ?? p.class;
+    const m = project?.apps.find((a) => a.id === p.app)?.models.find((mm) => mm.id === p.model);
+    return m ? m.name : "(deleted)";
+  }
+  function hasParent(next: LocalParent): boolean {
+    return model.parents.some((p) =>
+      p.type === "django" && next.type === "django"
+        ? p.class === next.class
+        : p.type === "user" && next.type === "user"
+          ? p.model === next.model
+          : false,
+    );
+  }
+  function addParent(target: string) {
+    if (!project) return;
+    const cls = builtInClass(target);
+    let next: LocalParent | null = null;
+    if (cls) {
+      next = { type: "django", class: cls };
+    } else {
+      const [aName, mName] = target.split(".");
+      const app = project.apps.find((a) => a.name === aName);
+      const m = app?.models.find((mm) => mm.name === mName);
+      if (app && m) next = { type: "user", app: app.id, model: m.id };
+    }
+    if (next && !hasParent(next)) store.setModelParents(appId, model.id, [...model.parents, next]);
+  }
+  function removeParent(idx: number) {
+    store.setModelParents(
+      appId,
+      model.id,
+      model.parents.filter((_, i) => i !== idx),
+    );
+  }
 
   return (
     <div className="rounded-xl border border-border bg-bg/40 p-4">
@@ -29,7 +79,22 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
           />
           abstract
         </label>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          {otherApps.length > 0 && !confirmDelete ? (
+            <Select
+              aria-label={`move model ${model.id}`}
+              value=""
+              className="h-7 text-xs"
+              onChange={(e) => {
+                if (e.target.value) store.moveModel(appId, e.target.value, model.id);
+              }}
+            >
+              <option value="">Move to…</option>
+              {otherApps.map((a) => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
+            </Select>
+          ) : null}
           {confirmDelete ? (
             <span className="flex items-center gap-2 text-xs">
               <span className="text-muted">Delete {model.name}?</span>
@@ -49,6 +114,46 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
             </button>
           )}
         </div>
+      </div>
+
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center gap-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Inherits from</p>
+          <Select
+            aria-label={`model ${model.id} add parent`}
+            value=""
+            className="h-7 text-xs"
+            onChange={(e) => {
+              if (e.target.value) addParent(e.target.value);
+            }}
+          >
+            <option value="">+ parent…</option>
+            {parentAddOptions.map((t) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </Select>
+        </div>
+        {model.parents.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {model.parents.map((p, i) => (
+              <span
+                key={i}
+                className="flex items-center gap-1 rounded-full border border-accent/35 bg-accent/10 px-2 py-0.5 font-mono text-[11px] text-accent"
+              >
+                {parentLabel(p)}
+                <button
+                  aria-label={`remove parent ${i}`}
+                  className="text-accent/70 hover:text-accent"
+                  onClick={() => removeParent(i)}
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p className="font-mono text-xs text-muted">models.Model</p>
+        )}
       </div>
 
       <div className="mb-2 flex items-center justify-between">

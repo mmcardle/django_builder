@@ -37,6 +37,52 @@ test("resolves a relationship targeting another user model", () => {
   expect(comment.relationships[0].relatedTo()).toContain("Post");
 });
 
+test("resolves django built-in and user-model parents", () => {
+  const project: LocalProject = {
+    id: "p", name: "P", description: "", djangoVersion: 5, channels: false, htmx: false,
+    apps: [
+      {
+        id: "a", name: "blog",
+        models: [
+          { id: "base", name: "Base", abstract: true, parents: [], fields: [], relationships: [] },
+          {
+            id: "post", name: "Post", abstract: false,
+            parents: [
+              { type: "django", class: "django.contrib.auth.models.AbstractUser" },
+              { type: "user", app: "a", model: "base" },
+            ],
+            fields: [], relationships: [],
+          },
+        ],
+      },
+    ],
+  };
+  const core = buildCoreProject(project);
+  const post = core.apps[0].models.find((m) => m.name === "Post")!;
+  const names = (post.parents as Array<{ model?: string; name?: string }>).map((p) => p.model ?? p.name);
+  expect(names).toContain("AbstractUser"); // built-in base
+  expect(names).toContain("Base"); // user-model base
+});
+
+test("resolves a relationship to a built-in base like auth.Group", () => {
+  const project: LocalProject = {
+    id: "p", name: "P", description: "", djangoVersion: 5, channels: false, htmx: false,
+    apps: [
+      {
+        id: "a", name: "blog",
+        models: [
+          {
+            id: "m", name: "Post", abstract: false, parents: [], fields: [],
+            relationships: [{ id: "r", name: "groups", type: "ManyToManyField", to: "auth.Group", args: "" }],
+          },
+        ],
+      },
+    ],
+  };
+  const core = buildCoreProject(project);
+  expect(core.apps[0].models[0].relationships[0].relatedTo()).toContain("Group");
+});
+
 test("wires a relationship onto its own model even when two models share a name", () => {
   // Regression: pass 2 must use the model built in pass 1 by identity, not a
   // name re-lookup (which would attach the relationship to the first "Dup").
@@ -52,11 +98,12 @@ test("wires a relationship onto its own model even when two models share a name"
         id: "a",
         name: "blog",
         models: [
-          { id: "m1", name: "Dup", abstract: false, fields: [], relationships: [] },
+          { id: "m1", name: "Dup", abstract: false, parents: [], fields: [], relationships: [] },
           {
             id: "m2",
             name: "Dup",
             abstract: false,
+            parents: [],
             fields: [],
             relationships: [
               { id: "r1", name: "owner", type: "ForeignKey", to: "auth.User", args: "on_delete=models.CASCADE" },
