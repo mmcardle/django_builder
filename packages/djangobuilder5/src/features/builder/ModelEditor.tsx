@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { DebouncedInput } from "@/components/ui/DebouncedInput";
+import { DebouncedTextarea } from "@/components/ui/DebouncedTextarea";
 import {
   builtInClass,
   builtInParentTargets,
@@ -162,39 +163,41 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
           + field
         </Button>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {model.fields.map((field) => (
-          <div key={field.id} className="flex items-center gap-2">
-            <DebouncedInput
-              aria-label={`field ${field.id} name`}
-              className="w-40 font-mono"
-              value={field.name}
-              onCommit={(v) => store.updateField(appId, model.id, field.id, { name: v })}
-            />
-            <Select
-              aria-label={`field ${field.id} type`}
-              value={field.type}
-              onChange={(e) => store.updateField(appId, model.id, field.id, { type: e.target.value })}
-            >
-              {fieldTypeNames.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </Select>
-            <DebouncedInput
+          <div key={field.id} className="space-y-1">
+            <div className="flex items-center gap-2">
+              <DebouncedInput
+                aria-label={`field ${field.id} name`}
+                className="w-40 font-mono"
+                value={field.name}
+                onCommit={(v) => store.updateField(appId, model.id, field.id, { name: v })}
+              />
+              <Select
+                aria-label={`field ${field.id} type`}
+                className="min-w-0 flex-1"
+                value={field.type}
+                onChange={(e) => store.updateField(appId, model.id, field.id, { type: e.target.value })}
+              >
+                {fieldTypeNames.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </Select>
+              <Button
+                size="icon"
+                variant="ghost"
+                aria-label={`remove field ${field.id}`}
+                onClick={() => store.removeField(appId, model.id, field.id)}
+              >
+                ✕
+              </Button>
+            </div>
+            <DebouncedTextarea
               aria-label={`field ${field.id} args`}
-              className="flex-1 font-mono"
               placeholder="args (e.g. max_length=200)"
               value={field.args}
               onCommit={(v) => store.updateField(appId, model.id, field.id, { args: v })}
             />
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label={`remove field ${field.id}`}
-              onClick={() => store.removeField(appId, model.id, field.id)}
-            >
-              ✕
-            </Button>
           </div>
         ))}
       </div>
@@ -205,47 +208,55 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
           + relationship
         </Button>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {model.relationships.map((rel) => (
-          <div key={rel.id} className="flex items-center gap-2">
-            <DebouncedInput
-              aria-label={`rel ${rel.id} name`}
-              className="w-40 font-mono"
-              value={rel.name}
-              onCommit={(v) => store.updateRelationship(appId, model.id, rel.id, { name: v })}
+          <div key={rel.id} className="space-y-1">
+            <div className="flex items-center gap-2">
+              <DebouncedInput
+                aria-label={`rel ${rel.id} name`}
+                className="w-40 font-mono"
+                value={rel.name}
+                onCommit={(v) => store.updateRelationship(appId, model.id, rel.id, { name: v })}
+              />
+              <Select
+                aria-label={`rel ${rel.id} type`}
+                className="min-w-0 flex-1"
+                value={rel.type}
+                onChange={(e) =>
+                  store.updateRelationship(appId, model.id, rel.id, {
+                    type: e.target.value as RelationshipTypeName,
+                  })
+                }
+              >
+                {relationshipTypeNames.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </Select>
+              <Select
+                aria-label={`rel ${rel.id} target`}
+                className="min-w-0 flex-1"
+                value={rel.to}
+                onChange={(e) => store.updateRelationship(appId, model.id, rel.id, { to: e.target.value })}
+              >
+                {targets.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </Select>
+              <Button
+                size="icon"
+                variant="ghost"
+                aria-label={`remove rel ${rel.id}`}
+                onClick={() => store.removeRelationship(appId, model.id, rel.id)}
+              >
+                ✕
+              </Button>
+            </div>
+            <DebouncedTextarea
+              aria-label={`rel ${rel.id} args`}
+              placeholder="args (e.g. on_delete=models.CASCADE)"
+              value={rel.args}
+              onCommit={(v) => store.updateRelationship(appId, model.id, rel.id, { args: v })}
             />
-            <Select
-              aria-label={`rel ${rel.id} type`}
-              className="min-w-0 flex-1"
-              value={rel.type}
-              onChange={(e) =>
-                store.updateRelationship(appId, model.id, rel.id, {
-                  type: e.target.value as RelationshipTypeName,
-                })
-              }
-            >
-              {relationshipTypeNames.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </Select>
-            <Select
-              aria-label={`rel ${rel.id} target`}
-              className="min-w-0 flex-1"
-              value={rel.to}
-              onChange={(e) => store.updateRelationship(appId, model.id, rel.id, { to: e.target.value })}
-            >
-              {targets.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </Select>
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label={`remove rel ${rel.id}`}
-              onClick={() => store.removeRelationship(appId, model.id, rel.id)}
-            >
-              ✕
-            </Button>
           </div>
         ))}
       </div>

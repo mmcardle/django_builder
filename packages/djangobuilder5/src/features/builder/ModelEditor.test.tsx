@@ -53,6 +53,25 @@ test("renaming the model commits updateModel with the trimmed name", async () =>
   expect(state.updateModel).toHaveBeenCalledWith("a1", "m1", { name: "Article" });
 });
 
+test("editing field args (textarea) commits updateField", async () => {
+  render(<ModelEditor appId="a1" model={model} />);
+  const args = screen.getByLabelText("field f1 args");
+  await userEvent.clear(args);
+  await userEvent.type(args, "max_length=500");
+  await userEvent.tab();
+  expect(state.updateField).toHaveBeenLastCalledWith("a1", "m1", "f1", { args: "max_length=500" });
+});
+
+test("relationship args are now editable and commit updateRelationship", async () => {
+  render(<ModelEditor appId="a1" model={model} />);
+  const args = screen.getByLabelText("rel r1 args");
+  await userEvent.type(args, "on_delete=models.CASCADE");
+  await userEvent.tab();
+  expect(state.updateRelationship).toHaveBeenLastCalledWith("a1", "m1", "r1", {
+    args: "on_delete=models.CASCADE",
+  });
+});
+
 test("relationship selects are shrinkable so the row can't overflow its container", () => {
   render(<ModelEditor appId="a1" model={model} />);
   expect(screen.getByLabelText("rel r1 target").className).toContain("flex-1");
