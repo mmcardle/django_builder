@@ -216,6 +216,7 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
             />
             <Select
               aria-label={`rel ${rel.id} type`}
+              className="min-w-0 flex-1"
               value={rel.type}
               onChange={(e) =>
                 store.updateRelationship(appId, model.id, rel.id, {
@@ -229,6 +230,7 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
             </Select>
             <Select
               aria-label={`rel ${rel.id} target`}
+              className="min-w-0 flex-1"
               value={rel.to}
               onChange={(e) => store.updateRelationship(appId, model.id, rel.id, { to: e.target.value })}
             >

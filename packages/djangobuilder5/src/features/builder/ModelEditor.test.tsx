@@ -53,6 +53,13 @@ test("renaming the model commits updateModel with the trimmed name", async () =>
   expect(state.updateModel).toHaveBeenCalledWith("a1", "m1", { name: "Article" });
 });
 
+test("relationship selects are shrinkable so the row can't overflow its container", () => {
+  render(<ModelEditor appId="a1" model={model} />);
+  expect(screen.getByLabelText("rel r1 target").className).toContain("flex-1");
+  expect(screen.getByLabelText("rel r1 target").className).toContain("min-w-0");
+  expect(screen.getByLabelText("rel r1 type").className).toContain("flex-1");
+});
+
 test("adding a built-in parent commits setModelParents with its full class path", async () => {
   render(<ModelEditor appId="a1" model={model} />);
   await userEvent.selectOptions(screen.getByLabelText("model m1 add parent"), "auth.User");
