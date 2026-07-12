@@ -39,11 +39,30 @@ export function BuilderShell() {
     [project, path, defaultPath],
   );
 
+  // The app the always-on docked panel edits: the current file's app, else the
+  // last one, else the first app. Follows tree navigation; survives project
+  // files; re-points itself if its app is deleted.
+  const [dockedAppId, setDockedAppId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!project) return;
+    const appName = rendered?.path.split("/")[0];
+    const fromFile = appName ? project.apps.find((a) => a.name === appName)?.id : undefined;
+    setDockedAppId((cur) => {
+      if (fromFile) return fromFile;
+      if (cur && project.apps.some((a) => a.id === cur)) return cur;
+      return project.apps[0]?.id ?? null;
+    });
+  }, [project, rendered]);
+
   if (!project) return null;
 
+  // Large screens: the panel is always docked, so "edit" just navigates to the
+  // app's models.py (the panel follows). Small screens: open the modal.
   const editModels = (appName: string) => {
     const app = project.apps.find((a) => a.name === appName);
-    if (app) setEditingAppId(app.id);
+    if (!app) return;
+    if (wideEnoughToDock) setPath(`${app.name}/models.py`);
+    else setEditingAppId(app.id);
   };
 
   const treeProps = {
@@ -90,18 +109,18 @@ export function BuilderShell() {
 
         <CodeView rendered={rendered} onEditModels={editModels} />
 
-        {/* Docked models editor (right rail) on very wide screens */}
-        {editingAppId && wideEnoughToDock ? (
+        {/* Always-on docked models editor (right rail) on large screens */}
+        {wideEnoughToDock && dockedAppId ? (
           <aside
             data-testid="models-dock"
             className="flex h-full w-[34rem] shrink-0 flex-col border-l border-border bg-surface"
           >
-            <ModelsPanel appId={editingAppId} onClose={() => setEditingAppId(null)} />
+            <ModelsPanel appId={dockedAppId} />
           </aside>
         ) : null}
       </div>
 
-      {/* Centered modal below the docking breakpoint */}
+      {/* Centered, closable modal below the docking breakpoint */}
       {editingAppId && !wideEnoughToDock ? (
         <ModelsModal appId={editingAppId} onClose={() => setEditingAppId(null)} />
       ) : null}

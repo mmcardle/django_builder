@@ -70,11 +70,18 @@ test("editing models opens the centered modal below the docking width", async ()
   expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument();
 });
 
-test("editing models docks the panel beside the code on very wide screens", async () => {
+test("the models panel is always docked on large screens (no click needed)", () => {
+  media.wide = true;
+  render(<BuilderShell />);
+  expect(screen.getByTestId("models-dock")).toBeInTheDocument();
+  expect(screen.getByText("PANEL:a1")).toBeInTheDocument(); // first app, derived
+  expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument();
+});
+
+test("'Edit models' on large screens navigates rather than opening a modal", async () => {
   media.wide = true;
   render(<BuilderShell />);
   await userEvent.click(screen.getByText("CODEVIEW-EDIT"));
+  expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument(); // still no overlay
   expect(screen.getByTestId("models-dock")).toBeInTheDocument();
-  expect(screen.getByText("PANEL:a1")).toBeInTheDocument();
-  expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument(); // no overlay
 });

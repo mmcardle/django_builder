@@ -5,9 +5,10 @@ import { ImportModelsDialog } from "./ImportModelsDialog";
 import { useProjectStore } from "@/store/projectStore";
 
 /** The per-app models editor content (header · models · footer). Rendered
- * either inside the centered `ModelsModal` overlay or docked as a side panel
- * beside the code on very wide screens. */
-export function ModelsPanel({ appId, onClose }: { appId: string; onClose: () => void }) {
+ * either inside the centered `ModelsModal` overlay (with `onClose` → shows
+ * Close/Done) or docked as an always-on side panel beside the code on large
+ * screens (no `onClose` → non-closable). */
+export function ModelsPanel({ appId, onClose }: { appId: string; onClose?: () => void }) {
   const project = useProjectStore((s) => s.project);
   const addModel = useProjectStore((s) => s.addModel);
   const removeApp = useProjectStore((s) => s.removeApp);
@@ -15,9 +16,10 @@ export function ModelsPanel({ appId, onClose }: { appId: string; onClose: () => 
   const [confirmDeleteApp, setConfirmDeleteApp] = useState(false);
   const [importing, setImporting] = useState(false);
 
-  // If the app disappears (deleted here or in another tab), close.
+  // If the app disappears (deleted here or in another tab), close (modal) — the
+  // docked panel has no onClose and is re-pointed to another app by its parent.
   useEffect(() => {
-    if (!app) onClose();
+    if (!app) onClose?.();
   }, [app, onClose]);
 
   if (!app) return null;
@@ -47,7 +49,7 @@ export function ModelsPanel({ appId, onClose }: { appId: string; onClose: () => 
                 className="font-semibold text-red-400"
                 onClick={() => {
                   removeApp(appId);
-                  onClose();
+                  onClose?.();
                 }}
               >
                 Delete
@@ -61,9 +63,11 @@ export function ModelsPanel({ appId, onClose }: { appId: string; onClose: () => 
               Delete app
             </button>
           )}
-          <button aria-label="Close" className="text-lg text-muted hover:text-text" onClick={onClose}>
-            ✕
-          </button>
+          {onClose ? (
+            <button aria-label="Close" className="text-lg text-muted hover:text-text" onClick={onClose}>
+              ✕
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -82,9 +86,11 @@ export function ModelsPanel({ appId, onClose }: { appId: string; onClose: () => 
         </button>
       </div>
 
-      <div className="flex shrink-0 justify-end gap-2 border-t border-border px-5 py-3">
-        <Button onClick={onClose}>Done</Button>
-      </div>
+      {onClose ? (
+        <div className="flex shrink-0 justify-end gap-2 border-t border-border px-5 py-3">
+          <Button onClick={onClose}>Done</Button>
+        </div>
+      ) : null}
 
       {importing ? <ImportModelsDialog appId={appId} onClose={() => setImporting(false)} /> : null}
     </div>
