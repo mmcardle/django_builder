@@ -150,7 +150,7 @@ export function FileTree({
         >
           <Input
             aria-label="Add app"
-            placeholder="＋ app name…"
+            placeholder="Add new app…"
             value={newApp}
             onChange={(e) => setNewApp(e.target.value)}
           />
