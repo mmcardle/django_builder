@@ -64,8 +64,8 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
   }
 
   return (
-    <div className="rounded-xl border border-border bg-bg/40 p-4">
-      <div className="mb-4 flex items-center gap-3">
+    <div className="rounded-xl border border-border bg-bg/40 p-3">
+      <div className="mb-3 flex items-center gap-3">
         <DebouncedInput
           aria-label={`model ${model.id} name`}
           className="w-48 font-mono text-base font-bold text-accent"
@@ -117,8 +117,8 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
         </div>
       </div>
 
-      <div className="mb-4">
-        <div className="mb-1.5 flex items-center gap-2">
+      <div className="mb-3">
+        <div className="mb-1 flex items-center gap-2">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Inherits from</p>
           <Select
             aria-label={`model ${model.id} add parent`}
@@ -163,19 +163,19 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
           + field
         </Button>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-2">
         {model.fields.map((field) => (
           <div key={field.id} className="space-y-1">
             <div className="flex items-center gap-2">
               <DebouncedInput
                 aria-label={`field ${field.id} name`}
-                className="w-40 font-mono"
+                className="h-8 w-36 font-mono text-xs"
                 value={field.name}
                 onCommit={(v) => store.updateField(appId, model.id, field.id, { name: v })}
               />
               <Select
                 aria-label={`field ${field.id} type`}
-                className="min-w-0 flex-1"
+                className="h-8 min-w-0 flex-1 text-xs"
                 value={field.type}
                 onChange={(e) => store.updateField(appId, model.id, field.id, { type: e.target.value })}
               >
@@ -186,6 +186,7 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
               <Button
                 size="icon"
                 variant="ghost"
+                className="h-8 w-8 shrink-0"
                 aria-label={`remove field ${field.id}`}
                 onClick={() => store.removeField(appId, model.id, field.id)}
               >
@@ -194,6 +195,7 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
             </div>
             <DebouncedTextarea
               aria-label={`field ${field.id} args`}
+              className="py-1 text-xs"
               placeholder="args (e.g. max_length=200)"
               value={field.args}
               onCommit={(v) => store.updateField(appId, model.id, field.id, { args: v })}
@@ -202,25 +204,25 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
         ))}
       </div>
 
-      <div className="mb-2 mt-6 flex items-center justify-between">
+      <div className="mb-2 mt-4 flex items-center justify-between">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Relationships</p>
         <Button size="sm" variant="subtle" onClick={() => store.addRelationship(appId, model.id)}>
           + relationship
         </Button>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-2">
         {model.relationships.map((rel) => (
           <div key={rel.id} className="space-y-1">
             <div className="flex items-center gap-2">
               <DebouncedInput
                 aria-label={`rel ${rel.id} name`}
-                className="w-40 font-mono"
+                className="h-8 w-36 font-mono text-xs"
                 value={rel.name}
                 onCommit={(v) => store.updateRelationship(appId, model.id, rel.id, { name: v })}
               />
               <Select
                 aria-label={`rel ${rel.id} type`}
-                className="min-w-0 flex-1"
+                className="h-8 min-w-0 flex-1 text-xs"
                 value={rel.type}
                 onChange={(e) =>
                   store.updateRelationship(appId, model.id, rel.id, {
@@ -234,7 +236,7 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
               </Select>
               <Select
                 aria-label={`rel ${rel.id} target`}
-                className="min-w-0 flex-1"
+                className="h-8 min-w-0 flex-1 text-xs"
                 value={rel.to}
                 onChange={(e) => store.updateRelationship(appId, model.id, rel.id, { to: e.target.value })}
               >
@@ -245,6 +247,7 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
               <Button
                 size="icon"
                 variant="ghost"
+                className="h-8 w-8 shrink-0"
                 aria-label={`remove rel ${rel.id}`}
                 onClick={() => store.removeRelationship(appId, model.id, rel.id)}
               >
@@ -253,6 +256,7 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
             </div>
             <DebouncedTextarea
               aria-label={`rel ${rel.id} args`}
+              className="py-1 text-xs"
               placeholder="args (e.g. on_delete=models.CASCADE)"
               value={rel.args}
               onCommit={(v) => store.updateRelationship(appId, model.id, rel.id, { args: v })}
