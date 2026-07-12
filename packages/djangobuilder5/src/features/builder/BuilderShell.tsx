@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { projectFileTree, renderNodeByPath } from "@/domain/generate";
 import { useProjectStore } from "@/store/projectStore";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import { ProjectHeader } from "./ProjectHeader";
 import { FileTree } from "./FileTree";
 import { CodeView } from "./CodeView";
+import { ModelsPanel } from "./ModelsPanel";
 import { ModelsModal } from "./ModelsModal";
 
 /** Builder layout: a single generated-file tree (the only navigation) + the
@@ -17,6 +19,9 @@ export function BuilderShell() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingAppId, setEditingAppId] = useState<string | null>(null);
+  // On very wide screens dock the models editor beside the code instead of
+  // covering it with a modal.
+  const wideEnoughToDock = useMediaQuery("(min-width: 1536px)");
 
   const tree = useMemo(() => (project ? projectFileTree(project) : []), [project]);
   const defaultPath = useMemo(() => {
@@ -84,9 +89,20 @@ export function BuilderShell() {
         ) : null}
 
         <CodeView rendered={rendered} onEditModels={editModels} />
+
+        {/* Docked models editor (right rail) on very wide screens */}
+        {editingAppId && wideEnoughToDock ? (
+          <aside
+            data-testid="models-dock"
+            className="flex h-full w-[34rem] shrink-0 flex-col border-l border-border bg-surface"
+          >
+            <ModelsPanel appId={editingAppId} onClose={() => setEditingAppId(null)} />
+          </aside>
+        ) : null}
       </div>
 
-      {editingAppId ? (
+      {/* Centered modal below the docking breakpoint */}
+      {editingAppId && !wideEnoughToDock ? (
         <ModelsModal appId={editingAppId} onClose={() => setEditingAppId(null)} />
       ) : null}
     </div>

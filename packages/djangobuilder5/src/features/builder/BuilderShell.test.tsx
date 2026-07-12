@@ -1,6 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, vi } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
+
+const media = vi.hoisted(() => ({ wide: false }));
+vi.mock("@/lib/useMediaQuery", () => ({ useMediaQuery: () => media.wide }));
+afterEach(() => {
+  media.wide = false;
+});
 
 vi.mock("@/domain/generate", () => ({ projectFileTree: () => [], renderNodeByPath: () => null }));
 vi.mock("./ProjectHeader", () => ({
@@ -22,6 +28,9 @@ vi.mock("./ModelsModal", () => ({
   ModelsModal: ({ appId, onClose }: { appId: string; onClose: () => void }) => (
     <div>MODAL:{appId}<button onClick={onClose}>close-modal</button></div>
   ),
+}));
+vi.mock("./ModelsPanel", () => ({
+  ModelsPanel: ({ appId }: { appId: string }) => <div>PANEL:{appId}</div>,
 }));
 
 const state = {
@@ -51,11 +60,21 @@ test("the header toggle opens and the scrim closes the file-tree drawer", async 
   expect(screen.queryByTestId("tree-drawer")).not.toBeInTheDocument();
 });
 
-test("editing models opens the modal for the resolved app id", async () => {
-  render(<BuilderShell />);
+test("editing models opens the centered modal below the docking width", async () => {
+  render(<BuilderShell />); // media.wide = false
   expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument();
   await userEvent.click(screen.getByText("CODEVIEW-EDIT"));
   expect(screen.getByText("MODAL:a1")).toBeInTheDocument();
+  expect(screen.queryByTestId("models-dock")).not.toBeInTheDocument();
   await userEvent.click(screen.getByText("close-modal"));
   expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument();
+});
+
+test("editing models docks the panel beside the code on very wide screens", async () => {
+  media.wide = true;
+  render(<BuilderShell />);
+  await userEvent.click(screen.getByText("CODEVIEW-EDIT"));
+  expect(screen.getByTestId("models-dock")).toBeInTheDocument();
+  expect(screen.getByText("PANEL:a1")).toBeInTheDocument();
+  expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument(); // no overlay
 });
