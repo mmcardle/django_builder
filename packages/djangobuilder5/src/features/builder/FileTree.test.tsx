@@ -51,6 +51,11 @@ test("the models.py row exposes an edit-models control that reports its app", as
   expect(onEditModels).toHaveBeenCalledWith("blog");
 });
 
+test("shows no edit-models control when onEditModels is not provided", () => {
+  render(<FileTree nodes={NODES} selectedPath="blog/models.py" onSelect={() => {}} />);
+  expect(screen.queryByRole("button", { name: /edit models/i })).not.toBeInTheDocument();
+});
+
 test("the add-app input fires onAddApp on submit", async () => {
   const onAddApp = vi.fn();
   render(<FileTree nodes={NODES} selectedPath="" onSelect={() => {}} onAddApp={onAddApp} />);

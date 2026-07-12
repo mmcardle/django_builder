@@ -3,14 +3,15 @@ import { cn } from "@/lib/cn";
 import { highlight } from "@/lib/highlight";
 import type { RenderedFile } from "@/domain/generate";
 
-/** Read-only view of one generated file. `models.py` also gets an "Edit models"
- * button that opens the per-app models modal. */
+/** Read-only view of one generated file. `models.py` gets an "Edit models"
+ * button (only when `onEditModels` is provided — it's omitted in docked/large
+ * mode, where the models panel is already shown). */
 export function CodeView({
   rendered,
   onEditModels,
 }: {
   rendered: RenderedFile | null;
-  onEditModels: (appName: string) => void;
+  onEditModels?: (appName: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -32,7 +33,7 @@ export function CodeView({
           <div className="flex items-center gap-2 border-b border-border bg-surface-2 px-3 py-1.5">
             <span className="truncate font-mono text-xs text-accent">{rendered.path}</span>
             <div className="ml-auto flex items-center gap-1">
-              {rendered.name === "models.py" ? (
+              {rendered.name === "models.py" && onEditModels ? (
                 <button
                   className="rounded-md px-2.5 py-1 text-xs font-semibold text-accent hover:bg-surface"
                   onClick={() => onEditModels(rendered.path.split("/")[0])}

@@ -16,12 +16,18 @@ vi.mock("./ProjectHeader", () => ({
 }));
 vi.mock("./FileTree", () => ({
   FileTree: ({ onEditModels }: { onEditModels?: (a: string) => void }) => (
-    <div>FILETREE<button onClick={() => onEditModels?.("blog")}>TREE-EDIT</button></div>
+    <div>
+      FILETREE
+      {onEditModels ? <button onClick={() => onEditModels("blog")}>TREE-EDIT</button> : null}
+    </div>
   ),
 }));
 vi.mock("./CodeView", () => ({
-  CodeView: ({ onEditModels }: { onEditModels: (a: string) => void }) => (
-    <button onClick={() => onEditModels("blog")}>CODEVIEW-EDIT</button>
+  CodeView: ({ onEditModels }: { onEditModels?: (a: string) => void }) => (
+    <div>
+      CODEVIEW
+      {onEditModels ? <button onClick={() => onEditModels("blog")}>CODEVIEW-EDIT</button> : null}
+    </div>
   ),
 }));
 vi.mock("./ModelsModal", () => ({
@@ -47,7 +53,7 @@ import { BuilderShell } from "./BuilderShell";
 test("shows the file tree + code, with no Design/Code tabs", () => {
   render(<BuilderShell />);
   expect(screen.getByText("FILETREE")).toBeInTheDocument();
-  expect(screen.getByText("CODEVIEW-EDIT")).toBeInTheDocument();
+  expect(screen.getByText("CODEVIEW")).toBeInTheDocument();
   expect(screen.queryByRole("tab")).not.toBeInTheDocument();
 });
 
@@ -76,12 +82,13 @@ test("the models panel is always docked on large screens (no click needed)", () 
   expect(screen.getByTestId("models-dock")).toBeInTheDocument();
   expect(screen.getByText("PANEL:a1")).toBeInTheDocument(); // first app, derived
   expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument();
+  // both edit-models affordances are hidden when the panel is docked
+  expect(screen.queryByText("TREE-EDIT")).not.toBeInTheDocument();
+  expect(screen.queryByText("CODEVIEW-EDIT")).not.toBeInTheDocument();
 });
 
-test("'Edit models' on large screens navigates rather than opening a modal", async () => {
-  media.wide = true;
-  render(<BuilderShell />);
-  await userEvent.click(screen.getByText("CODEVIEW-EDIT"));
-  expect(screen.queryByText("MODAL:a1")).not.toBeInTheDocument(); // still no overlay
-  expect(screen.getByTestId("models-dock")).toBeInTheDocument();
+test("the edit-models affordances show below the docking width", () => {
+  render(<BuilderShell />); // media.wide = false
+  expect(screen.getByText("TREE-EDIT")).toBeInTheDocument();
+  expect(screen.getByText("CODEVIEW-EDIT")).toBeInTheDocument();
 });

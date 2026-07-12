@@ -26,6 +26,11 @@ test("models.py gets an Edit-models button that reports its app", async () => {
   expect(onEditModels).toHaveBeenCalledWith("app1");
 });
 
+test("no Edit-models button for models.py when onEditModels is omitted (docked mode)", () => {
+  render(<CodeView rendered={file({ name: "models.py", path: "app1/models.py" })} />);
+  expect(screen.queryByRole("button", { name: /edit models/i })).not.toBeInTheDocument();
+});
+
 test("empty state when nothing renders", () => {
   render(<CodeView rendered={null} onEditModels={() => {}} />);
   expect(screen.getByText(/select a file/i)).toBeInTheDocument();

@@ -68,7 +68,9 @@ export function BuilderShell() {
   const treeProps = {
     nodes: tree,
     selectedPath: rendered?.path ?? "",
-    onEditModels: editModels,
+    // On large screens the panel is always docked, so the tree's ✎ is redundant
+    // — selecting a models.py row already switches the panel to that app.
+    onEditModels: wideEnoughToDock ? undefined : editModels,
     onAddApp: addApp,
   };
 
@@ -107,7 +109,7 @@ export function BuilderShell() {
           </div>
         ) : null}
 
-        <CodeView rendered={rendered} onEditModels={editModels} />
+        <CodeView rendered={rendered} onEditModels={wideEnoughToDock ? undefined : editModels} />
 
         {/* Always-on docked models editor (right rail) on large screens */}
         {wideEnoughToDock && dockedAppId ? (
