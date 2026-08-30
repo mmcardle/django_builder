@@ -1,7 +1,9 @@
 import { expect, test, vi } from "vitest";
 import {
   APP_PREVIEW_FILES,
+  countProjectFiles,
   downloadProjectTar,
+  generatedFileNames,
   projectFileTree,
   projectTarUrl,
   renderAppPreview,
@@ -62,4 +64,25 @@ test("renderNodeByPath returns null for a folder or an unknown path", () => {
   const project = makeSeedProject();
   expect(renderNodeByPath(project, "blog")).toBeNull(); // folder
   expect(renderNodeByPath(project, "does/not/exist.py")).toBeNull();
+});
+
+test("countProjectFiles counts files and ignores folders", () => {
+  const n = countProjectFiles(makeSeedProject());
+  const flat: string[] = [];
+  const walk = (nodes: ReturnType<typeof projectFileTree>) =>
+    nodes.forEach((node) => {
+      if (!node.folder) flat.push(node.name);
+      if (node.children) walk(node.children);
+    });
+  walk(projectFileTree(makeSeedProject()));
+  expect(n).toBe(flat.length);
+  expect(n).toBeGreaterThan(20);
+});
+
+test("generatedFileNames reports names the renderer really produces", () => {
+  const names = generatedFileNames(makeSeedProject());
+  ["models.py", "admin.py", "serializers.py", "manage.py", "requirements.txt"].forEach((f) =>
+    expect(names.has(f)).toBe(true),
+  );
+  expect(names.has("nonexistent.py")).toBe(false);
 });

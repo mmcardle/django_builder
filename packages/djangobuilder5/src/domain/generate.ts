@@ -30,6 +30,28 @@ export function projectFileTree(project: LocalProject): DjangoProjectFile[] {
   return renderer.asTree(buildCoreProject(project));
 }
 
+function walkFiles(nodes: DjangoProjectFile[], visit: (node: DjangoProjectFile) => void): void {
+  for (const node of nodes) {
+    if (!node.folder) visit(node);
+    if (node.children) walkFiles(node.children, visit);
+  }
+}
+
+/** How many files (not folders) the project generates. */
+export function countProjectFiles(project: LocalProject): number {
+  let n = 0;
+  walkFiles(projectFileTree(project), () => n++);
+  return n;
+}
+
+/** The distinct file names the project generates. Lets the UI describe the
+ * output from what is actually produced rather than a hand-kept list. */
+export function generatedFileNames(project: LocalProject): Set<string> {
+  const names = new Set<string>();
+  walkFiles(projectFileTree(project), (node) => names.add(node.name));
+  return names;
+}
+
 export interface RenderedFile {
   code: string;
   lang: ReturnType<typeof langForFile>;
