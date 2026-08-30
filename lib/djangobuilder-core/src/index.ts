@@ -8,6 +8,7 @@ import ModelImporter from "./importer";
 const DEFAULT_DJANGO_VERSION = 5;
 
 export type { DjangoProjectFile } from "./rendering";
+export { DjangoProjectFileResource } from "./rendering";
 
 export {
   Renderer, DEFAULT_DJANGO_VERSION, DjangoProject,  DjangoApp, DjangoModel,

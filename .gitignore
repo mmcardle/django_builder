@@ -10,6 +10,7 @@ firestore-debug.log
 firebase-debug.log
 
 screens/
+.superpowers/
 
 # python
 *.pyc

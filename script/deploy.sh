@@ -14,9 +14,12 @@ echo "Deploying ${NAME}"
 
 bun run --filter=djangobuilder.io build --mode ${NAME}
 bun run --filter=djangobuilder4 build-only --mode ${NAME}
+bun run --filter=djangobuilder5 build-only --mode ${NAME}
 
 mkdir -p dist/${NAME}/db4/
 cp -R packages/djangobuilder4/dist/* dist/${NAME}/db4/
+mkdir -p dist/${NAME}/db5/
+cp -R packages/djangobuilder5/dist/* dist/${NAME}/db5/
 cp -R packages/djangobuilder.io/dist/* dist/${NAME}/
 
 bunx firebase deploy --public=dist/${NAME}
