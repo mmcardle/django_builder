@@ -1,31 +1,80 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { parseModelsPy, type ParseResult } from "@/domain/import";
+import { Select } from "@/components/ui/Select";
+import { parseModelsPy, type ParseResult, type ParsedModel } from "@/domain/import";
+import { MAX_MODELS_PER_APP } from "@/domain/constants";
 import { useProjectStore } from "@/store/projectStore";
 
+/** A parsed model plus the app the user wants it in (defaults to the app the
+ * dialog was opened from, but each row can be routed elsewhere). */
+interface Row {
+  model: ParsedModel;
+  appId: string;
+  selected: boolean;
+}
+
 export function ImportModelsDialog({ appId, onClose }: { appId: string; onClose: () => void }) {
+  const project = useProjectStore((s) => s.project);
   const importModels = useProjectStore((s) => s.importModels);
+  const fileInput = useRef<HTMLInputElement>(null);
   const [text, setText] = useState("");
   const [result, setResult] = useState<ParseResult | null>(null);
-  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [rows, setRows] = useState<Row[]>([]);
 
-  function parse() {
-    const r = parseModelsPy(text);
+  const apps = project?.apps ?? [];
+
+  function parse(source = text) {
+    const r = parseModelsPy(source);
     setResult(r);
-    setSelected(new Set(r.models.map((_, i) => i)));
+    setRows(r.models.map((model) => ({ model, appId, selected: true })));
   }
+
+  /** Read one or more `models.py` files into the textarea and parse them.
+   * Concatenated so classes split across files are imported in one go.
+   * FileReader rather than `File.text()` — the latter isn't universally
+   * available, and this matches how the production `.io` app reads uploads. */
+  async function onFiles(files: FileList | null) {
+    if (!files?.length) return;
+    const contents = await Promise.all(
+      Array.from(files).map(
+        (file) =>
+          new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result ?? ""));
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(file);
+          }),
+      ),
+    );
+    const joined = contents.join("\n\n");
+    setText(joined);
+    parse(joined);
+  }
+
   function toggle(i: number) {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(i)) next.delete(i);
-      else next.add(i);
-      return next;
-    });
+    setRows((prev) => prev.map((r, j) => (j === i ? { ...r, selected: !r.selected } : r)));
   }
+  function route(i: number, nextAppId: string) {
+    setRows((prev) => prev.map((r, j) => (j === i ? { ...r, appId: nextAppId } : r)));
+  }
+
+  const chosen = rows.filter((r) => r.selected);
+
+  /** Apps that would exceed the per-app cap once this import lands. */
+  const overCap = apps
+    .map((a) => ({
+      name: a.name,
+      total: a.models.length + chosen.filter((r) => r.appId === a.id).length,
+    }))
+    .filter((a) => a.total > MAX_MODELS_PER_APP);
+
   function add() {
-    if (!result) return;
-    const models = result.models.filter((_, i) => selected.has(i));
-    if (models.length) importModels(appId, models);
+    if (!chosen.length || overCap.length) return;
+    // One write per target app; each is internally chunked by ChunkedBatch.
+    for (const app of apps) {
+      const models = chosen.filter((r) => r.appId === app.id).map((r) => r.model);
+      if (models.length) importModels(app.id, models);
+    }
     onClose();
   }
 
@@ -58,29 +107,56 @@ export function ImportModelsDialog({ appId, onClose }: { appId: string; onClose:
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          <div className="flex justify-end">
-            <Button variant="subtle" size="sm" onClick={parse} disabled={!text.trim()}>
+          <div className="flex items-center justify-between gap-2">
+            <input
+              ref={fileInput}
+              type="file"
+              accept=".py,text/x-python"
+              multiple
+              aria-label="Upload models.py files"
+              className="hidden"
+              onChange={(e) => {
+                void onFiles(e.target.files);
+                e.target.value = "";
+              }}
+            />
+            <Button variant="ghost" size="sm" onClick={() => fileInput.current?.click()}>
+              Upload .py files…
+            </Button>
+            <Button variant="subtle" size="sm" onClick={() => parse()} disabled={!text.trim()}>
               Parse
             </Button>
           </div>
 
           {result ? (
             <div className="space-y-2">
-              {result.models.length === 0 ? (
+              {rows.length === 0 ? (
                 <p className="text-sm text-muted">No models found.</p>
               ) : (
-                result.models.map((m, i) => (
-                  <label
+                rows.map((row, i) => (
+                  <div
                     key={i}
                     className="flex items-center gap-2 rounded-lg border border-border bg-bg/40 px-3 py-2 text-sm"
                   >
-                    <input type="checkbox" checked={selected.has(i)} onChange={() => toggle(i)} />
-                    <span className="font-mono font-semibold text-accent">{m.name}</span>
-                    <span className="text-xs text-muted">
-                      {m.fields.length} fields · {m.relationships.length} rels
-                      {m.abstract ? " · abstract" : ""}
-                    </span>
-                  </label>
+                    <label className="flex min-w-0 flex-1 items-center gap-2">
+                      <input type="checkbox" checked={row.selected} onChange={() => toggle(i)} />
+                      <span className="font-mono font-semibold text-accent">{row.model.name}</span>
+                      <span className="truncate text-xs text-muted">
+                        {row.model.fields.length} fields · {row.model.relationships.length} rels
+                        {row.model.abstract ? " · abstract" : ""}
+                      </span>
+                    </label>
+                    <Select
+                      aria-label={`target app for ${row.model.name}`}
+                      className="h-7 w-32 shrink-0 text-xs"
+                      value={row.appId}
+                      onChange={(e) => route(i, e.target.value)}
+                    >
+                      {apps.map((a) => (
+                        <option key={a.id} value={a.id}>{a.name}</option>
+                      ))}
+                    </Select>
+                  </div>
                 ))
               )}
               {result.errors.length > 0 ? (
@@ -90,6 +166,12 @@ export function ImportModelsDialog({ appId, onClose }: { appId: string; onClose:
                   ))}
                 </ul>
               ) : null}
+              {overCap.length > 0 ? (
+                <p role="alert" className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-300">
+                  {overCap.map((a) => `${a.name} would have ${a.total} models`).join("; ")} — the
+                  limit is {MAX_MODELS_PER_APP} per app. Deselect some, or route them to another app.
+                </p>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -98,8 +180,8 @@ export function ImportModelsDialog({ appId, onClose }: { appId: string; onClose:
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={add} disabled={!result || selected.size === 0}>
-            Add selected{selected.size ? ` (${selected.size})` : ""}
+          <Button onClick={add} disabled={chosen.length === 0 || overCap.length > 0}>
+            Add selected{chosen.length ? ` (${chosen.length})` : ""}
           </Button>
         </div>
       </div>

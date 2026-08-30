@@ -11,6 +11,8 @@ import {
   relationshipTypeNames,
 } from "@/domain/options";
 import type { LocalModel, LocalParent, RelationshipTypeName } from "@/domain/types";
+import { inboundForModelDelete } from "@/domain/relationshipIntegrity";
+import { nameError } from "@/domain/validate";
 import { useProjectStore } from "@/store/projectStore";
 
 export function ModelEditor({ appId, model }: { appId: string; model: LocalModel }) {
@@ -26,6 +28,8 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
     .filter((t) => t !== self);
   const parentAddOptions = [...builtInParentTargets, ...userModelTargets];
   const otherApps = (project?.apps ?? []).filter((a) => a.id !== appId);
+  // Relationships elsewhere that point here; deleting the model takes them too.
+  const inboundCount = project ? inboundForModelDelete(project, appId, model.id).length : 0;
 
   function parentLabel(p: LocalParent): string {
     if (p.type === "django") return p.class.split(".").pop() ?? p.class;
@@ -70,7 +74,8 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
           aria-label={`model ${model.id} name`}
           className="w-48 font-mono text-base font-bold text-accent"
           value={model.name}
-          onCommit={(v) => v.trim() && store.updateModel(appId, model.id, { name: v.trim() })}
+          validate={(v) => nameError(v, "Model name")}
+          onCommit={(v) => v.trim() !== model.name && store.renameModel(appId, model.id, v.trim())}
         />
         <label className="flex items-center gap-1.5 text-xs text-muted">
           <input
@@ -98,7 +103,16 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
           ) : null}
           {confirmDelete ? (
             <span className="flex items-center gap-2 text-xs">
-              <span className="text-muted">Delete {model.name}?</span>
+              <span className="text-muted">
+                Delete {model.name}?
+                {inboundCount > 0 ? (
+                  <span className="text-amber-400">
+                    {" "}
+                    Also removes {inboundCount} relationship{inboundCount === 1 ? "" : "s"} pointing
+                    at it.
+                  </span>
+                ) : null}
+              </span>
               <button className="text-muted hover:text-text" onClick={() => setConfirmDelete(false)}>
                 Cancel
               </button>
@@ -171,6 +185,7 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
                 aria-label={`field ${field.id} name`}
                 className="h-8 w-36 font-mono text-xs"
                 value={field.name}
+                validate={(v) => nameError(v, "Field name")}
                 onCommit={(v) => store.updateField(appId, model.id, field.id, { name: v })}
               />
               <Select
@@ -218,6 +233,7 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
                 aria-label={`rel ${rel.id} name`}
                 className="h-8 w-36 font-mono text-xs"
                 value={rel.name}
+                validate={(v) => nameError(v, "Relationship name")}
                 onCommit={(v) => store.updateRelationship(appId, model.id, rel.id, { name: v })}
               />
               <Select

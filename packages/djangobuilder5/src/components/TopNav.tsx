@@ -3,17 +3,38 @@ import { Link, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UpgradeAccountDialog } from "@/features/auth/UpgradeAccountDialog";
 import { useAuthStore } from "@/store/authStore";
+import { useProjectStore } from "@/store/projectStore";
 import { signOutUser } from "@/domain/firestore/auth";
 
 export function TopNav() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const [upgrading, setUpgrading] = useState(false);
-  async function out() { await signOutUser(); navigate("/"); }
+  const [leaving, setLeaving] = useState(false);
+
+  // A guest's uid dies with the session, so signing one out silently would
+  // strand their projects. Offer to save the account (or delete) first.
+  async function out() {
+    if (user?.isAnonymous) {
+      setLeaving(true);
+      return;
+    }
+    await signOutUser();
+    navigate("/");
+  }
+
+  // Delete while still authenticated — the rules match on the owner uid.
+  async function discardAndSignOut() {
+    await useProjectStore.getState().deleteAllData();
+    await signOutUser();
+    setLeaving(false);
+    navigate("/");
+  }
 
   return (
     <header className="flex items-center justify-between border-b border-border px-6 py-3">
-      <Link to={user ? "/projects" : "/"} className="text-sm font-extrabold tracking-tight">
+      {/* Always home — signed-in users reach their projects via the nav link. */}
+      <Link to="/" className="text-sm font-extrabold tracking-tight">
         django<span className="text-accent">builder</span>
       </Link>
       <nav className="flex items-center gap-3 text-sm text-muted">
@@ -41,7 +62,15 @@ export function TopNav() {
         )}
         <ThemeToggle />
       </nav>
-      {upgrading && <UpgradeAccountDialog onClose={() => setUpgrading(false)} />}
+      {(upgrading || leaving) && (
+        <UpgradeAccountDialog
+          onClose={() => {
+            setUpgrading(false);
+            setLeaving(false);
+          }}
+          onDiscard={leaving ? discardAndSignOut : undefined}
+        />
+      )}
     </header>
   );
 }

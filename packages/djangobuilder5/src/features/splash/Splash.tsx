@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
+import { AuthError } from "@/features/auth/AuthCard";
 import { CodeBlock } from "@/components/CodeBlock";
 import { makeSeedProject } from "@/domain/seed";
 import { renderAppPreview } from "@/domain/generate";
@@ -10,10 +12,18 @@ const CHIPS = ["Django 5", "DRF", "HTMX", "Channels"];
 export function Splash() {
   const navigate = useNavigate();
   const files = renderAppPreview(makeSeedProject(), "app_blog");
+  const [error, setError] = useState<string | null>(null);
 
+  // The CTA starts a guest session. Surface a failure (e.g. anonymous auth
+  // switched off in Firebase) instead of leaving the button looking inert.
   async function tryIt() {
-    await signInAnon();
-    navigate("/projects");
+    setError(null);
+    try {
+      await signInAnon();
+      navigate("/projects");
+    } catch {
+      setError("Could not start a guest session — try signing in instead.");
+    }
   }
 
   return (
@@ -34,9 +44,9 @@ export function Splash() {
           <Button size="lg" onClick={tryIt}>
             Start building — free
           </Button>
-          <Button variant="ghost" size="lg" onClick={tryIt}>
-            Live demo
-          </Button>
+        </div>
+        <div className="mt-4">
+          <AuthError message={error} />
         </div>
         <div className="mt-6 flex flex-wrap gap-2">
           {CHIPS.map((c) => (

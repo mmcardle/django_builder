@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { DebouncedInput } from "@/components/ui/DebouncedInput";
 import { ModelEditor } from "./ModelEditor";
 import { ImportModelsDialog } from "./ImportModelsDialog";
+import { inboundForAppDelete } from "@/domain/relationshipIntegrity";
+import { nameError } from "@/domain/validate";
+import { MAX_MODELS_PER_APP } from "@/domain/constants";
 import { useProjectStore } from "@/store/projectStore";
 
 /** The per-app models editor content (header · models · footer). Rendered
@@ -11,10 +15,14 @@ import { useProjectStore } from "@/store/projectStore";
 export function ModelsPanel({ appId, onClose }: { appId: string; onClose?: () => void }) {
   const project = useProjectStore((s) => s.project);
   const addModel = useProjectStore((s) => s.addModel);
+  const renameApp = useProjectStore((s) => s.renameApp);
   const removeApp = useProjectStore((s) => s.removeApp);
   const app = project?.apps.find((a) => a.id === appId);
   const [confirmDeleteApp, setConfirmDeleteApp] = useState(false);
   const [importing, setImporting] = useState(false);
+  // Relationships in other apps aimed at this app's models; they go with it.
+  const inboundCount = project ? inboundForAppDelete(project, appId).length : 0;
+  const atModelLimit = (app?.models.length ?? 0) >= MAX_MODELS_PER_APP;
 
   // If the app disappears (deleted here or in another tab), close (modal) — the
   // docked panel has no onClose and is re-pointed to another app by its parent.
@@ -27,8 +35,15 @@ export function ModelsPanel({ appId, onClose }: { appId: string; onClose?: () =>
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-3.5">
-        <h2 className="text-base font-bold">
-          Edit models · <span className="font-mono text-accent">{app.name}</span>
+        <h2 className="flex min-w-0 items-center gap-2 text-base font-bold">
+          <span className="shrink-0">Edit models ·</span>
+          <DebouncedInput
+            aria-label="App name"
+            className="h-8 w-40 font-mono text-sm font-bold text-accent"
+            value={app.name}
+            validate={(v) => nameError(v, "App name")}
+            onCommit={(v) => v.trim() !== app.name && renameApp(appId, v.trim())}
+          />
         </h2>
         <div className="ml-auto flex items-center gap-3">
           {!confirmDeleteApp ? (
@@ -41,7 +56,16 @@ export function ModelsPanel({ appId, onClose }: { appId: string; onClose?: () =>
           ) : null}
           {confirmDeleteApp ? (
             <span className="flex items-center gap-2 text-xs">
-              <span className="text-muted">Delete app {app.name}?</span>
+              <span className="text-muted">
+                Delete app {app.name}?
+                {inboundCount > 0 ? (
+                  <span className="text-amber-400">
+                    {" "}
+                    Also removes {inboundCount} relationship{inboundCount === 1 ? "" : "s"} in other
+                    apps pointing at its models.
+                  </span>
+                ) : null}
+              </span>
               <button className="text-muted hover:text-text" onClick={() => setConfirmDeleteApp(false)}>
                 Cancel
               </button>
@@ -79,11 +103,18 @@ export function ModelsPanel({ appId, onClose }: { appId: string; onClose?: () =>
           <p className="text-sm text-muted">No models yet — add the first one.</p>
         ) : null}
         <button
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-accent/40 bg-accent/5 px-3 py-2.5 text-sm font-medium text-accent hover:bg-accent/10"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-accent/40 bg-accent/5 px-3 py-2.5 text-sm font-medium text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={atModelLimit}
+          title={atModelLimit ? `Limit is ${MAX_MODELS_PER_APP} models per app` : undefined}
           onClick={() => addModel(appId, "NewModel")}
         >
           ＋ Add model
         </button>
+        {atModelLimit ? (
+          <p className="text-center text-xs text-muted">
+            {app.name} is at the {MAX_MODELS_PER_APP}-model limit.
+          </p>
+        ) : null}
       </div>
 
       {onClose ? (

@@ -13,6 +13,9 @@ const fns = vi.hoisted(() => {
     updateDoc: vi.fn().mockResolvedValue(undefined),
     deleteField: vi.fn(() => "DELETE"),
     writeBatch: vi.fn(() => batch),
+    getDocs: vi.fn().mockResolvedValue({ docs: [] }),
+    query: vi.fn((...args: unknown[]) => args),
+    where: vi.fn((field: string, _op: string, value: unknown) => ({ field, value })),
   };
 });
 vi.mock("firebase/firestore", () => fns);
@@ -25,6 +28,14 @@ beforeEach(() => {
   [batch.set, batch.delete, batch.update, batch.commit].forEach((f) => f.mockClear());
   Object.values(fns).forEach((f) => f.mockClear?.());
   fns.addDoc.mockResolvedValue({ id: "new1" });
+  fns.getDocs.mockResolvedValue({ docs: [] });
+});
+
+/** A model with `fieldCount` fields, for exercising the batch-size limit. */
+const bigModel = (id: string, fieldCount: number) => ({
+  id, name: `M${id}`, abstract: false, parents: [],
+  fields: Array.from({ length: fieldCount }, (_, i) => ({ id: `${id}f${i}`, name: `f${i}`, type: "CharField", args: "" })),
+  relationships: [],
 });
 
 test("createProject stamps owner + maps version to 5.1 + apps:{}", async () => {
@@ -79,7 +90,8 @@ test("importModels batches each model with its fields/relationships and links th
 });
 
 test("moveModel flips the model key between the source and target apps", async () => {
-  await w.moveModel("a1", "a2", "m1");
+  await w.moveModel("a1", "a2", "m1", [{ id: "r1", to: "shop.Post" }]);
+  expect(batch.update).toHaveBeenCalledWith({ coll: "relationships", id: "r1" }, { to: "shop.Post" });
   expect(batch.update).toHaveBeenCalledWith({ coll: "apps", id: "a1" }, { "models.m1": "DELETE" });
   expect(batch.update).toHaveBeenCalledWith({ coll: "apps", id: "a2" }, { "models.m1": true });
   expect(batch.commit).toHaveBeenCalledOnce();
@@ -114,5 +126,67 @@ test("deleteProjectCascade batches every descendant using the plural relationshi
   expect(batch.delete).toHaveBeenCalledWith({ coll: "models", id: "m1" });
   expect(batch.delete).toHaveBeenCalledWith({ coll: "apps", id: "a1" });
   expect(batch.delete).toHaveBeenCalledWith({ coll: "projects", id: "p1" });
+  expect(batch.commit).toHaveBeenCalledOnce();
+});
+
+test("renameApp writes the new name and repoints the stale relationship targets", async () => {
+  await w.renameApp("a1", "weblog", [{ id: "r1", to: "weblog.Post" }]);
+  expect(batch.update).toHaveBeenCalledWith({ coll: "apps", id: "a1" }, { name: "weblog" });
+  expect(batch.update).toHaveBeenCalledWith({ coll: "relationships", id: "r1" }, { to: "weblog.Post" });
+  expect(batch.commit).toHaveBeenCalledOnce();
+});
+
+test("renameModel writes the new name and repoints the stale relationship targets", async () => {
+  await w.renameModel("m1", "Article", [{ id: "r1", to: "blog.Article" }]);
+  expect(batch.update).toHaveBeenCalledWith({ coll: "models", id: "m1" }, { name: "Article" });
+  expect(batch.update).toHaveBeenCalledWith({ coll: "relationships", id: "r1" }, { to: "blog.Article" });
+  expect(batch.commit).toHaveBeenCalledOnce();
+});
+
+test("importModels of zero models writes nothing", async () => {
+  await w.importModels(U, "a1", []);
+  expect(batch.commit).not.toHaveBeenCalled();
+  expect(batch.update).not.toHaveBeenCalled();
+});
+
+test("importModels splits a run past the batch limit across several commits", async () => {
+  // 60 models x 9 fields = 600 writes + 60 model docs + 1 app link, over the 450 cap.
+  const models = Array.from({ length: 60 }, (_, m) => ({
+    name: `Model${m}`, abstract: false, relationships: [],
+    fields: Array.from({ length: 9 }, (_, f) => ({ name: `f${f}`, type: "CharField", args: "" })),
+  }));
+  await w.importModels(U, "a1", models);
+  expect(batch.set).toHaveBeenCalledTimes(600);
+  expect(batch.commit.mock.calls.length).toBeGreaterThan(1);
+  // the app link is the very last write, so a failed chunk can't reveal missing models
+  expect(batch.update).toHaveBeenCalledOnce();
+});
+
+test("deleteProjectCascade splits a large project across several commits", async () => {
+  // 3 apps x 20 models x (1 model + 20 fields) = 1260 deletes + 3 apps + 1 project.
+  const apps = Array.from({ length: 3 }, (_, a) => ({
+    id: `a${a}`, name: `app${a}`,
+    models: Array.from({ length: 20 }, (_, m) => bigModel(`a${a}m${m}`, 20)),
+  }));
+  await w.deleteProjectCascade({ id: "p1", apps } as never);
+  expect(batch.delete).toHaveBeenCalledTimes(1264);
+  expect(batch.commit.mock.calls.length).toBeGreaterThan(1);
+});
+
+test("removeApp splits a large app across several commits", async () => {
+  const models = Array.from({ length: 40 }, (_, m) => bigModel(`m${m}`, 20));
+  await w.removeApp("p1", { id: "a1", models } as never);
+  expect(batch.delete).toHaveBeenCalledTimes(841); // 40 models + 800 fields + the app doc
+  expect(batch.commit.mock.calls.length).toBeGreaterThan(1);
+});
+
+test("deleteAllUserData deletes every owned doc across the five collections", async () => {
+  fns.getDocs.mockResolvedValue({ docs: [{ id: "d1" }, { id: "d2" }] });
+  await w.deleteAllUserData("u1");
+  expect(fns.where).toHaveBeenCalledWith("owner", "==", "u1");
+  ["relationships", "fields", "models", "apps", "projects"].forEach((coll) => {
+    expect(batch.delete).toHaveBeenCalledWith({ coll, id: "d1" });
+    expect(batch.delete).toHaveBeenCalledWith({ coll, id: "d2" });
+  });
   expect(batch.commit).toHaveBeenCalledOnce();
 });

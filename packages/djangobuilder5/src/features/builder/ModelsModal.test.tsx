@@ -10,6 +10,7 @@ const mk = (id: string, name: string) => ({ id, name, abstract: false, parents: 
 const state = {
   project: { apps: [{ id: "a1", name: "blog", models: [mk("m1", "Post"), mk("m2", "Comment")] }] },
   addModel: vi.fn(),
+  renameApp: vi.fn(),
   removeApp: vi.fn(),
 };
 vi.mock("@/store/projectStore", () => ({
@@ -22,7 +23,7 @@ test("lists every model in the app plus the app name", () => {
   render(<ModelsModal appId="a1" onClose={() => {}} />);
   expect(screen.getByText("model:Post")).toBeInTheDocument();
   expect(screen.getByText("model:Comment")).toBeInTheDocument();
-  expect(screen.getByText("blog")).toBeInTheDocument();
+  expect(screen.getByLabelText("App name")).toHaveValue("blog");
 });
 
 test("Add model calls the store", async () => {

@@ -19,6 +19,7 @@ const COLLECTIONS: Array<keyof FlatData> = ["projects", "apps", "models", "field
 export function subscribeAll(
   user: User,
   onData: (data: FlatData, allLoaded: boolean) => void,
+  onError?: (error: unknown) => void,
 ): () => void {
   const data = emptyFlatData();
   const loaded = new Set<string>();
@@ -38,7 +39,12 @@ export function subscribeAll(
         loaded.add(name);
         onData(structuredClone(data), loaded.size === COLLECTIONS.length);
       },
-      (err) => snapshotErrorHandler(err),
+      (err) => {
+        snapshotErrorHandler(err);
+        // A snapshot listener never recovers on its own, so the caller has to
+        // be able to tell the user their data stopped loading.
+        onError?.(err);
+      },
     );
   });
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { DjangoProjectFile } from "@djangobuilder/core";
 import { cn } from "@/lib/cn";
 import { Input } from "@/components/ui/Input";
+import { nameError } from "@/domain/validate";
 
 /** Folder paths on the branch that leads to `target` (its ancestor folders). */
 function folderChain(
@@ -53,6 +54,7 @@ export function FileTree({
     () => new Set(folderChain(nodes, selectedPath) ?? []),
   );
   const [newApp, setNewApp] = useState("");
+  const [appError, setAppError] = useState<string | null>(null);
 
   // Keep the selected file's folder chain open when selection changes. Return
   // the previous Set unchanged when nothing is new so we don't loop on the
@@ -142,7 +144,9 @@ export function FileTree({
           onSubmit={(e) => {
             e.preventDefault();
             const name = newApp.trim();
-            if (name) {
+            const err = nameError(name, "App name");
+            setAppError(err);
+            if (!err) {
               onAddApp(name);
               setNewApp("");
             }
@@ -152,8 +156,16 @@ export function FileTree({
             aria-label="Add app"
             placeholder="Add new app…"
             value={newApp}
-            onChange={(e) => setNewApp(e.target.value)}
+            aria-invalid={appError ? true : undefined}
+            className={appError ? "border-red-500 focus-visible:ring-red-500/40" : undefined}
+            onChange={(e) => {
+              setNewApp(e.target.value);
+              if (appError) setAppError(null);
+            }}
           />
+          {appError ? (
+            <p role="alert" className="mt-1 text-[11px] text-red-400">{appError}</p>
+          ) : null}
         </form>
       ) : null}
       {renderNodes(nodes, 0)}

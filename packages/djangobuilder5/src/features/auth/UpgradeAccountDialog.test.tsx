@@ -53,3 +53,27 @@ test("shows an error when the upgrade fails", async () => {
   expect(await screen.findByRole("alert")).toHaveTextContent(/could not save your account/i);
   expect(hoisted.setUser).not.toHaveBeenCalled();
 });
+
+test("onDiscard puts the dialog in sign-out mode with a destructive escape hatch", async () => {
+  const onDiscard = vi.fn();
+  render(
+    <MemoryRouter>
+      <UpgradeAccountDialog onClose={() => {}} onDiscard={onDiscard} />
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByRole("heading", { name: /save your projects before you go/i })).toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: /sign out and delete/i }));
+  expect(onDiscard).toHaveBeenCalled();
+});
+
+test("without onDiscard there is no way to delete from the dialog", () => {
+  render(
+    <MemoryRouter>
+      <UpgradeAccountDialog onClose={() => {}} />
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByRole("heading", { name: /save your account/i })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /sign out and delete/i })).not.toBeInTheDocument();
+});

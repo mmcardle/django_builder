@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { useProjectStore } from "@/store/projectStore";
 import type { DjangoVersionNumber } from "@/domain/firestore/version";
+import { nameError } from "@/domain/validate";
 
 export function ProjectSettingsDialog({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ export function ProjectSettingsDialog({ onClose }: { onClose: () => void }) {
   const [htmx, setHtmx] = useState(project?.htmx ?? false);
   const [channels, setChannels] = useState(project?.channels ?? false);
   const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!project) return null;
 
@@ -28,7 +30,10 @@ export function ProjectSettingsDialog({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     if (!project) return;
     const trimmed = name.trim();
-    if (trimmed && trimmed !== project.name) setProjectName(trimmed);
+    const err = nameError(trimmed, "Project name");
+    setError(err);
+    if (err) return;
+    if (trimmed !== project.name) setProjectName(trimmed);
     if (description !== project.description) setDescription(description);
     if (version !== project.djangoVersion) setDjangoVersion(version);
     if (htmx !== project.htmx) setFlag("htmx", htmx);
@@ -55,8 +60,11 @@ export function ProjectSettingsDialog({ onClose }: { onClose: () => void }) {
           placeholder="Project name"
           aria-label="Project name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          aria-invalid={error ? true : undefined}
+          className={error ? "border-red-500 focus-visible:ring-red-500/40" : undefined}
+          onChange={(e) => { setName(e.target.value); if (error) setError(null); }}
         />
+        {error ? <p role="alert" className="text-xs text-red-400">{error}</p> : null}
         <Input
           placeholder="Description"
           aria-label="Description"

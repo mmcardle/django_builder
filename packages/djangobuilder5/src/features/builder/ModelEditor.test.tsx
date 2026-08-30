@@ -19,7 +19,7 @@ const state = {
       { id: "a2", name: "shop", models: [] },
     ],
   },
-  updateModel: vi.fn(), addField: vi.fn(), updateField: vi.fn(), removeField: vi.fn(),
+  updateModel: vi.fn(), renameModel: vi.fn(), addField: vi.fn(), updateField: vi.fn(), removeField: vi.fn(),
   addRelationship: vi.fn(), updateRelationship: vi.fn(), removeRelationship: vi.fn(), removeModel: vi.fn(),
   setModelParents: vi.fn(), moveModel: vi.fn(),
 };
@@ -44,13 +44,13 @@ test("toggling abstract and adding a field call the store", async () => {
   expect(state.addField).toHaveBeenCalledWith("a1", "m1");
 });
 
-test("renaming the model commits updateModel with the trimmed name", async () => {
+test("renaming the model commits renameModel with the trimmed name", async () => {
   render(<ModelEditor appId="a1" model={model} />);
   const name = screen.getByLabelText("model m1 name");
   await userEvent.clear(name);
   await userEvent.type(name, "Article");
   await userEvent.tab();
-  expect(state.updateModel).toHaveBeenCalledWith("a1", "m1", { name: "Article" });
+  expect(state.renameModel).toHaveBeenCalledWith("a1", "m1", "Article");
 });
 
 test("editing field args (textarea) commits updateField", async () => {

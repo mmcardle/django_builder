@@ -5,6 +5,13 @@ import { emptyFlatData, type FlatData, type ProjectSummary } from "@/domain/fire
 import { renestProject, projectSummary } from "@/domain/firestore/mapper";
 import { subscribeAll } from "@/domain/firestore/data";
 import * as fs from "@/domain/firestore/writes";
+import {
+  inboundForAppDelete,
+  inboundForModelDelete,
+  retargetsForAppRename,
+  retargetsForModelMove,
+  retargetsForModelRename,
+} from "@/domain/relationshipIntegrity";
 import { toVersionNumber, type DjangoVersionNumber } from "@/domain/firestore/version";
 import type { ParsedModel } from "@/domain/import";
 
@@ -12,6 +19,8 @@ interface ProjectState {
   user: User | null;
   data: FlatData;
   dataLoaded: boolean;
+  /** Set when a Firestore listener fails; the data is stale from then on. */
+  loadError: string | null;
   currentProjectId: string | null;
   selectedAppId: string | null;
 
@@ -23,10 +32,12 @@ interface ProjectState {
   start: (user: User) => void;
   stop: () => void;
   openProject: (projectId: string) => void;
+  dismissLoadError: () => void;
 
   // dashboard writes
   createProject: (name: string, description: string, v: DjangoVersionNumber, htmx: boolean, channels: boolean) => Promise<string | null>;
   deleteProject: (projectId: string) => Promise<void>;
+  deleteAllData: () => Promise<void>;
 
   // builder write-through
   setProjectName: (name: string) => void;
@@ -34,10 +45,12 @@ interface ProjectState {
   setDjangoVersion: (v: DjangoVersionNumber) => void;
   setFlag: (flag: "channels" | "htmx", value: boolean) => void;
   addApp: (name: string) => void;
+  renameApp: (appId: string, name: string) => void;
   removeApp: (appId: string) => void;
   addModel: (appId: string, name: string) => void;
   importModels: (appId: string, models: ParsedModel[]) => void;
   updateModel: (appId: string, modelId: string, patch: Partial<{ name: string; abstract: boolean }>) => void;
+  renameModel: (appId: string, modelId: string, name: string) => void;
   setModelParents: (appId: string, modelId: string, parents: LocalParent[]) => void;
   moveModel: (fromAppId: string, toAppId: string, modelId: string) => void;
   removeModel: (appId: string, modelId: string) => void;
@@ -79,6 +92,7 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
   user: null,
   data: emptyFlatData(),
   dataLoaded: false,
+  loadError: null,
   currentProjectId: null,
   selectedAppId: null,
   project: null,
@@ -86,15 +100,20 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
 
   start: (user) => {
     unsubscribe?.();
-    set({ user, data: emptyFlatData(), dataLoaded: false });
-    unsubscribe = subscribeAll(user, (data, allLoaded) => {
-      set((s) => ({ data, dataLoaded: allLoaded, ...recompute({ ...s, data }) }));
-    });
+    set({ user, data: emptyFlatData(), dataLoaded: false, loadError: null });
+    unsubscribe = subscribeAll(
+      user,
+      (data, allLoaded) => {
+        set((s) => ({ data, dataLoaded: allLoaded, ...recompute({ ...s, data }) }));
+      },
+      (err) => set({ loadError: err instanceof Error ? err.message : String(err) }),
+    );
   },
+  dismissLoadError: () => set({ loadError: null }),
   stop: () => {
     unsubscribe?.();
     unsubscribe = null;
-    set({ user: null, data: emptyFlatData(), dataLoaded: false, currentProjectId: null, project: null, summaries: [] });
+    set({ user: null, data: emptyFlatData(), dataLoaded: false, loadError: null, currentProjectId: null, project: null, summaries: [] });
   },
   openProject: (projectId) =>
     set((s) => {
@@ -118,6 +137,12 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     const project = renestProject(get().data, projectId);
     if (project) await Promise.resolve(fs.deleteProjectCascade(project)).catch(reportWriteError);
   },
+  /** Wipe everything this user owns (anonymous guest signing out). Failures are
+   * logged, not thrown: the caller must still be able to complete the sign-out. */
+  deleteAllData: async () => {
+    const user = get().user;
+    if (user) await Promise.resolve(fs.deleteAllUserData(user.uid)).catch(reportWriteError);
+  },
 
   setProjectName: (name) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { name })); },
   setDescription: (description) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { description })); },
@@ -125,19 +150,35 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
   setFlag: (flag, value) => { const id = get().currentProjectId; if (id) guardWrite(fs.updateProject(id, { [flag]: value })); },
 
   addApp: (name) => { const { user, currentProjectId } = get(); if (user && currentProjectId) guardWrite(fs.addApp(user, currentProjectId, name)); },
+  renameApp: (appId, name) => {
+    const project = get().project;
+    if (project) guardWrite(fs.renameApp(appId, name, retargetsForAppRename(project, appId, name)));
+  },
   removeApp: (appId) => {
     const { project, currentProjectId } = get();
     const app = project?.apps.find((a) => a.id === appId);
-    if (app && currentProjectId) guardWrite(fs.removeApp(currentProjectId, app));
+    if (app && currentProjectId && project) {
+      guardWrite(fs.removeApp(currentProjectId, app, inboundForAppDelete(project, appId)));
+    }
   },
   addModel: (appId, name) => { const user = get().user; if (user) guardWrite(fs.addModel(user, appId, name)); },
   importModels: (appId, models) => { const user = get().user; if (user) guardWrite(fs.importModels(user, appId, models)); },
   updateModel: (_appId, modelId, patch) => guardWrite(fs.updateModel(modelId, patch)),
+  renameModel: (appId, modelId, name) => {
+    const project = get().project;
+    if (project) guardWrite(fs.renameModel(modelId, name, retargetsForModelRename(project, appId, modelId, name)));
+  },
   setModelParents: (_appId, modelId, parents) => guardWrite(fs.setModelParents(modelId, parents)),
-  moveModel: (fromAppId, toAppId, modelId) => guardWrite(fs.moveModel(fromAppId, toAppId, modelId)),
+  moveModel: (fromAppId, toAppId, modelId) => {
+    const project = get().project;
+    if (project) guardWrite(fs.moveModel(fromAppId, toAppId, modelId, retargetsForModelMove(project, fromAppId, toAppId, modelId)));
+  },
   removeModel: (appId, modelId) => {
-    const model = findModel(get().project, appId, modelId);
-    if (model) guardWrite(fs.removeModel(appId, model));
+    const project = get().project;
+    const model = findModel(project, appId, modelId);
+    if (model && project) {
+      guardWrite(fs.removeModel(appId, model, inboundForModelDelete(project, appId, modelId)));
+    }
   },
   addField: (_appId, modelId) => { const user = get().user; if (user) guardWrite(fs.addField(user, modelId, "new_field", "CharField", "max_length=100")); },
   updateField: (_appId, _modelId, fieldId, patch) => guardWrite(fs.updateField(fieldId, patch)),

@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
 import { ConsentSnackbar } from "@/components/ConsentSnackbar";
+import { LoadErrorBanner } from "@/components/LoadErrorBanner";
 import { Splash } from "@/features/splash/Splash";
 import { AboutView } from "@/features/about/AboutView";
 import { PrivacyPolicy } from "@/features/legal/PrivacyPolicy";
@@ -50,6 +51,7 @@ export function App() {
     <BrowserRouter basename={basename}>
       <div className="flex h-full flex-col">
         <TopNav />
+        <LoadErrorBanner />
         <main className="min-h-0 flex-1">
           <Routes>
             <Route path="/" element={<Splash />} />

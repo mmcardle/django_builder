@@ -5,7 +5,19 @@ import { AuthError } from "./AuthCard";
 import { upgradeAnonymous } from "@/domain/firestore/auth";
 import { useAuthStore } from "@/store/authStore";
 
-export function UpgradeAccountDialog({ onClose }: { onClose: () => void }) {
+/**
+ * Turns the current anonymous guest into a permanent account (same uid, so no
+ * data is lost). Passing `onDiscard` puts the dialog in "you're about to sign
+ * out" mode: it warns that a guest's projects are unreachable once the session
+ * ends, and offers signing out and deleting them as the explicit alternative.
+ */
+export function UpgradeAccountDialog({
+  onClose,
+  onDiscard,
+}: {
+  onClose: () => void;
+  onDiscard?: () => void;
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -49,9 +61,13 @@ export function UpgradeAccountDialog({ onClose }: { onClose: () => void }) {
           </>
         ) : (
           <form onSubmit={submit} className="space-y-3">
-            <h2 className="text-lg font-bold">Save your account</h2>
+            <h2 className="text-lg font-bold">
+              {onDiscard ? "Save your projects before you go?" : "Save your account"}
+            </h2>
             <p className="text-sm text-muted">
-              Add an email and password to keep your projects. Nothing is lost.
+              {onDiscard
+                ? "You're signed in as a guest, so your projects only exist inside this anonymous session — signing out puts them permanently out of reach. Add an email and password to keep them."
+                : "Add an email and password to keep your projects. Nothing is lost."}
             </p>
             <AuthError message={error} />
             <Input
@@ -71,13 +87,27 @@ export function UpgradeAccountDialog({ onClose }: { onClose: () => void }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={busy}>
-                {busy ? "Saving…" : "Save account"}
-              </Button>
+            <div className="flex items-center justify-between gap-2">
+              {onDiscard ? (
+                <button
+                  type="button"
+                  className="text-sm text-red-400 hover:text-red-300 disabled:opacity-50"
+                  disabled={busy}
+                  onClick={onDiscard}
+                >
+                  Sign out and delete
+                </button>
+              ) : (
+                <span />
+              )}
+              <div className="flex gap-2">
+                <Button type="button" variant="ghost" onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={busy}>
+                  {busy ? "Saving…" : "Save account"}
+                </Button>
+              </div>
             </div>
           </form>
         )}

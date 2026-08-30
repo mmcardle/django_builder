@@ -72,7 +72,17 @@ export function buildCoreProject(project: LocalProject): DjangoProject {
       if (!relType) throw new Error(`Unknown relationship type: ${rel.type}`);
       const target =
         BuiltInModelTypes[rel.to as keyof typeof BuiltInModelTypes] ?? modelIndex.get(rel.to);
-      if (!target) throw new Error(`Unknown relationship target: ${rel.to}`);
+      // A target that doesn't resolve is skipped, not fatal. `to` is a
+      // denormalised "app.Model" string, and the five Firestore collections
+      // stream in on independent listeners — so after a rename the renamed app
+      // or model can land a frame before the repointed relationship does.
+      // Throwing there takes down the whole builder (the file tree is built
+      // unguarded during render); skipping renders one relationship late, and
+      // the next snapshot puts it back. Parents (pass 2) are already tolerant.
+      if (!target) {
+        console.warn(`[db5] skipping relationship with unresolved target: ${rel.to}`);
+        continue;
+      }
       coreModel.addRelationship(
         rel.name,
         relType,
