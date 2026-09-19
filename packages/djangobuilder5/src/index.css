@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+:root,
+[data-theme="dark"] {
+  --bg: #0b0d12;
+  --surface: #14171f;
+  --surface-2: #1a1e28;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #e6e8ee;
+  --text-muted: #9ba3b4;
+  --accent: #3ecf8e;
+  --accent-hover: #57e0a3;
+  --accent-ink: #04231a;
+  --code-bg: #14171f;
+  --code-text: #e6e8ee;
+  --code-comment: #637777;
+  --code-keyword: #c792ea;
+  --code-class: #3ecf8e;
+  --code-type: #82aaff;
+  --code-string: #ecc48d;
+  --code-number: #f78c6c;
+}
+
+[data-theme="light"] {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --border: rgba(2, 8, 20, 0.1);
+  --text: #10131a;
+  --text-muted: #5a6472;
+  --accent: #1f9d63;
+  --accent-hover: #178a55;
+  --accent-ink: #ffffff;
+  --code-bg: #f4f6f8;
+  --code-text: #10131a;
+  --code-comment: #8792a2;
+  --code-keyword: #8b3fd6;
+  --code-class: #0f9d63;
+  --code-type: #2b6cff;
+  --code-string: #b5652a;
+  --code-number: #c0562a;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Staggered entrance for first-run panels; set animation-delay per element. */
+@keyframes db5-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-rise {
+  animation: db5-rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise {
+    animation: none;
+  }
+}
+
+/* ---- highlight.js theme, driven by coding-palette tokens ---- */
+.hljs {
+  color: var(--code-text);
+  background: transparent;
+}
+.hljs-comment,
+.hljs-quote {
+  color: var(--code-comment);
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in {
+  color: var(--code-keyword);
+}
+.hljs-title,
+.hljs-title.class_,
+.hljs-section {
+  color: var(--code-class);
+}
+.hljs-type,
+.hljs-title.function_,
+.hljs-attr,
+.hljs-attribute {
+  color: var(--code-type);
+}
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: var(--code-string);
+}
+.hljs-number,
+.hljs-literal {
+  color: var(--code-number);
+}

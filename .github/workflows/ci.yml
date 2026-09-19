@@ -27,6 +27,12 @@ jobs:
           name: djangobuilder.io_dist
           path: ./packages/djangobuilder.io/dist
 
+      - name: Upload djangobuilder5 dist directory
+        uses: actions/upload-artifact@v4
+        with:
+          name: djangobuilder5_dist
+          path: ./packages/djangobuilder5/dist
+
   lint:
     name: Lint
     needs: [build]
@@ -134,3 +140,27 @@ jobs:
           bun-version: 1.3.14
       - run: bun install --frozen-lockfile
       - run: bun run test_io
+
+  v5_tests:
+    name: DB5 - Unit Tests
+    needs: [build]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - run: bun run test_v5
+
+  v5_type_check:
+    name: DB5 - Type Check
+    needs: [build]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - run: bun run --filter=djangobuilder5 type-check

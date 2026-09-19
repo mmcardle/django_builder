@@ -16,6 +16,10 @@
         "destination": "/db4/index.html"
       },
       {
+        "source": "db5/**",
+        "destination": "/db5/index.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
