@@ -1,7 +1,13 @@
 
 # Django Builder
 
-https://djangobuilder.io
+| Environment | URL |
+|-------------|-----|
+| Production  | https://djangobuilder.io |
+| Staging     | https://staging.djangobuilder.io |
+| Development | https://dev.djangobuilder.io |
+
+These are the only valid URLs for each environment; see [docs/deployment.md](docs/deployment.md).
 
 The original Django Builder v1 is deployed at:
 

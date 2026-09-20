@@ -1,6 +1,19 @@
 # Deployment
 
-Django Builder is one Firebase Hosting site assembled from three package builds.
+Django Builder is one Firebase Hosting site assembled from three package builds and
+deployed to three Firebase projects.
+
+## Environments
+
+These are the only valid URLs for each environment. Always test, share and document
+against them; the `*.web.app` and `*.firebaseapp.com` hostnames Firebase prints after a
+deploy are not used and are not on the API keys' referrer allowlists.
+
+| Environment   | `firebase use` alias | Firebase project                 | URL                            |
+|---------------|----------------------|----------------------------------|--------------------------------|
+| Development   | `development`        | `django-builder-dev`             | https://dev.djangobuilder.io/     |
+| Staging       | `staging`            | `django-builder-staging-4e7f2`   | https://staging.djangobuilder.io/ |
+| Production    | `production`         | `django-builder-productio-6c3ca` | https://djangobuilder.io/         |
 
 ## Layout
 
@@ -28,11 +41,11 @@ the Firebase hosting emulator at http://localhost:8082 with the real rewrites an
 Use this to check anything that involves the layout; the per-package Vite dev servers
 (`bun run dev`, `dev4`, `dev5`) each serve a single app at `/`.
 
-The development site's public domain is https://dev.djangobuilder.io. Check auth flows there:
-the development browser API key's HTTP referrer allowlist covers that domain and the Vite
-dev-server ports (`localhost:8080`, `localhost:8081`) but not `django-builder-dev.web.app` or
-the emulator's `localhost:8082`, so sign-in from those two returns 403
-(`API_KEY_HTTP_REFERRER_BLOCKED`) and the app shows "Could not start a guest session".
+Firebase Auth only works from origins on the environment's API key referrer allowlist: the
+environment URL above plus the Vite dev-server ports `localhost:8080` and `localhost:8081`.
+The emulator's `localhost:8082` is not on it, so `make serve_site` is for checking routing
+and assets; sign-in there returns 403 (`API_KEY_HTTP_REFERRER_BLOCKED`) and the app shows
+"Could not start a guest session". Check auth flows on the environment URL instead.
 
 ## Deploy
 
@@ -58,5 +71,6 @@ and so on. Old bookmarks and already-sent verification emails keep working.
 1. Firebase console → Authentication → Templates → customise action URL →
    `https://djangobuilder.io/action`. The old `/#/action` value keeps working through the
    shim, so this can be done before or after the deploy.
-2. `make deploy name=staging`, check `/`, `/legacy/`, `/db4/`, a `/#/project/<id>` link and
-   a sign-up verification email, then `make deploy name=production`.
+2. `make deploy name=staging`, then on https://staging.djangobuilder.io/ check `/`, `/legacy/`,
+   `/db4/`, a `/#/project/<id>` link and a sign-up verification email.
+3. `make deploy name=production` and repeat the checks on https://djangobuilder.io/.

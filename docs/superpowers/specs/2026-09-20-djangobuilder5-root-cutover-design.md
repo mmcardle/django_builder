@@ -217,7 +217,7 @@ No changes.
 ### Development deploy
 
 `make deploy name=development`, then repeat the checks above on
-`https://django-builder-dev.web.app`, plus: anonymous sign-in, create a project,
+`https://dev.djangobuilder.io` (the development environment's only valid URL), plus: anonymous sign-in, create a project,
 reload, project persists; sign up on `/legacy/` and confirm the verification email's
 continue URL is `/legacy/#/login/`.
 

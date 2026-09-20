@@ -875,12 +875,12 @@ Expected: all green. If anything fails, fix it before deploying.
 - [x] **Step 2: Deploy to development**
 
 Run: `make deploy name=development`
-Expected: ends with `Deploy complete!` and the hosting URL `https://django-builder-dev.web.app`.
+Expected: ends with `Deploy complete!`. Verify on `https://dev.djangobuilder.io` (the environment URL; ignore the `web.app` hostname the CLI prints).
 
 - [x] **Step 3: Probe the live site**
 
 ```bash
-H=https://django-builder-dev.web.app
+H=https://dev.djangobuilder.io
 curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' $H/db5/anything      # 301 → $H/
 curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' $H/legacy            # 301 → $H/legacy/
 curl -s $H/project/abc | grep -c 'src="/assets/'                                # ≥1
