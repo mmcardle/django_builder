@@ -28,8 +28,8 @@ export async function signIn(email: string, password: string): Promise<User> {
   return cred.user;
 }
 
-// import.meta.env.BASE_URL is "/" in dev and "/db5/" in the deployed build, so
-// verified/reset users return to the db5 app (not the root app) under a subpath.
+// Built from import.meta.env.BASE_URL so the continue URL stays correct even if
+// the app is ever served under a subpath again (it is "/" at the site root).
 const verifyActionSettings = () => ({
   url: `${window.location.origin}${import.meta.env.BASE_URL}login`,
 });

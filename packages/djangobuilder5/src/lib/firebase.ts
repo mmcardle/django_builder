@@ -15,7 +15,7 @@ export const firebaseApp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
 
-// db5 keeps users signed in across sessions (the live db4 uses session-only).
+// Keep users signed in across sessions (the legacy Vue app shares this auth state).
 void setPersistence(auth, browserLocalPersistence);
 
 /** Log genuine snapshot errors; stay silent for the permission error that fires
