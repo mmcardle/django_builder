@@ -3,8 +3,9 @@
 Start by identifying which workspace owns the change:
 
 - `lib/djangobuilder-core`: shared generation logic, CLI behavior, templates, and code used by both apps.
-- `packages/djangobuilder.io`: the Vue 2 app.
-- `packages/djangobuilder4`: the Vue 3 app.
+- `packages/djangobuilder.io`: the Vue 3 app (legacy, served at `/legacy/`).
+- `packages/djangobuilder4`: the earlier Vue 3 app (served at `/db4/`).
+- `packages/djangobuilder5`: the React app (served at `/`).
 
 ## Typical flow
 
@@ -19,6 +20,8 @@ Start by identifying which workspace owns the change:
 - Root tests: `bun run test`
 - Vue 2 app dev server: `bun run dev`
 - Vue 3 app dev server: `bun run dev4`
+- React app dev server: `bun run dev5`
+- Whole assembled site on the hosting emulator: `make serve_site` (see `docs/deployment.md`)
 - Production-style builds: `bun run build`, `bun run build_development`, `bun run build_staging`, `bun run build_production`
 
 ## Rules of thumb
