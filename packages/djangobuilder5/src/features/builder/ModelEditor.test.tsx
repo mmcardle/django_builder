@@ -99,3 +99,16 @@ test("deleting a model asks to confirm, then calls removeModel", async () => {
   await userEvent.click(screen.getByRole("button", { name: /^delete$/i }));
   expect(state.removeModel).toHaveBeenCalledWith("a1", "m1");
 });
+
+test("a field whose stored type is no longer supported shows that type, not the first option", () => {
+  const legacy: LocalModel = {
+    ...model,
+    fields: [{ id: "f9", name: "legacy_ints", type: "CommaSeparatedIntegerField", args: "" }],
+  };
+  render(<ModelEditor appId="a1" model={legacy} />);
+  const select = screen.getByLabelText("field f9 type") as HTMLSelectElement;
+  expect(select.value).toBe("CommaSeparatedIntegerField");
+  expect(select.selectedOptions[0].text).toBe("CommaSeparatedIntegerField (unsupported)");
+  // Current types are still offered so the user can move off it.
+  expect([...select.options].map((o) => o.value)).toContain("CharField");
+});
