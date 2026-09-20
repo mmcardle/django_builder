@@ -2,7 +2,9 @@
 /**
  * Read-only audit of one environment's Firestore data for legacy formats.
  *
- *   bun run audit:legacy-data <development|staging|production|project-id> [--out file.json]
+ *   bun run audit_legacy_data <development|staging|production|project-id> [--out file.json]
+ *
+ * (from the repo root; bun's --filter would drop the bare environment argument)
  *
  * Reads all five collections through the Firestore REST API as the project
  * owner (rules do not apply), prints a summary and writes a JSON report with
@@ -24,7 +26,7 @@ const SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 const repoRoot = resolve(import.meta.dirname, "../../../..");
 
 function usage(): never {
-  console.error("Usage: bun run audit:legacy-data <development|staging|production|project-id> [--out file.json]");
+  console.error("Usage: bun run audit_legacy_data <development|staging|production|project-id> [--out file.json]");
   process.exit(1);
 }
 

@@ -61,6 +61,6 @@
     "test": "bun run test_smoke && bun run test_core && bun run test_v4 && bun run test_io && bun run test_v5",
     "ci": "bun run --filter=djangobuilder.io ci",
     "cli": "bun run --filter=@djangobuilder/core cli",
-    "audit_legacy_data": "bun run --filter=djangobuilder5 audit:legacy-data"
+    "audit_legacy_data": "bun run packages/djangobuilder5/src/scripts/auditLegacyData.ts"
   }
 }
