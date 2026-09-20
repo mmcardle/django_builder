@@ -110,3 +110,12 @@ test("the wordmark goes home for a signed-out visitor too", () => {
   renderNav();
   expect(screen.getByRole("link", { name: /django\s*builder/i })).toHaveAttribute("href", "/");
 });
+
+test("always shows a 'Legacy UI' link to /legacy/, signed in or out", () => {
+  renderNav();
+  expect(screen.getByRole("link", { name: /^legacy ui$/i })).toHaveAttribute("href", "/legacy/");
+
+  hoisted.user = null as unknown as typeof hoisted.user;
+  renderNav();
+  expect(screen.getAllByRole("link", { name: /^legacy ui$/i })).toHaveLength(2);
+});

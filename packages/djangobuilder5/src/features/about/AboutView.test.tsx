@@ -14,12 +14,3 @@ test("shows the about heading, the GitHub repo link, and the Bitcoin address", (
   expect(repoLink).toHaveAttribute("href", expect.stringContaining("github.com/mmcardle/django_builder"));
   expect(document.body.textContent).toContain("1J7JaUA5YhowVNtWCEoSh2tUD7pVJQfwcx");
 });
-
-test("links to the legacy app at /legacy/", () => {
-  render(
-    <MemoryRouter>
-      <AboutView />
-    </MemoryRouter>,
-  );
-  expect(screen.getByRole("link", { name: /legacy django builder/i })).toHaveAttribute("href", "/legacy/");
-});

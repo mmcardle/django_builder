@@ -69,14 +69,6 @@ export function AboutView() {
           </a>
         </div>
       </div>
-
-      <p className="mt-8 text-sm text-muted">
-        Looking for the previous version?{" "}
-        {/* Plain anchor: the legacy app is a separate site under /legacy/, not a router route. */}
-        <a href="/legacy/" className="text-accent hover:text-text">
-          Open the legacy Django Builder
-        </a>
-      </p>
     </section>
   );
 }
