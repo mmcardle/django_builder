@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite --port 8080",
-    "build": "vite build",
+    "build": "vite build --base=/legacy/",
     "serve": "vite preview",
     "lint": "eslint ./src/ ./tests",
     "lint:fix": "bun run lint --fix",
