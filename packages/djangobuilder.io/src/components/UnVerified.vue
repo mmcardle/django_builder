@@ -29,6 +29,7 @@
 
 <script>
   import firebase from 'firebase/compat/app';
+  import {emailActionContinueUrl} from '@/firebase_utils'
 
   export default {
     name: 'login',
@@ -43,7 +44,7 @@
         this.success = undefined
         this.error = undefined
         const user = firebase.auth().currentUser
-        const actionCodeSettings = {url: window.location.origin + '/#/login/'}
+        const actionCodeSettings = {url: emailActionContinueUrl()}
         user.sendEmailVerification(actionCodeSettings).then(() => {
           // Email sent.
           console.log('Email sent to ', user)
