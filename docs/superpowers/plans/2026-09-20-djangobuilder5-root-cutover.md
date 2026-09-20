@@ -875,7 +875,7 @@ Expected: all green. If anything fails, fix it before deploying.
 - [x] **Step 2: Deploy to development**
 
 Run: `make deploy name=development`
-Expected: ends with `Deploy complete!`. Verify on `https://dev.djangobuilder.io` (the environment URL; ignore the `web.app` hostname the CLI prints).
+Expected: ends with `Deploy complete!`. Verify on `https://dev.djangobuilder.io`.
 
 - [x] **Step 3: Probe the live site**
 

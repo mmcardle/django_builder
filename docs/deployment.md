@@ -5,9 +5,7 @@ deployed to three Firebase projects.
 
 ## Environments
 
-These are the only valid URLs for each environment. Always test, share and document
-against them; the `*.web.app` and `*.firebaseapp.com` hostnames Firebase prints after a
-deploy are not used and are not on the API keys' referrer allowlists.
+These are the only valid URLs for each environment. Test, share and document against them.
 
 | Environment   | `firebase use` alias | Firebase project                 | URL                            |
 |---------------|----------------------|----------------------------------|--------------------------------|
@@ -41,11 +39,8 @@ the Firebase hosting emulator at http://localhost:8082 with the real rewrites an
 Use this to check anything that involves the layout; the per-package Vite dev servers
 (`bun run dev`, `dev4`, `dev5`) each serve a single app at `/`.
 
-Firebase Auth only works from origins on the environment's API key referrer allowlist: the
-environment URL above plus the Vite dev-server ports `localhost:8080` and `localhost:8081`.
-The emulator's `localhost:8082` is not on it, so `make serve_site` is for checking routing
-and assets; sign-in there returns 403 (`API_KEY_HTTP_REFERRER_BLOCKED`) and the app shows
-"Could not start a guest session". Check auth flows on the environment URL instead.
+Use `make serve_site` to check routing and assets. Check sign-in and other Firebase Auth
+flows on the environment URL above, or on the per-package Vite dev servers.
 
 ## Deploy
 
