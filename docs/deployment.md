@@ -28,6 +28,13 @@ the Firebase hosting emulator at http://localhost:8082 with the real rewrites an
 Use this to check anything that involves the layout; the per-package Vite dev servers
 (`bun run dev`, `dev4`, `dev5`) each serve a single app at `/`.
 
+Firebase Auth calls only succeed from origins allowed by the Firebase project's browser API
+key (Google Cloud console → APIs & Services → Credentials → the key's HTTP referrer list).
+As of 2026-09-20 the development key allows only `localhost:8080` and `localhost:8081`, so
+sign-in from `localhost:8082` and from `django-builder-dev.web.app` gets a 403
+(`API_KEY_HTTP_REFERRER_BLOCKED`) and the app shows "Could not start a guest session".
+Add `localhost:8082/*` and `django-builder-dev.web.app/*` to that list to test auth there.
+
 ## Deploy
 
 ```
