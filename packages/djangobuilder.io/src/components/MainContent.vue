@@ -177,32 +177,7 @@
 
     <v-main class="pa-0 pt-8 mt-8">
       <v-container fluid class="pa-0">
-        <v-alert
-          v-if="eol_banner"
-          type="warning"
-          dense
-          class="ma-0 eol-banner pb-2 mb-2"
-          @input="dismissEolBanner"
-        >
-          <div class="d-flex flex-column flex-sm-row align-sm-center">
-            <span class="flex-grow-1">
-              <strong>Django Builder may be end-of-lifed soon.</strong>
-              If you are still using it and would like it to remain online, please
-              let us know by opening an issue on GitHub.
-            </span>
-            <v-btn
-              class="ml-sm-4 mt-2 mt-sm-0"
-              color="white"
-              variant="outlined"
-              href="https://github.com/mmcardle/django_builder/issues/new?title=Please+keep+Django+Builder+online"
-              target="_blank"
-              rel="noopener"
-            >
-              <v-icon left>mdi-github</v-icon>
-              Open an Issue
-            </v-btn>
-          </div>
-        </v-alert>
+        <legacy-banner />
         <router-view/>
       </v-container>
     </v-main>
@@ -309,9 +284,6 @@
   color: inherit;
   text-decoration: none;
 }
-.eol-banner {
-  border-radius: 0 !important;
-}
 /* Pin the cookie snackbar flush to the bottom-right corner (Vuetify 3 otherwise
    offsets it above the app footer, unlike the Vuetify 2 original). */
 .cookie-snackbar .v-snackbar__wrapper {
@@ -327,6 +299,7 @@ import { mdiDatabase } from '@mdi/js'
 
 import addProjectMixin from '@/mixins/AddProject'
 import {userVerified} from '@/firebase_utils'
+import LegacyBanner from '@/components/LegacyBanner.vue'
 import {showConfirmDialog, showUpgradeDialog} from '@/dialogs'
 
 import firebase from 'firebase/compat/app';
@@ -344,6 +317,7 @@ if (!PROD) {
 
 export default {
   mixins: [addProjectMixin],
+  components: { 'legacy-banner': LegacyBanner },
   data () {
     return {
       privacy_dialog: false,
@@ -356,7 +330,6 @@ export default {
       dialog: false,
       mdiDatabase: mdiDatabase,
       PACKAGE_VERSION,
-      eol_banner: localStorage.eol_banner_dismissed !== 'true',
     }
   },
   computed: {
@@ -393,11 +366,6 @@ export default {
     agreeAndClose: function () {
       this.cookie_snackbar = false
       localStorage.cookie_set_by_user = true
-    },
-    dismissEolBanner: function (value) {
-      if (value === false) {
-        localStorage.eol_banner_dismissed = 'true'
-      }
     },
     load: function () {
       if (this.user) {
