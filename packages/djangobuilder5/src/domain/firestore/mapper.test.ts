@@ -45,3 +45,20 @@ test("projectSummary reports counts and version", () => {
   const s = projectSummary(fixture(), "p1")!;
   expect(s).toMatchObject({ id: "p1", name: "Blog", djangoVersion: 5, appCount: 1, modelCount: 2, htmx: true });
 });
+
+test("renestProject normalises legacy dotted type names and built-in targets", () => {
+  // Projects created before the Dec-2024 core refactor stored fully-qualified
+  // Django paths; the registry is keyed by bare class name.
+  const data = fixture();
+  data.fields.f1.type = "django.db.models.DateTimeField";
+  data.relationships.r1.type = "django.db.models.ForeignKey";
+  data.relationships.r1.to = "django.contrib.auth.models.User";
+  data.relationships.r2 = { id: "r2", owner: "u", name: "post", type: "ForeignKey", to: "blog.Post", args: "" };
+  data.models.m1.relationships.r2 = true;
+
+  const post = renestProject(data, "p1")!.apps[0].models[0];
+  expect(post.fields[0].type).toBe("DateTimeField");
+  expect(post.relationships[0]).toMatchObject({ type: "ForeignKey", to: "auth.User" });
+  // Modern values pass through untouched, including user-model targets that contain a dot.
+  expect(post.relationships[1]).toMatchObject({ type: "ForeignKey", to: "blog.Post" });
+});

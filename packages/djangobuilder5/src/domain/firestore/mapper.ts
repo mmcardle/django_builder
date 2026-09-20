@@ -1,6 +1,25 @@
 import type { LocalApp, LocalModel, LocalProject, RelationshipTypeName } from "@/domain/types";
+import { BuiltInModelTypes } from "@djangobuilder/core";
 import { fromVersion } from "./version";
 import type { FlatData, ProjectSummary } from "./types";
+
+/** Projects created before the Dec-2024 core refactor stored fully-qualified
+ * Django paths ("django.db.models.DateTimeField", "django.db.models.ForeignKey");
+ * the core registries are keyed by bare class name. Strip the module path. */
+export function bareTypeName(type: string): string {
+  return type.split(".").pop() || type;
+}
+
+const builtInKeyByFullPath = new Map(
+  Object.values(BuiltInModelTypes).map((b) => [b.fullPath, b.name] as const),
+);
+
+/** Legacy relationship targets were full paths ("django.contrib.auth.models.User");
+ * map those to the registry key ("auth.User"). Anything else — modern built-in
+ * keys or "<app>.<Model>" user targets — passes through untouched. */
+export function normaliseTarget(to: string): string {
+  return builtInKeyByFullPath.get(to) ?? to;
+}
 
 /** Re-nest the flat collections into one LocalProject (or null if absent). */
 export function renestProject(data: FlatData, projectId: string): LocalProject | null {
@@ -25,15 +44,15 @@ export function renestProject(data: FlatData, projectId: string): LocalProject |
           fields: Object.keys(model.fields)
             .map((fieldId) => data.fields[fieldId])
             .filter(Boolean)
-            .map((f) => ({ id: f.id, name: f.name, type: f.type, args: f.args ?? "" })),
+            .map((f) => ({ id: f.id, name: f.name, type: bareTypeName(f.type), args: f.args ?? "" })),
           relationships: Object.keys(model.relationships)
             .map((relId) => data.relationships[relId])
             .filter(Boolean)
             .map((r) => ({
               id: r.id,
               name: r.name,
-              type: r.type as RelationshipTypeName,
-              to: r.to,
+              type: bareTypeName(r.type) as RelationshipTypeName,
+              to: normaliseTarget(r.to),
               args: r.args ?? "",
             })),
         }));
