@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { Renderer } from "@djangobuilder/core";
 import { buildCoreProject } from "./buildCoreProject";
 import { makeSeedProject } from "./seed";
@@ -116,4 +116,31 @@ test("wires a relationship onto its own model even when two models share a name"
   const models = buildCoreProject(project).apps[0].models;
   expect(models[0].relationships).toHaveLength(0);
   expect(models[1].relationships.map((r) => r.name)).toEqual(["owner"]);
+});
+
+test("skips a field whose type the core no longer knows, with a warning, instead of throwing", () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  const project: LocalProject = makeSeedProject();
+  // A type the pre-2024 app offered (django.db.models.CommaSeparatedIntegerField)
+  // that no longer exists in FieldTypes. One such field must not take down the
+  // dashboard or the builder for the whole project.
+  project.apps[0].models[0].fields.push({ id: "fx", name: "legacy_ints", type: "CommaSeparatedIntegerField", args: "" });
+
+  const core = buildCoreProject(project);
+  expect(core.apps[0].models[0].fields.map((f) => f.name)).toEqual(["title", "body", "created"]);
+  expect(warn).toHaveBeenCalledWith(expect.stringContaining("CommaSeparatedIntegerField"));
+  warn.mockRestore();
+});
+
+test("skips a relationship whose type is unknown, with a warning, instead of throwing", () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  const project: LocalProject = makeSeedProject();
+  project.apps[0].models[0].relationships.push({
+    id: "rx", name: "odd", type: "GenericRelation" as never, to: "auth.User", args: "",
+  });
+
+  const core = buildCoreProject(project);
+  expect(core.apps[0].models[0].relationships.map((r) => r.name)).toEqual(["author"]);
+  expect(warn).toHaveBeenCalledWith(expect.stringContaining("GenericRelation"));
+  warn.mockRestore();
 });
