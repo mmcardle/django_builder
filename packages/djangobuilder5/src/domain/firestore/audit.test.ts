@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { FlatData } from "./types";
-import { auditFlatData, decodeDocument, formatReport } from "./audit";
+import { auditFlatData, decodeDocument, formatQuickReport, formatReport, legacyQueries, mapKeyQuery, prefixRange, quickReport } from "./audit";
 
 /** Three projects: p1 mixes modern and pre-2024 formats, p2 predates Django 3, p3 has a broken field. */
 function fixture(): FlatData {
@@ -112,4 +112,65 @@ test("formatReport renders a readable summary", () => {
   expect(text).toContain("fields: 5");
   expect(text).toContain("CommaSeparatedIntegerField: 1");
   expect(text).toContain("p2");
+});
+
+describe("quota-friendly queries", () => {
+  test("prefixRange builds an inclusive lower / exclusive upper bound on the next character", () => {
+    expect(prefixRange("type", "django.")).toEqual({
+      compositeFilter: {
+        op: "AND",
+        filters: [
+          { fieldFilter: { field: { fieldPath: "type" }, op: "GREATER_THAN_OR_EQUAL", value: { stringValue: "django." } } },
+          { fieldFilter: { field: { fieldPath: "type" }, op: "LESS_THAN", value: { stringValue: "django/" } } },
+        ],
+      },
+    });
+  });
+
+  test("legacyQueries covers every legacy signal with a bounded read cost", () => {
+    const q = legacyQueries();
+    expect(Object.keys(q).sort()).toEqual(
+      ["dottedFieldTypes", "dottedRelationshipTypes", "fullPathTargets", "preDjango3Numeric", "preDjango3String", "retiredFieldTypes"].sort(),
+    );
+    expect(q.retiredFieldTypes.from).toEqual([{ collectionId: "fields" }]);
+    const inValues = (q.retiredFieldTypes.where as { fieldFilter: { value: { arrayValue: { values: { stringValue: string }[] } } } })
+      .fieldFilter.value.arrayValue.values.map((v) => v.stringValue);
+    // Both the bare and the pre-2024 dotted spelling of each retired type.
+    expect(inValues).toContain("CommaSeparatedIntegerField");
+    expect(inValues).toContain("django.db.models.CommaSeparatedIntegerField");
+    expect(inValues.length).toBeLessThanOrEqual(30); // Firestore's IN limit
+    expect(q.preDjango3Numeric.from).toEqual([{ collectionId: "projects" }]);
+  });
+
+  test("mapKeyQuery finds the parent whose map contains a child id", () => {
+    expect(mapKeyQuery("models", "fields", "abc")).toEqual({
+      from: [{ collectionId: "models" }],
+      where: { fieldFilter: { field: { fieldPath: "fields.abc" }, op: "EQUAL", value: { booleanValue: true } } },
+      limit: 1,
+    });
+  });
+
+  test("quickReport assembles counts, offenders and attribution", () => {
+    const report = quickReport(
+      { totals: { projects: 10, apps: 20, models: 30, fields: 100, relationships: 15 }, dottedFieldTypes: 40, retiredFieldTypes: 2, dottedRelationshipTypes: 5, fullPathTargets: 5, preDjango3Projects: 1 },
+      {
+        retiredFields: [
+          { id: "f1", owner: "u1", name: "ints", type: "django.db.models.CommaSeparatedIntegerField", args: "" },
+          { id: "f2", owner: "u2", name: "ip", type: "IPAddressField", args: "" },
+        ],
+        preDjango3Projects: [{ id: "p9", owner: "u3", name: "Old", description: "", channels: false, htmx: false, django_version: "2.2", apps: {} }],
+      },
+      new Map([["f1", { id: "p1", owner: "u1", name: "Shop", modelName: "Order" }]]),
+    );
+    expect(report.retiredFieldTypes).toEqual({ CommaSeparatedIntegerField: 1, IPAddressField: 1 });
+    expect(report.affectedProjects).toEqual([
+      { id: "p1", owner: "u1", name: "Shop", reasons: ['field "ints" on model "Order" has unsupported type CommaSeparatedIntegerField'] },
+      { id: "p9", owner: "u3", name: "Old", reasons: ["django_version 2.2 predates Django 3"] },
+    ]);
+    expect(report.unattributedFields).toEqual([{ id: "f2", name: "ip", type: "IPAddressField" }]);
+    const text = formatQuickReport(report);
+    expect(text).toContain("fields: 100");
+    expect(text).toContain("CommaSeparatedIntegerField: 1");
+    expect(text).toContain("p9");
+  });
 });

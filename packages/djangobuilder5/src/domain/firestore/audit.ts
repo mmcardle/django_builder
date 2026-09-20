@@ -295,3 +295,135 @@ export function formatReport(r: AuditReport): string {
   ];
   return lines.join("\n");
 }
+
+/* ---------- Quota-friendly mode: aggregation counts + targeted queries ---------- */
+
+/** Field types the pre-2024 app offered that Django (and the core registry) have since dropped. */
+export const RETIRED_FIELD_TYPES = [
+  "AutoField",
+  "BigAutoField",
+  "CommaSeparatedIntegerField",
+  "IPAddressField",
+  "NullBooleanField",
+] as const;
+
+export interface FieldRef { fieldPath: string }
+export type Filter =
+  | { fieldFilter: { field: FieldRef; op: "EQUAL" | "LESS_THAN" | "GREATER_THAN_OR_EQUAL" | "IN"; value: RawValue } }
+  | { compositeFilter: { op: "AND"; filters: Filter[] } };
+export interface StructuredQuery { from: { collectionId: string }[]; where?: Filter; limit?: number }
+
+/** `field` starts with `prefix`: an inclusive lower bound and an exclusive upper bound one code point up. */
+export function prefixRange(field: string, prefix: string): Filter {
+  const last = prefix.charCodeAt(prefix.length - 1);
+  const upper = prefix.slice(0, -1) + String.fromCharCode(last + 1);
+  return {
+    compositeFilter: {
+      op: "AND",
+      filters: [
+        { fieldFilter: { field: { fieldPath: field }, op: "GREATER_THAN_OR_EQUAL", value: { stringValue: prefix } } },
+        { fieldFilter: { field: { fieldPath: field }, op: "LESS_THAN", value: { stringValue: upper } } },
+      ],
+    },
+  };
+}
+
+function inFilter(field: string, values: string[]): Filter {
+  if (values.length > 30) throw new Error("Firestore IN filters take at most 30 values");
+  return { fieldFilter: { field: { fieldPath: field }, op: "IN", value: { arrayValue: { values: values.map((v) => ({ stringValue: v })) } } } };
+}
+
+function lessThan(field: string, value: RawValue): Filter {
+  return { fieldFilter: { field: { fieldPath: field }, op: "LESS_THAN", value } };
+}
+
+/** One query per legacy signal. Each costs ~1 read per 1,000 matches as a count, or one read per matching document when fetched. */
+export function legacyQueries(): Record<
+  "dottedFieldTypes" | "retiredFieldTypes" | "dottedRelationshipTypes" | "fullPathTargets" | "preDjango3Numeric" | "preDjango3String",
+  StructuredQuery
+> {
+  const retired = [...RETIRED_FIELD_TYPES, ...RETIRED_FIELD_TYPES.map((t) => `django.db.models.${t}`)];
+  return {
+    dottedFieldTypes: { from: [{ collectionId: "fields" }], where: prefixRange("type", "django.") },
+    retiredFieldTypes: { from: [{ collectionId: "fields" }], where: inFilter("type", retired) },
+    dottedRelationshipTypes: { from: [{ collectionId: "relationships" }], where: prefixRange("type", "django.") },
+    fullPathTargets: { from: [{ collectionId: "relationships" }], where: prefixRange("to", "django.") },
+    // Firestore orders numbers and strings separately, so both spellings need their own query.
+    preDjango3Numeric: { from: [{ collectionId: "projects" }], where: lessThan("django_version", { doubleValue: 3 }) },
+    preDjango3String: { from: [{ collectionId: "projects" }], where: lessThan("django_version", { stringValue: "3" }) },
+  };
+}
+
+/** The parent document whose `<mapField>.<childId>` flag is set: models by field id, apps by model id, projects by app id. */
+export function mapKeyQuery(collection: Collection, mapField: "fields" | "relationships" | "models" | "apps", childId: string): StructuredQuery {
+  return {
+    from: [{ collectionId: collection }],
+    where: { fieldFilter: { field: { fieldPath: `${mapField}.${childId}` }, op: "EQUAL", value: { booleanValue: true } } },
+    limit: 1,
+  };
+}
+
+export interface QuickCounts {
+  totals: Record<Collection, number>;
+  dottedFieldTypes: number;
+  retiredFieldTypes: number;
+  dottedRelationshipTypes: number;
+  fullPathTargets: number;
+  preDjango3Projects: number;
+}
+export interface Attribution { id: string; owner: string; name: string; modelName: string }
+export interface QuickAuditReport {
+  counts: QuickCounts;
+  /** Retired type name -> number of fields still using it. */
+  retiredFieldTypes: Record<string, number>;
+  affectedProjects: AffectedProject[];
+  /** Retired-type fields whose owning project could not be found (orphans, or beyond the attribution cap). */
+  unattributedFields: Array<{ id: string; name: string; type: string }>;
+}
+
+export function quickReport(
+  counts: QuickCounts,
+  offenders: { retiredFields: FieldDoc[]; preDjango3Projects: ProjectDoc[] },
+  attribution: Map<string, Attribution>,
+): QuickAuditReport {
+  const retiredFieldTypes: Record<string, number> = {};
+  const affected = new Map<string, AffectedProject>();
+  const unattributedFields: QuickAuditReport["unattributedFields"] = [];
+
+  const addReason = (p: { id: string; owner: string; name: string }, reason: string) => {
+    const entry = affected.get(p.id) ?? { id: p.id, owner: p.owner, name: p.name, reasons: [] };
+    entry.reasons.push(reason);
+    affected.set(p.id, entry);
+  };
+
+  for (const field of offenders.retiredFields) {
+    const bare = bareTypeName(field.type);
+    bump(retiredFieldTypes, bare);
+    const owner = attribution.get(field.id);
+    if (owner) addReason(owner, `field "${field.name}" on model "${owner.modelName}" has unsupported type ${bare}`);
+    else unattributedFields.push({ id: field.id, name: field.name, type: field.type });
+  }
+  for (const project of offenders.preDjango3Projects) {
+    addReason(project, `django_version ${String(project.django_version)} predates Django 3`);
+  }
+
+  return { counts, retiredFieldTypes, affectedProjects: [...affected.values()], unattributedFields };
+}
+
+export function formatQuickReport(r: QuickAuditReport): string {
+  const t = r.counts.totals;
+  const lines = [
+    "Legacy data audit (quota-friendly: counts + targeted queries)",
+    `  documents            projects: ${t.projects}  apps: ${t.apps}  models: ${t.models}  fields: ${t.fields}  relationships: ${t.relationships}`,
+    `  pre-2024 dotted names (normalised on read)   field types: ${r.counts.dottedFieldTypes}  relationship types: ${r.counts.dottedRelationshipTypes}  full-path targets: ${r.counts.fullPathTargets}`,
+    `  retired field types (skipped in generated code)   ${counts(r.retiredFieldTypes)}`,
+    `  projects below Django 3 (displayed as a newer version)   ${r.counts.preDjango3Projects}`,
+    `  affected projects: ${r.affectedProjects.length}`,
+    ...r.affectedProjects.map((p) => `    ${p.id}  owner ${p.owner}  "${p.name}": ${p.reasons.join("; ")}`),
+    ...(r.unattributedFields.length
+      ? [`  retired-type fields with no owning project found: ${r.unattributedFields.map((f) => `${f.id} (${f.name}: ${f.type})`).join(", ")}`]
+      : []),
+    "  Not covered without --full: fields missing a type, unknown non-retired type names, dangling references and orphans.",
+  ];
+  return lines.join("\n");
+}

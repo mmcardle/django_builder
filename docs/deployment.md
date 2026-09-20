@@ -77,12 +77,21 @@ bunx firebase login          # once
 bun run audit_legacy_data production   # or development / staging
 ```
 
-It reads the five collections through the Firestore REST API (security rules do not apply
-to the owner), prints a summary, and writes `legacy-data-audit.<env>.json` at the repo
-root listing every project whose generated code or displayed Django version would differ
-from what its owner built, with the reason. Nothing is written to Firestore. Pass
-`--out <file>` to choose the report path. Application-default credentials
-(`GOOGLE_APPLICATION_CREDENTIALS` or gcloud) are used instead when present.
+By default it uses Firestore count aggregations and targeted queries, so it costs a few
+dozen document reads however large the data is. It reports how many fields and
+relationships still use the dotted names, how many fields use a retired type, how many
+projects are below Django 3, and lists every affected project (id, owner uid, reason). The
+report is also written to `legacy-data-audit.<env>.json` at the repo root (`--out <file>`
+to choose). Nothing is written to Firestore.
+
+`--full` additionally reads every document to check for dangling references, orphans and
+fields with no type. That costs one read per document. On the Spark plan the daily read
+quota (50,000) is shared with the live site, so a full scan of production can block users
+until the quota resets at midnight Pacific. Run it only when the totals printed by the
+default mode make that cost acceptable, or after moving the project to the Blaze plan.
+
+Application-default credentials (`GOOGLE_APPLICATION_CREDENTIALS` or gcloud) are used
+instead of the Firebase CLI login when present.
 
 ## Cut-over checklist (manual, per Firebase project)
 
