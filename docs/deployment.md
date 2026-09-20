@@ -61,6 +61,37 @@ djangobuilder5 translates legacy hash URLs at startup (`src/lib/legacyHash.ts`):
 `/#/project/<id>` → `/project/<id>`, `/#/login/` → `/login`, `/#/action?…` → `/action?…`,
 and so on. Old bookmarks and already-sent verification emails keep working.
 
+## Firebase quotas
+
+All three Firebase projects use Cloud Firestore, Firebase Hosting and Firebase Authentication.
+On the no-cost Spark plan these are the limits (from https://firebase.google.com/pricing and
+https://firebase.google.com/docs/firestore/quotas):
+
+| Product        | Limit                                                                  |
+|----------------|------------------------------------------------------------------------|
+| Firestore      | 50,000 document reads/day, 20,000 writes/day, 20,000 deletes/day, 1 GiB stored, 10 GiB/month egress |
+| Hosting        | 10 GB storage, 360 MB/day data transfer                                |
+| Authentication | 50,000 monthly active users                                            |
+
+How Firestore counts reads:
+
+- One read per document returned by a query or listing, including every page of a paginated
+  listing. Projections (`select`) do not reduce the count.
+- A query that returns nothing still costs one read.
+- Count aggregations cost one read per batch of up to 1,000 index entries matched.
+- Realtime listeners are charged for the documents in their first snapshot and for each
+  changed document after that; djangobuilder5 keeps five listeners (one per collection) per
+  signed-in user, and the legacy app does the same, so a user's session costs roughly one read
+  per document they own plus one per subsequent change.
+
+Daily quotas reset around midnight Pacific time (08:00 London in summer, 09:00 in winter). The
+quota is per Firebase project, so it is shared by everything that reads that project:
+the live site, the legacy app under `/legacy/`, the emulator when pointed at a real project,
+and any script such as the audit below. Requests beyond the free quota can be rejected with
+HTTP 429 `RESOURCE_EXHAUSTED` until the reset. The Blaze (pay-as-you-go) plan includes the same
+no-cost allowance and bills usage above it instead of rejecting it. Current consumption is on
+the Firebase console's Usage and billing page for each project.
+
 ## Audit an environment's data for legacy formats
 
 Projects created before the December 2024 core refactor store field and relationship
@@ -85,10 +116,9 @@ report is also written to `legacy-data-audit.<env>.json` at the repo root (`--ou
 to choose). Nothing is written to Firestore.
 
 `--full` additionally reads every document to check for dangling references, orphans and
-fields with no type. That costs one read per document. On the Spark plan the daily read
-quota (50,000) is shared with the live site, so a full scan of production can block users
-until the quota resets at midnight Pacific. Run it only when the totals printed by the
-default mode make that cost acceptable, or after moving the project to the Blaze plan.
+fields with no type. That costs one read per document, counted against the project's daily
+Firestore read quota described above. Run it only when the totals printed by the default
+mode make that cost acceptable.
 
 Application-default credentials (`GOOGLE_APPLICATION_CREDENTIALS` or gcloud) are used
 instead of the Firebase CLI login when present.
