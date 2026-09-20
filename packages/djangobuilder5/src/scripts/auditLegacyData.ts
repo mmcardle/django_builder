@@ -20,6 +20,7 @@ import { resolve } from "node:path";
 import { GoogleAuth, UserRefreshClient } from "google-auth-library";
 import firebaseApi from "firebase-tools/lib/api.js";
 import { auditFlatData, formatReport, toFlatData, type Collection, type RawDocument } from "@/domain/firestore/audit";
+import { parseAuditArgs } from "./auditArgs";
 
 const COLLECTIONS: Collection[] = ["projects", "apps", "models", "fields", "relationships"];
 const SCOPE = "https://www.googleapis.com/auth/cloud-platform";
@@ -75,11 +76,7 @@ async function fetchCollection(projectId: string, token: string, collection: Col
 }
 
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
-  const outFlag = args.indexOf("--out");
-  const outFile = outFlag >= 0 ? args[outFlag + 1] : undefined;
-  const positional = args.filter((a, i) => a !== "--out" && i !== outFlag + 1);
-  const target = positional[0];
+  const { target, outFile } = parseAuditArgs(process.argv.slice(2));
   if (!target) usage();
 
   const projectId = resolveProjectId(target);
