@@ -46,7 +46,7 @@ Tasks 1–2 deliver the "working locally" goal first. Tasks 3–6 are app change
 - Rewrite: `script/deploy.sh`
 - Modify: `Makefile` (the `deploy` target and the `PHONY` line)
 
-- [ ] **Step 1: Create the assemble script**
+- [x] **Step 1: Create the assemble script**
 
 ```bash
 #!/bin/bash
@@ -81,12 +81,12 @@ echo "Assembled site in $OUT (/ , /legacy/ , /db4/)"
 
 Then `chmod +x script/assemble_site.sh`.
 
-- [ ] **Step 2: Verify the guard rails**
+- [x] **Step 2: Verify the guard rails**
 
 Run: `./script/assemble_site.sh` → expected exit 1 with the usage line.
 Run: `./script/assemble_site.sh /` → expected exit 1 with the usage line.
 
-- [ ] **Step 3: Rewrite the deploy script**
+- [x] **Step 3: Rewrite the deploy script**
 
 ```bash
 #!/bin/bash
@@ -112,7 +112,7 @@ bun run "build_$NAME"
 bunx firebase deploy --public="dist_$NAME"
 ```
 
-- [ ] **Step 4: Point the Makefile at the script and add `serve_site`**
+- [x] **Step 4: Point the Makefile at the script and add `serve_site`**
 
 Replace the whole `deploy:` recipe and the first line so they read:
 
@@ -138,7 +138,7 @@ serve_site:
 
 (Makefile recipes must be indented with a tab.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add script/assemble_site.sh script/deploy.sh Makefile
@@ -155,7 +155,7 @@ git commit -m "build: single assemble step shared by deploy and a local serve_si
 - Modify: `firebase.json` (hosting)
 - Delete: `packages/djangobuilder.io/firebase.json`
 
-- [ ] **Step 1: Remove `--base=/db5/` from djangobuilder5**
+- [x] **Step 1: Remove `--base=/db5/` from djangobuilder5**
 
 In `packages/djangobuilder5/package.json` the six scripts become:
 
@@ -168,7 +168,7 @@ In `packages/djangobuilder5/package.json` the six scripts become:
 "build-only:staging": "vite build --mode=staging",
 ```
 
-- [ ] **Step 2: Add `--base=/legacy/` to djangobuilder.io**
+- [x] **Step 2: Add `--base=/legacy/` to djangobuilder.io**
 
 In `packages/djangobuilder.io/package.json`:
 
@@ -176,7 +176,7 @@ In `packages/djangobuilder.io/package.json`:
 "build": "vite build --base=/legacy/",
 ```
 
-- [ ] **Step 3: Rewrite the hosting section of `firebase.json`**
+- [x] **Step 3: Rewrite the hosting section of `firebase.json`**
 
 ```json
 "hosting": {
@@ -200,12 +200,12 @@ In `packages/djangobuilder.io/package.json`:
 
 Leave `firestore` and `emulators` unchanged. Then `git rm packages/djangobuilder.io/firebase.json`.
 
-- [ ] **Step 4: Build and assemble**
+- [x] **Step 4: Build and assemble**
 
 Run: `bun run build_development && ./script/assemble_site.sh dist`
 Expected: three builds succeed; `Assembled site in dist (/ , /legacy/ , /db4/)`.
 
-- [ ] **Step 5: Check the base paths landed in the right files**
+- [x] **Step 5: Check the base paths landed in the right files**
 
 ```bash
 grep -o 'src="/assets/[^"]*"' dist/index.html
@@ -216,7 +216,7 @@ grep -o 'src="/db4/assets/[^"]*"' dist/db4/index.html
 
 Expected: one match each, and the final echo.
 
-- [ ] **Step 6: Serve locally and probe the routing**
+- [x] **Step 6: Serve locally and probe the routing**
 
 Start in the background: `bunx firebase emulators:start --only hosting --project development` (or `make serve_site`, which also rebuilds). Then:
 
@@ -231,7 +231,7 @@ curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8082/db4/             
 
 Then open `http://localhost:8082/` and `http://localhost:8082/legacy/` in a browser (Playwright screenshot is fine) and confirm the db5 splash and the Vue splash render. Stop the emulator afterwards.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add packages/djangobuilder5/package.json packages/djangobuilder.io/package.json firebase.json
@@ -249,7 +249,7 @@ git commit -m "feat: serve djangobuilder5 at / and djangobuilder.io at /legacy/"
 - Modify: `packages/djangobuilder5/src/main.tsx`
 - Modify: `packages/djangobuilder5/src/domain/firestore/auth.ts:31-35`, `packages/djangobuilder5/src/lib/firebase.ts:18`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `packages/djangobuilder5/src/lib/legacyHash.test.ts`:
 
@@ -307,12 +307,12 @@ describe("redirectLegacyHash", () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `bun run --filter=djangobuilder5 test -- src/lib/legacyHash.test.ts`
 Expected: FAIL, cannot resolve `./legacyHash`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 `packages/djangobuilder5/src/lib/legacyHash.ts`:
 
@@ -377,12 +377,12 @@ export function redirectLegacyHash(
 }
 ```
 
-- [ ] **Step 4: Run to verify pass**
+- [x] **Step 4: Run to verify pass**
 
 Run: `bun run --filter=djangobuilder5 test -- src/lib/legacyHash.test.ts`
 Expected: all tests PASS.
 
-- [ ] **Step 5: Wire it into `main.tsx` and reword the stale comments**
+- [x] **Step 5: Wire it into `main.tsx` and reword the stale comments**
 
 `packages/djangobuilder5/src/main.tsx` — add the import and call it before `initAuth()`:
 
@@ -407,12 +407,12 @@ initAuth();
 // Keep users signed in across sessions (the legacy Vue app shares this auth state).
 ```
 
-- [ ] **Step 6: Run the db5 suite, lint and type-check**
+- [x] **Step 6: Run the db5 suite, lint and type-check**
 
 Run: `bun run test_v5 && bun run lint_v5 && bun run --filter=djangobuilder5 type-check`
 Expected: all green.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add packages/djangobuilder5/src/lib/legacyHash.ts packages/djangobuilder5/src/lib/legacyHash.test.ts packages/djangobuilder5/src/main.tsx packages/djangobuilder5/src/domain/firestore/auth.ts packages/djangobuilder5/src/lib/firebase.ts
@@ -427,7 +427,7 @@ git commit -m "feat(db5): translate legacy /#/ URLs into app routes at startup"
 - Modify: `packages/djangobuilder5/src/features/about/AboutView.tsx`
 - Modify: `packages/djangobuilder5/src/features/about/AboutView.test.tsx`
 
-- [ ] **Step 1: Add the failing assertion**
+- [x] **Step 1: Add the failing assertion**
 
 Append to `AboutView.test.tsx`:
 
@@ -442,12 +442,12 @@ test("links to the legacy app at /legacy/", () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `bun run --filter=djangobuilder5 test -- src/features/about`
 Expected: FAIL, no link with that name.
 
-- [ ] **Step 3: Add the link**
+- [x] **Step 3: Add the link**
 
 In `AboutView.tsx`, after the closing `</div>` of the Support box and before `</section>`:
 
@@ -461,12 +461,12 @@ In `AboutView.tsx`, after the closing `</div>` of the Support box and before `</
       </p>
 ```
 
-- [ ] **Step 4: Run to verify pass**
+- [x] **Step 4: Run to verify pass**
 
 Run: `bun run --filter=djangobuilder5 test -- src/features/about`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/djangobuilder5/src/features/about/AboutView.tsx packages/djangobuilder5/src/features/about/AboutView.test.tsx
@@ -483,7 +483,7 @@ git commit -m "feat(db5): link to the legacy app from About"
 - Modify: `packages/djangobuilder.io/src/components/SignUp.vue:32,52`
 - Modify: `packages/djangobuilder.io/src/components/UnVerified.vue:31,46`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 `packages/djangobuilder.io/tests/unit/firebase_utils.spec.js`:
 
@@ -503,12 +503,12 @@ test('continue url points at the root login in dev', () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `cd packages/djangobuilder.io && bunx vitest --run tests/unit/firebase_utils.spec.js`
 Expected: FAIL, `emailActionContinueUrl` is not a function.
 
-- [ ] **Step 3: Implement the helper**
+- [x] **Step 3: Implement the helper**
 
 `packages/djangobuilder.io/src/firebase_utils.js` becomes:
 
@@ -530,12 +530,12 @@ const emailActionContinueUrl = () =>
 export {userVerified, emailActionContinueUrl}
 ```
 
-- [ ] **Step 4: Run to verify pass**
+- [x] **Step 4: Run to verify pass**
 
 Run: `cd packages/djangobuilder.io && bunx vitest --run tests/unit/firebase_utils.spec.js`
 Expected: PASS.
 
-- [ ] **Step 5: Use it in the two components**
+- [x] **Step 5: Use it in the two components**
 
 `SignUp.vue`: add `import {emailActionContinueUrl} from '@/firebase_utils'` under the existing firebase import, and change line 52 to
 `const actionCodeSettings = {url: emailActionContinueUrl()}`.
@@ -545,12 +545,12 @@ Expected: PASS.
 
 Confirm: `grep -rn "'/#/login/'" packages/djangobuilder.io/src` → only `firebase_utils.js`.
 
-- [ ] **Step 6: Run the io tests and lint**
+- [x] **Step 6: Run the io tests and lint**
 
 Run: `bun run test_io && bun run lint_io`
 Expected: green (existing snapshot tests unchanged).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add packages/djangobuilder.io/src/firebase_utils.js packages/djangobuilder.io/tests/unit/firebase_utils.spec.js packages/djangobuilder.io/src/components/SignUp.vue packages/djangobuilder.io/src/components/UnVerified.vue
@@ -570,7 +570,7 @@ git commit -m "fix(io): email continue URL follows the app base (/legacy/)"
 
 Note: `MainContent.vue` already shows a dismissible "may be end-of-lifed soon" `v-alert`. The new banner replaces it in the same slot, because "a new version exists at /" supersedes that message. Its `eol_banner` state, `dismissEolBanner` method and `.eol-banner` style go with it.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `packages/djangobuilder.io/tests/unit/components/LegacyBanner.spec.js`:
 
@@ -595,12 +595,12 @@ test('dismissing hides the banner and persists across mounts', async () => {
 })
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `cd packages/djangobuilder.io && bunx vitest --run tests/unit/components/LegacyBanner.spec.js`
 Expected: FAIL, cannot resolve `LegacyBanner.vue`.
 
-- [ ] **Step 3: Create the component**
+- [x] **Step 3: Create the component**
 
 `packages/djangobuilder.io/src/components/LegacyBanner.vue`:
 
@@ -653,12 +653,12 @@ export default {
 </style>
 ```
 
-- [ ] **Step 4: Run to verify pass**
+- [x] **Step 4: Run to verify pass**
 
 Run: `cd packages/djangobuilder.io && bunx vitest --run tests/unit/components/LegacyBanner.spec.js`
 Expected: PASS.
 
-- [ ] **Step 5: Mount it in `MainContent.vue` in place of the EOL alert**
+- [x] **Step 5: Mount it in `MainContent.vue` in place of the EOL alert**
 
 Replace lines 180–205 (the whole `<v-alert v-if="eol_banner" …>…</v-alert>` block) with:
 
@@ -682,7 +682,7 @@ Delete `eol_banner: localStorage.eol_banner_dismissed !== 'true',` from `data()`
 
 Confirm: `grep -n eol packages/djangobuilder.io/src/components/MainContent.vue` → no output.
 
-- [ ] **Step 6: Relative manifest icons and the tab title**
+- [x] **Step 6: Relative manifest icons and the tab title**
 
 `packages/djangobuilder.io/public/site.webmanifest`:
 
@@ -696,12 +696,12 @@ Confirm: `grep -n eol packages/djangobuilder.io/src/components/MainContent.vue` 
     <title>Django Builder (Legacy)</title>
 ```
 
-- [ ] **Step 7: Run io tests, lint and a build**
+- [x] **Step 7: Run io tests, lint and a build**
 
 Run: `bun run test_io && bun run lint_io && bun run build_io_development`
 Expected: green; the build's `dist/index.html` contains `Django Builder (Legacy)`.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add packages/djangobuilder.io/src/components/LegacyBanner.vue packages/djangobuilder.io/tests/unit/components/LegacyBanner.spec.js packages/djangobuilder.io/src/components/MainContent.vue packages/djangobuilder.io/public/site.webmanifest packages/djangobuilder.io/index.html
@@ -715,7 +715,7 @@ git commit -m "feat(io): legacy banner linking to the new app, relative manifest
 **Files:**
 - Modify: `.github/workflows/ci.yml` (the `build` job)
 
-- [ ] **Step 1: Replace the three upload steps**
+- [x] **Step 1: Replace the three upload steps**
 
 In the `build` job, after `- run: bun run build`, replace the three `Upload … dist directory` steps with:
 
@@ -738,12 +738,12 @@ In the `build` job, after `- run: bun run build`, replace the three `Upload … 
           path: ./dist_ci
 ```
 
-- [ ] **Step 2: Run the same shell block locally against a production build**
+- [x] **Step 2: Run the same shell block locally against a production build**
 
 Run: `bun run build && ./script/assemble_site.sh dist_ci && test -f dist_ci/legacy/index.html && grep -q 'src="/assets/' dist_ci/index.html && ! grep -q '/db5/' dist_ci/index.html && grep -q '/legacy/assets/' dist_ci/legacy/index.html && grep -q '/db4/assets/' dist_ci/db4/index.html && echo LAYOUT OK && rm -rf dist_ci`
 Expected: `LAYOUT OK`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add .github/workflows/ci.yml
@@ -758,7 +758,7 @@ git commit -m "ci: assemble the hosting site and assert the /, /legacy/, /db4/ l
 - Create: `docs/deployment.md`
 - Modify: `README.md` (deploy section), `AGENTS.md`, `docs/packages-and-code-layout.md`, `docs/how-to-write-a-feature.md`, `docs/how-to-write-tests.md`
 
-- [ ] **Step 1: Write `docs/deployment.md`**
+- [x] **Step 1: Write `docs/deployment.md`**
 
 ````markdown
 # Deployment
@@ -819,7 +819,7 @@ and so on. Old bookmarks and already-sent verification emails keep working.
    a sign-up verification email, then `make deploy name=production`.
 ````
 
-- [ ] **Step 2: README deploy section**
+- [x] **Step 2: README deploy section**
 
 Replace the "### Deploy development" block with:
 
@@ -838,11 +838,11 @@ make deploy name=development
 See [docs/deployment.md](docs/deployment.md) for the layout and the cut-over checklist.
 ````
 
-- [ ] **Step 3: AGENTS.md**
+- [x] **Step 3: AGENTS.md**
 
 Add a bullet: `- [Deployment](docs/deployment.md)`.
 
-- [ ] **Step 4: Package docs**
+- [x] **Step 4: Package docs**
 
 `docs/packages-and-code-layout.md`, under "Top level", make the package lines:
 
@@ -856,7 +856,7 @@ Add a bullet: `- [Deployment](docs/deployment.md)`.
 
 `docs/how-to-write-tests.md`: add `- \`packages/djangobuilder5\`: Vitest + Testing Library; run with \`bun run test_v5\`.` under Packages and Commands, and change "Vue 2 app" to "Vue 3 app".
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add docs/deployment.md README.md AGENTS.md docs/packages-and-code-layout.md docs/how-to-write-a-feature.md docs/how-to-write-tests.md
@@ -867,17 +867,17 @@ git commit -m "docs: deployment layout, local serve target and cut-over checklis
 
 ### Task 9: Gates, development deploy, live verification
 
-- [ ] **Step 1: Full gates**
+- [x] **Step 1: Full gates**
 
 Run: `bun run lint && bun run test && bun run build && bun run --filter=djangobuilder5 type-check`
 Expected: all green. If anything fails, fix it before deploying.
 
-- [ ] **Step 2: Deploy to development**
+- [x] **Step 2: Deploy to development**
 
 Run: `make deploy name=development`
 Expected: ends with `Deploy complete!` and the hosting URL `https://django-builder-dev.web.app`.
 
-- [ ] **Step 3: Probe the live site**
+- [x] **Step 3: Probe the live site**
 
 ```bash
 H=https://django-builder-dev.web.app
@@ -889,7 +889,7 @@ curl -s -o /dev/null -w '%{http_code}\n' $H/legacy/site.webmanifest             
 curl -s -o /dev/null -w '%{http_code}\n' $H/db4/                               # 200
 ```
 
-- [ ] **Step 4: Browser checks (Playwright)**
+- [x] **Step 4: Browser checks (Playwright)**
 
 1. `$H/` → db5 splash; "Start building" (anonymous) → dashboard → create a project → add an app → reload → still there. Note the project id.
 2. `$H/#/project/<id>` → URL becomes `/project/<id>` and the builder opens.
@@ -898,6 +898,6 @@ curl -s -o /dev/null -w '%{http_code}\n' $H/db4/                               #
 5. `$H/about` → the "Open the legacy Django Builder" link has href `/legacy/`.
 6. Screenshot `/` and `/legacy/`.
 
-- [ ] **Step 5: Report**
+- [x] **Step 5: Report**
 
 Summarise what was verified, what was not (staging/production, the console action URL), and hand over the branch. No commit needed for this task.
