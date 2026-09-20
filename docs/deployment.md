@@ -61,6 +61,29 @@ djangobuilder5 translates legacy hash URLs at startup (`src/lib/legacyHash.ts`):
 `/#/project/<id>` → `/project/<id>`, `/#/login/` → `/login`, `/#/action?…` → `/action?…`,
 and so on. Old bookmarks and already-sent verification emails keep working.
 
+## Audit an environment's data for legacy formats
+
+Projects created before the December 2024 core refactor store field and relationship
+types as full Django paths (`django.db.models.DateTimeField`) and targets as full class
+paths (`django.contrib.auth.models.User`). Readers normalise these. Five field types that
+Django has since dropped (`AutoField`, `BigAutoField`, `CommaSeparatedIntegerField`,
+`IPAddressField`, `NullBooleanField`) cannot be normalised: djangobuilder5 skips such a
+field in generated code with a console warning and shows it as `<type> (unsupported)`.
+
+To see what an environment actually holds, run the read-only audit as the project owner:
+
+```
+bunx firebase login          # once
+bun run audit_legacy_data production   # or development / staging
+```
+
+It reads the five collections through the Firestore REST API (security rules do not apply
+to the owner), prints a summary, and writes `legacy-data-audit.<env>.json` at the repo
+root listing every project whose generated code or displayed Django version would differ
+from what its owner built, with the reason. Nothing is written to Firestore. Pass
+`--out <file>` to choose the report path. Application-default credentials
+(`GOOGLE_APPLICATION_CREDENTIALS` or gcloud) are used instead when present.
+
 ## Cut-over checklist (manual, per Firebase project)
 
 1. Firebase console → Authentication → Templates → customise action URL →

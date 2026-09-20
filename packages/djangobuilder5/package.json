@@ -15,7 +15,8 @@
     "lint": "eslint ./src/",
     "lint:fix": "eslint ./src/ --fix",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "audit:legacy-data": "bun run src/scripts/auditLegacyData.ts"
   },
   "dependencies": {
     "@djangobuilder/core": "1.0.0",
