@@ -142,11 +142,16 @@ describe("quota-friendly queries", () => {
     expect(q.preDjango3Numeric.from).toEqual([{ collectionId: "projects" }]);
   });
 
-  test("mapKeyQuery finds the parent whose map contains a child id", () => {
+  test("mapKeyQuery finds the parent whose map contains a child id, quoting the id segment", () => {
+    // Firestore only accepts unquoted segments matching [a-zA-Z_][a-zA-Z_0-9]*; auto ids can
+    // start with a digit, so the id is always backtick-quoted.
     expect(mapKeyQuery("models", "fields", "abc")).toEqual({
       from: [{ collectionId: "models" }],
-      where: { fieldFilter: { field: { fieldPath: "fields.abc" }, op: "EQUAL", value: { booleanValue: true } } },
+      where: { fieldFilter: { field: { fieldPath: "fields.`abc`" }, op: "EQUAL", value: { booleanValue: true } } },
       limit: 1,
+    });
+    expect(mapKeyQuery("apps", "models", "02haSl3F41qosZRsDUp6").where).toEqual({
+      fieldFilter: { field: { fieldPath: "models.`02haSl3F41qosZRsDUp6`" }, op: "EQUAL", value: { booleanValue: true } },
     });
   });
 

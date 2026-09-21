@@ -354,11 +354,17 @@ export function legacyQueries(): Record<
   };
 }
 
+/** Backtick-quote a field path segment. Unquoted segments must match [a-zA-Z_][a-zA-Z_0-9]*,
+ * and Firestore auto ids can start with a digit, so quote every id. */
+function quoteSegment(segment: string): string {
+  return "`" + segment.replace(/[\\`]/g, (c) => `\\${c}`) + "`";
+}
+
 /** The parent document whose `<mapField>.<childId>` flag is set: models by field id, apps by model id, projects by app id. */
 export function mapKeyQuery(collection: Collection, mapField: "fields" | "relationships" | "models" | "apps", childId: string): StructuredQuery {
   return {
     from: [{ collectionId: collection }],
-    where: { fieldFilter: { field: { fieldPath: `${mapField}.${childId}` }, op: "EQUAL", value: { booleanValue: true } } },
+    where: { fieldFilter: { field: { fieldPath: `${mapField}.${quoteSegment(childId)}` }, op: "EQUAL", value: { booleanValue: true } } },
     limit: 1,
   };
 }
