@@ -17,3 +17,20 @@ test("fromVersion tolerates number or string and returns 3|4|5|6", () => {
   expect(fromVersion("6")).toBe(6);
   expect(fromVersion(undefined as unknown as number)).toBe(6); // default is now Django 6
 });
+
+test("fromVersion maps anything below Django 3 to 3, the oldest version offered", () => {
+  expect(fromVersion(2)).toBe(3);
+  expect(fromVersion("2.2")).toBe(3);
+  expect(fromVersion(1.11)).toBe(3);
+  expect(fromVersion("1.8")).toBe(3);
+});
+
+test("fromVersion keeps 3/4/5/6 and still defaults unknown values to 6", () => {
+  expect(fromVersion(3.2)).toBe(3);
+  expect(fromVersion("4.1")).toBe(4);
+  expect(fromVersion(5.1)).toBe(5);
+  expect(fromVersion("6.0")).toBe(6);
+  expect(fromVersion(6)).toBe(6);
+  expect(fromVersion(undefined as unknown as number)).toBe(6);
+  expect(fromVersion("banana")).toBe(6);
+});
