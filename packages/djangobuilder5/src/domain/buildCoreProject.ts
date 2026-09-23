@@ -41,7 +41,14 @@ export function buildCoreProject(project: LocalProject): DjangoProject {
       const coreModel = coreApp.addModel(model.name, model.abstract, [], [], [], model.id);
       for (const field of model.fields) {
         const fieldType = FieldTypes[field.type];
-        if (!fieldType) throw new Error(`Unknown field type: ${field.type}`);
+        // Legacy data can carry field types Django (and core) have since dropped —
+        // AutoField, CommaSeparatedIntegerField, IPAddressField, NullBooleanField.
+        // Skip the field rather than take down the dashboard and builder for the
+        // whole project; the editor still shows the row so a current type can be picked.
+        if (!fieldType) {
+          console.warn(`[db5] skipping field "${field.name}" with unknown type: ${field.type}`);
+          continue;
+        }
         const editable = field.args.indexOf("editable=False") === -1;
         coreModel.addField(field.name, fieldType, field.args, editable, field.id);
       }
@@ -69,7 +76,10 @@ export function buildCoreProject(project: LocalProject): DjangoProject {
   for (const { localModel, coreModel } of built) {
     for (const rel of localModel.relationships) {
       const relType = RelationshipTypes[rel.type];
-      if (!relType) throw new Error(`Unknown relationship type: ${rel.type}`);
+      if (!relType) {
+        console.warn(`[db5] skipping relationship "${rel.name}" with unknown type: ${rel.type}`);
+        continue;
+      }
       const target =
         BuiltInModelTypes[rel.to as keyof typeof BuiltInModelTypes] ?? modelIndex.get(rel.to);
       // A target that doesn't resolve is skipped, not fatal. `to` is a

@@ -30,6 +30,7 @@
 
 <script>
   import firebase from 'firebase/compat/app';
+  import {emailActionContinueUrl} from '@/firebase_utils'
 
   export default {
     name: 'signUp',
@@ -49,7 +50,7 @@
         firebase.auth().createUserWithEmailAndPassword(this.email, this.password).then(
           (user) => {
             this.$router.replace('hello')
-            const actionCodeSettings = {url: window.location.origin + '/#/login/'}
+            const actionCodeSettings = {url: emailActionContinueUrl()}
             firebase.auth().currentUser.sendEmailVerification(actionCodeSettings).then(() => {
               // Email sent.
               console.log('Email sent to ', user)

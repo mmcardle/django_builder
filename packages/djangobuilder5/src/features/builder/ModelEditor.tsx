@@ -194,6 +194,13 @@ export function ModelEditor({ appId, model }: { appId: string; model: LocalModel
                 value={field.type}
                 onChange={(e) => store.updateField(appId, model.id, field.id, { type: e.target.value })}
               >
+                {/* Legacy data can hold a type Django (and core) have since dropped.
+                    Show it as stored — a value with no matching option would render
+                    as the first option and misreport the field — until a current
+                    type is picked. Generation skips such fields with a warning. */}
+                {!fieldTypeNames.includes(field.type) && (
+                  <option value={field.type}>{field.type} (unsupported)</option>
+                )}
                 {fieldTypeNames.map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}

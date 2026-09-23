@@ -10,14 +10,26 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
+    "redirects": [
       {
-        "source": "db4/**",
-        "destination": "/db4/index.html"
+        "source": "/db5",
+        "destination": "/",
+        "type": 301
       },
       {
-        "source": "db5/**",
-        "destination": "/db5/index.html"
+        "source": "/db5/**",
+        "destination": "/",
+        "type": 301
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/legacy/**",
+        "destination": "/legacy/index.html"
+      },
+      {
+        "source": "/db4/**",
+        "destination": "/db4/index.html"
       },
       {
         "source": "**",

@@ -5,8 +5,9 @@ This repo is a Bun workspace split between shared library code and app packages.
 ## Top level
 
 - `lib/djangobuilder-core`: shared TypeScript core used by the apps and CLI.
-- `packages/djangobuilder.io`: the Vue 2 application.
-- `packages/djangobuilder4`: the Vue 3 application.
+- `packages/djangobuilder.io`: the Vue 3 application, served at `/legacy/`.
+- `packages/djangobuilder4`: the earlier Vue 3 rewrite, served at `/db4/`.
+- `packages/djangobuilder5`: the React application, served at `/`. See `docs/deployment.md`.
 - `bin/`: top-level scripts.
 - `script/`: project helper scripts.
 - `example_projects/`: example project inputs.

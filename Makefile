@@ -1,4 +1,4 @@
-PHONY: build deploy smoke_test
+PHONY: build deploy serve_site smoke_test
 
 EXAMPLE_TAR_OUTPUT = $(abspath ./example_project.tar)
 EXAMPLE_PROJECT_JSON = $(abspath ./example_projects/example-project.json)
@@ -13,17 +13,15 @@ deploy:
 ifeq "$(name)" ""
 	@echo "Specify name e.g. make deploy name=staging" && exit 1
 else
-	bunx firebase use $(name)
-	bun run build_$(name)
-	rm -rf dist_$(name)
-	mkdir -p dist_$(name)
-	cp -r packages/djangobuilder.io/dist/* dist_$(name)/
-	mkdir -p dist_$(name)/db4/
-	cp -r packages/djangobuilder4/dist/* dist_$(name)/db4/
-	mkdir -p dist_$(name)/db5/
-	cp -r packages/djangobuilder5/dist/* dist_$(name)/db5/
-	bunx firebase deploy --public=dist_$(name)
+	./script/deploy.sh $(name)
 endif
+
+# Build everything, assemble the site into ./dist (firebase.json hosting.public)
+# and serve it on http://localhost:8082 with the real rewrites and redirects.
+serve_site:
+	bun run build_development
+	./script/assemble_site.sh dist
+	bunx firebase emulators:start --only hosting --project development
 
 smoke_test:
 	jq -s '.[0] * .[1]' ${EXAMPLE_PROJECT_POSTGRES_JSON} ${PARTIAL_WITH_CHANNELS_JSON} > /tmp/project-with-channels.json

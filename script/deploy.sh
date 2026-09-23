@@ -1,25 +1,21 @@
 #!/bin/bash
+# Build all three apps, assemble the hosting site and deploy it to the named
+# Firebase project alias (see .firebaserc).
+# Usage: script/deploy.sh <development|staging|production>
+set -euo pipefail
 
-set -e
-
-NAME=$1
-
-if [ -z "$NAME" ] ; then
-    echo 'Name not given as argument 1'
-    exit 1
+NAME=${1:-}
+if [ -z "$NAME" ]; then
+  echo "Usage: script/deploy.sh <development|staging|production>" >&2
+  exit 1
 fi
 
-bunx firebase use ${NAME} || exit 1
-echo "Deploying ${NAME}"
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+cd "$ROOT"
 
-bun run --filter=djangobuilder.io build --mode ${NAME}
-bun run --filter=djangobuilder4 build-only --mode ${NAME}
-bun run --filter=djangobuilder5 build-only --mode ${NAME}
+bunx firebase use "$NAME"
+echo "Deploying $NAME"
 
-mkdir -p dist/${NAME}/db4/
-cp -R packages/djangobuilder4/dist/* dist/${NAME}/db4/
-mkdir -p dist/${NAME}/db5/
-cp -R packages/djangobuilder5/dist/* dist/${NAME}/db5/
-cp -R packages/djangobuilder.io/dist/* dist/${NAME}/
-
-bunx firebase deploy --public=dist/${NAME}
+bun run "build_$NAME"
+./script/assemble_site.sh "dist_$NAME"
+bunx firebase deploy --public="dist_$NAME"

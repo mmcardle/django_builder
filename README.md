@@ -1,7 +1,13 @@
 
 # Django Builder
 
-https://djangobuilder.io
+| Environment | URL |
+|-------------|-----|
+| Production  | https://djangobuilder.io |
+| Staging     | https://staging.djangobuilder.io |
+| Development | https://dev.djangobuilder.io |
+
+These are the only valid URLs for each environment; see [docs/deployment.md](docs/deployment.md).
 
 The original Django Builder v1 is deployed at:
 
@@ -76,12 +82,18 @@ bunx firebase use --add
 
 Follow the instructions to link to your Firebase application, choose the alias 'development' and your firebase project
 
-### Deploy development
+### Run the whole site locally
 ```
-bunx firebase use development
-bun run build_development
-bunx firebase deploy --public=dist_development
+make serve_site
 ```
+Serves djangobuilder5 at http://localhost:8082/, the legacy app at `/legacy/` and
+djangobuilder4 at `/db4/` on the Firebase hosting emulator.
+
+### Deploy
+```
+make deploy name=development
+```
+See [docs/deployment.md](docs/deployment.md) for the layout and the cut-over checklist.
 
 ### Run unit tests
 ```

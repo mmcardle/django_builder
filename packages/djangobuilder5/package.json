@@ -4,18 +4,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 8081",
-    "build": "tsc --noEmit && vite build --base=/db5/",
-    "build:development": "tsc --noEmit && vite build --mode=development --base=/db5/",
-    "build:staging": "tsc --noEmit && vite build --mode=staging --base=/db5/",
-    "build-only": "vite build --base=/db5/",
-    "build-only:development": "vite build --mode=development --base=/db5/",
-    "build-only:staging": "vite build --mode=staging --base=/db5/",
+    "build": "tsc --noEmit && vite build",
+    "build:development": "tsc --noEmit && vite build --mode=development",
+    "build:staging": "tsc --noEmit && vite build --mode=staging",
+    "build-only": "vite build",
+    "build-only:development": "vite build --mode=development",
+    "build-only:staging": "vite build --mode=staging",
     "preview": "vite preview --port 4176",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint ./src/",
     "lint:fix": "eslint ./src/ --fix",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "audit:legacy-data": "bun run src/scripts/auditLegacyData.ts"
   },
   "dependencies": {
     "@djangobuilder/core": "1.0.0",
