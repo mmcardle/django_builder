@@ -108,17 +108,17 @@ bunx firebase login          # once
 bun run audit_legacy_data production   # or development / staging
 ```
 
-By default it uses Firestore count aggregations and targeted queries, so it costs a few
-dozen document reads however large the data is. It reports how many fields and
-relationships still use the dotted names, how many fields use a retired type, how many
-projects are below Django 3, and lists every affected project (id, owner uid, reason). The
-report is also written to `legacy-data-audit.<env>.json` at the repo root (`--out <file>`
-to choose). Nothing is written to Firestore.
+By default it uses Firestore count aggregations and targeted queries. The counts cost about
+one read per 1,000 documents; each retired-type field fetched costs one read plus three to
+find its project (`--max-offenders <n>` caps how many are fetched, default 1,000). It reports
+how many fields and relationships still use the dotted names, how many fields use a retired
+type, how many projects are below Django 3, and lists every affected project (id, owner uid,
+reason). The report is written to `legacy-data-audit.<env>.json` at the repo root (`--out
+<file>` to choose) as soon as this phase completes. Nothing is written to Firestore.
 
 `--full` additionally reads every document to check for dangling references, orphans and
-fields with no type. That costs one read per document, counted against the project's daily
-Firestore read quota described above. Run it only when the totals printed by the default
-mode make that cost acceptable.
+fields with no type, at one read per document. It is refused when that total exceeds the
+daily free read quota described above unless `--force` is also given.
 
 Application-default credentials (`GOOGLE_APPLICATION_CREDENTIALS` or gcloud) are used
 instead of the Firebase CLI login when present.

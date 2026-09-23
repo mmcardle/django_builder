@@ -416,18 +416,42 @@ export function quickReport(
   return { counts, retiredFieldTypes, affectedProjects: [...affected.values()], unattributedFields };
 }
 
+/** Cloud Firestore's no-cost daily document-read allowance, shared by everything using the project. */
+export const FREE_DAILY_READS = 50_000;
+
+/** A full scan costs one read per document; refuse one that cannot fit in a day's free quota unless forced. */
+export function fullScanAllowed(totalDocs: number, force: boolean): { ok: boolean; message: string } {
+  if (totalDocs <= FREE_DAILY_READS || force) {
+    return { ok: true, message: `--full: reading all ${totalDocs.toLocaleString("en-GB")} documents (${totalDocs.toLocaleString("en-GB")} reads)…` };
+  }
+  return {
+    ok: false,
+    message:
+      `--full skipped: a full scan needs ${totalDocs.toLocaleString("en-GB")} reads, more than the ` +
+      `${FREE_DAILY_READS.toLocaleString("en-GB")} free reads per day the project shares with the live site. ` +
+      `Pass --force to run it anyway (for example on the Blaze plan).`,
+  };
+}
+
 export function formatQuickReport(r: QuickAuditReport): string {
   const t = r.counts.totals;
+  const fetched = Object.values(r.retiredFieldTypes).reduce((a, b) => a + b, 0);
+  const shown = r.unattributedFields.slice(0, 10);
+  const rest = r.unattributedFields.length - shown.length;
   const lines = [
     "Legacy data audit (quota-friendly: counts + targeted queries)",
     `  documents            projects: ${t.projects}  apps: ${t.apps}  models: ${t.models}  fields: ${t.fields}  relationships: ${t.relationships}`,
     `  pre-2024 dotted names (normalised on read)   field types: ${r.counts.dottedFieldTypes}  relationship types: ${r.counts.dottedRelationshipTypes}  full-path targets: ${r.counts.fullPathTargets}`,
-    `  retired field types (skipped in generated code)   ${counts(r.retiredFieldTypes)}`,
-    `  projects below Django 3 (displayed as a newer version)   ${r.counts.preDjango3Projects}`,
+    `  retired field types (skipped in generated code)   ${r.counts.retiredFieldTypes} fields — breakdown of the ${fetched} fetched: ${counts(r.retiredFieldTypes)}`,
+    `  projects below Django 3 (shown and generated as Django 3)   ${r.counts.preDjango3Projects}`,
     `  affected projects: ${r.affectedProjects.length}`,
     ...r.affectedProjects.map((p) => `    ${p.id}  owner ${p.owner}  "${p.name}": ${p.reasons.join("; ")}`),
     ...(r.unattributedFields.length
-      ? [`  retired-type fields with no owning project found: ${r.unattributedFields.map((f) => `${f.id} (${f.name}: ${f.type})`).join(", ")}`]
+      ? [
+          `  ${r.unattributedFields.length} retired-type fields could not be attributed to a project: ` +
+            shown.map((f) => `${f.id} (${f.name}: ${f.type})`).join(", ") +
+            (rest > 0 ? `, and ${rest} more in the JSON report` : ""),
+        ]
       : []),
     "  Not covered without --full: fields missing a type, unknown non-retired type names, dangling references and orphans.",
   ];

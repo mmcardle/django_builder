@@ -2,17 +2,18 @@
 /**
  * Read-only audit of one environment's Firestore data for legacy formats.
  *
- *   bun run audit_legacy_data <development|staging|production|project-id> [--out file.json] [--full]
+ *   bun run audit_legacy_data <development|staging|production|project-id> [--out file.json] [--max-offenders n] [--full] [--force]
  *
  * (from the repo root; bun's --filter would drop the bare environment argument)
  *
  * Default mode is quota-friendly: count aggregations (about one read per 1,000
- * matching documents) plus targeted queries that fetch only the offending
- * documents and walk up to their project. It answers "is there anything legacy?"
- * for a few dozen reads. `--full` additionally reads every document for the
- * integrity checks (dangling references, orphans, fields with no type): that
- * costs one read per document and, on the Spark plan, shares the 50k/day quota
- * with the live app. Never writes to Firestore.
+ * documents counted) plus targeted queries that fetch only the offending
+ * documents (one read each, up to --max-offenders) and walk up to their project
+ * (three reads each). `--full` additionally reads every document for the
+ * integrity checks (dangling references, orphans, fields with no type): one read
+ * per document, refused when that exceeds the day's free quota unless --force is
+ * given. The JSON report is written after the quick phase, so a failing full scan
+ * cannot lose it. Never writes to Firestore.
  *
  * Credentials, in order: GOOGLE_APPLICATION_CREDENTIALS / gcloud application-
  * default credentials if present, otherwise the Firebase CLI's own login
@@ -28,6 +29,7 @@ import {
   decodeDocument,
   formatQuickReport,
   formatReport,
+  fullScanAllowed,
   legacyQueries,
   mapKeyQuery,
   quickReport,
@@ -43,13 +45,12 @@ import { parseAuditArgs } from "./auditArgs";
 
 const COLLECTIONS: Collection[] = ["projects", "apps", "models", "fields", "relationships"];
 const SCOPE = "https://www.googleapis.com/auth/cloud-platform";
-const ATTRIBUTION_CAP = 100; // 3 reads per retired-type field; beyond this the field is listed unattributed
 const repoRoot = resolve(import.meta.dirname, "../../../..");
 
 let reads = 0; // approximate billed document reads
 
 function usage(): never {
-  console.error("Usage: bun run audit_legacy_data <development|staging|production|project-id> [--out file.json] [--full]");
+  console.error("Usage: bun run audit_legacy_data <development|staging|production|project-id> [--out file.json] [--max-offenders n] [--full] [--force]");
   process.exit(1);
 }
 
@@ -140,7 +141,7 @@ async function listAll(projectId: string, token: string, collection: Collection)
 /** field id -> owning project, found by walking the parent maps upward (3 reads per field). */
 async function attribute(projectId: string, token: string, fields: FieldDoc[]): Promise<Map<string, Attribution>> {
   const out = new Map<string, Attribution>();
-  for (const field of fields.slice(0, ATTRIBUTION_CAP)) {
+  for (const field of fields) {
     const [model] = await runQuery(projectId, token, mapKeyQuery("models", "fields", field.id), `model of field ${field.id}`);
     if (!model) continue;
     const modelId = decodeDocument(model).id;
@@ -157,7 +158,7 @@ async function attribute(projectId: string, token: string, fields: FieldDoc[]): 
 }
 
 async function main(): Promise<void> {
-  const { target, outFile, full } = parseAuditArgs(process.argv.slice(2));
+  const { target, outFile, full, force, maxOffenders } = parseAuditArgs(process.argv.slice(2));
   if (!target) usage();
 
   const projectId = resolveProjectId(target);
@@ -180,37 +181,47 @@ async function main(): Promise<void> {
   };
 
   // 2. Only the offending documents, then their owning projects.
-  const retiredFields = (await runQuery(projectId, token, { ...q.retiredFieldTypes, limit: 500 }, "retired-type fields")).map(
-    (d) => decodeDocument(d) as unknown as FieldDoc,
-  );
+  const retiredFields =
+    maxOffenders > 0
+      ? (await runQuery(projectId, token, { ...q.retiredFieldTypes, limit: maxOffenders }, "retired-type fields")).map(
+          (d) => decodeDocument(d) as unknown as FieldDoc,
+        )
+      : [];
   const preDjango3Projects = [
     ...(await runQuery(projectId, token, { ...q.preDjango3Numeric, limit: 200 }, "pre-Django-3 projects (numeric)")),
     ...(await runQuery(projectId, token, { ...q.preDjango3String, limit: 200 }, "pre-Django-3 projects (string)")),
   ].map((d) => decodeDocument(d) as unknown as ProjectDoc);
+  console.error(`Attributing ${retiredFields.length} retired-type fields to their projects (~${retiredFields.length * 3} reads)…`);
   const attribution = await attribute(projectId, token, retiredFields);
 
   const quick = quickReport(counts, { retiredFields, preDjango3Projects }, attribution);
   console.log(formatQuickReport(quick));
-  if (retiredFields.length > ATTRIBUTION_CAP) {
-    console.log(`  (attribution capped at ${ATTRIBUTION_CAP} of ${retiredFields.length} retired-type fields)`);
+  if (counts.retiredFieldTypes > retiredFields.length) {
+    console.log(`  (fetched ${retiredFields.length} of ${counts.retiredFieldTypes} retired-type fields; raise --max-offenders to see more)`);
   }
+
+  // Write the report now so a failing full scan cannot lose the quick results.
+  const out = resolve(repoRoot, outFile ?? `legacy-data-audit.${target}.json`);
+  const write = (fullReport: ReturnType<typeof auditFlatData> | null) =>
+    writeFileSync(out, JSON.stringify({ projectId, generatedAt: new Date().toISOString(), approximateReads: reads, quick, full: fullReport }, null, 2));
+  write(null);
+  console.error(`Approximate Firestore reads used so far: ${reads}. Report written to ${out}`);
 
   // 3. Optional full scan for the integrity checks.
-  let fullReport: ReturnType<typeof auditFlatData> | undefined;
   if (full) {
     const totalDocs = Object.values(totals).reduce((a, b) => a + b, 0);
-    console.error(`--full: reading all ${totalDocs} documents (${totalDocs} reads)…`);
-    const fetched = {} as Record<Collection, RawDocument[]>;
-    for (const c of COLLECTIONS) fetched[c] = await listAll(projectId, token, c);
-    fullReport = auditFlatData(toFlatData(fetched));
-    console.log("");
-    console.log(formatReport(fullReport));
+    const decision = fullScanAllowed(totalDocs, force);
+    console.error(decision.message);
+    if (decision.ok) {
+      const fetched = {} as Record<Collection, RawDocument[]>;
+      for (const c of COLLECTIONS) fetched[c] = await listAll(projectId, token, c);
+      const fullReport = auditFlatData(toFlatData(fetched));
+      console.log("");
+      console.log(formatReport(fullReport));
+      write(fullReport);
+      console.error(`Approximate Firestore reads used: ${reads}. Report updated at ${out}`);
+    }
   }
-
-  console.error(`Approximate Firestore reads used: ${reads}`);
-  const out = resolve(repoRoot, outFile ?? `legacy-data-audit.${target}.json`);
-  writeFileSync(out, JSON.stringify({ projectId, generatedAt: new Date().toISOString(), approximateReads: reads, quick, full: fullReport ?? null }, null, 2));
-  console.error(`Report written to ${out}`);
 }
 
 main().catch((err: unknown) => {

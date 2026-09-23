@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { FlatData } from "./types";
-import { auditFlatData, decodeDocument, formatQuickReport, formatReport, legacyQueries, mapKeyQuery, prefixRange, quickReport } from "./audit";
+import { FREE_DAILY_READS, auditFlatData, decodeDocument, formatQuickReport, formatReport, fullScanAllowed, legacyQueries, mapKeyQuery, prefixRange, quickReport } from "./audit";
 
 /** Three projects: p1 mixes modern and pre-2024 formats, p2 predates Django 3, p3 has a broken field. */
 function fixture(): FlatData {
@@ -177,5 +177,33 @@ describe("quota-friendly queries", () => {
     expect(text).toContain("fields: 100");
     expect(text).toContain("CommaSeparatedIntegerField: 1");
     expect(text).toContain("p9");
+  });
+});
+
+describe("quick report output and full-scan guard", () => {
+  const counts = { totals: { projects: 10, apps: 20, models: 30, fields: 100, relationships: 15 }, dottedFieldTypes: 40, retiredFieldTypes: 700, dottedRelationshipTypes: 5, fullPathTargets: 5, preDjango3Projects: 0 };
+
+  test("prints the aggregate retired count and labels the breakdown as a sample of what was fetched", () => {
+    const text = formatQuickReport(quickReport(counts, { retiredFields: [{ id: "f1", owner: "u", name: "a", type: "AutoField", args: "" }, { id: "f2", owner: "u", name: "b", type: "django.db.models.IPAddressField", args: "" }], preDjango3Projects: [] }, new Map()));
+    expect(text).toContain("700 fields");
+    expect(text).toContain("of the 2 fetched");
+    expect(text).toContain("AutoField: 1");
+  });
+
+  test("lists at most ten unattributed fields inline and points at the JSON for the rest", () => {
+    const fields = Array.from({ length: 12 }, (_, i) => ({ id: `f${i}`, owner: "u", name: `n${i}`, type: "AutoField", args: "" }));
+    const text = formatQuickReport(quickReport(counts, { retiredFields: fields, preDjango3Projects: [] }, new Map()));
+    expect(text).toContain("12 retired-type fields could not be attributed");
+    expect(text).toContain("f9");
+    expect(text).not.toContain("f10 ");
+    expect(text).toContain("2 more in the JSON report");
+  });
+
+  test("fullScanAllowed refuses a scan larger than the daily free read quota unless forced", () => {
+    expect(fullScanAllowed(385960, false).ok).toBe(false);
+    expect(fullScanAllowed(385960, false).message).toContain("50,000");
+    expect(fullScanAllowed(385960, true).ok).toBe(true);
+    expect(fullScanAllowed(3000, false).ok).toBe(true);
+    expect(FREE_DAILY_READS).toBe(50000);
   });
 });
