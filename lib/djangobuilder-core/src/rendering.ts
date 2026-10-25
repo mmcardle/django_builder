@@ -146,7 +146,7 @@ Handlebars.registerHelper(
 
 type DjangoRenderingContext = Record<
   string,
-  DjangoProject | DjangoModel | DjangoApp
+  DjangoProject | DjangoModel | DjangoApp | string
 >;
 
 const PYTEST_INI = "pytest.ini";
@@ -294,14 +294,14 @@ export default class Renderer {
     return Handlebars.compile(template)({ ...context, ...this.baseContext() });
   }
 
-  renderProjectFile(file: string, project: DjangoProject) {
+  renderProjectFile(file: string, project: DjangoProject, secretKey?: string) {
     const template =
       PROJECT_FILES[file as keyof typeof PROJECT_FILES] ||
       PROJECT_TEMPLATE_FILES[file as keyof typeof PROJECT_TEMPLATE_FILES] ||
       ROOT_FILES[file as keyof typeof ROOT_FILES] ||
       PROJECT_HTMX_TEMPLATE_FILES[file as keyof typeof PROJECT_HTMX_TEMPLATE_FILES];
     if (template) {
-      return this.renderTemplate(template, { project });
+      return this.renderTemplate(template, secretKey ? { project, secretKey } : { project });
     } else {
       throw Error(`No project template for ${file}`);
     }
@@ -341,9 +341,10 @@ export default class Renderer {
     tarball: Tarball,
     project: DjangoProject,
     filename: string,
-    filepath?: string
+    filepath?: string,
+    secretKey?: string
   ) {
-    const content = this.renderProjectFile(filename, project);
+    const content = this.renderProjectFile(filename, project, secretKey);
     const tarpath = filepath
       ? filepath
       : `${project.name}/${project.name}/${filename}`;
@@ -598,9 +599,13 @@ export default class Renderer {
 
   tarball(project: DjangoProject): Tarball {
     const tarball = new Tarball();
+    // One 256-bit key per export. Web Crypto works in browsers and the Bun CLI;
+    // let export fail rather than falling back to a predictable key.
+    const bytes = globalThis.crypto.getRandomValues(new Uint8Array(32));
+    const secretKey = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
 
     Object.keys(PROJECT_FILES).forEach((projectFile) => {
-      this.addProjectFileToTarball(tarball, project, projectFile);
+      this.addProjectFileToTarball(tarball, project, projectFile, undefined, secretKey);
     });
 
     Object.keys(ROOT_TEST_FILES).forEach((rootTestFile) => {
