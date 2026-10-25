@@ -16,6 +16,8 @@ import { template as rootTestSettings } from "./django/tests/test_settings";
 import { template as baseHtml } from "./django/templates/base.html";
 import { template as indexHtml } from "./django/templates/index.html";
 
+import { template as appBaseHtml } from "./django/templates/app/base.html";
+
 import { template as appListHtml } from "./django/templates/app/list.html";
 import { template as appFormHtml } from "./django/templates/app/form.html";
 import { template as appDetailHtml } from "./django/templates/app/detail.html";
@@ -264,6 +266,10 @@ export const APP_TEST_FILES = {
   [`${__INIT__}`]: init,
 };
 
+export const APP_TEMPLATE_FILES = {
+  [`${BASE_HTML}`]: appBaseHtml,
+};
+
 export const MODEL_TEMPLATE_FILES = {
   [`${LIST}`]: appListHtml,
   [`${FORM}`]: appFormHtml,
@@ -321,7 +327,9 @@ export default class Renderer {
   }
 
   renderAppFile(file: string, app: DjangoApp) {
-    const template = APP_FILES[file as keyof typeof APP_FILES] || APP_TEST_FILES[file as keyof typeof APP_TEST_FILES];
+    const template = APP_FILES[file as keyof typeof APP_FILES]
+      || APP_TEST_FILES[file as keyof typeof APP_TEST_FILES]
+      || APP_TEMPLATE_FILES[file as keyof typeof APP_TEMPLATE_FILES];
     if (template) {
       return this.renderTemplate(template, { app });
     } else {
@@ -409,7 +417,13 @@ export default class Renderer {
     };
 
     const apps = project.apps.map((app) => {
-      const model_templates: DjangoProjectFile[] = [];
+      const model_templates: DjangoProjectFile[] = Object.keys(APP_TEMPLATE_FILES).map((name) => ({
+        resource: app as DjangoApp,
+        type: DjangoProjectFileResource.APP_FILE,
+        path: `${app.name}/templates/${app.name}/${name}`,
+        name,
+        folder: false,
+      }));
 
       app.models.forEach((model) => {
         model_templates.push(
@@ -627,6 +641,14 @@ export default class Renderer {
           app as DjangoApp,
           appFile,
           `${project.name}/tests/${app.name}/${appFile}`
+        );
+      });
+      Object.keys(APP_TEMPLATE_FILES).forEach((appTemplateFile) => {
+        this.addAppFileToTarball(
+          tarball,
+          app as DjangoApp,
+          appTemplateFile,
+          `${project.name}/${app.name}/templates/${app.name}/${appTemplateFile}`
         );
       });
       app.models

@@ -1,6 +1,6 @@
 export const template = `
+{% extends "{{model.app.name}}/base.html" %}
 {{{{raw}}}}
-{% extends "base.html" %}
 {% block content %}
 {% for object in object_list %}
   <div class="m-2">

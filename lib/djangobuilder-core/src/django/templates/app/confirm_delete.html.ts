@@ -1,6 +1,6 @@
 export const template = `
+{% extends "{{model.app.name}}/base.html" %}
 {{{{raw}}}}
-{% extends "base.html" %}
 {% block content %}
 <form method="post">
   {% csrf_token %}

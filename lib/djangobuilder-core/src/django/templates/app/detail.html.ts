@@ -1,5 +1,5 @@
 export const template = `
-{% extends "base.html" %}
+{% extends "{{model.app.name}}/base.html" %}
 {% load static %}
 {% block content %}
     
