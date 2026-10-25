@@ -2064,7 +2064,7 @@ class TestModel1DeleteView(generic.DeleteView):
 
 exports[`Render Basic Project Model Files confirm_delete.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp1/base.html" %}
 {% block content %}
 <form method="post">
   {% csrf_token %}
@@ -2079,7 +2079,7 @@ exports[`Render Basic Project Model Files confirm_delete.html 1`] = `
 
 exports[`Render Basic Project Model Files detail.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp1/base.html" %}
 {% load static %}
 {% block content %}
     
@@ -2107,7 +2107,7 @@ exports[`Render Basic Project Model Files detail.html 1`] = `
 
 exports[`Render Basic Project Model Files form.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp1/base.html" %}
 {% load static %}
 {% block content %}
     
@@ -2130,7 +2130,7 @@ exports[`Render Basic Project Model Files form.html 1`] = `
 
 exports[`Render Basic Project Model Files list.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp1/base.html" %}
 {% block content %}
 {% for object in object_list %}
   <div class="m-2">
@@ -3004,7 +3004,7 @@ class TestModel3DeleteView(generic.DeleteView):
 
 exports[`Render Channels Project Model Files confirm_delete.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp3/base.html" %}
 {% block content %}
 <form method="post">
   {% csrf_token %}
@@ -3019,7 +3019,7 @@ exports[`Render Channels Project Model Files confirm_delete.html 1`] = `
 
 exports[`Render Channels Project Model Files detail.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp3/base.html" %}
 {% load static %}
 {% block content %}
     
@@ -3041,7 +3041,7 @@ exports[`Render Channels Project Model Files detail.html 1`] = `
 
 exports[`Render Channels Project Model Files form.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp3/base.html" %}
 {% load static %}
 {% block content %}
     
@@ -3064,7 +3064,7 @@ exports[`Render Channels Project Model Files form.html 1`] = `
 
 exports[`Render Channels Project Model Files list.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp3/base.html" %}
 {% block content %}
 {% for object in object_list %}
   <div class="m-2">
@@ -4581,7 +4581,7 @@ class TestModel2DeleteView(generic.DeleteView):
 
 exports[`Render HTMX ProjectModel Files confirm_delete.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp2/base.html" %}
 {% block content %}
 <form method="post">
   {% csrf_token %}
@@ -4596,7 +4596,7 @@ exports[`Render HTMX ProjectModel Files confirm_delete.html 1`] = `
 
 exports[`Render HTMX ProjectModel Files detail.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp2/base.html" %}
 {% load static %}
 {% block content %}
     
@@ -4630,7 +4630,7 @@ exports[`Render HTMX ProjectModel Files detail.html 1`] = `
 
 exports[`Render HTMX ProjectModel Files form.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp2/base.html" %}
 {% load static %}
 {% block content %}
     
@@ -4653,7 +4653,7 @@ exports[`Render HTMX ProjectModel Files form.html 1`] = `
 
 exports[`Render HTMX ProjectModel Files list.html 1`] = `
 "
-{% extends "base.html" %}
+{% extends "testapp2/base.html" %}
 {% block content %}
 {% for object in object_list %}
   <div class="m-2">
