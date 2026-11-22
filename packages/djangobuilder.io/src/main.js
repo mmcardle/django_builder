@@ -14,7 +14,7 @@ import python from 'highlight.js/lib/languages/python';
 import django from 'highlight.js/lib/languages/django';
 import ini from 'highlight.js/lib/languages/ini';
 import DjangoBuilderTitle from '@/components/inc/DjangoBuilderTitle.vue'
-import { createGtag } from "vue-gtag";
+import { createAnalytics } from '@/analytics'
 
 hljs.registerLanguage('python', python);
 hljs.registerLanguage('django', django);
@@ -36,12 +36,7 @@ firebase.auth().onAuthStateChanged(function() {
     app.component('django-builder-title', DjangoBuilderTitle)
 
     if (VITE_GOOGLE_ANALYTICS_ID) {
-      app.use(createGtag({
-        config: {
-          id: VITE_GOOGLE_ANALYTICS_ID,
-          enabled: !analytics_disabled
-        }
-      }))
+      app.use(createAnalytics(VITE_GOOGLE_ANALYTICS_ID, !analytics_disabled))
     }
 
     app.mount('#app')

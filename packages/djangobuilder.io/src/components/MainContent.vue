@@ -303,7 +303,7 @@ import LegacyBanner from '@/components/LegacyBanner.vue'
 import {showConfirmDialog, showUpgradeDialog} from '@/dialogs'
 
 import firebase from 'firebase/compat/app';
-import { config } from 'vue-gtag'
+import { setAnalyticsEnabled } from '@/analytics'
 
 const COOKIES_ON = 'Analytics Cookies On'
 const COOKIES_OFF = 'Analytics Cookies Off'
@@ -358,7 +358,7 @@ export default {
     cookie_value: function () {
       localStorage.cookie_set_by_user = true
       localStorage.cookie_value = this.cookie_value
-      config({enabled: this.cookie_value})
+      setAnalyticsEnabled(this.cookie_value)
       this.cookie_label = this.cookie_value ? COOKIES_ON : COOKIES_OFF
     }
   },
